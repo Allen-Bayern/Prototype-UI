@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
-import { checkboxRoot, checkboxIndicator } from '../src/checkbox';
+import { checkboxIndicator, checkboxRoot } from '../src/checkbox';
 
 AdaptToWebComponent(checkboxRoot as any, { registerAs: 'wc-base-checkbox-root' });
 AdaptToWebComponent(checkboxIndicator as any, { registerAs: 'wc-base-checkbox-indicator' });
@@ -8,6 +8,10 @@ AdaptToWebComponent(checkboxIndicator as any, { registerAs: 'wc-base-checkbox-in
 describe('prototypes/base: checkbox', () => {
   it('checkbox-root reuses toggle semantics for checked state and checkedChange', async () => {
     const root = document.createElement('wc-base-checkbox-root') as any;
+    const checkedChanges: Array<{ checked: boolean; indeterminate: boolean }> = [];
+    root.addEventListener('checkedChange', (event: Event) => {
+      checkedChanges.push((event as CustomEvent).detail);
+    });
     document.body.appendChild(root);
 
     await Promise.resolve();
@@ -19,6 +23,47 @@ describe('prototypes/base: checkbox', () => {
     root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(exposes.checked.get()).toBe(true);
+    expect(checkedChanges).toEqual([{ checked: true, indeterminate: false }]);
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('checkbox-root emits checkedChange with indeterminate on press', async () => {
+    const root = document.createElement('wc-base-checkbox-root') as any;
+    setElementProps(root, { defaultIndeterminate: true });
+    const checkedChanges: Array<{ checked: boolean; indeterminate: boolean }> = [];
+    root.addEventListener('checkedChange', (event: Event) => {
+      checkedChanges.push((event as CustomEvent).detail);
+    });
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(checkedChanges).toEqual([{ checked: true, indeterminate: false }]);
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('checkbox-root controlled press emits checkedChange without mutating checked', async () => {
+    const root = document.createElement('wc-base-checkbox-root') as any;
+    setElementProps(root, { checked: false });
+    const checkedChanges: Array<{ checked: boolean; indeterminate: boolean }> = [];
+    root.addEventListener('checkedChange', (event: Event) => {
+      checkedChanges.push((event as CustomEvent).detail);
+    });
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const exposes = root.getExposes() as any;
+    root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(exposes.checked.get()).toBe(false);
+    expect(checkedChanges).toEqual([{ checked: true, indeterminate: false }]);
     root.remove();
     await Promise.resolve();
   });
@@ -192,6 +237,57 @@ describe('prototypes/base: checkbox', () => {
 
     expect(exposes.indeterminate.get()).toBe(true);
     expect(events).toEqual([]);
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('checkbox-root exposes role=checkbox and aria-checked for assistive tech', async () => {
+    const root = document.createElement('wc-base-checkbox-root') as any;
+    setElementProps(root, { defaultChecked: true });
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(root.getAttribute('role')).toBe('checkbox');
+    expect(root.getAttribute('aria-checked')).toBe('true');
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('checkbox-root maps indeterminate to aria-checked=mixed', async () => {
+    const root = document.createElement('wc-base-checkbox-root') as any;
+    setElementProps(root, { defaultIndeterminate: true });
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(root.getAttribute('aria-checked')).toBe('mixed');
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('checkbox-root toggles on Space but not Enter (WAI-ARIA checkbox)', async () => {
+    const root = document.createElement('wc-base-checkbox-root') as any;
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const exposes = root.getExposes() as any;
+    root.focus();
+
+    root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await Promise.resolve();
+    expect(exposes.checked.get()).toBe(false);
+
+    root.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    await Promise.resolve();
+    expect(exposes.checked.get()).toBe(true);
+
     root.remove();
     await Promise.resolve();
   });

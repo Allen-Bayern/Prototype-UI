@@ -34,9 +34,22 @@ In the Web Components preview runtime, prototype IDs are registered with a `wc-`
 
 When an enabled indeterminate checkbox is pressed:
 
-1. `checked` follows the normal `asToggle()` checked behavior and emits `checkedChange`.
+1. `checked` toggles on `press.commit` when uncontrolled, or is updated by the owner when controlled via `checkedChange` (`{ checked, indeterminate }`).
 2. The root requests `indeterminate: false` by emitting `indeterminateChange`.
 3. If `indeterminate` is uncontrolled, the root also clears its internal indeterminate state.
 4. If `indeterminate` is controlled, the external owner must handle `indeterminateChange` and pass `indeterminate={false}` back in.
 
 Disabled checkboxes do not change checked or indeterminate state on press.
+
+## Controlled table selection
+
+Sync header select-all and row checkboxes via controlled `checkedChange` (similar to Radix / shadcn table multi-select).
+
+<div>
+  <PrototypePreviewer
+    demoId="demo-base-checkbox_table"
+    initialRuntime="wc"
+    runtimes={['wc']}
+    hasCode={false}
+  />
+</div>

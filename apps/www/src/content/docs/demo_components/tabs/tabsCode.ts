@@ -7,9 +7,7 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
 <wc-shadcn-tabs-root default-value="account">
   <wc-shadcn-tabs-list>
     <wc-shadcn-tabs-trigger value="account">Account</wc-shadcn-tabs-trigger>
-    <wc-shadcn-tabs-trigger value="password">
-      <wc-shadcn-button>Password</wc-shadcn-button>
-    </wc-shadcn-tabs-trigger>
+    <wc-shadcn-tabs-trigger value="password">Password</wc-shadcn-tabs-trigger>
     <wc-shadcn-tabs-trigger value="billing" disabled>Billing</wc-shadcn-tabs-trigger>
   </wc-shadcn-tabs-list>
   <wc-shadcn-tabs-content value="account">Make changes to your account here.</wc-shadcn-tabs-content>
@@ -21,7 +19,6 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
   react: {
     'demo-shadcn-tabs': formatCode(`
 import {
-  ShadcnButton,
   ShadcnTabsContent,
   ShadcnTabsList,
   ShadcnTabsRoot,
@@ -33,9 +30,7 @@ export function DemoShadcnTabsDemo() {
     <ShadcnTabsRoot defaultValue="account">
       <ShadcnTabsList>
         <ShadcnTabsTrigger value="account">Account</ShadcnTabsTrigger>
-        <ShadcnTabsTrigger value="password">
-          <ShadcnButton>Password</ShadcnButton>
-        </ShadcnTabsTrigger>
+        <ShadcnTabsTrigger value="password">Password</ShadcnTabsTrigger>
         <ShadcnTabsTrigger value="billing" disabled>
           Billing
         </ShadcnTabsTrigger>
@@ -54,7 +49,6 @@ export function DemoShadcnTabsDemo() {
     'demo-shadcn-tabs': formatCode(`
 <script setup lang="ts">
 import {
-  ShadcnButton,
   ShadcnTabsContent,
   ShadcnTabsList,
   ShadcnTabsRoot,
@@ -66,9 +60,7 @@ import {
   <ShadcnTabsRoot defaultValue="account">
     <ShadcnTabsList>
       <ShadcnTabsTrigger value="account">Account</ShadcnTabsTrigger>
-      <ShadcnTabsTrigger value="password">
-        <ShadcnButton>Password</ShadcnButton>
-      </ShadcnTabsTrigger>
+      <ShadcnTabsTrigger value="password">Password</ShadcnTabsTrigger>
       <ShadcnTabsTrigger value="billing" disabled>Billing</ShadcnTabsTrigger>
     </ShadcnTabsList>
     <ShadcnTabsContent value="account">Make changes to your account here.</ShadcnTabsContent>
