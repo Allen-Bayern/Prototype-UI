@@ -1,11 +1,11 @@
 // packages/modules/context/test/contract/context.with-tree.v0.contract.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { ContextKey } from '@proto.ui/types';
+import { createContextKey } from '@proto.ui/core';
 import { ContextModuleImpl } from '../../src/impl';
 import { CONTEXT_CENTER } from '../../src/center';
 import { makeCaps, createSysCaps } from '../utils/fake-caps';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx');
 
 function resetCenter() {
   const subs = CONTEXT_CENTER.dumpSubscriptions();
@@ -171,7 +171,7 @@ describe('context-module: contract v0 (with-tree)', () => {
     expect(ok).toBe(false);
   });
 
-  it('CTX-MOD-V0-1400: provide rejects null and non-plain objects', () => {
+  it('CTX-MOD-V0-1400: T-CONTEXT-0001-CASE-PROVIDE-VALUE rejects invalid context values', () => {
     const parentMap = new Map<any, any>();
     const getParent = (i: any) => parentMap.get(i) ?? null;
 
@@ -185,7 +185,13 @@ describe('context-module: contract v0 (with-tree)', () => {
     );
 
     expect(() => provider.provide(KEY, null as any)).toThrow(/null/i);
+    expect(() => provider.provide(KEY, [] as any)).toThrow(/plain JSON object/i);
     expect(() => provider.provide(KEY, new Date() as any)).toThrow(/json/i);
+    expect(() => provider.provide(KEY, { value: () => 1 } as any)).toThrow(/illegal value/i);
+
+    const update = provider.provide(KEY, { value: 0 });
+    sys.__setExecPhase('callback');
+    expect(() => update({ value: 1, invalid: Symbol('x') } as any)).toThrow(/illegal value/i);
   });
 
   it('CTX-MOD-V0-1500: consumer can rebind to a new provider via tree change', () => {

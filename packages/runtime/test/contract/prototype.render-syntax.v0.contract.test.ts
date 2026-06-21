@@ -1,6 +1,5 @@
 import { PROTOTYPE_RENDER_SYNTAX_CASES } from '@proto.ui/spec-fixtures/core/prototype-render-syntax';
-import { createAnatomyFamily, type Prototype } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, type Prototype } from '@proto.ui/core';
 import {
   ANATOMY_GET_PROTO_CAP,
   ANATOMY_INSTANCE_TOKEN_CAP,
@@ -136,14 +135,8 @@ describe('contract: runtime / prototype render syntax (v0)', () => {
     ),
     () => {
       const commits: unknown[] = [];
-      const REQUIRED_KEY = {
-        __brand: 'ContextKey',
-        debugName: 'render-read-required-context',
-      } as ContextKey<{ value: string }>;
-      const OPTIONAL_KEY = {
-        __brand: 'ContextKey',
-        debugName: 'render-read-optional-context',
-      } as ContextKey<{ value: string }>;
+      const REQUIRED_KEY = createContextKey<{ value: string }>('render-read-required-context');
+      const OPTIONAL_KEY = createContextKey<{ value: string }>('render-read-optional-context');
       const family = createAnatomyFamily('render-read-anatomy');
       const target = { id: 'render-read-target' };
       const host: RuntimeHost<{ label: string }> = {

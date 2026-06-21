@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { createAnatomyFamily, type Prototype } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, type Prototype } from '@proto.ui/core';
 
 import { VueAny, createMountedVueAdapter, flushVue } from './utils/vue';
 import { createVueAdapter } from '../src/adapt';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx');
 const FAMILY = createAnatomyFamily('vue-anatomy-basic');
 
 function registerFamily(def: any) {

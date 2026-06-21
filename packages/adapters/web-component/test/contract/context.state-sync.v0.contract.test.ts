@@ -1,9 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createContextKey, type Prototype } from '@proto.ui/core';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx-state-sync' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx-state-sync');
 
 describe('contract: adapter-web-component / context callback may set local state (v0)', () => {
   it('context.subscribe callback runs with a usable run handle and may call state.set', async () => {

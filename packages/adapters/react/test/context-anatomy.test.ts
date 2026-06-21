@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { createAnatomyFamily, type Prototype } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, type Prototype } from '@proto.ui/core';
 
 import { createMountedReactAdapter, createMountedReactAdapterInto } from './utils/fake-react';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx');
 const FAMILY = createAnatomyFamily('react-anatomy-basic');
 
 function registerFamily(def: any) {

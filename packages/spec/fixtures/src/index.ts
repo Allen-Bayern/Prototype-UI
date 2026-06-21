@@ -9,3 +9,5 @@ export * from './event/type-payload';
 export * from './expose/surfaces';
 export * from './expose/event';
 export * from './expose/state';
+export * from './context/identity-scope';
+export * from './context/runtime-surface';

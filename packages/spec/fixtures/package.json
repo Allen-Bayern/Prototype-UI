@@ -56,6 +56,14 @@
     "./expose/state": {
       "types": "./src/expose/state.ts",
       "default": "./src/expose/state.ts"
+    },
+    "./context/identity-scope": {
+      "types": "./src/context/identity-scope.ts",
+      "default": "./src/context/identity-scope.ts"
+    },
+    "./context/runtime-surface": {
+      "types": "./src/context/runtime-surface.ts",
+      "default": "./src/context/runtime-surface.ts"
     }
   },
   "description": "Shared semantic test fixtures for Proto UI spec contracts."

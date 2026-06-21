@@ -1,5 +1,4 @@
-import { createAnatomyFamily, createFocusGroupKey } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, createFocusGroupKey } from '@proto.ui/core';
 
 export type SelectContextValue = {
   open: boolean;
@@ -30,7 +29,4 @@ export const SELECT_FAMILY = createAnatomyFamily('base-select', {
 
 export const SELECT_FOCUS_GROUP = createFocusGroupKey({ debugLabel: 'base-select-content' });
 
-export const SELECT_CONTEXT = {
-  __brand: 'ContextKey',
-  debugName: 'base-select',
-} as ContextKey<SelectContextValue>;
+export const SELECT_CONTEXT = createContextKey<SelectContextValue>('base-select');

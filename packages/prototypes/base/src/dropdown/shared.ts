@@ -1,5 +1,4 @@
-import { createAnatomyFamily, createFocusGroupKey } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, createFocusGroupKey } from '@proto.ui/core';
 import type { DropdownOpenEntry } from './types';
 
 export type DropdownContextValue = {
@@ -26,7 +25,4 @@ export const DROPDOWN_FAMILY = createAnatomyFamily('base-dropdown', {
   ],
 });
 export const DROPDOWN_FOCUS_GROUP = createFocusGroupKey({ debugLabel: 'base-dropdown-content' });
-export const DROPDOWN_CONTEXT = {
-  __brand: 'ContextKey',
-  debugName: 'base-dropdown',
-} as ContextKey<DropdownContextValue>;
+export const DROPDOWN_CONTEXT = createContextKey<DropdownContextValue>('base-dropdown');

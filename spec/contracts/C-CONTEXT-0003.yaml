@@ -30,16 +30,6 @@ criteria:
     text:
       zh-CN: ContextKey 可以通过模块共享；共享同一引用即共享同一 context channel。
       en: ContextKeys may be shared through modules; sharing the same reference shares the same context channel.
-openQuestions:
-  - id: C-CONTEXT-0003-Q-FACTORY-IMPLEMENTATION
-    question:
-      zh-CN: 当前实现仍直接手写 branded object；需要补齐 core factory 并迁移现有原型与测试。
-      en: The current implementation still hand-writes branded objects; core factory support and migration of existing prototypes/tests are required.
-    context:
-      zh-CN: 这是实现缺口，不是契约方向分歧。
-      en: This is an implementation gap, not a contract-level disagreement.
-    blocks:
-      - context key factory implementation
 sources:
   - path: internal/contracts/context/with-tree.v0.md
     sections:
@@ -53,8 +43,10 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured ContextKey reference identity and the required core factory.
+  - version: 0.1.0
+    change: revised
+    summary: Removed the factory implementation gap after adding `createContextKey` and migrating existing usages.
 tags:
   - context
   - key
   - identity
-  - debt
