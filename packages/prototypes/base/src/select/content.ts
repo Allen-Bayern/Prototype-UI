@@ -111,11 +111,6 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
 
   def.lifecycle.onMounted((run) => {
     mountedRun = run;
-    const trigger = run.anatomy.partsOf(SELECT_FAMILY, 'trigger')[0] ?? null;
-    const triggerTarget = trigger?.getRootTarget?.() ?? null;
-    if (triggerTarget) {
-      overlay.registerTrigger(triggerTarget);
-    }
     const ctx = run.context.read(SELECT_CONTEXT);
     activeValue = ctx.activeValue ?? '';
     selectedValue = ctx.value ?? '';

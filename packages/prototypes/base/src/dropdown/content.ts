@@ -107,11 +107,6 @@ function setupDropdownContent(
 
   def.lifecycle.onMounted((run) => {
     store.run = run;
-    const trigger = run.anatomy.partsOf(DROPDOWN_FAMILY, 'trigger')[0] ?? null;
-    const triggerTarget = trigger?.getRootTarget?.() ?? null;
-    if (triggerTarget) {
-      overlay.registerTrigger(triggerTarget);
-    }
     const ctx = run.context.read(DROPDOWN_CONTEXT);
     activeValue = ctx.activeValue ?? '';
     open.set(ctx.open, 'reason: lifecycle.onMounted => content open sync');

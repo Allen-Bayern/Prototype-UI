@@ -276,12 +276,12 @@ describe('runtime contract: anatomy.order (v0)', () => {
         def.anatomy.claim(family, { role: 'item' });
         def.expose.value('id' as any, 'a');
         def.lifecycle.onUpdated((run) => {
-          const parts = run.anatomy.order.partsOf(family, 'item', { missing: 'null' });
+          const parts = (run.anatomy.order as any).partsOf(family, 'item', { missing: 'null' });
           if (parts === null) {
             beforeRoot = null;
             return;
           }
-          afterRoot = parts.map((part) => part.getExpose('id'));
+          afterRoot = parts.map((part: any) => part.getExpose('id'));
         });
       },
     });

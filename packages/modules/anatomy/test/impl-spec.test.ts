@@ -259,6 +259,7 @@ describe('AnatomyModuleImpl', () => {
 
     const ordered = rootImpl.orderedPartsOf(family, 'item') ?? [];
     expect(ordered.map((part) => part.getExpose('id'))).toEqual(['b', 'a']);
+    expect('getRootTarget' in ordered[0]!).toBe(false);
     expect(itemImplA.indexOfSelf(family, 'item')).toBe(1);
     expect(itemImplA.prevOfSelf(family, 'item')?.getExpose('id')).toBe('b');
     expect(itemImplA.nextOfSelf(family, 'item')).toBeNull();

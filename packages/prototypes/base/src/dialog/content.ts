@@ -64,12 +64,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   def.lifecycle.onMounted((run) => {
     mountedRun = run;
-    const trigger =
-      (run.anatomy as any).partsOf(DIALOG_FAMILY, 'trigger', { missing: 'empty' })[0] ?? null;
-    const triggerTarget = trigger?.getRootTarget?.() ?? null;
-    if (triggerTarget) {
-      overlay.registerTrigger(triggerTarget);
-    }
     syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync');

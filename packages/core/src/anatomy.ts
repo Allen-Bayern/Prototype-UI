@@ -50,7 +50,6 @@ export type AnatomyPartView = {
   readonly role: string;
   hasExpose(key: string): boolean;
   getExpose(key: string): unknown | null;
-  getRootTarget(): unknown | null;
   hasHook(name: string): boolean;
 };
 
@@ -59,6 +58,15 @@ export type AnatomyQueryOptions = {
 };
 
 export type AnatomyOrderView = {
+  version(family: AnatomyFamily): number;
+  parts(family: AnatomyFamily): readonly AnatomyPartView[];
+  partsOf(family: AnatomyFamily, role: string): readonly AnatomyPartView[];
+  indexOfSelf(family: AnatomyFamily, role: string): number;
+  prevOfSelf(family: AnatomyFamily, role: string): AnatomyPartView | null;
+  nextOfSelf(family: AnatomyFamily, role: string): AnatomyPartView | null;
+};
+
+export type AnatomyQueryOrderView = {
   version(family: AnatomyFamily): number;
   version(family: AnatomyFamily, options: { missing: 'null' }): number | null;
   parts(family: AnatomyFamily): readonly AnatomyPartView[];

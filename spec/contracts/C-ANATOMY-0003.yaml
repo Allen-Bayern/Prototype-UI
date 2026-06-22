@@ -1,0 +1,49 @@
+id: C-ANATOMY-0003
+type: contract
+title: Setup family registration is secondary
+status: draft
+since: 0.1.0
+summary: '`def.anatomy.family` remains setup-only registration for local, dynamic, test, or legacy family declarations, but is not the preferred shape for stable shared families.'
+statement:
+  zh-CN: >-
+    `def.anatomy.family(family, spec)` 是 setup-only 的 family spec 注册能力。它适用于动态、局部、测试、低层实验或 legacy 场景；对于稳定共享 family，默认形状应是由 family token 携带 canonical spec，而不是每个 part 通过 helper 重复注册。
+
+
+  en: >-
+    `def.anatomy.family(family, spec)` is a setup-only family-spec registration capability. It is appropriate for dynamic, local, test, low-level experiment, or legacy scenarios; stable shared families should default to carrying the canonical spec on the family token instead of asking each part to register it through helpers.
+
+
+criteria:
+  - id: C-ANATOMY-0003-A
+    text:
+      zh-CN: '`def.anatomy.family` 只能在 setup 期间调用。'
+      en: '`def.anatomy.family` may only be called during setup.'
+  - id: C-ANATOMY-0003-B
+    text:
+      zh-CN: '`def.anatomy.family` 可以用于 setup-local、dynamic、test、low-level 或 legacy family spec 注册。'
+      en: '`def.anatomy.family` may be used for setup-local, dynamic, test, low-level, or legacy family-spec registration.'
+  - id: C-ANATOMY-0003-C
+    text:
+      zh-CN: 稳定共享 family 不应以 `register*Family(def)` 一类 helper 作为默认声明形态。
+      en: Stable shared families should not use `register*Family(def)` style helpers as the default declaration shape.
+  - id: C-ANATOMY-0003-D
+    text:
+      zh-CN: 若 family token 已携带 canonical spec，claim 逻辑可以在不显式调用 `def.anatomy.family` 的情况下绑定到该 spec。
+      en: When the family token carries a canonical spec, claim logic may bind to that spec without an explicit `def.anatomy.family` call.
+sources:
+  - path: internal/contracts/anatomy/family-declaration.v0.impl-notes.md
+    sections:
+      - Role of def.anatomy.family(...)
+      - Why register*Family(def) helpers are discouraged
+relates:
+  contracts:
+    - C-ANATOMY-0002
+    - C-ANATOMY-0004
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Positioned setup family registration as a secondary declaration path.
+tags:
+  - anatomy
+  - family
+  - setup

@@ -141,27 +141,27 @@ export function createKernel<P extends PropsBaseType>(
         return anatomyFacade.partsOf(family, role, options as any);
       }) as RenderReadHandle<P>['anatomy']['partsOf'],
       order: {
-        version: ((family, options) => {
+        version: ((family: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.version(family, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['version'],
-        parts: ((family, options) => {
+        parts: ((family: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.parts(family, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['parts'],
-        partsOf: ((family, role, options) => {
+        partsOf: ((family: any, role: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.partsOf(family, role, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['partsOf'],
-        indexOfSelf: ((family, role, options) => {
+        indexOfSelf: ((family: any, role: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.indexOfSelf(family, role, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['indexOfSelf'],
-        prevOfSelf: ((family, role, options) => {
+        prevOfSelf: ((family: any, role: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.prevOfSelf(family, role, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['prevOfSelf'],
-        nextOfSelf: ((family, role, options) => {
+        nextOfSelf: ((family: any, role: any, options: any) => {
           if (!anatomyFacade) throw new Error(`[Anatomy] module unavailable`);
           return anatomyFacade.order.nextOfSelf(family, role, options as any);
         }) as RenderReadHandle<P>['anatomy']['order']['nextOfSelf'],
