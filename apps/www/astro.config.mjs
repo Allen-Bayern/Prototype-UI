@@ -412,6 +412,12 @@ export default defineConfig({
               badge: inProgressBadge,
             },
             {
+              label: 'Anatomy',
+              translations: { en: 'Anatomy', 'zh-CN': 'Anatomy' },
+              slug: 'specifications/anatomy',
+              badge: inProgressBadge,
+            },
+            {
               label: 'Feedback',
               translations: { en: 'Feedback', 'zh-CN': 'Feedback' },
               slug: 'specifications/feedback',
