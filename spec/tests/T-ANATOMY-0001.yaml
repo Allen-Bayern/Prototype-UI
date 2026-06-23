@@ -3,7 +3,7 @@ type: test
 title: Anatomy family spec and claim tests
 status: draft
 since: 0.1.0
-summary: Module tests for static family specs, setup registration, setup-only claims, embedded declaration binding, and claim validity rules.
+summary: Core and module tests for static family specs, required root roles, removal of setup family registration, setup-only claims, and claim validity rules.
 cases:
   - id: T-ANATOMY-0001-CASE-STATIC-FAMILY-SPEC
     title: Stable family specs are embedded in reference-identity family tokens
@@ -12,15 +12,16 @@ cases:
       - C-ANATOMY-0002-B
       - C-ANATOMY-0002-C
       - C-ANATOMY-0002-D
-    expectation: embedded-reference-family-spec
-  - id: T-ANATOMY-0001-CASE-SETUP-REGISTRATION
-    title: Setup family registration remains available as a secondary declaration path
+      - C-ANATOMY-0002-E
+    expectation: static-reference-family-spec-with-root
+  - id: T-ANATOMY-0001-CASE-NO-SETUP-REGISTRATION
+    title: Setup family registration is not exposed to prototype authors
     covers:
       - C-ANATOMY-0003-A
       - C-ANATOMY-0003-B
       - C-ANATOMY-0003-C
       - C-ANATOMY-0003-D
-    expectation: setup-family-registration-secondary
+    expectation: no-setup-family-registration
   - id: T-ANATOMY-0001-CASE-CLAIM-RULES
     title: Anatomy claim is setup-only and accepts only valid family roles
     covers:
@@ -37,8 +38,15 @@ implementations:
     path: packages/modules/anatomy/test/impl-spec.test.ts
     required: true
     consumesCases:
-      - T-ANATOMY-0001-CASE-SETUP-REGISTRATION
+      - T-ANATOMY-0001-CASE-NO-SETUP-REGISTRATION
       - T-ANATOMY-0001-CASE-CLAIM-RULES
+      - T-ANATOMY-0001-CASE-STATIC-FAMILY-SPEC
+  - id: core-anatomy-family-contract
+    kind: module-test
+    status: passing
+    path: packages/core/test/contract/anatomy-family.v0.contract.test.ts
+    required: true
+    consumesCases:
       - T-ANATOMY-0001-CASE-STATIC-FAMILY-SPEC
   - id: module-anatomy-order-contract
     kind: module-test
@@ -55,6 +63,7 @@ verifies:
         - C-ANATOMY-0002-B
         - C-ANATOMY-0002-C
         - C-ANATOMY-0002-D
+        - C-ANATOMY-0002-E
     - id: C-ANATOMY-0003
       anchors:
         - C-ANATOMY-0003-A
@@ -72,6 +81,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added anatomy family spec, setup registration, and claim test mapping.
+  - version: 0.1.0
+    change: revised
+    summary: Replaced setup registration coverage with static family root-role validation and no-setup-registration coverage.
 tags:
   - anatomy
   - family

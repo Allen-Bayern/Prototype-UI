@@ -76,7 +76,8 @@ export const contractPreviews = [
     criteria: [
       '`def.context.provide(...)` is setup-only.',
       'The same component instance must not provide the same ContextKey more than once.',
-      'The returned provider update function may only be called during runtime callbacks.',
+      '`provide` does not return a provider update function.',
+      'Provider-side updates must also use `run.context.update` or `tryUpdate`.',
     ],
     tests: 'T-CONTEXT-0001 provide value cases cover setup providers and value boundaries.',
     source: 'spec/contracts/C-CONTEXT-0005.yaml',
@@ -216,21 +217,23 @@ export const TABS_CONTEXT = createContextKey<TabsContextValue>('base-tabs');
 Providers establish context scope during setup:
 
 ```ts
-const updateTabs = def.context.provide(TABS_CONTEXT, {
+def.context.provide(TABS_CONTEXT, {
   value: '',
   activeValue: '',
 });
+
+def.context.subscribe(TABS_CONTEXT);
 ```
 
 `def.context.provide(key, defaultValue)` is setup-only. It registers the current component instance as the scope owner for that key and installs the initial context value.
 
 The same component instance cannot provide the same key twice. Different component instances may provide the same key at the same time; consumers bind to the nearest provider in the current scope ancestry. Common hosts express ancestry as a component tree or logical tree. Non-tree-shaped hosts may still support Context if the adapter supplies equivalent scope-resolution logic.
 
-The update function returned by `provide` is a provider-side runtime callback API:
+`provide` does not return a provider-side update function. When the provider itself needs to update context, it still declares subscription intent during setup, then uses `run.context.update` or `run.context.tryUpdate` from a runtime callback:
 
 ```ts
-def.lifecycle.onMounted(() => {
-  updateTabs((prev) => ({ ...prev, activeValue: prev.value }));
+def.lifecycle.onMounted((run) => {
+  run.context.update(TABS_CONTEXT, (prev) => ({ ...prev, activeValue: prev.value }));
 });
 ```
 

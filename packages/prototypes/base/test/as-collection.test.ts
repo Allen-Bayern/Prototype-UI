@@ -81,7 +81,12 @@ function createHost(args: {
 
 describe('prototypes/base: asCollection', () => {
   it('provides live ordered collection snapshots and item indexes', () => {
-    const family = createAnatomyFamily('x-collection-family');
+    const family = createAnatomyFamily('x-collection-family', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orderMap = new Map<string, number>([
       ['root', 0],
       ['item-a', 2],
@@ -99,12 +104,6 @@ describe('prototypes/base: asCollection', () => {
     const Root = definePrototype({
       name: 'x-collection-root',
       setup(def) {
-        def.anatomy.family(family, {
-          roles: {
-            root: { cardinality: { min: 1, max: 1 } },
-            item: { cardinality: { min: 0, max: 10 } },
-          },
-        });
         asCollection({ family, rootRole: 'root' });
         return (r) => r.el('div', r.slot());
       },
@@ -192,7 +191,12 @@ describe('prototypes/base: asCollection', () => {
   });
 
   it('keeps live position reads on expose methods', () => {
-    const family = createAnatomyFamily('x-collection-family-live-method');
+    const family = createAnatomyFamily('x-collection-family-live-method', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orderMap = new Map<string, number>([
       ['root', 0],
       ['item-a', 1],
@@ -210,12 +214,6 @@ describe('prototypes/base: asCollection', () => {
     const Root = definePrototype({
       name: 'x-collection-root-live-method',
       setup(def) {
-        def.anatomy.family(family, {
-          roles: {
-            root: { cardinality: { min: 1, max: 1 } },
-            item: { cardinality: { min: 0, max: 10 } },
-          },
-        });
         asCollection({ family, rootRole: 'root' });
         return (r) => r.el('div', r.slot());
       },

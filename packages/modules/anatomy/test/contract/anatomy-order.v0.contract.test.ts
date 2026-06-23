@@ -6,8 +6,8 @@ import { makeCaps } from '../utils/fake-caps';
 /**
  * Usage note:
  * - Anatomy query policy is about tolerant structural reads, not semantic optionality.
- * - Family declaration locality is a separate concern; prefer `createAnatomyFamily(..., decl)`
- *   for stable shared families instead of per-part `register*Family(def)` helpers.
+ * - Family declarations live on `createAnatomyFamily(..., decl)` tokens instead of per-part
+ *   `register*Family(def)` helpers.
  * - `missing: 'null' | 'empty'` is compliant for derived/read-only projections.
  * - It should not be used to hide required structure in interaction-critical behavior.
  * - See `internal/contracts/anatomy/query-policy.v0.impl-notes.md`.
@@ -34,7 +34,12 @@ function makeProto(hooks: string[] = []): Prototype<any> {
 
 describe('anatomy-module: order contract v0', () => {
   it('ANATOMY-ORDER-MOD-0100: version starts at 0 and increments only when ordered signature changes', () => {
-    const family = createAnatomyFamily('contract-order-version');
+    const family = createAnatomyFamily('contract-order-version', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const root = {};
     const item = {};
     let notifyObserver: (() => void) | null = null;
@@ -72,12 +77,6 @@ describe('anatomy-module: order contract v0', () => {
       makeExposePort()
     );
 
-    rootImpl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 } },
-        item: { cardinality: { min: 0, max: 10 } },
-      },
-    });
     rootImpl.claim(family, { role: 'root' });
 
     let calls = 0;
@@ -103,7 +102,12 @@ describe('anatomy-module: order contract v0', () => {
   });
 
   it('ANATOMY-ORDER-MOD-0200: subscribeOrder callback is dispatched through configured callback dispatcher', () => {
-    const family = createAnatomyFamily('contract-order-dispatch');
+    const family = createAnatomyFamily('contract-order-dispatch', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const root = {};
     const item = {};
     let notifyObserver: (() => void) | null = null;
@@ -143,12 +147,6 @@ describe('anatomy-module: order contract v0', () => {
       makeExposePort()
     );
 
-    rootImpl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 } },
-        item: { cardinality: { min: 0, max: 10 } },
-      },
-    });
     rootImpl.claim(family, { role: 'root' });
 
     let seen: unknown = null;

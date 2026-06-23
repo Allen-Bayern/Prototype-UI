@@ -2,7 +2,7 @@ export type ContextIdentityScopeExpectation =
   | 'reference-identity-context-key'
   | 'component-context-channel'
   | 'nearest-scope-owner'
-  | 'setup-provider-json-object';
+  | 'setup-provider-json-object-without-updater';
 
 export type ContextIdentityScopeCase = {
   id: string;
@@ -45,7 +45,8 @@ export const CONTEXT_IDENTITY_SCOPE_CASES = [
   },
   {
     id: 'context-provide-value',
-    title: 'Provide is setup-only and installs a JSON object context value',
+    title:
+      'Provide is setup-only, installs a JSON object context value, and does not return an updater',
     specCase: 'T-CONTEXT-0001-CASE-PROVIDE-VALUE',
     covers: [
       'C-CONTEXT-0005-A',
@@ -59,7 +60,7 @@ export const CONTEXT_IDENTITY_SCOPE_CASES = [
       'C-CONTEXT-0009-D',
       'C-CONTEXT-0009-E',
     ],
-    expectation: 'setup-provider-json-object',
+    expectation: 'setup-provider-json-object-without-updater',
   },
 ] as const satisfies readonly ContextIdentityScopeCase[];
 

@@ -34,7 +34,7 @@ cases:
       - C-CONTEXT-0004-D
     expectation: nearest-scope-owner
   - id: T-CONTEXT-0001-CASE-PROVIDE-VALUE
-    title: Provide is setup-only and installs a JSON object context value for the current scope
+    title: Provide is setup-only, installs a JSON object context value for the current scope, and does not return a provider updater
     covers:
       - C-CONTEXT-0005-A
       - C-CONTEXT-0005-B
@@ -46,7 +46,7 @@ cases:
       - C-CONTEXT-0009-C
       - C-CONTEXT-0009-D
       - C-CONTEXT-0009-E
-    expectation: setup-provider-json-object
+    expectation: setup-provider-json-object-without-updater
 implementations:
   - id: context-identity-scope-fixture
     kind: fixture
@@ -115,6 +115,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added context identity, scope, provider, and value-boundary test mapping.
+  - version: 0.1.0
+    change: revised
+    summary: Updated provider tests to require the unified runtime context update surface instead of a provide-returned updater.
 tags:
   - context
   - key

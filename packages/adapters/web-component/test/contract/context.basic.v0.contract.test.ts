@@ -13,7 +13,7 @@ describe('contract: adapter-web-component / context basic (v0)', () => {
     const P: Prototype = {
       name: 'x-context-basic-1',
       setup(def) {
-        const update = def.context.provide(KEY, { value: 0 });
+        def.context.provide(KEY, { value: 0 });
 
         def.context.subscribe(KEY, (_run, next, prev) => {
           log.push([prev.value, next.value]);
@@ -22,7 +22,7 @@ describe('contract: adapter-web-component / context basic (v0)', () => {
         def.lifecycle.onMounted((run) => {
           mounted = true;
           run.context.update(KEY, { value: 1 });
-          update({ value: 2 });
+          run.context.update(KEY, { value: 2 });
         });
 
         return (r) => [r.el('div', 'ok')];

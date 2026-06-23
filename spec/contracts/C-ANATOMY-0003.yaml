@@ -1,35 +1,35 @@
 id: C-ANATOMY-0003
 type: contract
-title: Setup family registration is secondary
+title: Setup family registration is not author-facing
 status: draft
 since: 0.1.0
-summary: '`def.anatomy.family` remains setup-only registration for local, dynamic, test, or legacy family declarations, but is not the preferred shape for stable shared families.'
+summary: '`def.anatomy.family` is not part of the prototype-author API; anatomy family specs must be defined by static family tokens.'
 statement:
   zh-CN: >-
-    `def.anatomy.family(family, spec)` 是 setup-only 的 family spec 注册能力。它适用于动态、局部、测试、低层实验或 legacy 场景；对于稳定共享 family，默认形状应是由 family token 携带 canonical spec，而不是每个 part 通过 helper 重复注册。
+    `def.anatomy.family(family, spec)` 不属于原型作者 API。Anatomy family spec 必须由 static-only 的 family token 携带；runtime/setup 期间只能 claim 已经带有 canonical spec 的 family，不能在每个 part setup 中重复注册 spec。
 
 
   en: >-
-    `def.anatomy.family(family, spec)` is a setup-only family-spec registration capability. It is appropriate for dynamic, local, test, low-level experiment, or legacy scenarios; stable shared families should default to carrying the canonical spec on the family token instead of asking each part to register it through helpers.
+    `def.anatomy.family(family, spec)` is not part of the prototype-author API. Anatomy family specs must be carried by static-only family tokens; setup/runtime may only claim families that already carry canonical specs, and must not repeat spec registration in each part setup.
 
 
 criteria:
   - id: C-ANATOMY-0003-A
     text:
-      zh-CN: '`def.anatomy.family` 只能在 setup 期间调用。'
-      en: '`def.anatomy.family` may only be called during setup.'
+      zh-CN: '`DefHandle.anatomy` 不得向原型作者暴露 `family(...)` 注册 API。'
+      en: '`DefHandle.anatomy` must not expose a `family(...)` registration API to prototype authors.'
   - id: C-ANATOMY-0003-B
     text:
-      zh-CN: '`def.anatomy.family` 可以用于 setup-local、dynamic、test、low-level 或 legacy family spec 注册。'
-      en: '`def.anatomy.family` may be used for setup-local, dynamic, test, low-level, or legacy family-spec registration.'
+      zh-CN: Setup 期间不得通过 `register*Family(def)` helper 重复注册 family spec。
+      en: Setup must not repeat family-spec registration through `register*Family(def)` helpers.
   - id: C-ANATOMY-0003-C
     text:
-      zh-CN: 稳定共享 family 不应以 `register*Family(def)` 一类 helper 作为默认声明形态。
-      en: Stable shared families should not use `register*Family(def)` style helpers as the default declaration shape.
+      zh-CN: Claim 逻辑必须从 family token 携带的 canonical spec 解析 role、profile、relation 与 requirement。
+      en: Claim logic must resolve roles, profiles, relations, and requirements from the canonical spec carried by the family token.
   - id: C-ANATOMY-0003-D
     text:
-      zh-CN: 若 family token 已携带 canonical spec，claim 逻辑可以在不显式调用 `def.anatomy.family` 的情况下绑定到该 spec。
-      en: When the family token carries a canonical spec, claim logic may bind to that spec without an explicit `def.anatomy.family` call.
+      zh-CN: 动态或 setup-local family 不是 v0 原型作者能力；需要新设计时必须另起 API 与契约讨论。
+      en: Dynamic or setup-local families are not a v0 prototype-author capability; adding them requires a separate API and contract discussion.
 sources:
   - path: internal/contracts/anatomy/family-declaration.v0.impl-notes.md
     sections:
@@ -43,6 +43,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Positioned setup family registration as a secondary declaration path.
+  - version: 0.1.0
+    change: revised
+    summary: Removed setup family registration from the prototype-author API in favor of static family tokens.
 tags:
   - anatomy
   - family

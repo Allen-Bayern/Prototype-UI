@@ -66,17 +66,18 @@ describe('context-module: contract v0 (with-tree)', () => {
       'proto-consumer'
     );
 
-    const update = provider.provide(KEY, { value: 0 });
+    const provided = provider.provide(KEY, { value: 0 });
+    expect(provided).toBeUndefined();
 
     const seen: Array<[number, number, boolean]> = [];
     consumer.subscribe(KEY, (ctx, next, prev) => {
       seen.push([prev.value, next.value, !!ctx]);
     });
 
-    sysProvider.__setExecPhase('callback');
-    sysProvider.__setCallbackCtx({ run: true });
+    sysConsumer.__setExecPhase('callback');
+    sysConsumer.__setCallbackCtx({ run: true });
 
-    update({ value: 1 });
+    consumer.update(KEY, { value: 1 });
 
     expect(seen.length).toBe(1);
     expect(seen[0]).toEqual([0, 1, true]);
@@ -104,18 +105,18 @@ describe('context-module: contract v0 (with-tree)', () => {
       'proto-consumer'
     );
 
-    const update = provider.provide(KEY, { value: 0 });
+    provider.provide(KEY, { value: 0 });
     const seen: number[] = [];
     const off = consumer.subscribe(KEY, (_ctx, next) => {
       seen.push(next.value);
     });
 
-    sysProvider.__setExecPhase('callback');
-    sysProvider.__setCallbackCtx({ run: true });
+    sysConsumer.__setExecPhase('callback');
+    sysConsumer.__setCallbackCtx({ run: true });
 
-    update({ value: 1 });
+    consumer.update(KEY, { value: 1 });
     off();
-    update({ value: 2 });
+    consumer.update(KEY, { value: 2 });
 
     expect(seen).toEqual([1]);
   });
@@ -189,9 +190,12 @@ describe('context-module: contract v0 (with-tree)', () => {
     expect(() => provider.provide(KEY, new Date() as any)).toThrow(/json/i);
     expect(() => provider.provide(KEY, { value: () => 1 } as any)).toThrow(/illegal value/i);
 
-    const update = provider.provide(KEY, { value: 0 });
+    provider.provide(KEY, { value: 0 });
+    provider.subscribe(KEY);
     sys.__setExecPhase('callback');
-    expect(() => update({ value: 1, invalid: Symbol('x') } as any)).toThrow(/illegal value/i);
+    expect(() => provider.update(KEY, { value: 1, invalid: Symbol('x') } as any)).toThrow(
+      /illegal value/i
+    );
   });
 
   it('CTX-MOD-V0-1500: consumer can rebind to a new provider via tree change', () => {

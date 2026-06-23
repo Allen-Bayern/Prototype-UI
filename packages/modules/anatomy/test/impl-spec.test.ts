@@ -32,19 +32,15 @@ describe('AnatomyModuleImpl', () => {
       getPrototype: () => makeProto(['asSelect']),
     });
     const impl = new AnatomyModuleImpl(caps, 'p-x', makeExposePort());
-    const family = createAnatomyFamily('setup-guard');
-
-    sys.__setExecPhase('setup');
-    impl.family(family, {
+    const family = createAnatomyFamily('setup-guard', {
       roles: { root: { cardinality: { min: 1, max: 1 } } },
     });
+
+    sys.__setExecPhase('setup');
     impl.claim(family, { role: 'root' });
     expect(() => impl.parts(family)).toThrow();
 
     sys.__setExecPhase('render');
-    expect(() =>
-      impl.family(family, { roles: { root: { cardinality: { min: 1, max: 1 } } } })
-    ).toThrow();
     expect(() => impl.claim(family, { role: 'root' })).toThrow();
     expect(() => impl.parts(family)).not.toThrow();
 
@@ -62,9 +58,7 @@ describe('AnatomyModuleImpl', () => {
       getPrototype: () => makeProto(['asSelect']),
     });
     const impl = new AnatomyModuleImpl(caps, 'p-x', makeExposePort());
-    const family = createAnatomyFamily('claim-rules');
-
-    impl.family(family, {
+    const family = createAnatomyFamily('claim-rules', {
       roles: {
         root: { cardinality: { min: 1, max: 1 } },
         item: { cardinality: { min: 0, max: 2 } },
@@ -80,7 +74,22 @@ describe('AnatomyModuleImpl', () => {
   });
 
   it('reports family errors and profile warnings', () => {
-    const family = createAnatomyFamily('diag-cardinality');
+    const family = createAnatomyFamily('diag-cardinality', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 }, requires: [{ kind: 'hook', name: 'asSelect' }] },
+        trigger: {
+          cardinality: { min: 0, max: 2 },
+          requires: [{ kind: 'hook', name: 'asTrigger' }],
+        },
+      },
+      profiles: {
+        default: {
+          roles: {
+            trigger: { cardinality: { max: 1 } },
+          },
+        },
+      },
+    });
     const root = {};
     const triggerA = {};
     const triggerB = {};
@@ -120,22 +129,6 @@ describe('AnatomyModuleImpl', () => {
       makeExposePort()
     );
 
-    rootImpl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 }, requires: [{ kind: 'hook', name: 'asSelect' }] },
-        trigger: {
-          cardinality: { min: 0, max: 2 },
-          requires: [{ kind: 'hook', name: 'asTrigger' }],
-        },
-      },
-      profiles: {
-        default: {
-          roles: {
-            trigger: { cardinality: { max: 1 } },
-          },
-        },
-      },
-    });
     rootImpl.claim(family, { role: 'root', profile: 'default' });
     triggerImplA.claim(family, { role: 'trigger' });
     triggerImplB.claim(family, { role: 'trigger' });
@@ -150,7 +143,17 @@ describe('AnatomyModuleImpl', () => {
   });
 
   it('reports missing family hook and relation failures', () => {
-    const family = createAnatomyFamily('diag-relation');
+    const family = createAnatomyFamily('diag-relation', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        content: { cardinality: { min: 0, max: 1 } },
+        item: {
+          cardinality: { min: 0, max: 3 },
+          requires: [{ kind: 'hook', name: 'asSelectItem' }],
+        },
+      },
+      relations: [{ kind: 'contains', parent: 'content', child: 'item' }],
+    });
     const root = {};
     const item = {};
     const parentMap = new Map<any, any>([
@@ -177,17 +180,6 @@ describe('AnatomyModuleImpl', () => {
       makeExposePort()
     );
 
-    rootImpl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 } },
-        content: { cardinality: { min: 0, max: 1 } },
-        item: {
-          cardinality: { min: 0, max: 3 },
-          requires: [{ kind: 'hook', name: 'asSelectItem' }],
-        },
-      },
-      relations: [{ kind: 'contains', parent: 'content', child: 'item' }],
-    });
     rootImpl.claim(family, { role: 'root' });
     itemImpl.claim(family, { role: 'item' });
 
@@ -197,7 +189,12 @@ describe('AnatomyModuleImpl', () => {
   });
 
   it('provides ordered role views by host target position', () => {
-    const family = createAnatomyFamily('ordered-role-view');
+    const family = createAnatomyFamily('ordered-role-view', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const root = {};
     const itemA = {};
     const itemB = {};
@@ -244,12 +241,6 @@ describe('AnatomyModuleImpl', () => {
     const itemImplA = new AnatomyModuleImpl(itemCapsA, 'item-a', makeExposePort({ id: 'a' }));
     const itemImplB = new AnatomyModuleImpl(itemCapsB, 'item-b', makeExposePort({ id: 'b' }));
 
-    rootImpl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 } },
-        item: { cardinality: { min: 0, max: 10 } },
-      },
-    });
     rootImpl.claim(family, { role: 'root' });
     itemImplA.claim(family, { role: 'item' });
     itemImplB.claim(family, { role: 'item' });
@@ -266,7 +257,12 @@ describe('AnatomyModuleImpl', () => {
   });
 
   it('dispatches order subscriptions through callback dispatcher', () => {
-    const family = createAnatomyFamily('ordered-subscribe');
+    const family = createAnatomyFamily('ordered-subscribe', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const root = {};
     const item = {};
     const target = {
@@ -299,12 +295,6 @@ describe('AnatomyModuleImpl', () => {
       makeExposePort()
     );
 
-    impl.family(family, {
-      roles: {
-        root: { cardinality: { min: 1, max: 1 } },
-        item: { cardinality: { min: 0, max: 10 } },
-      },
-    });
     impl.claim(family, { role: 'root' });
 
     let ctxSeen: unknown = null;
@@ -335,7 +325,12 @@ describe('AnatomyModuleImpl', () => {
   });
 
   it('supports null/empty query policies when current instance is outside a valid domain', () => {
-    const family = createAnatomyFamily('query-policy-outside-domain');
+    const family = createAnatomyFamily('query-policy-outside-domain', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orphan = {};
     const caps = makeCaps({
       instance: orphan,

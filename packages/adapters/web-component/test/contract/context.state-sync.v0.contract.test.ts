@@ -12,16 +12,16 @@ describe('contract: adapter-web-component / context callback may set local state
       name: 'x-context-state-sync-1',
       setup(def) {
         const local = def.state.numberDiscrete('local', 0);
-        const update = def.context.provide(KEY, { value: 0 });
+        def.context.provide(KEY, { value: 0 });
 
         def.context.subscribe(KEY, (_run, next) => {
           local.set(next.value, 'reason: context.subscribe => local');
           seen.push(local.get());
         });
 
-        def.lifecycle.onMounted(() => {
-          update({ value: 1 });
-          update({ value: 2 });
+        def.lifecycle.onMounted((run) => {
+          run.context.update(KEY, { value: 1 });
+          run.context.update(KEY, { value: 2 });
         });
 
         def.expose.state('local', local);

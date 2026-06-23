@@ -26,7 +26,7 @@ function sameContext(a: HoverCardContextValue, b: HoverCardContextValue): boolea
 function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExposes>): void {
   def.anatomy.claim(HOVER_CARD_FAMILY, { role: 'root' });
 
-  const updateContext = def.context.provide(HOVER_CARD_CONTEXT, {
+  def.context.provide(HOVER_CARD_CONTEXT, {
     open: false,
     controlled: false,
     disabled: false,
@@ -51,7 +51,7 @@ function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExpo
   let snapshot: HoverCardContextValue = initialContext;
   let published: HoverCardContextValue = initialContext;
 
-  const syncContext = () => {
+  const syncContext = (run: any) => {
     const next = {
       ...snapshot,
       open: open?.get() ?? false,
@@ -59,7 +59,7 @@ function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExpo
     snapshot = next;
     if (sameContext(published, next)) return;
     published = next;
-    updateContext(next);
+    run.context.update(HOVER_CARD_CONTEXT, next);
   };
 
   def.context.subscribe(HOVER_CARD_CONTEXT, (_run, next) => {
@@ -76,7 +76,7 @@ function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExpo
       controlled: run.props.isProvided('open'),
       disabled: !!run.props.get().disabled,
     };
-    syncContext();
+    syncContext(run);
   });
 
   def.props.watch(['open', 'disabled'], (run, next) => {
@@ -85,12 +85,12 @@ function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExpo
       controlled: run.props.isProvided('open'),
       disabled: !!next.disabled,
     };
-    syncContext();
+    syncContext(run);
   });
 
-  open?.watch((_run, event) => {
+  open?.watch((run, event) => {
     if (event.type !== 'next') return;
-    syncContext();
+    syncContext(run);
   });
 }
 

@@ -23,7 +23,7 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
   const value = def.state.string('value', '');
   const textValue = def.state.string('textValue', '');
   const activeValue = def.state.string('activeValue', '');
-  const updateContext = def.context.provide(SELECT_CONTEXT, {
+  def.context.provide(SELECT_CONTEXT, {
     open: false,
     controlledOpen: false,
     controlledValue: false,
@@ -39,8 +39,8 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
   let disabled = false;
   let closeOnSelect = true;
 
-  const syncContext = () => {
-    updateContext((prev) => ({
+  const syncContext = (run: any) => {
+    run.context.update(SELECT_CONTEXT, (prev: any) => ({
       ...prev,
       open: open?.get() ?? false,
       controlledOpen,
@@ -102,7 +102,7 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
       initialOpen ? initialValue : '',
       'reason: lifecycle.onCreated => initialize select activeValue'
     );
-    syncContext();
+    syncContext(run);
   });
 
   def.lifecycle.onMounted((run) => {
@@ -110,7 +110,7 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
     if (resolved !== textValue.get()) {
       textValue.set(resolved, 'reason: lifecycle.onMounted => resolve selected text');
     }
-    syncContext();
+    syncContext(run);
   });
 
   def.props.watch(['value', 'closeOnSelect'], (run, next) => {
@@ -128,17 +128,17 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
       }
     }
 
-    syncContext();
+    syncContext(run);
   });
 
-  open?.watch((_run, event) => {
+  open?.watch((run, event) => {
     if (event.type !== 'next') return;
     if (!event.next) {
       activeValue.set('', 'reason: select closed => reset activeValue');
     } else if (!activeValue.get()) {
       activeValue.set(value.get(), 'reason: select opened => seed activeValue from selected value');
     }
-    syncContext();
+    syncContext(run);
   });
 }
 

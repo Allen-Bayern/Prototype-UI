@@ -1,7 +1,6 @@
 import type {
   AnatomyClaimDecl,
   AnatomyFamily,
-  AnatomyFamilyDecl,
   AnatomyQueryOrderView,
   AnatomyPartView,
   ModuleInstance,
@@ -24,7 +23,6 @@ export type AnatomyOrderCallbackDispatcher = (fn: (ctx: AnatomyOrderCallbackCtx)
 export type AnatomyOrderChangeCb = (ctx: AnatomyOrderCallbackCtx) => void;
 
 export type AnatomyFacade = {
-  family(family: AnatomyFamily, decl: AnatomyFamilyDecl): void;
   claim(family: AnatomyFamily, decl: AnatomyClaimDecl): void;
 
   has(family: AnatomyFamily, role: string): boolean;

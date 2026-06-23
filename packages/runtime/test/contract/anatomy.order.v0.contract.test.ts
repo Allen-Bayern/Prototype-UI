@@ -62,7 +62,12 @@ describe('runtime contract: anatomy.order (v0)', () => {
    *   from exposed methods or other runtime paths without falling back to internal ports.
    */
   it('ANATOMY-ORDER-RT-0100: run.anatomy.order queries reflect host order and self adjacency', () => {
-    const family = createAnatomyFamily('rt-anatomy-order');
+    const family = createAnatomyFamily('rt-anatomy-order', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orderMap = new Map<string, number>([
       ['root', 0],
       ['item-a', 2],
@@ -86,12 +91,6 @@ describe('runtime contract: anatomy.order (v0)', () => {
     const Root = definePrototype({
       name: 'x-rt-anatomy-order-root',
       setup(def) {
-        def.anatomy.family(family, {
-          roles: {
-            root: { cardinality: { min: 1, max: 1 } },
-            item: { cardinality: { min: 0, max: 10 } },
-          },
-        });
         def.anatomy.claim(family, { role: 'root' });
         def.lifecycle.onUpdated((run) => {
           orderedIds = run.anatomy.order
@@ -186,19 +185,18 @@ describe('runtime contract: anatomy.order (v0)', () => {
   });
 
   it('ANATOMY-ORDER-RT-0200: run.anatomy query policies return null/empty when no valid domain exists', () => {
-    const family = createAnatomyFamily('rt-anatomy-order-policy');
+    const family = createAnatomyFamily('rt-anatomy-order-policy', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orphanTarget = createTarget('orphan', new Map([['orphan', 0]]));
     let seen: Record<string, unknown> | null = null;
 
     const Orphan = definePrototype({
       name: 'x-rt-anatomy-order-orphan',
       setup(def) {
-        def.anatomy.family(family, {
-          roles: {
-            root: { cardinality: { min: 1, max: 1 } },
-            item: { cardinality: { min: 0, max: 10 } },
-          },
-        });
         def.anatomy.claim(family, { role: 'item' });
         def.lifecycle.onUpdated((run) => {
           const anatomyAny = run.anatomy as any;
@@ -315,7 +313,12 @@ describe('runtime contract: anatomy.order (v0)', () => {
   });
 
   it('ANATOMY-ORDER-RT-0400: captured run may query anatomy order outside callback during runtime', () => {
-    const family = createAnatomyFamily('rt-anatomy-order-runtime-read');
+    const family = createAnatomyFamily('rt-anatomy-order-runtime-read', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+      },
+    });
     const orderMap = new Map<string, number>([
       ['root', 0],
       ['item-a', 1],
@@ -335,12 +338,6 @@ describe('runtime contract: anatomy.order (v0)', () => {
     const Root = definePrototype({
       name: 'x-rt-anatomy-order-runtime-read-root',
       setup(def) {
-        def.anatomy.family(family, {
-          roles: {
-            root: { cardinality: { min: 1, max: 1 } },
-            item: { cardinality: { min: 0, max: 10 } },
-          },
-        });
         def.anatomy.claim(family, { role: 'root' });
         def.lifecycle.onCreated((run) => {
           const orderAny = run.anatomy.order as any;

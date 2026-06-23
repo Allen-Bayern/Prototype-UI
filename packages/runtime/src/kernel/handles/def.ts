@@ -289,9 +289,8 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
     context: {
       provide(key, defaultValue) {
         ensureSetup('def.context.provide');
-        const update = context.provide(key, defaultValue);
-        recordCaptured(def, 'context', update);
-        return update;
+        context.provide(key, defaultValue);
+        recordCaptured(def, 'context', { op: 'provide', key });
       },
       subscribe(key, cb) {
         ensureSetup('def.context.subscribe');
@@ -322,11 +321,6 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
     },
 
     anatomy: {
-      family(family, decl) {
-        ensureSetup('def.anatomy.family');
-        if (!anatomy) throw new Error(`[Anatomy] module unavailable`);
-        anatomy.family(family, decl);
-      },
       claim(family, decl) {
         ensureSetup('def.anatomy.claim');
         if (!anatomy) throw new Error(`[Anatomy] module unavailable`);

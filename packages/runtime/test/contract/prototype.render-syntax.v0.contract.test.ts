@@ -137,7 +137,11 @@ describe('contract: runtime / prototype render syntax (v0)', () => {
       const commits: unknown[] = [];
       const REQUIRED_KEY = createContextKey<{ value: string }>('render-read-required-context');
       const OPTIONAL_KEY = createContextKey<{ value: string }>('render-read-optional-context');
-      const family = createAnatomyFamily('render-read-anatomy');
+      const family = createAnatomyFamily('render-read-anatomy', {
+        roles: {
+          root: { cardinality: { min: 1, max: 1 } },
+        },
+      });
       const target = { id: 'render-read-target' };
       const host: RuntimeHost<{ label: string }> = {
         prototypeName: 'x-runtime-render-read',
@@ -173,11 +177,6 @@ describe('contract: runtime / prototype render syntax (v0)', () => {
           def.context.provide(OPTIONAL_KEY, { value: 'from-optional-context' });
           def.context.subscribe(REQUIRED_KEY);
           def.context.trySubscribe(OPTIONAL_KEY);
-          def.anatomy.family(family, {
-            roles: {
-              root: { cardinality: { min: 1, max: 1 } },
-            },
-          });
           def.anatomy.claim(family, { role: 'root' });
 
           return (renderer: any) => {

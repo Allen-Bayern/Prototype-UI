@@ -19,13 +19,7 @@ import {
   TemplateNode,
   SvgFactories,
 } from './spec';
-import type {
-  AnatomyClaimDecl,
-  AnatomyFamily,
-  AnatomyFamilyDecl,
-  AnatomyOrderView,
-  AnatomyPartView,
-} from './anatomy';
+import type { AnatomyClaimDecl, AnatomyFamily, AnatomyOrderView, AnatomyPartView } from './anatomy';
 import { State, StateDefAPI } from './state';
 import type { Unsubscribe } from './state';
 
@@ -173,10 +167,7 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
   state: StateDefAPI;
 
   context: {
-    provide<T extends JsonObject>(
-      key: ContextKey<T>,
-      defaultValue: T
-    ): (next: T | ((prev: T) => T)) => void;
+    provide<T extends JsonObject>(key: ContextKey<T>, defaultValue: T): void;
     subscribe<T extends JsonObject>(
       key: ContextKey<T>,
       onChange?: ContextOnChange<Props, T>
@@ -188,7 +179,6 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
   };
 
   anatomy: {
-    family(family: AnatomyFamily, decl: AnatomyFamilyDecl): void;
     claim(family: AnatomyFamily, decl: AnatomyClaimDecl): void;
   };
 }

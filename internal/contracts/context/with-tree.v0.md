@@ -114,18 +114,17 @@ Read APIs are runtime-only:
 
 - `provide(key, defaultValue)` MUST be setup-only.
 
-### 6.2 Update function (provider-side)
+### 6.2 Provider-side update
 
-- `provide` MUST return an `update` function for the provider to use.
-- `update` is runtime-only. Any setup-time invocation MUST throw (phase guard).
-- `update(next)` publishes a new context value for the key.
-- `update` MAY accept an updater function: `update(prev => next)`.
+- `provide` MUST NOT return a provider-side `update` function.
+- A provider that needs to update its own context MUST use the unified runtime context update surface.
+- Provider-side updates therefore follow the same subscription and phase rules as `run.context.update` or `run.context.tryUpdate`.
 
-### 6.3 Update function (consumer-side)
+### 6.3 Unified runtime update
 
 - `run.context.update(key, next)` is runtime-only.
-- A consumer MUST have previously subscribed to the key (via `subscribe` or `trySubscribe`) to call `update`.
-- The `run.context.update` signature mirrors the provider-side `update` (including updater function overload).
+- A participant MUST have previously subscribed to the key (via `subscribe` or `trySubscribe`) to call `update`.
+- The `run.context.update` signature accepts a next value or updater function: `update(key, prev => next)`.
 
 ### 6.4 tryUpdate (optional)
 

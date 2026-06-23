@@ -75,7 +75,8 @@ export const contractPreviews = [
     criteria: [
       '`def.context.provide(...)` 必须是 setup-only。',
       '同一组件实例不得重复 provide 同一个 ContextKey。',
-      '返回的 provider update function 只能在 runtime callback 中调用。',
+      '`provide` 不返回 provider update function。',
+      'provider 侧更新也必须通过 `run.context.update` 或 `tryUpdate` 表达。',
     ],
     tests: 'T-CONTEXT-0001 provide value case 覆盖 setup provider 与 value boundary。',
     source: 'spec/contracts/C-CONTEXT-0005.yaml',
@@ -215,21 +216,23 @@ export const TABS_CONTEXT = createContextKey<TabsContextValue>('base-tabs');
 provider 在 setup 期间建立 context scope：
 
 ```ts
-const updateTabs = def.context.provide(TABS_CONTEXT, {
+def.context.provide(TABS_CONTEXT, {
   value: '',
   activeValue: '',
 });
+
+def.context.subscribe(TABS_CONTEXT);
 ```
 
 `def.context.provide(key, defaultValue)` 是 setup-only。它把当前组件实例注册为该 key 的 scope owner，并安装初始 context value。
 
 同一个组件实例不能重复 provide 同一个 key。不同组件实例可以同时 provide 同一个 key；consumer 解析时绑定到当前 scope ancestry 中最近的 provider。常见宿主会用组件树或逻辑树表达 ancestry；如果宿主不是树形结构，adapter 也可以提供等价的 scope resolution 逻辑。
 
-`provide` 返回的 update function 是 provider 侧的 runtime callback API，只能在 runtime callback 中调用：
+`provide` 不返回 provider 侧 update function。provider 自己需要更新 context 时，也要先在 setup 期间声明 subscription intent，再在 runtime callback 中使用 `run.context.update` 或 `run.context.tryUpdate`：
 
 ```ts
-def.lifecycle.onMounted(() => {
-  updateTabs((prev) => ({ ...prev, activeValue: prev.value }));
+def.lifecycle.onMounted((run) => {
+  run.context.update(TABS_CONTEXT, (prev) => ({ ...prev, activeValue: prev.value }));
 });
 ```
 

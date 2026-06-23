@@ -19,7 +19,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     activationMode: 'automatic',
   });
 
-  const updateContext = def.context.provide(TABS_CONTEXT, {
+  def.context.provide(TABS_CONTEXT, {
     value: '',
     activeValue: '',
     orientation: 'horizontal',
@@ -49,7 +49,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     currentActivationMode = run.props.get().activationMode ?? 'automatic';
     value.set(initialValue, 'reason: lifecycle.onCreated => initialize tabs value');
     activeValue = initialValue;
-    updateContext({
+    run.context.update(TABS_CONTEXT, {
       value: value.get(),
       activeValue,
       orientation: currentOrientation,
@@ -65,7 +65,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     }
     currentOrientation = next.orientation ?? 'horizontal';
     currentActivationMode = next.activationMode ?? 'automatic';
-    updateContext({
+    run.context.update(TABS_CONTEXT, {
       value: value.get(),
       activeValue,
       orientation: currentOrientation,

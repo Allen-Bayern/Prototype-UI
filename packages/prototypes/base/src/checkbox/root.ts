@@ -21,7 +21,7 @@ function setupCheckboxRoot(def: DefHandle<CheckboxRootProps, CheckboxRootExposes
 
   asToggle();
   const checked = def.state.fromAccessibility('checked');
-  const updateContext = def.context.provide(CHECKBOX_CONTEXT, {
+  def.context.provide(CHECKBOX_CONTEXT, {
     checked: false,
     indeterminate: false,
     disabled: false,
@@ -35,7 +35,7 @@ function setupCheckboxRoot(def: DefHandle<CheckboxRootProps, CheckboxRootExposes
   let controlledIndeterminate = false;
 
   const publishContext = (run: any) => {
-    updateContext({
+    run.context.update(CHECKBOX_CONTEXT, {
       checked: !!checked.get(),
       indeterminate: !!indeterminate.get(),
       disabled: !!run.props.get().disabled,

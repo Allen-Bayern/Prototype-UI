@@ -220,15 +220,9 @@ export class AnatomyModuleImpl extends ModuleBase {
     this.exposePort = exposePort;
   }
 
-  family(family: AnatomyFamily, decl: AnatomyFamilyDecl): void {
-    this.ensureSetup('def.anatomy.family');
-    CENTER.setFamily(family, normalizeFamily(decl));
-  }
-
-  private ensureFamilyRegistered(family: AnatomyFamily): NormalizedFamily | null {
+  private ensureFamilyRegistered(family: AnatomyFamily): NormalizedFamily {
     const existing = CENTER.getFamily(family);
     if (existing) return existing;
-    if (!family.decl) return null;
     const normalized = normalizeFamily(family.decl);
     CENTER.setFamily(family, normalized);
     return normalized;
@@ -238,12 +232,6 @@ export class AnatomyModuleImpl extends ModuleBase {
     this.ensureSetup('def.anatomy.claim');
 
     const familyDef = this.ensureFamilyRegistered(family);
-    if (!familyDef) {
-      throw anatomyError(
-        ANATOMY_ERROR.CLAIM_INVALID,
-        `[Anatomy] family not registered: ${family.debugName}`
-      );
-    }
     if (!familyDef.roles[decl.role]) {
       throw anatomyError(
         ANATOMY_ERROR.CLAIM_INVALID,

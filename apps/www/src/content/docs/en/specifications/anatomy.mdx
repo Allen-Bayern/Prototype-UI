@@ -27,30 +27,32 @@ export const contractPreviews = [
     id: 'C-ANATOMY-0002',
     title: 'Family specs are static definitions',
     summary:
-      'A stable anatomy family is identified by a reference-identity family token that can carry its canonical spec.',
+      'A stable anatomy family is identified by a reference-identity family token that carries its canonical spec, including the root role.',
     quote:
-      'A stable anatomy family is defined by a reference-identity family token that may carry its canonical spec.',
+      'A stable anatomy family is defined by a reference-identity family token that carries its canonical spec, including the required root role.',
     criteria: [
       '`createAnatomyFamily(debugName, spec)` is the static-only API for stable family specs.',
       'Family identity is determined by token reference, not by `debugName`.',
+      'The family spec must declare the `root` role.',
       'Stable library families should not require each part to register the same spec during setup.',
     ],
-    tests: 'T-ANATOMY-0001 covers embedded family specs and the reference-identity usage shape.',
+    tests:
+      'T-ANATOMY-0001 covers static family specs, the root-role requirement, and the reference-identity usage shape.',
     source: 'spec/contracts/C-ANATOMY-0002.yaml',
   },
   {
     id: 'C-ANATOMY-0003',
-    title: 'Setup family registration is secondary',
+    title: 'Setup family registration is not author-facing',
     summary:
-      '`def.anatomy.family` remains a setup-only registration path mainly for dynamic, local, test, or legacy cases.',
+      '`def.anatomy.family` is not part of the prototype-author API; family specs must be carried by static tokens.',
     quote:
-      '`def.anatomy.family` remains setup-only registration for local, dynamic, test, or legacy family declarations.',
+      '`def.anatomy.family` is not part of the prototype-author API. Anatomy family specs must be carried by static-only family tokens.',
     criteria: [
-      '`def.anatomy.family` is setup-only.',
-      'Stable shared families should carry canonical specs on the family token.',
-      'When the token carries a spec, claims can bind without explicit setup registration.',
+      '`DefHandle.anatomy` must not expose a `family(...)` registration API.',
+      'Setup must not repeat family-spec registration through `register*Family(def)` helpers.',
+      'Claims must resolve roles, profiles, relations, and requirements from the canonical spec carried by the family token.',
     ],
-    tests: 'T-ANATOMY-0001 covers setup registration and embedded-spec claims.',
+    tests: 'T-ANATOMY-0001 covers no setup registration and static-spec claims.',
     source: 'spec/contracts/C-ANATOMY-0003.yaml',
   },
   {
@@ -235,7 +237,9 @@ export const SELECT_FAMILY = createAnatomyFamily('base-select', {
 
 `debugName` is only for diagnostics, debugging, and tooling display. Family identity is the token reference, not the string name.
 
-`def.anatomy.family(family, spec)` still exists, but it is a secondary setup-only capability for dynamic, local, test, or legacy cases. Stable library families should not require every part to call a `register*Family(def)` helper.
+The family spec must declare the `root` role. A root claim is the scope anchor for an anatomy domain; without root, runtime queries have no stable scope.
+
+`def.anatomy.family(family, spec)` is not part of the prototype-author API. Stable library families should not require every part to call a `register*Family(def)` helper; parts only claim family tokens that already carry canonical specs.
 
 ## Claims And Domains
 

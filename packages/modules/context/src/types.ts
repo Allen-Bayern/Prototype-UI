@@ -20,10 +20,7 @@ export type ContextChangeCbOptional<T extends JsonObject> = (
 
 export type ContextFacade = {
   // setup-only
-  provide<T extends JsonObject>(
-    key: ContextKey<T>,
-    defaultValue: T
-  ): (next: T | ((prev: T) => T)) => void;
+  provide<T extends JsonObject>(key: ContextKey<T>, defaultValue: T): void;
 
   subscribe<T extends JsonObject>(key: ContextKey<T>, onChange?: ContextChangeCb<T>): Unsubscribe;
 

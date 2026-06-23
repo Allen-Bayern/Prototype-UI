@@ -27,30 +27,31 @@ export const contractPreviews = [
     id: 'C-ANATOMY-0002',
     title: 'Family spec 是 static-only 定义',
     summary:
-      '稳定 anatomy family 由 reference identity 的 family token 标识，并可在 token 上携带 canonical spec。',
+      '稳定 anatomy family 由携带 canonical spec 的 reference-identity family token 标识，且 spec 必须声明 root role。',
     quote:
-      'A stable anatomy family is defined by a reference-identity family token that may carry its canonical spec.',
+      'A stable anatomy family is defined by a reference-identity family token that carries its canonical spec, including the required root role.',
     criteria: [
       '`createAnatomyFamily(debugName, spec)` 是 stable family spec 的 static-only API。',
       'family identity 由 token 引用决定，不由 `debugName` 决定。',
+      'family spec 必须声明 `root` role。',
       '稳定库级 family 不应要求每个 part 在 setup 中重复注册同一份 spec。',
     ],
-    tests: 'T-ANATOMY-0001 覆盖 embedded family spec 与 reference identity 的使用形态。',
+    tests:
+      'T-ANATOMY-0001 覆盖 static family spec、root role requirement 与 reference identity 的使用形态。',
     source: 'spec/contracts/C-ANATOMY-0002.yaml',
   },
   {
     id: 'C-ANATOMY-0003',
-    title: 'Setup family registration 是次级能力',
-    summary:
-      '`def.anatomy.family` 保留为 setup-only 注册路径，主要用于动态、局部、测试或 legacy 场景。',
+    title: 'Setup family registration 不面向作者',
+    summary: '`def.anatomy.family` 不属于原型作者 API；family spec 必须由 static token 携带。',
     quote:
-      '`def.anatomy.family` remains setup-only registration for local, dynamic, test, or legacy family declarations.',
+      '`def.anatomy.family` is not part of the prototype-author API. Anatomy family specs must be carried by static-only family tokens.',
     criteria: [
-      '`def.anatomy.family` 只能在 setup 期间调用。',
-      '稳定共享 family 应优先由 family token 携带 canonical spec。',
-      '若 token 已携带 spec，claim 可以不依赖显式 setup 注册。',
+      '`DefHandle.anatomy` 不得暴露 `family(...)` 注册 API。',
+      'setup 期间不得通过 `register*Family(def)` helper 重复注册 family spec。',
+      'claim 必须从 family token 携带的 canonical spec 解析 role、profile、relation 与 requirement。',
     ],
-    tests: 'T-ANATOMY-0001 覆盖 setup registration 与 embedded spec claim。',
+    tests: 'T-ANATOMY-0001 覆盖 no setup registration 与 static spec claim。',
     source: 'spec/contracts/C-ANATOMY-0003.yaml',
   },
   {
@@ -231,7 +232,9 @@ export const SELECT_FAMILY = createAnatomyFamily('base-select', {
 
 `debugName` 只用于诊断、调试和工具展示。family identity 由 token 的引用身份决定，而不是由字符串名称决定。
 
-`def.anatomy.family(family, spec)` 仍然存在，但它是 setup-only 的次级能力，主要用于动态、局部、测试或 legacy 场景。稳定库级 family 不应要求每个 part 重复调用 `register*Family(def)` helper。
+family spec 必须声明 `root` role。root claim 是 anatomy domain 的 scope anchor；没有 root，runtime query 就没有稳定的作用域。
+
+`def.anatomy.family(family, spec)` 不属于原型作者 API。稳定库级 family 不应要求每个 part 重复调用 `register*Family(def)` helper；part 只需要在 setup 期间 `claim` 已经携带 canonical spec 的 family token。
 
 ## Claim 与 Domain
 

@@ -3,14 +3,14 @@ type: contract
 title: Context provide is setup-only and creates the initial value
 status: draft
 since: 0.1.0
-summary: '`def.context.provide` declares a context scope during setup, installs its initial JSON object value, and returns a runtime provider update function.'
+summary: '`def.context.provide` declares a context scope during setup and installs its initial JSON object value without creating a separate provider updater API.'
 statement:
   zh-CN: >-
-    `def.context.provide(key, defaultValue)` 是 setup-only API。它为当前组件实例建立对应 ContextKey 的 context scope，并写入初始 JSON object value。该 API 返回 provider 侧 update 函数；返回函数只能在 runtime callback 中调用。
+    `def.context.provide(key, defaultValue)` 是 setup-only API。它为当前组件实例建立对应 ContextKey 的 context scope，并写入初始 JSON object value。该 API 不返回 provider 侧 update 函数；provider 或 consumer 的 runtime 更新都必须统一通过 `run.context.update` 或 `run.context.tryUpdate` 表达。
 
 
   en: >-
-    `def.context.provide(key, defaultValue)` is a setup-only API. It establishes a context scope for the ContextKey on the current component instance and installs the initial JSON object value. The API returns a provider-side update function; that returned function may only be called during runtime callbacks.
+    `def.context.provide(key, defaultValue)` is a setup-only API. It establishes a context scope for the ContextKey on the current component instance and installs the initial JSON object value. The API does not return a provider-side update function; provider-side and consumer-side runtime updates must both be expressed through `run.context.update` or `run.context.tryUpdate`.
 
 
 criteria:
@@ -28,12 +28,12 @@ criteria:
       en: The same component instance must not provide the same ContextKey more than once.
   - id: C-CONTEXT-0005-D
     text:
-      zh-CN: provide 返回的 provider update 函数必须是 runtime-callback-only。
-      en: The provider update function returned by provide must be runtime-callback-only.
+      zh-CN: provide 不得返回或暴露独立的 provider update 函数。
+      en: Provide must not return or expose a separate provider update function.
   - id: C-CONTEXT-0005-E
     text:
-      zh-CN: provider update 函数必须显式接收 `next` value 或 `(prev) => next` updater。
-      en: The provider update function must explicitly accept a `next` value or `(prev) => next` updater.
+      zh-CN: provider 侧 context 更新也必须通过 `run.context.update` 或 `run.context.tryUpdate` 表达。
+      en: Provider-side context updates must also be expressed through `run.context.update` or `run.context.tryUpdate`.
 sources:
   - path: internal/contracts/context/with-tree.v0.md
     sections:
@@ -49,6 +49,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured setup-only provide and provider-side runtime update function.
+  - version: 0.1.0
+    change: revised
+    summary: Removed the provider-side updater return value in favor of the unified runtime context update surface.
 tags:
   - context
   - provide
