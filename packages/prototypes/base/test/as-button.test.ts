@@ -117,4 +117,37 @@ describe('prototypes/base: asButton', () => {
     expect(exposes.pressed.get()).toBe(false);
     expect(ctx.emitted).toEqual(['click']);
   });
+
+  it('prevents Space default action when focused', () => {
+    const P: Prototype<{ disabled?: boolean }> = definePrototype({
+      name: 'x-base-as-button-space-boundary',
+      setup() {
+        asButton();
+        return (r) => r.el('button', 'ok');
+      },
+    });
+
+    const ctx = createHost({ disabled: false });
+    executeWithHost(P as any, ctx.host as any);
+    const exposes = ctx.getExposes() as any;
+
+    ctx.globalTarget.dispatchEvent(new CustomEvent('key.down'));
+    ctx.rootTarget.dispatchEvent(new CustomEvent('host:focus'));
+    expect(exposes.focused.get()).toBe(true);
+
+    let prevented = false;
+    ctx.globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: ' ',
+          target: ctx.rootTarget,
+          preventDefault: () => {
+            prevented = true;
+          },
+        },
+      })
+    );
+
+    expect(prevented).toBe(true);
+  });
 });

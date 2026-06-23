@@ -19,6 +19,11 @@ export type PrototypeMapping = {
 };
 
 export const prototypeMappings: Record<string, PrototypeMapping> = {
+  'base-checkbox-indicator': {
+    component: 'BaseCheckboxIndicator',
+    importPath: '@prototype-libs/base',
+  },
+  'base-checkbox-root': { component: 'BaseCheckboxRoot', importPath: '@prototype-libs/base' },
   'shadcn-button': { component: 'ShadcnButton', importPath: '@prototype-libs/shadcn' },
   'shadcn-tabs-content': { component: 'ShadcnTabsContent', importPath: '@prototype-libs/shadcn' },
   'shadcn-tabs-list': { component: 'ShadcnTabsList', importPath: '@prototype-libs/shadcn' },

@@ -218,10 +218,13 @@ export class ContextModuleImpl extends ModuleBase {
     this.guardCallbackOnly('run.context.update');
 
     const self = this.getSelfToken();
-    this.ensureSubscribedAny(self, key, 'update');
+    const selfProvidesKey = CONTEXT_CENTER.getProviderValue(self, key) !== null;
+    if (!selfProvidesKey) {
+      this.ensureSubscribedAny(self, key, 'update');
+    }
 
     const getParent = this.getParentGetter();
-    const provider = CONTEXT_CENTER.resolveProvider(self, key, getParent);
+    const provider = selfProvidesKey ? self : CONTEXT_CENTER.resolveProvider(self, key, getParent);
     if (!provider) {
       throw contextError(
         ERR.DISCONNECTED,

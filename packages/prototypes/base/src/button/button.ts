@@ -67,6 +67,14 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
   def.expose.state('pressed', pressed);
 
   def.expose.event('click', { payload: 'void' });
+  def.event.onGlobal('key.down', (_run, ev) => {
+    const detail = ev?.detail;
+    if (disabled.get()) return;
+    if (!focused.get()) return;
+    if (detail?.key !== ' ') return;
+    detail?.preventDefault?.();
+  });
+
   def.event.on('press.commit', (run) => {
     if (disabled.get()) return;
     run.expose.emit('click');

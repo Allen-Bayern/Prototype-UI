@@ -4,33 +4,96 @@ import type { RuntimeId } from '@/components/PrototypePreviewer/runtimes/registr
 export const codeMap: Record<RuntimeId, Record<string, string>> = {
   wc: {
     'demo-base-checkbox': formatCode(`
-<wc-base-checkbox-root class="flex items-center gap-2">
-  <wc-base-checkbox-indicator class="flex h-5 w-5 items-center justify-center rounded-[4px] border">
-    <svg class="h-3 w-3" viewBox="0 0 12 12" fill="none">
-      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.5" />
-    </svg>
-  </wc-base-checkbox-indicator>
-  <span>Accept terms</span>
-</wc-base-checkbox-root>
+<div class="flex flex-col items-start gap-3">
+  <wc-base-checkbox-root>
+    <wc-base-checkbox-indicator>
+      <div class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+      <div class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+    </wc-base-checkbox-indicator>
+    <div class="flex flex-col gap-0.5">
+Unchecked
+      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+    </div>
+  </wc-base-checkbox-root>
+  <wc-base-checkbox-root default-checked>
+    <wc-base-checkbox-indicator>
+      <div class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+      <div class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+    </wc-base-checkbox-indicator>
+    <div class="flex flex-col gap-0.5">
+Checked
+      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+    </div>
+  </wc-base-checkbox-root>
+  <wc-base-checkbox-root default-indeterminate>
+    <wc-base-checkbox-indicator>
+      <div class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+      <div class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+    </wc-base-checkbox-indicator>
+    <div class="flex flex-col gap-0.5">
+Indeterminate
+      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+    </div>
+  </wc-base-checkbox-root>
+  <wc-base-checkbox-root disabled>
+    <wc-base-checkbox-indicator>
+      <div class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+      <div class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+    </wc-base-checkbox-indicator>
+    <div class="flex flex-col gap-0.5">
+Disabled
+      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+    </div>
+  </wc-base-checkbox-root>
+</div>
     `),
   },
   react: {
     'demo-base-checkbox': formatCode(`
-import {
-  BaseCheckboxRoot,
-  BaseCheckboxIndicator,
-} from '@prototype-libs/base';
+import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
 
-export function DemoBaseCheckbox() {
+export function DemoBaseCheckboxDemo() {
   return (
-    <BaseCheckboxRoot className="flex items-center gap-2">
-      <BaseCheckboxIndicator className="flex h-5 w-5 items-center justify-center rounded-[4px] border">
-        <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-          <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" strokeWidth={1.5} />
-        </svg>
-      </BaseCheckboxIndicator>
-      <span>Accept terms</span>
-    </BaseCheckboxRoot>
+    <div className="flex flex-col items-start gap-3">
+      <BaseCheckboxRoot>
+        <BaseCheckboxIndicator>
+          <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+          <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+        </BaseCheckboxIndicator>
+        <div className="flex flex-col gap-0.5">
+          Unchecked
+          <div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
+        </div>
+      </BaseCheckboxRoot>
+      <BaseCheckboxRoot defaultChecked>
+        <BaseCheckboxIndicator>
+          <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+          <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+        </BaseCheckboxIndicator>
+        <div className="flex flex-col gap-0.5">
+          Checked<div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
+        </div>
+      </BaseCheckboxRoot>
+      <BaseCheckboxRoot defaultIndeterminate>
+        <BaseCheckboxIndicator>
+          <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+          <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+        </BaseCheckboxIndicator>
+        <div className="flex flex-col gap-0.5">
+          Indeterminate
+          <div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
+        </div>
+      </BaseCheckboxRoot>
+      <BaseCheckboxRoot disabled>
+        <BaseCheckboxIndicator>
+          <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
+          <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
+        </BaseCheckboxIndicator>
+        <div className="flex flex-col gap-0.5">
+          Disabled<div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
+        </div>
+      </BaseCheckboxRoot>
+    </div>
   );
 }
     `),
@@ -38,21 +101,68 @@ export function DemoBaseCheckbox() {
   vue: {
     'demo-base-checkbox': formatCode(`
 <script setup lang="ts">
-import {
-  BaseCheckboxRoot,
-  BaseCheckboxIndicator,
-} from '@prototype-libs/base';
+import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
 </script>
 
 <template>
-  <BaseCheckboxRoot class="flex items-center gap-2">
-    <BaseCheckboxIndicator class="flex h-5 w-5 items-center justify-center rounded-[4px] border">
-      <svg class="h-3 w-3" viewBox="0 0 12 12" fill="none">
-        <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.5" />
-      </svg>
-    </BaseCheckboxIndicator>
-    <span>Accept terms</span>
-  </BaseCheckboxRoot>
+  <div class="flex flex-col items-start gap-3">
+    <BaseCheckboxRoot>
+      <BaseCheckboxIndicator>
+        <div
+          class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"
+        ></div>
+        <div
+          class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"
+        ></div>
+      </BaseCheckboxIndicator>
+      <div class="flex flex-col gap-0.5">
+        Unchecked
+        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+      </div>
+    </BaseCheckboxRoot>
+    <BaseCheckboxRoot defaultChecked>
+      <BaseCheckboxIndicator>
+        <div
+          class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"
+        ></div>
+        <div
+          class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"
+        ></div>
+      </BaseCheckboxIndicator>
+      <div class="flex flex-col gap-0.5">
+        Checked
+        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+      </div>
+    </BaseCheckboxRoot>
+    <BaseCheckboxRoot defaultIndeterminate>
+      <BaseCheckboxIndicator>
+        <div
+          class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"
+        ></div>
+        <div
+          class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"
+        ></div>
+      </BaseCheckboxIndicator>
+      <div class="flex flex-col gap-0.5">
+        Indeterminate
+        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+      </div>
+    </BaseCheckboxRoot>
+    <BaseCheckboxRoot disabled>
+      <BaseCheckboxIndicator>
+        <div
+          class="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"
+        ></div>
+        <div
+          class="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"
+        ></div>
+      </BaseCheckboxIndicator>
+      <div class="flex flex-col gap-0.5">
+        Disabled
+        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
+      </div>
+    </BaseCheckboxRoot>
+  </div>
 </template>
     `),
   },

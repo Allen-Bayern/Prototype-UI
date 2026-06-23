@@ -1,4 +1,5 @@
 export type {
+  CheckboxCheckedChangeDetail,
   CheckboxRootProps,
   CheckboxRootExposes,
   CheckboxRootStateHandles,
@@ -9,6 +10,6 @@ export type {
   CheckboxIndicatorAsHookContract,
 } from './types';
 
-export { CHECKBOX_FAMILY } from './shared';
+export { CHECKBOX_FAMILY, CHECKBOX_CONTEXT } from './shared';
 export { asCheckboxRoot, default as checkboxRoot } from './root';
 export { asCheckboxIndicator, default as checkboxIndicator } from './indicator';

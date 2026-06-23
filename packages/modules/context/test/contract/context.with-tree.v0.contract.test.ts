@@ -83,6 +83,53 @@ describe('context-module: contract v0 (with-tree)', () => {
     expect(seen[0]).toEqual([0, 1, true]);
   });
 
+  it('CTX-MOD-V0-1120: provider can update its provided context without subscribing', () => {
+    const parentMap = new Map<any, any>();
+    const getParent = (i: any) => parentMap.get(i) ?? null;
+
+    const providerToken = { id: 'provider' };
+    const consumerToken = { id: 'consumer' };
+    parentMap.set(consumerToken, providerToken);
+
+    const sysProvider = createSysCaps();
+    const sysConsumer = createSysCaps();
+    sysProvider.__setExecPhase('setup');
+    sysConsumer.__setExecPhase('setup');
+
+    const provider = new ContextModuleImpl(
+      makeCaps({
+        sys: sysProvider,
+        instanceToken: providerToken,
+        getParent,
+      }) as any,
+      'proto-provider'
+    );
+
+    const consumer = new ContextModuleImpl(
+      makeCaps({
+        sys: sysConsumer,
+        instanceToken: consumerToken,
+        getParent,
+      }) as any,
+      'proto-consumer'
+    );
+
+    provider.provide(KEY, { value: 0 });
+
+    const seen: Array<[number, number, boolean]> = [];
+    consumer.subscribe(KEY, (ctx, next, prev) => {
+      seen.push([prev.value, next.value, !!ctx]);
+    });
+
+    sysProvider.__setExecPhase('callback');
+    sysProvider.__setCallbackCtx({ run: true });
+
+    provider.update(KEY, { value: 1 });
+
+    expect(seen.length).toBe(1);
+    expect(seen[0]).toEqual([0, 1, true]);
+  });
+
   it('CTX-MOD-V0-1150: subscribe returns unsubscribe that deactivates callback', () => {
     const parentMap = new Map<any, any>();
     const getParent = (i: any) => parentMap.get(i) ?? null;
