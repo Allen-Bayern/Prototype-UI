@@ -91,7 +91,7 @@ focus、overlay、hit-participation、interaction-boundary 等概念都包含一
 
 1. Proto UI 模块契约优先于适配器契约。
 2. host-cap 编目需要与模块契约协同推进。
-3. 适配器契约中，Web Component adapter 由当前主线优先负责。
+3. 适配器契约中，Web Component adapter 由笔者优先负责。
 4. React 与 Vue adapter 的系统编目可交由对应维护者推进。
 
 模块与 host-cap 的价值在于解释实现层真相：
