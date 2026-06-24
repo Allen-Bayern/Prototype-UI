@@ -1,60 +1,74 @@
 # rule.intent.state (v0)
 
-## Purpose
-
-Defines the `state` intent channel (controlled mutation).
-
----
-
-## 0. Scope & Non-goals
-
-### 0.1 Scope (v0)
-
-- `intent.state(handle).be(value)` semantics
-- Writable handle view constraints
-- Layered merge and rollback
-- Reason requirements
-
-### 0.2 Non-goals (v0)
-
-- Does not define state creation or exposure
-- Does not define watcher merge behavior
+> Status: Deferred - design debt
+>
+> This document preserves the intended direction for rule-driven state intent. It is not yet an implementation-aligned v0 contract. The current runtime records `state.set` operations but does not implement the full layer, rollback, and baseline semantics described here.
 
 ---
 
-## 1. Writable view constraints
+## 0. Deferred Scope
 
-- Writability is defined by the **state** contract
-- v0 allows state intent only for writable views (e.g. Owned/Borrowed)
-- Non-writable views (e.g. Observed) MUST NOT be targets
+Rule state intent is intended to express controlled state mutation:
 
----
+```ts
+i.state(handle).be(value);
+```
 
-## 2. Layered merge & rollback
+However, stable v0 behavior still needs implementation and test coverage.
 
-For a given state, rule intent merges via a **layer stack**:
-
-- Each rule contributes at most one layer per state (re-declare overwrites the layer)
-- Layer order follows rule declaration order (later rules are on top)
-- The merged result is the top layer, while lower layers remain
-
-When a rule deactivates:
-
-- remove its layer
-- fall back to the next layer
-- if no layers remain, fall back to the most recent **non-rule** value
+This deferred contract must not be cited as current conformance until the debt is closed.
 
 ---
 
-## 3. Target application
+## 1. Intended Writable View Constraint
 
-- Per evaluation cycle, a state should be set **at most once**
-- Set only when merged target differs from current value
+State intent should only target writable state views.
+
+Expected direction:
+
+- owned views may be writable
+- borrowed views may be writable when state contract allows it
+- observed views must not be writable
+
+The state contract defines writability. Rule must not grant extra write permission.
 
 ---
 
-## 4. Reason requirements
+## 2. Intended Layer Model
 
-- Rule-driven state writes **MUST** include a reason
-- Reason is `any`, and may include rule-id or rule-event-id
-- Runtime must distinguish rule vs non-rule changes to maintain baseline
+For a given state, rule intent is expected to merge through a layer stack:
+
+- each active rule contributes at most one layer per state
+- later declarations have higher priority
+- deactivation removes only that rule's layer
+- if no rule layer remains, the state falls back to its latest non-rule baseline
+
+This is not implemented in the current runtime.
+
+---
+
+## 3. Intended Application Boundary
+
+The intended runtime behavior is:
+
+- compute merged target per state before writing
+- set each state at most once per evaluation
+- skip set when target equals current value
+- include a rule-shaped reason for diagnostics and baseline tracking
+
+This is not implemented in the current runtime.
+
+---
+
+## 4. Debt
+
+Tracked by:
+
+- `_debt/rule.deferred-semantics.md`
+
+Acceptance requires:
+
+- executable tests for layer merge and rollback
+- baseline tracking for non-rule state writes
+- phase-safe rule state writes
+- serializable RuleIR identity for state targets

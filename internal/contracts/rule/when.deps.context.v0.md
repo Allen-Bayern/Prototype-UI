@@ -1,117 +1,91 @@
 # rule.when.deps.context (v0)
 
-## Purpose
-
-Defines how `when` may depend on context values, including path access rules.
+> Status: Draft - partial implementation
+>
+> This contract defines context as a rule `when` input. Current implementation supports whole-value context reads through `w.ctx(key)`. Static path access is planned but not implemented and must be treated as debt.
 
 ---
 
-## 0. Scope & Non-goals
+## 0. Scope and Non-goals
 
 ### 0.1 Scope (v0)
 
-- Context dependency form in RuleIR
-- Static path access model
-- Failure semantics for missing providers and invalid paths
+- context dependency recording
+- whole context value reads
+- missing-provider fallback behavior during evaluation
+- readonly input boundary
 
 ### 0.2 Non-goals (v0)
 
-- Does not define provider resolution (see context contracts)
-- Does not define re-evaluation scheduling (see wiring contract)
-- Does not define intent behavior
+- context provider resolution semantics
+- context update semantics
+- context mutation through rule
+- static path access, until implemented
+- context-driven scheduling guarantees
 
 ---
 
-## 1. Context as a when dependency
+## 1. Dependency Form
 
-A context dependency in RuleIR MUST include:
-
-- a context key (`ContextKey<T>`)
-- an optional static access path
-
-Semantically, the rule depends on the **current value** resolved for that key.
-
-v0 facts:
-
-- context values MUST be JSON-serializable
-- value is either `null` or a plain object
-- context MUST NOT contain state handles
-
----
-
-## 2. Path access model
-
-### 2.1 Path definition
-
-- Path is a static ordered list of string keys
-- Fully serializable
-- No functions, computed keys, or dynamic expressions
-
-In RuleIR:
+`when` may depend on a context key:
 
 ```ts
-{
-  type: "context",
-  key: ContextKey<any>,
-  path?: string[]
-}
+w.ctx(key);
 ```
 
-### 2.2 Allowed traversal targets
+The dependency record must include the context key identity.
 
-During evaluation:
-
-- Only plain objects are traversed
-- No getters or user-defined functions
-- Context values are treated as readonly
-
-If a non-object is encountered before the path ends, access fails.
+Rule observes the current resolved context value for that key. It does not provide context values and does not update them.
 
 ---
 
-## 3. Failure semantics
+## 2. Value Semantics
 
-### 3.1 Missing provider
+Context values are owned by the context channel.
 
-If no provider exists for the referenced key:
+For rule evaluation:
 
-- the context value is `null`
+- a resolved context value is treated as readonly
+- a missing provider resolves as `null` or an equivalent non-match value
+- evaluation must not throw only because the provider is absent
 
-### 3.2 Path access failure
-
-If traversal fails due to missing keys or non-objects:
-
-- result is `null`
-- evaluation MUST continue without throwing
+Context value constraints are defined by the context contract. Rule does not widen the context value domain.
 
 ---
 
-## 4. Equality & comparison
+## 3. Path Access Debt
 
-Context-derived values participate in `when` conditions using normal rule semantics. No extra equality guarantees are provided.
+Older drafts describe static path access, such as:
 
----
+```ts
+w.ctx(key).path('a', 'b');
+```
 
-## 5. State handle prohibition (v0)
+That API is not implemented in the current rule builder and is not part of the stable v0 core.
 
-State handles are forbidden in context. If detected, treat as invalid structure and resolve to `null`.
+If path access is introduced later, it must specify:
 
----
+- a serializable path representation
+- readonly traversal behavior
+- failure semantics for missing or non-object path segments
+- dependency identity and diagnostics
 
-## 6. Diagnostics (recommended)
-
-Implementations SHOULD provide diagnostics when:
-
-- a rule references a context key with no provider
-- a path consistently resolves to `null`
-- a path attempts to traverse non-serializable structures
-
-Diagnostics MUST NOT alter semantics.
+This is tracked in `_debt/rule.deferred-semantics.md`.
 
 ---
 
-## 7. Summary
+## 4. Re-evaluation
 
-- Context dependency is declarative and serializable
-- Missing providers or invalid paths resolve to `null`
-- No state handles in context
+Context dependency does not currently imply context-change notifications.
+
+When rule is evaluated for another reason, it must read the current context value at that time.
+
+Context-driven scheduling, provider relocation detection, and polling are not part of v0 core.
+
+---
+
+## 5. Related Contracts
+
+- `context/with-tree.v0.md`
+- `when.deps.context.wiring.v0.md`
+- `_debt/rule.deferred-semantics.md`

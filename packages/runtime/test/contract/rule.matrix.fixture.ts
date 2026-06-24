@@ -40,11 +40,10 @@ export const whenDims: WhenDim[] = [
   },
   {
     id: 'context',
-    title: 'when deps: context (path + null fallback)',
+    title: 'when deps: context (whole value + null fallback)',
     expectations: [
-      'records context deps with static path',
+      'records context deps by context key',
       'missing provider resolves to null (no throw)',
-      'invalid path resolves to null (no throw)',
       'context values are JSON-serializable objects or null',
     ],
   },
@@ -63,8 +62,9 @@ export const intentDims: IntentDim[] = [
   },
   {
     id: 'state.set',
-    title: 'intent: state.set',
+    title: 'intent: state.set (deferred)',
     expectations: [
+      'deferred: current runtime does not implement full state intent semantics',
       'only writable views are allowed (state contract defines writability)',
       'layer stack merge per state (later rules on top)',
       'rule deactivation removes only its layer',
@@ -96,7 +96,7 @@ export const combos: ComboCase[] = [
     when: 'context',
     intent: 'feedback.style',
     expectations: [
-      'context missing/invalid resolves to null without throw',
+      'context missing resolves to null without throw',
       'style output reflects current context value at evaluation',
     ],
   },
