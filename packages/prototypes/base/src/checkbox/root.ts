@@ -59,14 +59,14 @@ function setupCheckboxRoot(def: DefHandle<CheckboxRootProps, CheckboxRootExposes
   let controlledChecked = false;
   let controlledIndeterminate = false;
 
-  const updateContext = def.context.provide(CHECKBOX_CONTEXT, {
+  def.context.provide(CHECKBOX_CONTEXT, {
     checked: false,
     indeterminate: false,
     disabled: false,
   });
 
   const publishContext = (run: any) => {
-    updateContext({
+    run.context.update(CHECKBOX_CONTEXT, {
       checked: !!checked.get(),
       indeterminate: !!indeterminate.get(),
       disabled: !!run.props.get().disabled,

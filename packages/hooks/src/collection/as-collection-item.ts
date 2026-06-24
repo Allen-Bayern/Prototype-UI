@@ -107,9 +107,9 @@ export const asCollectionItem = defineAsHook<
 
     const sync = (run: RunHandle<any>, forceMeta = false) => {
       const nextMeta = options.getMeta?.(run) ?? readMetaFromSnapshot();
-      const version = run.anatomy.order.version(options.family, { missing: 'null' });
-      const nextIndex = run.anatomy.order.indexOfSelf(options.family, role, { missing: 'null' });
-      const parts = run.anatomy.order.partsOf(options.family, role, { missing: 'null' });
+      const version = anatomy.order.version(options.family, { missing: 'null' });
+      const nextIndex = anatomy.order.indexOfSelf(options.family, role, { missing: 'null' });
+      const parts = anatomy.order.partsOf(options.family, role, { missing: 'null' });
       if (version == null || nextIndex == null || parts == null) {
         api.store.snapshot = {
           ...nextMeta,

@@ -92,10 +92,7 @@ export class ContextModuleImpl extends ModuleBase {
   // setup-only API
   // -------------------------
 
-  provide<T extends JsonObject>(
-    key: ContextKey<T>,
-    defaultValue: T
-  ): (next: T | ((prev: T) => T)) => void {
+  provide<T extends JsonObject>(key: ContextKey<T>, defaultValue: T): void {
     this.guardSetupOnly('def.context.provide');
 
     const self = this.getSelfToken();
@@ -109,25 +106,6 @@ export class ContextModuleImpl extends ModuleBase {
         `[Context] duplicate provide for key: ${key?.debugName ?? '(unknown)'}`
       );
     }
-
-    return (next) => {
-      this.guardCallbackOnly('run.context.update (provider)');
-
-      const getParent = this.getParentGetter();
-      const prev = CONTEXT_CENTER.getProviderValue(self, key);
-      if (!prev) {
-        throw contextError(
-          ERR.DISCONNECTED,
-          `[Context] provider disconnected for key: ${key?.debugName ?? '(unknown)'}`
-        );
-      }
-
-      const resolved = typeof next === 'function' ? (next as any)(prev) : next;
-      assertJsonObject(resolved, 'update');
-
-      const ctx = this.sys.getCallbackCtx();
-      CONTEXT_CENTER.updateFromProvider(self, key, resolved, ctx, getParent);
-    };
   }
 
   subscribe<T extends JsonObject>(key: ContextKey<T>, onChange?: ContextChangeCb<T>): () => void {
@@ -240,10 +218,13 @@ export class ContextModuleImpl extends ModuleBase {
     this.guardCallbackOnly('run.context.update');
 
     const self = this.getSelfToken();
-    this.ensureSubscribedAny(self, key, 'update');
+    const selfProvidesKey = CONTEXT_CENTER.getProviderValue(self, key) !== null;
+    if (!selfProvidesKey) {
+      this.ensureSubscribedAny(self, key, 'update');
+    }
 
     const getParent = this.getParentGetter();
-    const provider = CONTEXT_CENTER.resolveProvider(self, key, getParent);
+    const provider = selfProvidesKey ? self : CONTEXT_CENTER.resolveProvider(self, key, getParent);
     if (!provider) {
       throw contextError(
         ERR.DISCONNECTED,

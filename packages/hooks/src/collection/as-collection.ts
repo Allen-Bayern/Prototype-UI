@@ -37,14 +37,14 @@ function buildCollectionItems(
   }));
 }
 
-function buildCollectionItemsFromRun(
-  run: RunHandle<any>,
+function buildCollectionItemsFromPort(
+  anatomy: AnatomyPort,
   family: AnatomyFamily,
   itemRole: string,
   itemMetaExposeKey: string
 ): readonly CollectionItemSnapshot[] {
   return buildCollectionItems(
-    run.anatomy.order.partsOf(family, itemRole, { missing: 'empty' }),
+    anatomy.order.partsOf(family, itemRole, { missing: 'empty' }),
     itemMetaExposeKey
   );
 }
@@ -85,10 +85,15 @@ export const asCollection = defineAsHook<
     api.store.version = -1;
 
     const sync = (run: RunHandle<any>) => {
-      const version = run.anatomy.order.version(options.family, { missing: 'null' });
+      const version = anatomy.order.version(options.family, { missing: 'null' });
       if (version == null) return;
       if (api.store.version === version) return;
-      const items = buildCollectionItemsFromRun(run, options.family, itemRole, itemMetaExposeKey);
+      const items = buildCollectionItemsFromPort(
+        anatomy,
+        options.family,
+        itemRole,
+        itemMetaExposeKey
+      );
       api.store.items = items;
       api.store.version = version;
       count.set(items.length, 'reason: asCollection.sync => collection count');

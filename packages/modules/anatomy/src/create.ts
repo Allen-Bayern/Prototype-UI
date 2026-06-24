@@ -19,7 +19,6 @@ export function createAnatomyModule(ctx: ModuleFactoryArgs): AnatomyModule {
       const impl = new AnatomyModuleImpl(caps, init.prototypeName, exposePort);
       return {
         facade: {
-          family: (family, decl) => impl.family(family, decl),
           claim: (family, decl) => impl.claim(family, decl),
           has: (family, role) => impl.has(family, role),
           parts: ((family, options) =>

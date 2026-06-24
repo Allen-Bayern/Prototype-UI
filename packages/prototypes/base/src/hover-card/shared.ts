@@ -1,5 +1,4 @@
-import { createAnatomyFamily } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
 
 export type HoverCardContextValue = {
   open: boolean;
@@ -22,7 +21,4 @@ export const HOVER_CARD_FAMILY = createAnatomyFamily('base-hover-card', {
     { kind: 'contains', parent: 'root', child: 'content' },
   ],
 });
-export const HOVER_CARD_CONTEXT = {
-  __brand: 'ContextKey',
-  debugName: 'base-hover-card',
-} as ContextKey<HoverCardContextValue>;
+export const HOVER_CARD_CONTEXT = createContextKey<HoverCardContextValue>('base-hover-card');

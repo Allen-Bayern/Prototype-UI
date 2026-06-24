@@ -1,0 +1,53 @@
+id: C-CONTEXT-0004
+type: contract
+title: Context resolves through nearest scope owner
+status: draft
+since: 0.1.0
+summary: Context resolution binds a participant to the nearest provider or equivalent scope owner for the requested ContextKey.
+statement:
+  zh-CN: >-
+    Context resolution 必须基于 runtime/adapter 提供的 scope ancestry。常见 UI 宿主中，这个 ancestry 通常表现为 logical tree 或 component tree；若宿主没有树形结构，只要 adapter 能提供等价的 scope resolution 逻辑，Context 仍然可以成立。对于同一个 ContextKey，最近的 scope owner wins。
+
+
+  en: >-
+    Context resolution must be based on scope ancestry supplied by the runtime/adapter. In common UI hosts this ancestry usually appears as a logical tree or component tree; if a host is not tree-shaped, Context may still work when the adapter provides equivalent scope-resolution logic. For the same ContextKey, the nearest scope owner wins.
+
+
+criteria:
+  - id: C-CONTEXT-0004-A
+    text:
+      zh-CN: context resolution 必须通过 runtime/adapter 提供的 scope ancestry 执行。
+      en: Context resolution must use scope ancestry provided by the runtime/adapter.
+  - id: C-CONTEXT-0004-B
+    text:
+      zh-CN: 在树形宿主中，resolution 必须选择最近的祖先 provider。
+      en: In tree-shaped hosts, resolution must choose the nearest ancestor provider.
+  - id: C-CONTEXT-0004-C
+    text:
+      zh-CN: 同一 ContextKey 可以由不同组件实例同时提供；绑定结果按参与者所在 scope 决定。
+      en: The same ContextKey may be provided by multiple component instances at once; binding depends on the participant's scope.
+  - id: C-CONTEXT-0004-D
+    text:
+      zh-CN: Context 不得被硬编码为某个宿主的 DOM tree、React Context 或 Vue provide/inject 语义。
+      en: Context must not be hard-coded to a specific host's DOM tree, React Context, or Vue provide/inject semantics.
+sources:
+  - path: internal/contracts/context/with-tree.v0.md
+    sections:
+      - Provider resolution
+  - path: packages/modules/context/src/center.ts
+    sections:
+      - provider resolution
+  - path: packages/modules/context/src/caps.ts
+    sections:
+      - CONTEXT_PARENT_CAP
+dependsOn:
+  contracts:
+    - C-CONTEXT-0002
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured scope ancestry and nearest-provider resolution without requiring all hosts to be tree-shaped.
+tags:
+  - context
+  - scope
+  - resolution

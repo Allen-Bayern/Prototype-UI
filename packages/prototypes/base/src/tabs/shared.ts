@@ -1,5 +1,4 @@
-import { createAnatomyFamily, createFocusGroupKey } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey, createFocusGroupKey } from '@proto.ui/core';
 
 export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabsActivationMode = 'automatic' | 'manual';
@@ -26,7 +25,4 @@ export const TABS_FAMILY = createAnatomyFamily('base-tabs', {
   ],
 });
 export const TABS_FOCUS_GROUP = createFocusGroupKey({ debugLabel: 'base-tabs-list' });
-export const TABS_CONTEXT = {
-  __brand: 'ContextKey',
-  debugName: 'base-tabs',
-} as ContextKey<TabsContextValue>;
+export const TABS_CONTEXT = createContextKey<TabsContextValue>('base-tabs');

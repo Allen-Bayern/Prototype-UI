@@ -21,11 +21,11 @@ Stable anatomy families should prefer:
 
 - `createAnatomyFamily(debugName, decl)`
 
-This makes the family value itself carry its canonical declaration.
+This makes the family value itself carry its canonical declaration. The declaration must include a `root` role because root claims anchor anatomy domains.
 
 That in turn allows:
 
-- root and non-root parts to `claim()` the family without first calling `def.anatomy.family(...)`
+- root and non-root parts to `claim()` the family without first calling a setup registration API
 - family definitions to live outside any individual prototype instance
 - root-only or externally predeclared family usage to remain valid
 
@@ -33,15 +33,14 @@ That in turn allows:
 
 ## 3) Role of `def.anatomy.family(...)`
 
-`def.anatomy.family(...)` still exists, but it should now be treated as a secondary tool.
+`def.anatomy.family(...)` is no longer a prototype-author API.
 
-Current intended uses:
+Current intended shape:
 
-- dynamic or local declaration at setup time when the family cannot be declared statically
-- explicit override / registration in tests or low-level experiments
-- compatibility with older call sites not yet migrated to embedded declarations
-
-It should not be the default shape for stable library families.
+- family declarations live on static family tokens
+- root and parts call only `def.anatomy.claim(...)`
+- dynamic or setup-local families require a separate API and contract discussion
+- tests and low-level experiments should also prefer static family tokens
 
 ---
 
@@ -93,6 +92,6 @@ When adding a new stable family:
 1. Prefer `createAnatomyFamily(debugName, decl)`.
 2. Let root and parts call only `def.anatomy.claim(...)`.
 3. Avoid introducing new `register*Family(def)` helpers.
-4. Only use `def.anatomy.family(...)` when the declaration is genuinely setup-local or dynamic.
+4. Do not introduce setup-time family registration; if the declaration cannot be static, pause for API design.
 
 If a helper still seems necessary, first ask whether the system API is missing a better declaration surface.

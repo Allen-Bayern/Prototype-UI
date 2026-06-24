@@ -75,7 +75,12 @@ export const asFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRoving
     const buildEntries = (): FocusRovingEntry[] => {
       const run = store.run;
       if (!run) return [];
-      const parts = run.anatomy.order.partsOf(options.family, itemRole, { missing: 'empty' });
+      let parts: ReturnType<RunHandle<any>['anatomy']['order']['partsOf']>;
+      try {
+        parts = run.anatomy.order.partsOf(options.family, itemRole);
+      } catch {
+        return [];
+      }
       return parts.map((part, index) => {
         const snapshot = readSnapshot(part, snapshotMethodKey);
         const explicitId = options.getId?.(snapshot, index);

@@ -1,8 +1,7 @@
 import type {
   AnatomyClaimDecl,
   AnatomyFamily,
-  AnatomyFamilyDecl,
-  AnatomyOrderView,
+  AnatomyQueryOrderView,
   AnatomyPartView,
   ModuleInstance,
   ModulePort,
@@ -24,19 +23,18 @@ export type AnatomyOrderCallbackDispatcher = (fn: (ctx: AnatomyOrderCallbackCtx)
 export type AnatomyOrderChangeCb = (ctx: AnatomyOrderCallbackCtx) => void;
 
 export type AnatomyFacade = {
-  family(family: AnatomyFamily, decl: AnatomyFamilyDecl): void;
   claim(family: AnatomyFamily, decl: AnatomyClaimDecl): void;
 
   has(family: AnatomyFamily, role: string): boolean;
-  parts: AnatomyOrderView['parts'];
-  partsOf: AnatomyOrderView['partsOf'];
-  order: AnatomyOrderView;
+  parts: AnatomyQueryOrderView['parts'];
+  partsOf: AnatomyQueryOrderView['partsOf'];
+  order: AnatomyQueryOrderView;
 };
 
 export type AnatomyPort = ModulePort & {
   getDiagnostics(): readonly AnatomyDiagnostic[];
-  parts: AnatomyOrderView['parts'];
-  order: AnatomyOrderView;
+  parts: AnatomyQueryOrderView['parts'];
+  order: AnatomyQueryOrderView;
   setOrderCallbackDispatcher(dispatch: AnatomyOrderCallbackDispatcher): void;
   subscribeOrder(family: AnatomyFamily, cb: AnatomyOrderChangeCb): Unsubscribe;
 };

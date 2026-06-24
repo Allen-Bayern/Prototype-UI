@@ -1,10 +1,9 @@
 // packages/adapters/web-component/test/contract/context.basic.v0.contract.test.ts
 import { describe, it, expect } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createContextKey, type Prototype } from '@proto.ui/core';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx');
 
 describe('contract: adapter-web-component / context basic (v0)', () => {
   it('context provide/subscribe/update works via WC adapter caps', async () => {
@@ -14,7 +13,7 @@ describe('contract: adapter-web-component / context basic (v0)', () => {
     const P: Prototype = {
       name: 'x-context-basic-1',
       setup(def) {
-        const update = def.context.provide(KEY, { value: 0 });
+        def.context.provide(KEY, { value: 0 });
 
         def.context.subscribe(KEY, (_run, next, prev) => {
           log.push([prev.value, next.value]);
@@ -23,7 +22,7 @@ describe('contract: adapter-web-component / context basic (v0)', () => {
         def.lifecycle.onMounted((run) => {
           mounted = true;
           run.context.update(KEY, { value: 1 });
-          update({ value: 2 });
+          run.context.update(KEY, { value: 2 });
         });
 
         return (r) => [r.el('div', 'ok')];

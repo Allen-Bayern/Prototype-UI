@@ -1,11 +1,11 @@
 // packages/modules/context/test/contract/context.with-tree.v0.contract.test.ts
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { ContextKey } from '@proto.ui/types';
+import { createContextKey } from '@proto.ui/core';
 import { ContextModuleImpl } from '../../src/impl';
 import { CONTEXT_CENTER } from '../../src/center';
 import { makeCaps, createSysCaps } from '../utils/fake-caps';
 
-const KEY = { __brand: 'ContextKey', debugName: 'ctx' } as ContextKey<{ value: number }>;
+const KEY = createContextKey<{ value: number }>('ctx');
 
 function resetCenter() {
   const subs = CONTEXT_CENTER.dumpSubscriptions();
@@ -66,7 +66,55 @@ describe('context-module: contract v0 (with-tree)', () => {
       'proto-consumer'
     );
 
-    const update = provider.provide(KEY, { value: 0 });
+    const provided = provider.provide(KEY, { value: 0 });
+    expect(provided).toBeUndefined();
+
+    const seen: Array<[number, number, boolean]> = [];
+    consumer.subscribe(KEY, (ctx, next, prev) => {
+      seen.push([prev.value, next.value, !!ctx]);
+    });
+
+    sysConsumer.__setExecPhase('callback');
+    sysConsumer.__setCallbackCtx({ run: true });
+
+    consumer.update(KEY, { value: 1 });
+
+    expect(seen.length).toBe(1);
+    expect(seen[0]).toEqual([0, 1, true]);
+  });
+
+  it('CTX-MOD-V0-1120: provider can update its provided context without subscribing', () => {
+    const parentMap = new Map<any, any>();
+    const getParent = (i: any) => parentMap.get(i) ?? null;
+
+    const providerToken = { id: 'provider' };
+    const consumerToken = { id: 'consumer' };
+    parentMap.set(consumerToken, providerToken);
+
+    const sysProvider = createSysCaps();
+    const sysConsumer = createSysCaps();
+    sysProvider.__setExecPhase('setup');
+    sysConsumer.__setExecPhase('setup');
+
+    const provider = new ContextModuleImpl(
+      makeCaps({
+        sys: sysProvider,
+        instanceToken: providerToken,
+        getParent,
+      }) as any,
+      'proto-provider'
+    );
+
+    const consumer = new ContextModuleImpl(
+      makeCaps({
+        sys: sysConsumer,
+        instanceToken: consumerToken,
+        getParent,
+      }) as any,
+      'proto-consumer'
+    );
+
+    provider.provide(KEY, { value: 0 });
 
     const seen: Array<[number, number, boolean]> = [];
     consumer.subscribe(KEY, (ctx, next, prev) => {
@@ -76,7 +124,7 @@ describe('context-module: contract v0 (with-tree)', () => {
     sysProvider.__setExecPhase('callback');
     sysProvider.__setCallbackCtx({ run: true });
 
-    update({ value: 1 });
+    provider.update(KEY, { value: 1 });
 
     expect(seen.length).toBe(1);
     expect(seen[0]).toEqual([0, 1, true]);
@@ -104,18 +152,18 @@ describe('context-module: contract v0 (with-tree)', () => {
       'proto-consumer'
     );
 
-    const update = provider.provide(KEY, { value: 0 });
+    provider.provide(KEY, { value: 0 });
     const seen: number[] = [];
     const off = consumer.subscribe(KEY, (_ctx, next) => {
       seen.push(next.value);
     });
 
-    sysProvider.__setExecPhase('callback');
-    sysProvider.__setCallbackCtx({ run: true });
+    sysConsumer.__setExecPhase('callback');
+    sysConsumer.__setCallbackCtx({ run: true });
 
-    update({ value: 1 });
+    consumer.update(KEY, { value: 1 });
     off();
-    update({ value: 2 });
+    consumer.update(KEY, { value: 2 });
 
     expect(seen).toEqual([1]);
   });
@@ -171,7 +219,7 @@ describe('context-module: contract v0 (with-tree)', () => {
     expect(ok).toBe(false);
   });
 
-  it('CTX-MOD-V0-1400: provide rejects null and non-plain objects', () => {
+  it('CTX-MOD-V0-1400: T-CONTEXT-0001-CASE-PROVIDE-VALUE rejects invalid context values', () => {
     const parentMap = new Map<any, any>();
     const getParent = (i: any) => parentMap.get(i) ?? null;
 
@@ -185,7 +233,16 @@ describe('context-module: contract v0 (with-tree)', () => {
     );
 
     expect(() => provider.provide(KEY, null as any)).toThrow(/null/i);
+    expect(() => provider.provide(KEY, [] as any)).toThrow(/plain JSON object/i);
     expect(() => provider.provide(KEY, new Date() as any)).toThrow(/json/i);
+    expect(() => provider.provide(KEY, { value: () => 1 } as any)).toThrow(/illegal value/i);
+
+    provider.provide(KEY, { value: 0 });
+    provider.subscribe(KEY);
+    sys.__setExecPhase('callback');
+    expect(() => provider.update(KEY, { value: 1, invalid: Symbol('x') } as any)).toThrow(
+      /illegal value/i
+    );
   });
 
   it('CTX-MOD-V0-1500: consumer can rebind to a new provider via tree change', () => {

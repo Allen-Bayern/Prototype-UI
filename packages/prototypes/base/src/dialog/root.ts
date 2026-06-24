@@ -27,7 +27,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     alert: false,
   });
 
-  const updateContext = def.context.provide(DIALOG_CONTEXT, {
+  def.context.provide(DIALOG_CONTEXT, {
     open: false,
     controlled: false,
     disabled: false,
@@ -48,7 +48,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   let snapshot: DialogContextValue = initialContext;
   let published: DialogContextValue = initialContext;
 
-  const syncContext = () => {
+  const syncContext = (run: any) => {
     const next = {
       ...snapshot,
       open: open?.get() ?? false,
@@ -56,7 +56,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     snapshot = next;
     if (sameContext(published, next)) return;
     published = next;
-    updateContext(next);
+    run.context.update(DIALOG_CONTEXT, next);
   };
 
   def.context.subscribe(DIALOG_CONTEXT, (_run, next) => {
@@ -74,7 +74,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
       disabled: !!run.props.get().disabled,
       alert: !!run.props.get().alert,
     };
-    syncContext();
+    syncContext(run);
   });
 
   def.props.watch(['open', 'disabled', 'alert'], (run, next) => {
@@ -84,12 +84,12 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
       disabled: !!next.disabled,
       alert: !!next.alert,
     };
-    syncContext();
+    syncContext(run);
   });
 
-  open?.watch((_run, event) => {
+  open?.watch((run, event) => {
     if (event.type !== 'next') return;
-    syncContext();
+    syncContext(run);
   });
 }
 

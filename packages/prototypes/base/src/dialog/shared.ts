@@ -1,5 +1,4 @@
-import { createAnatomyFamily } from '@proto.ui/core';
-import type { ContextKey } from '@proto.ui/types';
+import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
 
 export type DialogContextValue = {
   open: boolean;
@@ -28,7 +27,4 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
   ],
 });
 
-export const DIALOG_CONTEXT = {
-  __brand: 'ContextKey',
-  debugName: 'base-dialog',
-} as ContextKey<DialogContextValue>;
+export const DIALOG_CONTEXT = createContextKey<DialogContextValue>('base-dialog');

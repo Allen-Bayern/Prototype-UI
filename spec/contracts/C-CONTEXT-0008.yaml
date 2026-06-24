@@ -1,0 +1,60 @@
+id: C-CONTEXT-0008
+type: contract
+title: Context runtime update targets an explicit key and value
+status: draft
+since: 0.1.0
+summary: Runtime context updates must explicitly name the ContextKey and next value or updater; `update` requires certainty, while `tryUpdate` models optional context availability.
+statement:
+  zh-CN: >-
+    Context runtime update 必须显式指定 ContextKey 与 next context value，不能依赖隐式当前 context。`run.context.update(key, next)` 用于原型作者确信该 context 应存在的场景；缺少 prior subscription 或当前 provider 不存在时必须失败。`run.context.tryUpdate(key, next)` 用于可选 context；它要求 prior optional subscription，context 不存在时返回 `false`，成功更新时返回 `true`。
+
+
+  en: >-
+    Runtime context updates must explicitly specify the ContextKey and next context value; they must not rely on an implicit current context. `run.context.update(key, next)` is for cases where the author is certain the context should exist; it must fail without prior subscription or when the current provider is absent. `run.context.tryUpdate(key, next)` is for optional contexts; it requires prior optional subscription, returns `false` when the context is absent, and returns `true` after a successful update.
+
+
+criteria:
+  - id: C-CONTEXT-0008-A
+    text:
+      zh-CN: '`run.context.update(key, next)` 必须显式接收 ContextKey 与 next value/updater。'
+      en: '`run.context.update(key, next)` must explicitly receive a ContextKey and next value/updater.'
+  - id: C-CONTEXT-0008-B
+    text:
+      zh-CN: '`run.context.tryUpdate(key, next)` 必须显式接收 ContextKey 与 next value/updater。'
+      en: '`run.context.tryUpdate(key, next)` must explicitly receive a ContextKey and next value/updater.'
+  - id: C-CONTEXT-0008-C
+    text:
+      zh-CN: '`update` 必须要求 prior subscription，并在 resolved provider 不存在时失败。'
+      en: '`update` must require prior subscription and fail when no provider resolves.'
+  - id: C-CONTEXT-0008-D
+    text:
+      zh-CN: '`tryUpdate` 必须要求 prior optional subscription，并在 context 不存在时返回 `false`。'
+      en: '`tryUpdate` must require prior optional subscription and return `false` when the context is absent.'
+  - id: C-CONTEXT-0008-E
+    text:
+      zh-CN: 成功的 consumer-side update 与 provider-side update 都必须更新同一个 resolved context scope。
+      en: Successful consumer-side and provider-side updates must update the same resolved context scope.
+sources:
+  - path: internal/contracts/context/with-tree.v0.md
+    sections:
+      - Provide & update
+  - path: packages/modules/context/src/impl.ts
+    sections:
+      - update
+      - tryUpdate
+explains:
+  decisions:
+    - D-CONTEXT-UPDATE-API-0001
+dependsOn:
+  contracts:
+    - C-CONTEXT-0002
+    - C-CONTEXT-0006
+    - C-CONTEXT-0009
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured explicit key/value runtime update and the v0 update/tryUpdate split.
+tags:
+  - context
+  - update
+  - runtime

@@ -37,20 +37,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   const syncHitParticipation = (run: any) => {
     if (hitSyncDisposed) return;
 
-    let target = run.host?.get?.() ?? null;
-
-    if (!target) {
-      try {
-        const ownIndex = run.anatomy.order.indexOfSelf(DIALOG_FAMILY, 'mask', { missing: 'null' });
-        const ownMask =
-          typeof ownIndex === 'number' && ownIndex >= 0
-            ? (run.anatomy.partsOf(DIALOG_FAMILY, 'mask')[ownIndex] ?? null)
-            : null;
-        target = ownMask?.getRootTarget?.() ?? null;
-      } catch {
-        target = run.host?.get?.() ?? null;
-      }
-    }
+    const target = run.host?.get?.() ?? null;
 
     hitRegionDispose?.();
     hitRegionDispose = null;

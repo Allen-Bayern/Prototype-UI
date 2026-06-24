@@ -1,7 +1,7 @@
 export type AnatomyFamily = {
   readonly __brand: 'AnatomyFamily';
   readonly debugName: string;
-  readonly decl?: AnatomyFamilyDecl;
+  readonly decl: AnatomyFamilyDecl;
 };
 
 export type AnatomyCardinality = {
@@ -50,7 +50,6 @@ export type AnatomyPartView = {
   readonly role: string;
   hasExpose(key: string): boolean;
   getExpose(key: string): unknown | null;
-  getRootTarget(): unknown | null;
   hasHook(name: string): boolean;
 };
 
@@ -59,6 +58,15 @@ export type AnatomyQueryOptions = {
 };
 
 export type AnatomyOrderView = {
+  version(family: AnatomyFamily): number;
+  parts(family: AnatomyFamily): readonly AnatomyPartView[];
+  partsOf(family: AnatomyFamily, role: string): readonly AnatomyPartView[];
+  indexOfSelf(family: AnatomyFamily, role: string): number;
+  prevOfSelf(family: AnatomyFamily, role: string): AnatomyPartView | null;
+  nextOfSelf(family: AnatomyFamily, role: string): AnatomyPartView | null;
+};
+
+export type AnatomyQueryOrderView = {
   version(family: AnatomyFamily): number;
   version(family: AnatomyFamily, options: { missing: 'null' }): number | null;
   parts(family: AnatomyFamily): readonly AnatomyPartView[];
@@ -92,6 +100,16 @@ export type AnatomyOrderView = {
 };
 
 function freezeFamilyDecl(decl: AnatomyFamilyDecl): AnatomyFamilyDecl {
+  if (!decl || typeof decl !== 'object') {
+    throw new Error(`[Anatomy] family declaration is required.`);
+  }
+  if (!decl.roles || typeof decl.roles !== 'object') {
+    throw new Error(`[Anatomy] family declaration must define roles.`);
+  }
+  if (!decl.roles.root) {
+    throw new Error(`[Anatomy] family declaration must define a root role.`);
+  }
+
   const roles = Object.freeze(
     Object.fromEntries(
       Object.entries(decl.roles ?? {}).map(([role, roleDecl]) => [
@@ -146,7 +164,7 @@ function freezeFamilyDecl(decl: AnatomyFamilyDecl): AnatomyFamilyDecl {
   });
 }
 
-export function createAnatomyFamily(debugName: string, decl?: AnatomyFamilyDecl): AnatomyFamily {
+export function createAnatomyFamily(debugName: string, decl: AnatomyFamilyDecl): AnatomyFamily {
   if (typeof debugName !== 'string' || debugName.length === 0) {
     throw new Error(`[Anatomy] debugName must be a non-empty string.`);
   }
@@ -154,6 +172,6 @@ export function createAnatomyFamily(debugName: string, decl?: AnatomyFamilyDecl)
   return Object.freeze({
     __brand: 'AnatomyFamily' as const,
     debugName,
-    decl: decl ? freezeFamilyDecl(decl) : undefined,
+    decl: freezeFamilyDecl(decl),
   });
 }

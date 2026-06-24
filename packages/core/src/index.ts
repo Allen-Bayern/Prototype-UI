@@ -10,6 +10,7 @@ export * from './module';
 export * from './errors';
 
 export * from './state';
+export * from './context';
 export * from './focus';
 export * from './boundary';
 export * from './hit-participation';

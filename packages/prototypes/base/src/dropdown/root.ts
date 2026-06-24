@@ -24,7 +24,7 @@ function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes
     openEntryValue: '',
   });
 
-  const updateContext = def.context.provide(DROPDOWN_CONTEXT, {
+  def.context.provide(DROPDOWN_CONTEXT, {
     open: false,
     controlled: false,
     disabled: false,
@@ -42,8 +42,8 @@ function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes
   let openEntry: DropdownRootProps['openEntry'] = 'active-or-first';
   let openEntryValue = '';
 
-  const syncContext = () => {
-    updateContext((prev) => ({
+  const syncContext = (run: any) => {
+    run.context.update(DROPDOWN_CONTEXT, (prev: any) => ({
       ...prev,
       open: open?.get() ?? false,
       controlled,
@@ -70,7 +70,7 @@ function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes
     closeOnItemCommit = !!run.props.get().closeOnItemCommit;
     openEntry = (run.props.get().openEntry as DropdownRootProps['openEntry']) ?? 'active-or-first';
     openEntryValue = run.props.get().openEntryValue ?? '';
-    syncContext();
+    syncContext(run);
   });
 
   def.props.watch(
@@ -81,16 +81,16 @@ function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes
       closeOnItemCommit = !!next.closeOnItemCommit;
       openEntry = (next.openEntry as DropdownRootProps['openEntry']) ?? 'active-or-first';
       openEntryValue = next.openEntryValue ?? '';
-      syncContext();
+      syncContext(run);
     }
   );
 
-  open?.watch((_run, event) => {
+  open?.watch((run, event) => {
     if (event.type !== 'next') return;
     if (!event.next) {
       activeValue.set('', 'reason: dropdown closed => reset activeValue');
     }
-    syncContext();
+    syncContext(run);
   });
 }
 
