@@ -1,0 +1,59 @@
+id: C-AS-HOOK-0007
+type: contract
+title: asHook state handles project to borrowed views
+status: draft
+since: 0.1.0
+summary: State handles introduced by an asHook must be exposed to the caller as borrowed views rather than owned views.
+statement:
+  zh-CN: >-
+    asHook 内部创建或引入的 state 不应以调用者完全 owned state 的身份暴露。调用者通过 asHook result 获得这些 state 时，必须得到 borrowed view：调用者可以读取、设置默认值、设置运行时值并 watch，但该 state 的来源仍然是 asHook 引入的可共享逻辑，而不是调用者直接声明的 owned state。
+
+
+  en: >-
+    State created or introduced inside an asHook should not be exposed to the caller as fully owned state. When the caller receives these states through the asHook result, they must be borrowed views: the caller may read, set defaults, set runtime values, and watch, but the state source remains reusable logic introduced by the asHook rather than owned state directly declared by the caller.
+
+
+criteria:
+  - id: C-AS-HOOK-0007-A
+    text:
+      zh-CN: asHook result 暴露的 state handle 必须投影为 borrowed view。
+      en: State handles exposed by an asHook result must be projected to borrowed views.
+  - id: C-AS-HOOK-0007-B
+    text:
+      zh-CN: asHook result 暴露的 named state handles 必须使用 borrowed view。
+      en: Named state handles exposed by an asHook result must use borrowed views.
+  - id: C-AS-HOOK-0007-C
+    text:
+      zh-CN: asHook state projection 不得让调用者获得 owned-only 能力。
+      en: asHook state projection must not grant the caller owned-only capabilities.
+  - id: C-AS-HOOK-0007-D
+    text:
+      zh-CN: asHook 内部声明的 interaction state 必须归属调用者所在交互主体，而不是成为 asHook 私有 state。
+      en: Interaction state declared inside an asHook must belong to the caller's interaction subject instead of becoming asHook-private state.
+sources:
+  - path: internal/contracts/as-hook/as-hook.v0.md
+    sections:
+      - Module Result Constraints
+  - path: packages/runtime/src/kernel/as-hook.ts
+    sections:
+      - createAsHookStateProjector
+      - collectNamedStateHandles
+  - path: packages/runtime/test/contract/as-hook.v0.contract.test.ts
+    sections:
+      - AS-HOOK-0400
+      - AS-HOOK-0450
+dependsOn:
+  contracts:
+    - C-AS-HOOK-0005
+    - C-STATE-0008
+relates:
+  contracts:
+    - C-STATE-INTERACTION-0003
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured borrowed state projection for asHook state handles.
+tags:
+  - as-hook
+  - state
+  - borrowed

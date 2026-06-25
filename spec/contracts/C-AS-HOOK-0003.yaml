@@ -1,0 +1,79 @@
+id: C-AS-HOOK-0003
+type: contract
+title: defineAsHook accepts a prototype-compatible spec
+status: draft
+since: 0.1.0
+summary: defineAsHook must accept the standard prototype definition shape, where name remains the prototype spec name and setup follows the prototype setup contract.
+statement:
+  zh-CN: >-
+    `defineAsHook(spec)` 至少必须接受与 `definePrototype(spec)` 兼容的定义描述。`spec.name` 是 prototype spec 的名称属性，必须遵守 prototype name 的命名规则；它不是作者代码中的 caller binding name。`spec.setup` 仍然是 prototype setup 入口，其返回值只能是 render function 或 void。asHook 可以在此基础上拥有更复杂的定义形状，但不得破坏 prototype-compatible baseline。
+
+
+  en: >-
+    `defineAsHook(spec)` must at least accept a definition shape compatible with `definePrototype(spec)`. `spec.name` is the prototype spec name and must follow prototype name rules; it is not the caller binding name used in author code. `spec.setup` remains the prototype setup entry, and its return value must be a render function or void. asHook may support richer definition shapes beyond this baseline, but must not break the prototype-compatible baseline.
+
+
+criteria:
+  - id: C-AS-HOOK-0003-A
+    text:
+      zh-CN: >-
+        `defineAsHook(spec)` 必须接受标准 prototype-compatible 的 `name` 与 `setup` 描述。
+
+
+      en: >-
+        `defineAsHook(spec)` must accept a standard prototype-compatible `name` and `setup` description.
+
+
+  - id: C-AS-HOOK-0003-B
+    text:
+      zh-CN: >-
+        `spec.name` 表达 prototype spec name，而不是 caller 函数名。
+
+
+      en: >-
+        `spec.name` represents the prototype spec name, not the caller function name.
+
+
+  - id: C-AS-HOOK-0003-C
+    text:
+      zh-CN: >-
+        asHook 的 `setup` 返回值必须遵守 prototype setup 契约：只能返回 render function 或 void。
+
+
+      en: >-
+        asHook `setup` return value must follow the prototype setup contract: render function or void only.
+
+
+  - id: C-AS-HOOK-0003-D
+    text:
+      zh-CN: asHook 的 render fragment 不会自动提交；调用者必须显式组合它。
+      en: An asHook render fragment must not commit automatically; the caller must compose it explicitly.
+sources:
+  - path: internal/contracts/as-hook/as-hook.v0.md
+    sections:
+      - defineAsHook(prototype)
+      - Render Fragment
+  - path: packages/core/src/prototype.ts
+    sections:
+      - defineAsHook
+      - normalizeAsHookRender
+  - path: packages/runtime/test/contract/as-hook.v0.contract.test.ts
+    sections:
+      - AS-HOOK-0500
+      - AS-HOOK-0550
+dependsOn:
+  contracts:
+    - C-CORE-SYNTAX-0002
+    - C-AS-HOOK-0001
+relates:
+  decisions:
+    - D-AS-HOOK-CALLER-NAME-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured prototype-compatible asHook definition and render return boundary.
+tags:
+  - as-hook
+  - define
+  - prototype
+  - render

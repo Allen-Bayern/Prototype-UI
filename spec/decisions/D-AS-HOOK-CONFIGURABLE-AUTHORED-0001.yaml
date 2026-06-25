@@ -1,0 +1,37 @@
+id: D-AS-HOOK-CONFIGURABLE-AUTHORED-0001
+type: decision
+title: Configurable authored asHook remains governed design space
+status: draft
+since: 0.1.0
+summary: The implementation supports options and configure for authored hooks, but core asHook v0 stabilizes only once-by-default semantics and leaves ordinary configurable authored hooks for later governance.
+statement:
+  zh-CN: >-
+    当前实现支持 `setup(def, options, api)`、`mode: configurable` 与 `configure(api, options, tools)`，并且部分官方 authored hook 已经使用该能力。但普通 authored configurable asHook 会引入参数是否参与 identity、重复调用如何合并、冲突如何诊断、返回值是否复用、configure 能获得哪些能力等治理问题。v0 核心 asHook 契约先稳定 once 默认语义；普通 authored configurable asHook 暂作为待治理设计空间，特权 asHook 可由自身契约定义参数和合并规则。
+
+
+  en: >-
+    The current implementation supports `setup(def, options, api)`, `mode: configurable`, and `configure(api, options, tools)`, and some official authored hooks already use it. However ordinary configurable authored asHooks raise governance questions around whether options participate in identity, how repeated calls merge, how conflicts are diagnosed, whether results are reused, and which capabilities configure may receive. v0 core asHook contracts stabilize once-by-default semantics first; ordinary configurable authored asHook remains governed design space, while privileged asHooks may define parameters and merge rules in their own contracts.
+
+
+explains:
+  contracts:
+    - C-AS-HOOK-0004
+sources:
+  - path: internal/contracts/as-hook/as-hook.parameterized-design.md
+  - path: packages/core/src/prototype.ts
+    sections:
+      - AsHookMode
+      - AsHookPrototype
+  - path: packages/runtime/test/contract/as-hook.v0.contract.test.ts
+    sections:
+      - AS-HOOK-0700
+      - AS-HOOK-0800
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Recorded ordinary configurable authored asHook as future governed design space.
+tags:
+  - as-hook
+  - configurable
+  - authored-hook
+  - debt
