@@ -263,7 +263,7 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     rt.ensureSetup(`asHook(${proto.name})`);
     const reg = rt.register(proto.name, {
       privileged: false,
-      mode: proto.mode ?? 'configurable',
+      mode: proto.mode ?? 'once',
     });
     const api: AsHookConfigApi = {
       name: proto.name,
@@ -298,10 +298,7 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
           }
         }
         reg.state.result = finalResult;
-        if (
-          (proto.mode ?? 'configurable') === 'configurable' &&
-          typeof proto.configure === 'function'
-        ) {
+        if ((proto.mode ?? 'once') === 'configurable' && typeof proto.configure === 'function') {
           proto.configure(api, options as O, tools);
         }
         return reg.state.result ?? {};

@@ -1,103 +1,67 @@
 # rule.when.deps.context.wiring (v0)
 
-## Purpose
-
-Defines how context dependencies are validated at evaluation time. There is no required stable update cycle in v0.
+> Status: Draft - partial implementation
+>
+> This contract defines the minimal runtime wiring expectation for rule context dependencies. Context is resolved at evaluation time; v0 does not require context-change notifications or polling.
 
 ---
 
-## 0. Scope & Non-goals
+## 0. Scope and Non-goals
 
 ### 0.1 Scope (v0)
 
-- Evaluation-time validation for context
-- Protective behavior against invalid context
-- Interaction with state-driven re-evaluation
+- evaluation-time context reads
+- missing-provider resilience
+- interaction with other re-evaluation triggers
 
 ### 0.2 Non-goals (v0)
 
-- Does not define provider resolution
-- Does not define context structure
-- Does not define intent behavior
+- provider relocation notifications
+- context value equality tracking
+- context polling
+- context path validation
+- context mutation through rule
 
 ---
 
-## 1. Context dependency characteristics
+## 1. Evaluation-time Read
 
-In v0:
+When a rule that depends on context is evaluated, runtime must read the context value for the referenced key at that moment.
 
-- context is resolved via providers
-- values are readonly
-- no change notifications
-- provider connect/disconnect is not surfaced
-
-Therefore, context dependencies are **potentially unstable inputs**.
+If no provider is available, the rule input must resolve to `null` or an equivalent non-match value. Evaluation must continue.
 
 ---
 
-## 2. Evaluation-time validation (v0)
+## 2. Trigger Boundary
 
-### 2.1 No implicit polling
+Context dependency by itself does not require a stable update cycle.
 
-v0 does not require a stable runtime update cycle. Runtime MUST NOT rely on periodic re-evaluation.
+Runtime must not rely on implicit polling for correctness.
 
-### 2.2 Resolve on evaluation
-
-When a rule is evaluated for any reason:
-
-- resolve the context value at that moment
-- missing providers or invalid paths resolve to `null`
-- evaluation MUST continue without throwing
-
-This prevents execution of stale logic when context is absent/invalid.
+If a rule also depends on another reactive input, such as state or props, those inputs may trigger re-evaluation. During that re-evaluation, the context input is read again.
 
 ---
 
-## 3. Interaction with state dependencies
+## 3. Phase Boundary
 
-If a rule depends on both state and context:
+Rule evaluation is a runtime activity.
 
-- state changes MUST still trigger re-evaluation (see `when.deps.state.wiring.v0.md`)
-- context dependency does not replace state triggers
-
----
-
-## 4. Phase & scheduling constraints
-
-- context-driven evaluation MUST occur during runtime phases
-- setup phases MUST NOT evaluate rules
-
-Runtime MAY:
-
-- batch multiple re-evaluations
-- align evaluation with host/runtime loops (if any)
+Setup must only record the context dependency; it must not evaluate context-dependent rules.
 
 ---
 
-## 5. Diagnostics (recommended)
+## 4. Diagnostics
 
-Implementations SHOULD provide diagnostics indicating:
+Implementations may warn when:
 
-- rule is context-dependent
-- evaluation-time validation is in effect
+- a context-dependent rule repeatedly sees no provider
+- context dependency is present but no context module is installed
 
-Diagnostics MUST NOT alter semantics.
-
----
-
-## 6. Non-goals
-
-This contract does NOT:
-
-- require provider relocation detection
-- require equality comparison of context values
-- allow rules to mutate context
-- define context caching strategies
+Diagnostics must not alter rule evaluation semantics.
 
 ---
 
-## 7. Summary
+## 5. Related Contracts
 
-- v0 does not rely on update cycles
-- context is validated only at evaluation time
-- state triggers remain authoritative
+- `when.deps.context.v0.md`
+- `context/with-tree.v0.md`

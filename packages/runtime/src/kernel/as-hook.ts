@@ -86,6 +86,16 @@ function collectDisposers(
   return out;
 }
 
+function wrapSetupOnlyDisposer(
+  disposer: () => void,
+  ensureSetup: (op: string) => void
+): () => void {
+  return () => {
+    ensureSetup('asHook.disposer');
+    disposer();
+  };
+}
+
 function collectEventKeys(entries: unknown[]): Record<string, string> | undefined {
   const out: Record<string, string> = {};
   for (const entry of entries) {
@@ -231,7 +241,7 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
   const runtime: AsHookRuntime = {
     ensureSetup,
     register: (name: string, meta: AsHookMeta) => {
-      const mode = meta.mode ?? 'configurable';
+      const mode = meta.mode ?? 'once';
       const existing = instances.get(name);
 
       if (mode === 'multiple') {
@@ -311,13 +321,28 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
       );
       const eventDisposers = collectDisposers(frame.effects.event);
       const feedbackDisposers = collectDisposers(frame.effects.feedback);
+      const wrappedPropsDisposers = propsDisposers.map((disposer) =>
+        wrapSetupOnlyDisposer(disposer, ensureSetup)
+      );
+      const wrappedContextDisposers = contextDisposers.map((disposer) =>
+        wrapSetupOnlyDisposer(disposer, ensureSetup)
+      );
+      const wrappedRuleDisposers = ruleDisposers.map((disposer) =>
+        wrapSetupOnlyDisposer(disposer, ensureSetup)
+      );
+      const wrappedEventDisposers = eventDisposers.map((disposer) =>
+        wrapSetupOnlyDisposer(disposer, ensureSetup)
+      );
+      const wrappedFeedbackDisposers = feedbackDisposers.map((disposer) =>
+        wrapSetupOnlyDisposer(disposer, ensureSetup)
+      );
       const eventKeys = collectEventKeys(frame.effects.event);
       const allDisposers = [
-        ...propsDisposers,
-        ...contextDisposers,
-        ...ruleDisposers,
-        ...eventDisposers,
-        ...feedbackDisposers,
+        ...wrappedPropsDisposers,
+        ...wrappedContextDisposers,
+        ...wrappedRuleDisposers,
+        ...wrappedEventDisposers,
+        ...wrappedFeedbackDisposers,
       ];
 
       if (typeof props !== 'undefined') result.props = props;
@@ -344,14 +369,20 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
         const disposers: Record<string, unknown> = {
           all: Object.freeze(allDisposers.slice()),
         };
-        if (propsDisposers.length > 0) disposers.props = Object.freeze(propsDisposers.slice());
-        if (contextDisposers.length > 0) {
-          disposers.context = Object.freeze(contextDisposers.slice());
+        if (propsDisposers.length > 0) {
+          disposers.props = Object.freeze(wrappedPropsDisposers.slice());
         }
-        if (ruleDisposers.length > 0) disposers.rule = Object.freeze(ruleDisposers.slice());
-        if (eventDisposers.length > 0) disposers.event = Object.freeze(eventDisposers.slice());
+        if (contextDisposers.length > 0) {
+          disposers.context = Object.freeze(wrappedContextDisposers.slice());
+        }
+        if (ruleDisposers.length > 0) {
+          disposers.rule = Object.freeze(wrappedRuleDisposers.slice());
+        }
+        if (eventDisposers.length > 0) {
+          disposers.event = Object.freeze(wrappedEventDisposers.slice());
+        }
         if (feedbackDisposers.length > 0) {
-          disposers.feedback = Object.freeze(feedbackDisposers.slice());
+          disposers.feedback = Object.freeze(wrappedFeedbackDisposers.slice());
         }
         result.disposers = Object.freeze(disposers as any);
       }

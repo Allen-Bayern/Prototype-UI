@@ -3,6 +3,8 @@
 > 状态：Draft – v0（定位与立场）
 >
 > 本文是 `internal/contracts/rule/README.md` 的中文底本，用于阐述 rule 的定位、收益与对扩展模块的立场。
+>
+> 同步说明（2026-06-24）：根目录下的 rule 契约已先行收敛为当前真相源。本文及同目录其他中文底本仍保留较多旧草案措辞，尤其是 `intent.state`、context path 与 meta 相关内容。阅读当前 rule 编目结果时，应优先参考 `internal/contracts/rule/*.v0.md` 与 `_debt/rule.deferred-semantics.md`。
 
 ---
 

@@ -97,6 +97,7 @@ describe('runtime contract: asHook (v0)', () => {
 
     expect(a).toBe(1);
     expect(b).toBe(0);
+    expect((P as any).__asHooks[0]).toMatchObject({ name: 'asDup', mode: 'once' });
   });
 
   it('AS-HOOK-0300: module results (except state) attach to caller; module-level dedupe handled by modules', () => {
@@ -130,7 +131,7 @@ describe('runtime contract: asHook (v0)', () => {
     expect(calls).toEqual(['watch:a']);
   });
 
-  it('AS-HOOK-0350: props watch disposers are exposed and can deactivate captured watchers', () => {
+  it('AS-HOOK-0350: props watch disposers are exposed and setup-only', () => {
     const calls: string[] = [];
     let res: any;
 
@@ -146,8 +147,15 @@ describe('runtime contract: asHook (v0)', () => {
 
     const P: Prototype = definePrototype({
       name: 'x-as-hook-0350',
-      setup() {
+      setup(def) {
         res = asProps();
+        expect(Array.isArray(res?.disposers?.all)).toBe(true);
+        expect(Array.isArray(res?.disposers?.props)).toBe(true);
+        expect(res?.disposers?.props?.length).toBe(1);
+        res.disposers.props[0]();
+        def.lifecycle.onCreated(() => {
+          expect(() => res.disposers.props[0]()).toThrow(/setup only/i);
+        });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -155,16 +163,9 @@ describe('runtime contract: asHook (v0)', () => {
     const { host } = createHost(P.name, { a: 1 });
     const { controller } = executeWithHost(P as any, host as any);
 
-    expect(Array.isArray(res?.disposers?.all)).toBe(true);
-    expect(Array.isArray(res?.disposers?.props)).toBe(true);
-    expect(res?.disposers?.props?.length).toBe(1);
-
     controller.applyRawProps({ a: 2 } as any);
-    expect(calls).toEqual(['watch:a']);
-
-    res.disposers.props[0]();
     controller.applyRawProps({ a: 3 } as any);
-    expect(calls).toEqual(['watch:a']);
+    expect(calls).toEqual([]);
   });
 
   it('AS-HOOK-0400: state handles from asHook must be projected to borrowed view', () => {
@@ -246,7 +247,7 @@ describe('runtime contract: asHook (v0)', () => {
     expect(controller.getRuleStyleTokens()).toContain('opacity-50');
   });
 
-  it('AS-HOOK-0460: event disposers deactivate captured listeners', () => {
+  it('AS-HOOK-0460: event disposers are exposed but remain setup-only', () => {
     let calls = 0;
     let res: any;
     const rootTarget = new EventTarget();
@@ -266,7 +267,7 @@ describe('runtime contract: asHook (v0)', () => {
         res = asEvent();
         def.lifecycle.onMounted(() => {
           rootTarget.dispatchEvent(new CustomEvent('pointer.enter'));
-          res?.disposers?.event?.[0]?.();
+          expect(() => res?.disposers?.event?.[0]?.()).toThrow(/setup only/i);
           rootTarget.dispatchEvent(new CustomEvent('pointer.enter'));
         });
         return (r) => r.el('div', 'ok');
@@ -290,7 +291,7 @@ describe('runtime contract: asHook (v0)', () => {
     executeWithHost(P as any, host as any);
 
     expect(Array.isArray(res?.disposers?.event)).toBe(true);
-    expect(calls).toBe(1);
+    expect(calls).toBe(2);
   });
 
   it('AS-HOOK-0470: expose.event keys are captured as artifacts', () => {
@@ -354,7 +355,7 @@ describe('runtime contract: asHook (v0)', () => {
     expect(called).toBe(1);
   });
 
-  it('AS-HOOK-0480: rule disposers remove captured rules from evaluation', () => {
+  it('AS-HOOK-0480: rule disposers remove captured rules during setup only', () => {
     let res: any;
 
     const asRule = defineAsHook({
@@ -369,8 +370,13 @@ describe('runtime contract: asHook (v0)', () => {
 
     const P: Prototype = definePrototype({
       name: 'x-as-hook-0480',
-      setup() {
+      setup(def) {
         res = asRule();
+        expect(Array.isArray(res?.disposers?.rule)).toBe(true);
+        res.disposers.rule[0]();
+        def.lifecycle.onCreated(() => {
+          expect(() => res.disposers.rule[0]()).toThrow(/setup only/i);
+        });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -378,10 +384,6 @@ describe('runtime contract: asHook (v0)', () => {
     const { host } = createHost(P.name);
     const { controller } = executeWithHost(P as any, host as any);
 
-    expect(controller.getRuleStyleTokens()).toContain('opacity-50');
-    expect(Array.isArray(res?.disposers?.rule)).toBe(true);
-
-    res.disposers.rule[0]();
     expect(controller.getRuleStyleTokens()).not.toContain('opacity-50');
   });
 

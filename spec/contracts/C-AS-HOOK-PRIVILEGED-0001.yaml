@@ -1,0 +1,63 @@
+id: C-AS-HOOK-PRIVILEGED-0001
+type: contract
+title: Privileged asHooks expose restricted module-port capabilities
+status: draft
+since: 0.1.0
+summary: Privileged asHooks may use non-author-facing module ports or host-sensitive capabilities, and each privileged asHook must define its own API, repeat, configuration, and safety rules.
+statement:
+  zh-CN: >-
+    特权 asHook 是官方提供的 asHook 形态，用于把过于强力、过于依赖宿主，或不适合直接暴露给原型作者的 module port 能力，以受限 API 交给原型作者使用。特权 asHook 可以使用普通 authored asHook 无权访问的 facade、port 或宿主协同能力；因此每个特权 asHook 都必须作为独特 API 定义自己的参数、返回 handle、重复调用策略、配置合并、冲突诊断与安全边界。特权 asHook 必须在 trace 中标记 privileged。
+
+
+  en: >-
+    A privileged asHook is an official asHook form that exposes powerful, host-sensitive, or otherwise non-author-facing module-port capabilities to prototype authors through a restricted API. Privileged asHooks may use facades, ports, or host coordination capabilities unavailable to ordinary authored asHooks; therefore each privileged asHook must define its own parameters, returned handles, repeat policy, configuration merge, conflict diagnostics, and safety boundaries as a distinct API. Privileged asHooks must mark themselves as privileged in trace metadata.
+
+
+criteria:
+  - id: C-AS-HOOK-PRIVILEGED-0001-A
+    text:
+      zh-CN: 特权 asHook 可以使用普通原型作者 API 不开放的 module port、facade 或宿主协同能力。
+      en: Privileged asHooks may use module ports, facades, or host coordination capabilities not exposed through ordinary prototype-author APIs.
+  - id: C-AS-HOOK-PRIVILEGED-0001-B
+    text:
+      zh-CN: 每个特权 asHook 必须定义自身的参数、返回值、重复调用策略、配置合并和冲突诊断规则。
+      en: Each privileged asHook must define its own parameters, return value, repeat policy, configuration merge, and conflict diagnostics.
+  - id: C-AS-HOOK-PRIVILEGED-0001-C
+    text:
+      zh-CN: >-
+        特权 asHook 必须在 trace metadata 中标记 `privileged: true`。
+
+
+      en: >-
+        Privileged asHooks must mark `privileged: true` in trace metadata.
+
+
+  - id: C-AS-HOOK-PRIVILEGED-0001-D
+    text:
+      zh-CN: 特权 asHook 可以出于安全或宿主约束不暴露完整撤销能力，但必须由其自身契约说明。
+      en: A privileged asHook may omit full rollback capability for safety or host constraints, but its own contract must say so.
+sources:
+  - path: internal/contracts/as-hook/as-hook.v0.md
+    sections:
+      - Privileged asHooks
+  - path: packages/hooks/README.md
+    sections:
+      - Authoring Constraints
+  - path: packages/hooks/src/as-focusable.ts
+    sections:
+      - asFocusable
+  - path: packages/hooks/src/as-trigger.ts
+    sections:
+      - asTrigger
+dependsOn:
+  contracts:
+    - C-AS-HOOK-0001
+    - C-AS-HOOK-0008
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured privileged asHooks as restricted module-port capability APIs.
+tags:
+  - as-hook
+  - privileged
+  - module-port

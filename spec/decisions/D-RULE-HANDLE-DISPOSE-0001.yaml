@@ -1,0 +1,36 @@
+id: D-RULE-HANDLE-DISPOSE-0001
+type: decision
+title: RuleHandle.dispose conflicts with setup-only removal boundary
+status: draft
+since: 0.1.0
+summary: Current `RuleHandle.dispose()` behavior can be called after setup, but setup-only removal should not become a runtime escape hatch without a dedicated runtime API.
+statement:
+  zh-CN: >-
+    当前 `RuleHandle.dispose()` 可以在 setup 之后被调用，这与 setup-only API 返回移除动作默认仍为 setup-only 的边界存在冲突。后续需要决定 Rule removal 是 setup-only composition 能力，还是一条正式 runtime Rule API。
+
+  en: >-
+    Current `RuleHandle.dispose()` can be called after setup, which conflicts with the boundary that removal actions returned by setup-only APIs remain setup-only by default. A future decision must decide whether Rule removal is setup-only composition or a formal runtime Rule API.
+
+explains:
+  contracts:
+    - C-CORE-SYNTAX-0007
+    - C-RULE-0004
+sources:
+  - path: internal/contracts/rule/define.setup-only.v0.md
+    sections:
+      - Setup-time Removal Boundary
+  - path: packages/modules/rule/src/impl.ts
+    sections:
+      - define
+  - path: internal/contracts/_debt/rule.deferred-semantics.md
+    sections:
+      - D-RULE-HANDLE-DISPOSE-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Recorded `RuleHandle.dispose()` phase semantics as a decision gap.
+tags:
+  - rule
+  - setup
+  - dispose
+  - debt

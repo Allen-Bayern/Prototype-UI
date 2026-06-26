@@ -1,46 +1,49 @@
-# rule.define — Setup-only Declaration Contract (v0)
+# rule.define - Setup-only Declaration Contract (v0)
 
-## Purpose
-
-This contract defines how rules are declared during setup and compiled into RuleIR. Rule declarations are static and must not depend on runtime state.
+> Status: Draft - v0
+>
+> This contract defines `def.rule` as the setup-time declaration API for rule. A rule declaration records static condition-to-intent structure and compiles it into RuleIR. It must not become a runtime rule creation or runtime removal API.
 
 ---
 
-## 0. Scope & Non-goals
+## 0. Scope and Non-goals
 
 ### 0.1 Scope (v0)
 
-- `def.rule(spec)` is setup-only
-- RuleSpec shape and constraints
-- RuleIR structure and invariants
-- Deterministic ordering of active rules
-- Error boundaries
+- `def.rule(spec)` phase boundary
+- RuleSpec minimum shape
+- RuleIR declaration invariants
+- declaration-order stability
+- setup-time removal boundary
 
 ### 0.2 Non-goals (v0)
 
-- Does not define when/intent semantics (see corresponding contracts)
-- Does not define runtime evaluation (see `runtime.apply.v0.md`)
-- No runtime rule declaration
+- individual `when` semantics
+- individual `intent` semantics
+- runtime scheduling
+- host-specific optimization
+- runtime rule declaration or mutation
 
 ---
 
-## 1. API Shape (v0)
+## 1. API Shape
 
 ```ts
-def.rule(spec: RuleSpec<Props>): void
+def.rule(spec: RuleSpec<Props>): RuleHandle | void
 ```
 
-Calling `def.rule` outside setup **MUST throw**.
+`def.rule` is setup-only.
+
+Calling `def.rule` outside setup must throw or fail through the exec-phase guard.
 
 ---
 
-## 2. RuleSpec (v0)
+## 2. RuleSpec Shape
 
 ```ts
 type RuleSpec<Props> = {
   label?: string;
   note?: string;
-
   when: (w: WhenBuilder<Props>) => WhenExpr<Props>;
   intent: (i: IntentBuilder) => void;
 };
@@ -48,48 +51,74 @@ type RuleSpec<Props> = {
 
 Rules:
 
-- `when` MUST be constructed via `WhenBuilder`
-- `intent` MUST be recorded via `IntentBuilder`
-- RuleSpec must be fully static during setup
-- No runtime closures may escape into RuleIR
+- `when` must use `WhenBuilder` to construct a declarative expression.
+- `intent` must use `IntentBuilder` to record declarative operations.
+- RuleSpec must be fully resolved during setup.
+- Runtime closures must not escape into RuleIR.
 
 ---
 
-## 3. Compilation Output: RuleIR (v0)
+## 3. RuleIR Invariants
 
-```ts
-type RuleIR<Props> = {
-  label?: string;
-  note?: string;
+RuleIR must be the serialized form of the rule declaration.
 
-  deps: RuleDep<Props>[];
-  when: WhenExpr<Props>;
-  intent: RuleIntent;
-};
-```
+It must include:
 
-### 3.1 RuleIR Invariants
+- stable rule identity
+- optional `label` and `note`
+- dependency records
+- a declarative `when` expression
+- declarative intent operations
 
-- RuleIR MUST be pure data
-- RuleIR MUST be serializable in principle
-- RuleIR MUST NOT contain functions or host references
+RuleIR must not contain:
 
----
+- functions
+- host references
+- runtime closures
+- live state handles
+- adapter-specific objects
 
-## 4. Ordering (v0)
-
-When multiple rules are active:
-
-1. Order by declaration order only
-
-Intents apply in this deterministic order. Conflict resolution is delegated to semantic merge.
+If an implementation currently needs a live handle for execution, that handle must be treated as implementation state outside RuleIR. The RuleIR-facing identity must remain serializable.
 
 ---
 
-## 5. Errors
+## 4. Declaration Order
 
-The following MUST throw synchronously:
+When multiple rules are active, their intent operations are collected in declaration order.
+
+Declaration order is the only core ordering rule in v0. Conflict resolution belongs to the relevant intent channel.
+
+---
+
+## 5. Setup-time Removal Boundary
+
+If `def.rule` returns a handle with a removal method, that removal method is part of setup-time composition unless a separate runtime rule API is explicitly specified.
+
+Rules:
+
+- setup-time rule removal may be allowed to support conditional composition during setup
+- runtime rule removal is not part of rule core v0
+- a removal function returned by a setup-only API must not be used as a lifecycle disposer
+
+The current `RuleHandle.dispose()` behavior needs implementation review because it can be called after setup in existing code. This is tracked as debt.
+
+---
+
+## 6. Error Model
+
+The following must fail synchronously:
 
 - calling `def.rule` outside setup
-- using non-builder values inside `when`
-- using unsupported operations inside `intent`
+- returning a non-declarative `when` expression
+- using unsupported intent operations
+- using setup-only removal outside setup, once the removal boundary is enforced
+
+---
+
+## 7. Related Contracts
+
+- `rule.v0.md`
+- `when.expr.v0.md`
+- `intent.compose.v0.md`
+- `runtime.apply.v0.md`
+- `_debt/rule.deferred-semantics.md`

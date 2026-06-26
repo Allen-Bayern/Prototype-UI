@@ -1,114 +1,97 @@
-# Rule (English)
+# Rule Contract Index
 
-> Status: Draft – v0 (Positioning & Stance)
+> Status: Draft - v0
 >
-> This is the English contract set overview for rule. It explains rule's positioning, value, and stance on extension modules.
+> Rule is Proto UI's declarative condition-to-intent syntax. It is not an information channel. It observes values exposed by other modules and records intent in analyzable RuleIR so runtime, adapters, and future compilers can choose an equivalent execution strategy.
 
 ---
 
-## 1. Positioning & Value
+## Core Contracts
 
-Rule is Proto UI's **declarative intent orchestration layer**:
-
-- Expresses “condition -> intent” as serializable RuleIR
-- Enables lossless cross-platform migration (e.g. TS prototype -> Dart prototype)
-- Provides stable inputs for optimization and compilation
-
-In v0:
-
-- Rule is one of the highest leverage mechanisms
-- It shifts behavior from imperative callbacks to analyzable data
-- It lays groundwork for future compiler work without being invalidated by v1
-
----
-
-## 2. Stance on Rule Extension Packages
-
-Proto UI encourages rule extensions for **specific hosts / specific scenarios**:
-
-- Intervene only when conditions are clearly satisfied (strong optimization)
-- Integrate as modules without changing rule’s serializable core
-- Preserve v0 best practices as reusable assets
-
-These extensions are recommended (though not the primary v0 workstream). Proto UI will actively encourage their accumulation.
-
----
-
-## 3. Web Recommended Practice (v0)
-
-When all are true:
-
-- `when` depends on exposed state
-- adapter enables `expose-state-web` (maps to CSS variables / DOM attributes)
-- intent is only `feedback.style`
-
-then the rule can be compiled into **static selector styles** with no runtime execution. This is semantically equivalent and recommended in v0.
-
----
-
-## 4. Forward Compatibility
-
-Rule’s value does not disappear with compilers:
-
-- Clearer semantics create more optimization/compile headroom
-- Discovered best practices are retained as reusable extensions
-
-Rule extensions are long-term assets, not short-term hacks.
-
----
-
-## 5. Execution Layer (Overview)
-
-Execution has three layers:
-
-- **rule core**: evaluate + merge, default output is Plan
-- **executor**: separate module, turns Plan into execution
-- **adapter**: can customize executor via host-cap
-
-Extensions may **short-circuit Plan** when conditions are met and execute directly or delegate to adapter.
-
----
-
-## 6. Contract Index (v0)
-
-When dependencies:
-
-- `when.expr.v0.md`
-- `when.deps.props.v0.md`
-- `when.deps.state.v0.md`
-- `when.deps.context.v0.md`
-- `when.deps.state.wiring.v0.md`
-- `when.deps.context.wiring.v0.md`
-
-Intent capabilities:
-
-- `intent.compose.v0.md`
-- `intent.feedback.style.v0.md`
-- `intent.state.v0.md`
-
-Other:
+- `rule.v0.md`
+  - `C-RULE-0001`: rule is not an information channel
+  - `C-RULE-0002`: rule is optional but recommended when expressive enough
+  - `C-RULE-0003`: RuleIR must be serializable
+  - `C-RULE-0004`: `def.rule` is setup-only
+  - `C-RULE-0005`: setup-time removal must not become runtime removal
 
 - `define.setup-only.v0.md`
+  - setup-time declaration API
+  - RuleSpec and RuleIR boundaries
+  - declaration order and RuleHandle concerns
+
+- `when.expr.v0.md`
+  - pure condition expression grammar
+  - `eq`, `not`, `all`, `any`, `t`, `f`
+  - dependency recording shape
+
+- `intent.compose.v0.md`
+  - intent builder as declarative op recorder
+  - op ordering and channel independence
+  - no arbitrary callbacks or host-specific side effects
+
 - `runtime.apply.v0.md`
+  - rule evaluation flow
+  - default Plan output
+  - executor and extension boundary
 
 ---
 
-## 7. Test Matrix Index (Suggested)
+## Stable v0 Inputs and Intents
 
-When dimensions:
+Stable first-pass when inputs:
 
-- props
-- state (Owned / Borrowed / Observed)
-- context
+- `when.deps.props.v0.md`
+- `when.deps.state.v0.md`
+- `when.deps.state.wiring.v0.md`
 
-Intent dimensions:
+Stable first-pass intent:
 
-- feedback.style
-- state.set
+- `intent.feedback.style.v0.md`
 
-Suggested combinations:
+These are the preferred baseline for executable tests in the first cataloging pass.
 
-- when.props x intent.feedback.style
-- when.state(Owned/Borrowed/Observed) x intent.state
-- when.context x intent.feedback.style
-- when.context x intent.state
+---
+
+## Deferred or Extension Scope
+
+- `intent.state.v0.md`
+  - planned rule state intent semantics
+  - not fully implemented in the current runtime
+  - tracked by `_debt/rule.deferred-semantics.md`
+
+- `when.deps.context.v0.md`
+- `when.deps.context.wiring.v0.md`
+  - context dependency exists in current implementation as `w.ctx(key)`
+  - static path access remains deferred
+  - tracked by `_debt/rule.deferred-semantics.md`
+
+- rule meta / host environment inputs
+  - currently implemented by `module-rule-meta`
+  - treated as rule secondary scope, not rule core
+  - naming and abstraction remain open
+
+- Web exposed-state selector optimization
+  - belongs to `module-rule-expose-state-web` and Web adapter/profile contracts
+  - validates rule's optimization potential but does not define rule core semantics
+
+---
+
+## Test Matrix Guidance
+
+The current matrix files intentionally separate dimensions:
+
+- `packages/runtime/test/contract/rule.matrix.when.v0.contract.test.ts`
+- `packages/runtime/test/contract/rule.matrix.intent.v0.contract.test.ts`
+- `packages/runtime/test/contract/rule.matrix.combine.v0.contract.test.ts`
+
+First executable coverage should focus on:
+
+- `when.props x intent.feedback.style`
+- `when.state x intent.feedback.style`
+- declaration order and semantic token merge
+- activation and deactivation cleanup
+- setup-only phase errors
+- RuleIR dependency recording and serialization boundaries
+
+Only after those are stable should deferred channels such as `intent.state` and context path access be promoted into executable conformance tests.

@@ -1,47 +1,48 @@
-# rule.runtime.apply — Evaluation & Plan (v0)
+# rule.runtime.apply - Evaluation and Execution Boundary (v0)
 
-## Purpose
-
-Defines how rule runtime evaluates RuleIR and produces a Plan. Rule runtime does not touch the host directly.
+> Status: Draft - implementation-aligned for `feedback.style`
+>
+> Rule runtime evaluates RuleIR against current observable inputs and produces an execution plan or an equivalent optimized execution. In v0, the stable default plan is `style.tokens`.
 
 ---
 
-## 0. Scope & Non-goals
+## 0. Scope and Non-goals
 
 ### 0.1 Scope (v0)
 
-- Evaluation flow
-- Plan output structure
-- Adapter boundary
-- Minimal wiring requirements
+- evaluation flow
+- active rule selection
+- declaration-order operation collection
+- default `style.tokens` Plan
+- extension and short-circuit boundary
 
 ### 0.2 Non-goals (v0)
 
-- Does not define rendering/scheduling strategies
-- Does not define host-specific application
-- Does not introduce cross-channel conflict resolution
+- host-specific style application
+- render scheduling
+- state intent application, until implemented
+- Web selector optimization details
 
 ---
 
-## 1. Evaluation Model (v0)
+## 1. Evaluation Flow
 
-Given:
-
-- a set of RuleIR
-- current observable values for dependencies
-
-Runtime MUST:
+Given a set of RuleIR and current observable inputs, runtime must:
 
 1. evaluate each rule's `when`
 2. select active rules
-3. order by declaration order
-4. collect intent ops
-5. merge per intent channel (see `intent.compose.v0.md`)
-6. output Plan by default, or be short-circuited by extensions
+3. preserve declaration order
+4. collect intent operations
+5. merge supported intent channels according to their contracts
+6. produce a Plan or allow an extension to execute an equivalent optimized path
+
+Evaluation must be deterministic for identical inputs.
 
 ---
 
-## 2. Plan Output (v0)
+## 2. Default Plan
+
+The stable v0 default Plan is:
 
 ```ts
 type RulePlanV0 = {
@@ -50,71 +51,57 @@ type RulePlanV0 = {
 };
 ```
 
-- `tokens` MUST be semantic-merged
-- empty token list means no active style intent
+Rules:
 
-> Plan is the **default output** that carries merged semantics.  
-> The executor is a separate module and can be customized by the adapter.  
-> Extensions may short-circuit Plan and must assume execution responsibility.  
-> As intent channels expand, Plan may expand accordingly.
-
----
-
-## 3. Adapter Boundary
-
-Adapter:
-
-- consumes Plan
-- decides scheduling and realization strategy
-- ensures host reflects the latest tokens
-
-Runtime MUST NOT:
-
-- touch the host or bypass adapter boundary
-- trigger rendering directly
-
-Executor boundary constraints:
-
-- default executor must use channel facades, not host APIs
-- adapter may customize/replace executor via host-cap (no naming mandated)
-- extensions that short-circuit Plan must execute equivalently or delegate explicitly
+- `tokens` must be semantically merged
+- empty tokens mean no active style intent
+- Plan is not host output
+- Plan does not imply CSS, classes, attributes, or any host-specific realization
 
 ---
 
-## 4. Minimal Wiring (v0)
+## 3. Executor Boundary
 
-- `deps.kind === 'prop'` MUST be wired to resolved props observation
-- dependency changes MUST trigger re-evaluation
+Rule runtime must not bypass Proto UI channels to touch the host.
 
-State/context deps may be stubbed in v0 tests, but MUST be present in RuleIR.
+The default executor may apply a style-token Plan through feedback runtime style APIs. It must not write host classes, attributes, DOM, native views, or platform objects directly.
 
----
-
-## 5. State Intent Application (v0)
-
-When state intent exists:
-
-- runtime MUST merge per-state target values first
-- merge uses the layer model (see `intent.state.v0.md`)
-- per evaluation cycle, each state is set **at most once**
-- no set if target equals current value
+Adapters may customize execution if they preserve the same semantic result.
 
 ---
 
-## 6. Web Optimization Note (Recommended)
+## 4. Extension Boundary
 
-When all are true:
+Extensions may:
 
-- `when` depends on exposed state
-- adapter enables `expose-state-web` (CSS variables / DOM attributes)
-- intent is only `feedback.style`
+- transform RuleIR
+- provide additional input readers
+- adjust Plan output
+- short-circuit Plan execution
 
-rules may compile into static selector styles and skip runtime execution. This is semantically equivalent and recommended in v0.
+If an extension short-circuits the default Plan, it assumes responsibility for equivalent execution or explicit delegation.
+
+Short-circuit optimization must not define core rule semantics. It is downstream realization.
 
 ---
 
-## 7. Invariants
+## 5. Trigger Boundary
 
-- evaluation MUST be deterministic
-- identical inputs MUST produce identical merged results (Plan or equivalent execution)
-- runtime MUST NOT bypass adapter boundary
+Rule evaluation can be triggered by runtime/module wiring, such as:
+
+- props changes
+- referenced state changes
+- lifecycle checkpoints
+- explicit adapter/controller update paths
+
+The exact scheduling strategy is not part of rule core as long as observable semantics are equivalent for the supported input and intent combination.
+
+---
+
+## 6. Related Contracts
+
+- `rule.v0.md`
+- `intent.feedback.style.v0.md`
+- `when.deps.props.v0.md`
+- `when.deps.state.wiring.v0.md`
+- `_debt/rule.deferred-semantics.md`
