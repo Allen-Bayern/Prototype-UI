@@ -21,6 +21,7 @@ relates:
   decisions:
     - D-AS-HOOK-CONFIGURABLE-AUTHORED-0001
     - D-AS-HOOK-DEFINE-HOOK-0001
+    - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
 sources:
   - path: internal/contracts/as-hook/as-hook.v0.md
     sections:
