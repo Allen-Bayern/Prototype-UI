@@ -23,7 +23,7 @@ function setupHoverCardTrigger(
 
   def.context.subscribe(HOVER_CARD_CONTEXT);
   const hovered = def.state.fromInteraction('hovered');
-  const focusable = asFocusable();
+  const focusable = asFocusable<HoverCardTriggerProps>();
   const focused = focusable.focused;
 
   const updateFlags = (

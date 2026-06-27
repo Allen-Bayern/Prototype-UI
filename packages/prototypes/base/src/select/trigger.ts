@@ -14,7 +14,7 @@ const SELECT_ROVING_HANDLED = '__selectRovingHandled';
 function setupSelectTrigger(def: DefHandle<SelectTriggerProps, SelectTriggerExposes>): void {
   def.anatomy.claim(SELECT_FAMILY, { role: 'trigger' });
   asButton();
-  const focusable = asFocusable();
+  const focusable = asFocusable<SelectTriggerProps>();
   const focused = focusable.focused;
 
   def.props.define({

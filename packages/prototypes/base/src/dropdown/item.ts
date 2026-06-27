@@ -8,7 +8,7 @@ const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
 
 function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes>): void {
   asButton();
-  const focusable = asFocusable();
+  const focusable = asFocusable<DropdownItemProps>();
   focusable.configure({ groupKey: DROPDOWN_FOCUS_GROUP });
   const hovered = def.state.fromInteraction('hovered');
   const focused = focusable.focused;

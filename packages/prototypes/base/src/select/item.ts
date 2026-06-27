@@ -17,7 +17,7 @@ function syncBoolState(
 
 function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): void {
   asButton();
-  const focusable = asFocusable();
+  const focusable = asFocusable<SelectItemProps>();
   focusable.configure({ groupKey: SELECT_FOCUS_GROUP });
   const hovered = def.state.fromInteraction('hovered');
   const focused = focusable.focused;

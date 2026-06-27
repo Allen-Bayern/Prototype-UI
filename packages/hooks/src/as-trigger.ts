@@ -1,15 +1,17 @@
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asTrigger(): void {
-  const { rt, facades } = getActiveAsHookContext('asTrigger');
-  rt.ensureSetup(`asHook(asTrigger)`);
-  const reg = rt.register('asTrigger', { privileged: true, mode: 'once' });
-  if (reg.action !== 'setup') return;
+type AsTriggerFacade = {
+  apply(): void;
+};
 
-  const facade = facades['as-trigger'] as { apply: () => void } | undefined;
-  if (!facade || typeof facade.apply !== 'function') {
-    throw new Error(`[AsHook] asTrigger facade unavailable.`);
-  }
-
-  facade.apply();
-}
+export const asTrigger = definePrivilegedAsHook<PropsBaseType, void>({
+  name: 'asTrigger',
+  setup: ({ facades }) => {
+    const facade = facades['as-trigger'] as AsTriggerFacade | undefined;
+    if (!facade || typeof facade.apply !== 'function') {
+      throw new Error(`[AsHook] asTrigger facade unavailable.`);
+    }
+    facade.apply();
+  },
+});

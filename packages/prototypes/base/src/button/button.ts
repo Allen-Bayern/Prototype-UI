@@ -17,7 +17,7 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
 
   const disabled = def.state.fromInteraction('disabled');
   def.expose.state('disabled', disabled);
-  const focusable = asFocusable();
+  const focusable = asFocusable<ButtonProps>();
   focusable.configure({ disabled: false });
   const hovered = def.state.fromInteraction('hovered');
   const focused = focusable.focused;

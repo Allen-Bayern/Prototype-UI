@@ -14,7 +14,7 @@ function syncSelectedFromContext(
 
 function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>): void {
   asButton();
-  const focusable = asFocusable();
+  const focusable = asFocusable<TabsTriggerProps>();
   focusable.configure({ groupKey: TABS_FOCUS_GROUP });
   const focused = focusable.focused;
   const selected = def.state.fromAccessibility('selected');

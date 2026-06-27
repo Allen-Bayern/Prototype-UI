@@ -71,15 +71,15 @@ describe('runtime contract: focus (v0)', () => {
   it('FOCUS-0100: repeated asFocusable calls reuse one handle and last compatible scopeKey wins', () => {
     const first = createFocusScopeKey({ debugLabel: 'first' });
     const second = createFocusScopeKey({ debugLabel: 'second' });
-    let a!: FocusableHandle<any>;
-    let b!: FocusableHandle<any>;
+    let a!: FocusableHandle<PropsBaseType>;
+    let b!: FocusableHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-0100',
       setup() {
-        a = asFocusable();
+        a = asFocusable<PropsBaseType>();
         a.configure({ scopeKey: first });
-        b = asFocusable();
+        b = asFocusable<PropsBaseType>();
         b.configure({ scopeKey: second });
         return (r) => r.el('div', 'ok');
       },
@@ -99,20 +99,20 @@ describe('runtime contract: focus (v0)', () => {
     });
     expect(port?.getWarnings()).toEqual([expect.stringContaining('focusable.scopeKey overridden')]);
     expect((P as any).__asHooks).toEqual([
-      { name: 'asFocusable', order: 0, privileged: true, mode: 'configurable' },
+      { name: 'asFocusable', order: 0, privileged: true, mode: 'once' },
     ]);
   });
 
   it('FOCUS-0200: repeated asFocusScope calls reuse one handle and key patch is retained', () => {
     const scopeKey = createFocusScopeKey({ debugLabel: 'scope-2' });
-    let scopeA!: FocusScopeHandle<any>;
-    let scopeB!: FocusScopeHandle<any>;
+    let scopeA!: FocusScopeHandle<PropsBaseType>;
+    let scopeB!: FocusScopeHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-0200',
       setup() {
-        scopeA = asFocusScope({ navigation: 'tab' });
-        scopeB = asFocusScope({ key: scopeKey, navigation: 'arrow', loop: true });
+        scopeA = asFocusScope<PropsBaseType>({ navigation: 'tab' });
+        scopeB = asFocusScope<PropsBaseType>({ key: scopeKey, navigation: 'arrow', loop: true });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -140,19 +140,19 @@ describe('runtime contract: focus (v0)', () => {
       ])
     );
     expect((P as any).__asHooks).toEqual([
-      { name: 'asFocusScope', order: 0, privileged: true, mode: 'configurable' },
+      { name: 'asFocusScope', order: 0, privileged: true, mode: 'once' },
     ]);
   });
 
   it('FOCUS-0300: configure is setup-only on focus handles', () => {
     const key = createFocusScopeKey({ debugLabel: 'late' });
-    let focusable!: FocusableHandle<any>;
+    let focusable!: FocusableHandle<PropsBaseType>;
     let thrown: unknown;
 
     const P = definePrototype({
       name: 'x-focus-0300',
       setup(def) {
-        focusable = asFocusable();
+        focusable = asFocusable<PropsBaseType>();
         def.lifecycle.onCreated(() => {
           try {
             focusable.configure({ scopeKey: key });
@@ -172,12 +172,12 @@ describe('runtime contract: focus (v0)', () => {
   });
 
   it('FOCUS-0400: focus commands update minimal facts snapshot', () => {
-    let focusable!: FocusableHandle<any>;
+    let focusable!: FocusableHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-0400',
       setup(def) {
-        focusable = asFocusable();
+        focusable = asFocusable<PropsBaseType>();
         focusable.configure({ disabled: false });
         def.lifecycle.onCreated(() => {
           focusable.focus({ reason: 'keyboard' });
@@ -200,14 +200,14 @@ describe('runtime contract: focus (v0)', () => {
   });
 
   it('FOCUS-0450: host focus events update focus-owned observed facts', () => {
-    let focusable!: FocusableHandle<any>;
+    let focusable!: FocusableHandle<PropsBaseType>;
     const root = createMockTarget();
     const global = createMockTarget();
 
     const P = definePrototype({
       name: 'x-focus-0450',
       setup() {
-        focusable = asFocusable();
+        focusable = asFocusable<PropsBaseType>();
         return (r) => r.el('div', 'ok');
       },
     });
@@ -235,14 +235,14 @@ describe('runtime contract: focus (v0)', () => {
   });
 
   it('FOCUS-0460: focus fact handles are rule-consumable state handles', () => {
-    let focusable!: FocusableHandle<any>;
+    let focusable!: FocusableHandle<PropsBaseType>;
     const root = createMockTarget();
     const global = createMockTarget();
 
     const P = definePrototype({
       name: 'x-focus-0460',
       setup(def) {
-        focusable = asFocusable();
+        focusable = asFocusable<PropsBaseType>();
         def.rule({
           when: (w) => w.state(focusable.focusVisible).eq(true),
           intent: (i) => i.feedback.style.use(tw('ring-2')),
@@ -262,12 +262,12 @@ describe('runtime contract: focus (v0)', () => {
   });
 
   it('FOCUS-0500: disabled focusable rejects focus requests', () => {
-    let focusable!: FocusableHandle<any>;
+    let focusable!: FocusableHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-0500',
       setup(def) {
-        focusable = asFocusable();
+        focusable = asFocusable<PropsBaseType>();
         focusable.configure({ disabled: true });
         def.lifecycle.onCreated(() => {
           focusable.focus({ reason: 'keyboard' });
@@ -293,7 +293,7 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0600',
       setup() {
-        const focusable = asFocusable();
+        const focusable = asFocusable<PropsBaseType>();
         focusable.configure({ autoFocus: true });
         return (r) => r.el('div', 'ok');
       },
@@ -313,12 +313,12 @@ describe('runtime contract: focus (v0)', () => {
   });
 
   it('FOCUS-0700: scope emptyPolicy=container activates scope without node focus', () => {
-    let scope!: FocusScopeHandle<any>;
+    let scope!: FocusScopeHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-0700',
       setup(def) {
-        scope = asFocusScope({ emptyPolicy: 'container' });
+        scope = asFocusScope<PropsBaseType>({ emptyPolicy: 'container' });
         def.lifecycle.onCreated(() => {
           scope.focusFirst();
         });

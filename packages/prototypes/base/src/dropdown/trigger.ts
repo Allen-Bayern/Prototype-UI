@@ -15,7 +15,7 @@ const DROPDOWN_OPEN_HANDLED = '__dropdownOpenHandled';
 function setupDropdownTrigger(def: DefHandle<DropdownTriggerProps, DropdownTriggerExposes>): void {
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'trigger' });
   asButton();
-  const focusable = asFocusable();
+  const focusable = asFocusable<DropdownTriggerProps>();
   const focused = focusable.focused;
 
   def.props.define({

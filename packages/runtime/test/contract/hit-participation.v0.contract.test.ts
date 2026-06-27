@@ -35,18 +35,18 @@ const createHost = <P extends PropsBaseType>(name: string) => {
 
 describe('runtime contract: hit participation (v0)', () => {
   it('HIT-0100: repeated asHitParticipation(...) calls on one instance reuse one underlying capability and merge setup-time configuration deterministically', () => {
-    let a!: HitParticipationHandle<any>;
-    let b!: HitParticipationHandle<any>;
+    let a!: HitParticipationHandle<PropsBaseType>;
+    let b!: HitParticipationHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-hit-0100',
       setup() {
-        a = asHitParticipation({
+        a = asHitParticipation<PropsBaseType>({
           mode: 'disabled',
           debugLabel: 'alpha',
           meta: { origin: 'first' },
         });
-        b = asHitParticipation({
+        b = asHitParticipation<PropsBaseType>({
           mode: 'passthrough',
           debugLabel: 'beta',
           meta: { step: 2 },
@@ -75,7 +75,7 @@ describe('runtime contract: hit participation (v0)', () => {
       ])
     );
     expect((P as any).__asHooks).toEqual([
-      { name: 'asHitParticipation', order: 0, privileged: true, mode: 'configurable' },
+      { name: 'asHitParticipation', order: 0, privileged: true, mode: 'once' },
     ]);
   });
 

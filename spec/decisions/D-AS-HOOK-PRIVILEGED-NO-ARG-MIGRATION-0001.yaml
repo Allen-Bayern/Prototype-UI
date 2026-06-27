@@ -88,6 +88,9 @@ revisions:
   - version: 0.1.1
     change: partially-implemented
     summary: Migrated asFocusable to a no-arg caller with setup-time configuration through the returned FocusableHandle.
+  - version: 0.1.2
+    change: clarified
+    summary: Clarified implementation direction by moving asFocusable and simple handle-backed privileged hooks to once registration with repeated configuration through returned handles.
 tags:
   - as-hook
   - privileged
