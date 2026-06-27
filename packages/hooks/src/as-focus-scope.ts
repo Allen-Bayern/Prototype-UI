@@ -1,17 +1,26 @@
 import type { FocusScopeConfigPatch, FocusScopeHandle } from '@proto.ui/core';
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asFocusScope(patch?: FocusScopeConfigPatch): FocusScopeHandle<any> {
-  const { rt, facades } = getActiveAsHookContext('asFocusScope');
-  rt.ensureSetup(`asHook(asFocusScope)`);
-  rt.register('asFocusScope', { privileged: true, mode: 'configurable' });
+type FocusScopeFacade = {
+  getScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P>;
+};
 
-  const facade = facades.focus as { getScope: () => FocusScopeHandle<any> } | undefined;
-  if (!facade || typeof facade.getScope !== 'function') {
-    throw new Error(`[AsHook] focus facade unavailable for asFocusScope.`);
-  }
+const getFocusScope = definePrivilegedAsHook<PropsBaseType, FocusScopeHandle<PropsBaseType>>({
+  name: 'asFocusScope',
+  setup: ({ facades }) => {
+    const facade = facades.focus as FocusScopeFacade | undefined;
+    if (!facade || typeof facade.getScope !== 'function') {
+      throw new Error(`[AsHook] focus facade unavailable for asFocusScope.`);
+    }
+    return facade.getScope();
+  },
+});
 
-  const handle = facade.getScope();
+export function asFocusScope<P extends PropsBaseType = PropsBaseType>(
+  patch?: FocusScopeConfigPatch
+): FocusScopeHandle<P> {
+  const handle = getFocusScope() as FocusScopeHandle<P>;
   if (patch) handle.configure(patch);
   return handle;
 }

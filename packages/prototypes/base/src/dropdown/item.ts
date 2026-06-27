@@ -8,9 +8,10 @@ const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
 
 function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes>): void {
   asButton();
-  const focusable = asFocusable({ groupKey: DROPDOWN_FOCUS_GROUP });
+  const focusable = asFocusable<DropdownItemProps>();
+  focusable.configure({ groupKey: DROPDOWN_FOCUS_GROUP });
   const hovered = def.state.fromInteraction('hovered');
-  const focused = def.state.fromInteraction('focused');
+  const focused = focusable.focused;
   const active = def.state.bool('active', false);
   useCollectionItem({
     family: DROPDOWN_FAMILY,

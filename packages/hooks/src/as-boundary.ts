@@ -1,17 +1,26 @@
 import type { BoundaryConfigPatch, BoundaryHandle } from '@proto.ui/core';
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asBoundary(patch?: BoundaryConfigPatch): BoundaryHandle<any> {
-  const { rt, facades } = getActiveAsHookContext('asBoundary');
-  rt.ensureSetup('asHook(asBoundary)');
-  rt.register('asBoundary', { privileged: true, mode: 'configurable' });
+type BoundaryFacade = {
+  getBoundary<P extends PropsBaseType = PropsBaseType>(): BoundaryHandle<P>;
+};
 
-  const facade = facades.boundary as { getBoundary: () => BoundaryHandle<any> } | undefined;
-  if (!facade || typeof facade.getBoundary !== 'function') {
-    throw new Error('[AsHook] boundary facade unavailable for asBoundary.');
-  }
+const getBoundary = definePrivilegedAsHook<PropsBaseType, BoundaryHandle<PropsBaseType>>({
+  name: 'asBoundary',
+  setup: ({ facades }) => {
+    const facade = facades.boundary as BoundaryFacade | undefined;
+    if (!facade || typeof facade.getBoundary !== 'function') {
+      throw new Error('[AsHook] boundary facade unavailable for asBoundary.');
+    }
+    return facade.getBoundary();
+  },
+});
 
-  const handle = facade.getBoundary();
+export function asBoundary<P extends PropsBaseType = PropsBaseType>(
+  patch?: BoundaryConfigPatch
+): BoundaryHandle<P> {
+  const handle = getBoundary() as BoundaryHandle<P>;
   if (patch) handle.configure(patch);
   return handle;
 }

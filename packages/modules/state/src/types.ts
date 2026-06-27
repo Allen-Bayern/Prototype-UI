@@ -25,6 +25,19 @@ export type StatePort = {
   disconnect(handle: OwnedStateHandle<any>): void;
 
   /**
+   * Internal module-owned mutation path.
+   *
+   * This bypasses author-facing phase guards and is intended for runtime modules
+   * that maintain official state facts.
+   */
+  set<V>(handle: OwnedStateHandle<V>, value: V, reason?: unknown, ctx?: unknown): void;
+
+  /**
+   * Internal module-owned default mutation path. Does not emit.
+   */
+  setDefault<V>(handle: OwnedStateHandle<V>, value: V): void;
+
+  /**
    * Create an internal "observed" view for a slot.
    * This is NOT the component-author facing ObservedStateHandle type (that one is typed with RunHandle<P>),
    * but it's sufficient for internal modules that only need get+watch with opaque ctx.

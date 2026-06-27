@@ -36,12 +36,12 @@ criteria:
       en: Declaring and maintaining interaction state must not implicitly trigger render or commit; UI updates must still occur through explicit update, rule, or another path defined by a separate contract.
   - id: C-STATE-INTERACTION-0002-F
     text:
-      zh-CN: 同一交互主体的 `disabled` interaction state 为 true 时，runtime-managed wiring 不得把 hovered、pressed、focused 或 focusVisible 激活为 true，并必须清理已经激活的这些瞬时 interaction state。
-      en: When the same interaction subject's `disabled` interaction state is true, runtime-managed wiring must not activate hovered, pressed, focused, or focusVisible to true and must clear any already-active transient interaction states among them.
+      zh-CN: 同一交互主体的 `disabled` interaction state 为 true 时，state-interaction runtime-managed wiring 不得把 hovered 或 pressed 激活为 true，并必须清理已经激活的 hovered/pressed 瞬时 interaction state。
+      en: When the same interaction subject's `disabled` interaction state is true, state-interaction runtime-managed wiring must not activate hovered or pressed to true and must clear any already-active hovered/pressed transient interaction state.
   - id: C-STATE-INTERACTION-0002-G
     text:
-      zh-CN: '`focusVisible` 必须反映 keyboard modality；进入 pointer modality 时，已激活的 focusVisible 必须被清理。'
-      en: '`focusVisible` must reflect keyboard modality; when pointer modality is entered, an active focusVisible state must be cleared.'
+      zh-CN: '`focused` 与 `focusVisible` 不属于 state-interaction 的 runtime-managed wiring 所有权；需要焦点事实的原型必须通过 focus 特权 asHook 或其后续投影契约取得。'
+      en: '`focused` and `focusVisible` are not owned by state-interaction runtime-managed wiring; prototypes that need focus facts must obtain them through the focus privileged asHook or a later focus projection contract.'
 openQuestions:
   - id: C-STATE-INTERACTION-0002-Q-MODULE-HOST-CAP-CATALOG
     question:
@@ -89,6 +89,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured interaction state as runtime-managed event-backed state semantics.
+  - version: 0.1.1
+    change: narrowed
+    summary: Removed focus-owned focused/focusVisible semantics from state-interaction wiring ownership.
 tags:
   - state
   - interaction

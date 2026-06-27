@@ -17,10 +17,13 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
 
   const disabled = def.state.fromInteraction('disabled');
   def.expose.state('disabled', disabled);
-  const focusable = asFocusable({ disabled: false });
+  const focusable = asFocusable<ButtonProps>();
+  focusable.configure({ disabled: false });
   const hovered = def.state.fromInteraction('hovered');
-  const focused = def.state.fromInteraction('focused');
-  const focusVisible = def.state.fromInteraction('focusVisible');
+  const focused = focusable.focused;
+  const focusVisible = focusable.focusVisible;
+  const legacyFocused = def.state.fromInteraction('focused');
+  const legacyFocusVisible = def.state.fromInteraction('focusVisible');
   const pressed = def.state.fromInteraction('pressed');
 
   const syncDisabled = (nextDisabled: boolean) => {
@@ -38,24 +41,13 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
 
   def.expose.state('hovered', hovered);
 
-  focused.watch((_run, event) => {
-    if (event.type === 'disconnect') {
-      focusable.blur();
-      return;
-    }
-    if (event.next) {
-      focusable.focus({ reason: focusVisible.get() ? 'keyboard' : 'programmatic' });
-      return;
-    }
-    focusable.blur();
+  focusable.focused.watch((_run, event) => {
+    if (event.type !== 'next') return;
+    legacyFocused.set(event.next, 'reason: asButton focus projection => focused');
   });
-  focusVisible.watch((_run, event) => {
-    if (event.type === 'disconnect') {
-      focusable.blur();
-      return;
-    }
-    if (!focused.get()) return;
-    focusable.focus({ reason: event.next ? 'keyboard' : 'programmatic' });
+  focusable.focusVisible.watch((_run, event) => {
+    if (event.type !== 'next') return;
+    legacyFocusVisible.set(event.next, 'reason: asButton focus projection => focusVisible');
   });
   def.expose.state('focused', focused);
   def.expose.state('focusVisible', focusVisible);

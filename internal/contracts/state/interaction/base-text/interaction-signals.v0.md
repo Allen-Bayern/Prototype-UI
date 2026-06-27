@@ -53,11 +53,11 @@ interaction signal **不是**：
 
 v0 必须至少提供以下 interaction signals：
 
-### 2.1 `focused: boolean`
+### 2.1 `hovered: boolean`
 
 #### 语义
 
-表示组件当前是否处于“获得焦点”的状态。
+表示组件当前是否处于 hover 交互中。
 
 #### 默认值
 
@@ -65,17 +65,18 @@ v0 必须至少提供以下 interaction signals：
 
 #### 进入条件（示意）
 
-- 宿主交互表明组件获得焦点
+- 宿主交互表明指针 hover 到组件上
 
 #### 退出条件（示意）
 
-- 宿主交互表明组件失去焦点
+- 指针离开组件
+- 指针交互被取消
 
 #### 一致性要求（v0）
 
-- 在组件 unmount / dispose 后，`focused` **不得**保持为 `true`
+- 在组件 unmount / dispose 后，`hovered` **不得**保持为 `true`
 
-> 注：v0 不规定“focus”是 root-focus 还是 focus-within，只要求语义内部一致，由 adapter 决定具体策略。
+> 注：`focused` 与 `focusVisible` 这类 focus-owned facts 归属 focus 特权 asHook 领域，不再由 state-interaction 拥有。
 
 ---
 

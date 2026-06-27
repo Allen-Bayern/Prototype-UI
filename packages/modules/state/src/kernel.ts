@@ -76,6 +76,18 @@ export class StateKernel {
     return this.getRecord<any>(id).spec.kind as StateKind;
   }
 
+  /** Internal module mutation path. Module ports enforce access boundaries. */
+  setInternal<V>(handle: OwnedStateHandle<V>, next: V, reason?: StateSetReason): void {
+    const id = this.getIdFromHandle(handle);
+    this.setById<V>(id, next, reason);
+  }
+
+  /** Internal setup/default mutation path. Does not emit. */
+  setDefaultInternal<V>(handle: OwnedStateHandle<V>, next: V): void {
+    const id = this.getIdFromHandle(handle);
+    this.setDefaultById<V>(id, next);
+  }
+
   // ---- byId helpers ----
 
   private getById<V>(id: StateId): V {

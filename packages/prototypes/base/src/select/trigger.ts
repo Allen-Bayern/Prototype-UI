@@ -1,4 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { asFocusable } from '@proto.ui/hooks';
 import { asButton } from '../button';
 import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type {
@@ -13,7 +14,8 @@ const SELECT_ROVING_HANDLED = '__selectRovingHandled';
 function setupSelectTrigger(def: DefHandle<SelectTriggerProps, SelectTriggerExposes>): void {
   def.anatomy.claim(SELECT_FAMILY, { role: 'trigger' });
   asButton();
-  const focused = def.state.fromInteraction('focused');
+  const focusable = asFocusable<SelectTriggerProps>();
+  const focused = focusable.focused;
 
   def.props.define({
     disabled: { type: 'boolean', empty: 'fallback' },

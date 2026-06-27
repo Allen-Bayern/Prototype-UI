@@ -24,7 +24,8 @@ Date: 2026-06-27
 - `asTrigger()` 已经是无参数 privileged asHook。
 - `defineAsHook(...)` authored caller 已经是无参数 caller。
 - 基于 prototype spec 声明的 authored asHook 通常天然无参数。
-- `asFocusable(patch)`、`asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 仍带参数化或 configurable 行为。
+- `asFocusable()` 已迁移为无参数 caller；setup-time 配置通过返回的 `FocusableHandle.configure(...)` 完成。
+- `asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 仍带参数化或 configurable 行为。
 - `useCollection(options)` / `useCollectionItem(options)` 当前通过 `defineHook` 实现，但它们仍消费 anatomy ports，不能简单归入普通作者函数。
 
 ## Progress
@@ -33,6 +34,8 @@ Date: 2026-06-27
 - Done: ordinary authored asHook repeat semantics are first-call-wins with result reuse.
 - Done: use-style helpers have been renamed away from `asXxx` to reduce caller-shape ambiguity.
 - Recorded: privileged no-arg migration direction now has spec entity `D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001`.
+- Done: `asFocusable` caller shape migrated to no-arg; focusable configuration now goes through the returned handle.
+- Done: focus-owned `focused` / `focusVisible` facts moved out of state-interaction runtime wiring ownership, returned as state-backed observed handles, and recorded by `D-FOCUS-STATE-INTERACTION-BOUNDARY-0001`.
 - Open: parameterized privileged hooks still need API-by-API migration plans.
 - Open: `useCollection` / `useCollectionItem` need a final classification.
 - Open: returned configuration APIs need concrete contracts and tests before replacing existing patch/options parameters.

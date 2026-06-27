@@ -193,19 +193,38 @@ export class StateModuleImpl {
       this.emitDisconnect(handle);
     },
 
+    set: (handle, value, reason, ctx) => {
+      this.ensureAlive(`state.port.set`);
+      return this.withCtx(ctx ?? this.getCallbackCtx(), () =>
+        this.kernel.setInternal(handle, value, reason as any)
+      );
+    },
+
+    setDefault: (handle, value) => {
+      this.ensureAlive(`state.port.setDefault`);
+      return this.kernel.setDefaultInternal(handle, value);
+    },
+
     createObservedHandle: (handle) => {
       this.ensureAlive(`state.port.createObservedHandle`);
-      return {
+      const observed = {
         get: () => {
           this.ensureAlive(`state.port.createObservedHandle.get`);
           return handle.get();
         },
-        watch: (cb) => {
+        watch: (cb: InternalStateWatchCallback<any>) => {
           this.ensureAlive(`state.port.createObservedHandle.watch`);
           this.sys.ensureSetup(`state.port.createObservedHandle.watch`);
           return this.addWatcher(handle, cb);
         },
       };
+
+      (observed as any).__stateId = (handle as any).__stateId;
+      (observed as any).__stateSemantic = (handle as any).__stateSemantic;
+      (observed as any).__stateKind = (handle as any).__stateKind;
+      (observed as any).__stateSpec = (handle as any).__stateSpec;
+
+      return observed;
     },
 
     createBorrowedHandle: (handle) => {

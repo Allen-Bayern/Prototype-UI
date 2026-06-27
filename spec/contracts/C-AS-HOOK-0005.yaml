@@ -3,14 +3,14 @@ type: contract
 title: asHook effects attach to the caller and module conflicts stay module-owned
 status: draft
 since: 0.1.0
-summary: Effects declared by an asHook through setup APIs must attach to the caller prototype, while duplicate detection and conflict handling remain owned by each module.
+summary: Effects declared by an asHook through setup APIs must attach to the caller prototype; asHooks may depend on any def sub-API, while duplicate detection and conflict handling remain owned by each module.
 statement:
   zh-CN: >-
-    asHook setup 期间通过 `def` 引入的 props、state、event、feedback、expose、context、rule、lifecycle 或其他 setup effects，都必须附着到调用者 prototype，而不是成为 asHook 私有的独立主体效果。asHook runtime 只负责让这些 effects 归属到调用者并形成可诊断的结果；每个模块内部的去重、合并、冲突、诊断和执行顺序仍由对应模块契约负责。
+    asHook setup 与 prototype setup 共享同一套 `def` 语法权利。asHook 可以对 `def` 句柄上的 props、state、event、feedback、expose、context、rule、lifecycle 或其他子 API 产生依赖，这不构成过度耦合；这些 setup effects 都必须附着到调用者 prototype，而不是成为 asHook 私有的独立主体效果。asHook runtime 只负责让这些 effects 归属到调用者并形成可诊断的结果；每个模块内部的去重、合并、冲突、诊断和执行顺序仍由对应模块契约负责。
 
 
   en: >-
-    Props, state, event, feedback, expose, context, rule, lifecycle, or other setup effects introduced through `def` during asHook setup must attach to the caller prototype instead of becoming private effects of an independent asHook subject. The asHook runtime only ensures these effects belong to the caller and can be diagnosed; each module still owns its own dedupe, merge, conflict, diagnostic, and execution-order semantics.
+    asHook setup and prototype setup share the same `def` syntax rights. An asHook may depend on props, state, event, feedback, expose, context, rule, lifecycle, or any other sub-API on the `def` handle; this is not over-coupling. Setup effects introduced through those APIs must attach to the caller prototype instead of becoming private effects of an independent asHook subject. The asHook runtime only ensures these effects belong to the caller and can be diagnosed; each module still owns its own dedupe, merge, conflict, diagnostic, and execution-order semantics.
 
 
 criteria:
@@ -18,6 +18,10 @@ criteria:
     text:
       zh-CN: asHook 通过 `def` 引入的 setup effects 必须归属调用者 prototype。
       en: Setup effects introduced by asHook through `def` must belong to the caller prototype.
+  - id: C-AS-HOOK-0005-A2
+    text:
+      zh-CN: asHook 可以使用 `def` 句柄上的任意子 API；对这些子 API 的依赖不应被视为过度耦合。
+      en: An asHook may use any sub-API on the `def` handle; depending on those sub-APIs must not be treated as over-coupling.
   - id: C-AS-HOOK-0005-B
     text:
       zh-CN: asHook 不得为自身创建独立的 props/state/event/feedback/context/expose/rule 运行域。
@@ -52,6 +56,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured caller-owned effects and module-owned conflict handling for asHook.
+  - version: 0.1.1
+    change: clarified
+    summary: Clarified that asHooks share prototype def syntax rights and may depend on any def sub-API.
 tags:
   - as-hook
   - effects

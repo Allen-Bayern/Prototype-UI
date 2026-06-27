@@ -45,7 +45,7 @@ function setupCheckboxRoot(def: DefHandle<CheckboxRootProps, CheckboxRootExposes
   });
 
   asButton();
-  asFocusable();
+  asFocusable<CheckboxRootProps>();
 
   const checked = def.state.fromAccessibility('checked');
   const disabled = def.state.fromInteraction('disabled');

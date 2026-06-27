@@ -1,17 +1,26 @@
 import type { FocusGroupConfigPatch, FocusGroupHandle } from '@proto.ui/core';
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asFocusGroup(patch?: FocusGroupConfigPatch): FocusGroupHandle<any> {
-  const { rt, facades } = getActiveAsHookContext('asFocusGroup');
-  rt.ensureSetup(`asHook(asFocusGroup)`);
-  rt.register('asFocusGroup', { privileged: true, mode: 'configurable' });
+type FocusGroupFacade = {
+  getGroup<P extends PropsBaseType = PropsBaseType>(): FocusGroupHandle<P>;
+};
 
-  const facade = facades.focus as { getGroup: () => FocusGroupHandle<any> } | undefined;
-  if (!facade || typeof facade.getGroup !== 'function') {
-    throw new Error(`[AsHook] focus facade unavailable for asFocusGroup.`);
-  }
+const getFocusGroup = definePrivilegedAsHook<PropsBaseType, FocusGroupHandle<PropsBaseType>>({
+  name: 'asFocusGroup',
+  setup: ({ facades }) => {
+    const facade = facades.focus as FocusGroupFacade | undefined;
+    if (!facade || typeof facade.getGroup !== 'function') {
+      throw new Error(`[AsHook] focus facade unavailable for asFocusGroup.`);
+    }
+    return facade.getGroup();
+  },
+});
 
-  const handle = facade.getGroup();
+export function asFocusGroup<P extends PropsBaseType = PropsBaseType>(
+  patch?: FocusGroupConfigPatch
+): FocusGroupHandle<P> {
+  const handle = getFocusGroup() as FocusGroupHandle<P>;
   if (patch) handle.configure(patch);
   return handle;
 }

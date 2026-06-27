@@ -203,7 +203,8 @@ export const button = definePrototype({
   name: 'button',
   setup(def) {
     asTrigger();
-    asFocusable({ disabled: false });
+    const focusable = asFocusable();
+    focusable.configure({ disabled: false });
     const pressed = def.state.fromInteraction('pressed');
 
     return () => ({
@@ -237,6 +238,8 @@ asHook setup
 
 The asHook runtime only captures, attaches, and exposes results. Each module still owns its own dedupe, merge, conflict, diagnostic, and execution-order semantics. asHook does not create independent props/state/event/feedback/context/expose/rule runtime domains for itself.
 
+An asHook may depend on any sub-API on the `def` handle. Using `def.props`, `def.state`, `def.event`, `def.feedback`, `def.expose`, `def.context`, `def.rule`, `def.lifecycle`, or another setup API is normal asHook design, not over-coupling. The same phase rules apply as in prototypes: `def` declarations happen during setup, and callback APIs declared by the asHook may later receive `run` in the same way prototype-authored callbacks do.
+
 Current capture buckets are implementation details, not public semantics. Contracts describe which setup effects are captured, which artifacts/disposers/handles are exposed, and how those effects attach to the caller.
 
 ## AsHookResult
@@ -256,9 +259,11 @@ Contributions that cannot or need not be removed may expose only handles or arti
 
 ## State Projection
 
-State created or introduced inside an asHook should be projected to the caller as a borrowed view, not an owned view.
+Controllable state created or introduced inside an asHook should be projected to the caller as a borrowed view, not an owned view.
 
 The caller may read it, set defaults, set runtime values, and register watchers; however, the state source remains reusable logic introduced by the asHook rather than state directly declared and fully owned by the caller.
+
+System-maintained facts introduced by privileged asHooks may instead be exposed as observed state-backed handles. They should still carry standard state metadata so rule, expose, and diagnostics can consume them as state-shaped values.
 
 Interaction state follows the same boundary. If an asHook declares interaction state internally, that state must belong to the caller interaction subject rather than becoming asHook-private state.
 
@@ -282,6 +287,8 @@ Trace is not writable prototype-author state and is not a runtime behavior chann
 A privileged asHook is an official asHook form that exposes powerful, host-sensitive, or otherwise non-author-facing module-port capabilities to prototype authors through a restricted API.
 
 Typical areas include focus, overlay, hit participation, interaction boundary, and APIs such as `asTrigger` that need to move event targets or coordinate multiple modules.
+
+Privileged asHooks still share the normal asHook `def` syntax rights. They should express props, state, event, feedback, expose, context, rule, lifecycle, and other prototype-syntax behavior through `def` where possible. Non-public module ports, facades, or host capabilities should be reserved for the parts that ordinary prototype syntax cannot express.
 
 Each privileged asHook is its own API and must define:
 

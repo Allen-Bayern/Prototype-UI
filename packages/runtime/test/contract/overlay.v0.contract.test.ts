@@ -32,14 +32,14 @@ const createHost = <P extends PropsBaseType>(
 
 describe('runtime contract: overlay (v0)', () => {
   it('OVERLAY-0100: repeated asOverlay calls reuse one handle and merge configuration', () => {
-    let a!: OverlayHandle<any>;
-    let b!: OverlayHandle<any>;
+    let a!: OverlayHandle<PropsBaseType>;
+    let b!: OverlayHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-overlay-0100',
       setup() {
-        a = asOverlay({ placement: 'bottom', defaultOpen: true });
-        b = asOverlay({ placement: 'top', closeOnOutsidePress: false });
+        a = asOverlay<PropsBaseType>({ placement: 'bottom', defaultOpen: true });
+        b = asOverlay<PropsBaseType>({ placement: 'top', closeOnOutsidePress: false });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -61,18 +61,18 @@ describe('runtime contract: overlay (v0)', () => {
       expect.arrayContaining([expect.stringContaining('placement overridden')])
     );
     expect((P as any).__asHooks).toEqual([
-      { name: 'asOverlay', order: 0, privileged: true, mode: 'configurable' },
+      { name: 'asOverlay', order: 0, privileged: true, mode: 'once' },
     ]);
   });
 
   it('OVERLAY-0200: configure is setup-only on overlay handles', () => {
-    let overlay!: OverlayHandle<any>;
+    let overlay!: OverlayHandle<PropsBaseType>;
     let thrown: unknown;
 
     const P = definePrototype({
       name: 'x-overlay-0200',
       setup(def) {
-        overlay = asOverlay();
+        overlay = asOverlay<PropsBaseType>();
         def.lifecycle.onCreated(() => {
           try {
             overlay.configure({ placement: 'right' });
@@ -92,12 +92,12 @@ describe('runtime contract: overlay (v0)', () => {
   });
 
   it('OVERLAY-0300: imperative open close toggle updates state and last reason', () => {
-    let overlay!: OverlayHandle<any>;
+    let overlay!: OverlayHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-overlay-0300',
       setup(def) {
-        overlay = asOverlay();
+        overlay = asOverlay<PropsBaseType>();
         def.lifecycle.onCreated(() => {
           overlay.openOverlay('trigger.press');
           overlay.toggle('item.commit');
@@ -116,7 +116,7 @@ describe('runtime contract: overlay (v0)', () => {
   });
 
   it('OVERLAY-0400: registration methods retain trigger anchor and content references', () => {
-    let overlay!: OverlayHandle<any>;
+    let overlay!: OverlayHandle<PropsBaseType>;
     const trigger = { id: 'trigger' };
     const anchor = { id: 'anchor' };
     const content = { id: 'content' };
@@ -124,7 +124,7 @@ describe('runtime contract: overlay (v0)', () => {
     const P = definePrototype({
       name: 'x-overlay-0400',
       setup() {
-        overlay = asOverlay();
+        overlay = asOverlay<PropsBaseType>();
         overlay.registerTrigger(trigger);
         overlay.registerAnchor(anchor);
         overlay.registerContent(content);
@@ -144,13 +144,13 @@ describe('runtime contract: overlay (v0)', () => {
   });
 
   it('OVERLAY-0500: boundary outside notifications close an open overlay when closeOnOutsidePress is enabled', () => {
-    let overlay!: OverlayHandle<any>;
+    let overlay!: OverlayHandle<PropsBaseType>;
     const outsider = document.createElement('button');
 
     const P = definePrototype({
       name: 'x-overlay-0500',
       setup(def) {
-        overlay = asOverlay({ closeOnOutsidePress: true, defaultOpen: true });
+        overlay = asOverlay<PropsBaseType>({ closeOnOutsidePress: true, defaultOpen: true });
         def.lifecycle.onMounted(() => {
           overlay.registerTrigger(document.createElement('button'));
         });

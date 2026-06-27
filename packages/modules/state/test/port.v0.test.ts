@@ -158,6 +158,9 @@ describe('module-state port (v0)', () => {
     const observed = port.createObservedHandle(owned);
 
     expect(observed.get()).toBe(false);
+    expect((observed as any).__stateId).toBe((owned as any).__stateId);
+    expect((observed as any).__stateSemantic).toBe('open');
+    expect((observed as any).__stateSpec).toEqual((owned as any).__stateSpec);
 
     const calls: Array<{ ctx: unknown; e: any }> = [];
     const off = observed.watch((ctx, e) => calls.push({ ctx, e }));

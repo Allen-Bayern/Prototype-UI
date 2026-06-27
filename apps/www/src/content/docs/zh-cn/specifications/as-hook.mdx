@@ -203,7 +203,8 @@ export const button = definePrototype({
   name: 'button',
   setup(def) {
     asTrigger();
-    asFocusable({ disabled: false });
+    const focusable = asFocusable();
+    focusable.configure({ disabled: false });
     const pressed = def.state.fromInteraction('pressed');
 
     return () => ({
@@ -237,6 +238,8 @@ asHook setup
 
 asHook runtime 只负责捕获、归属与暴露结果。每个模块内部的去重、合并、冲突、诊断和执行顺序仍由对应模块契约负责。asHook 不为自身创建独立的 props/state/event/feedback/context/expose/rule 运行域。
 
+asHook 可以依赖 `def` 句柄上的任意子 API。使用 `def.props`、`def.state`、`def.event`、`def.feedback`、`def.expose`、`def.context`、`def.rule`、`def.lifecycle` 或其他 setup API，是正常的 asHook 设计，不构成过度耦合。它与 prototype 遵守同一套 phase 规则：`def` 声明发生在 setup 期间；asHook 声明的 callback API 之后也可以像 prototype 自己声明的 callback 一样获得 `run`。
+
 当前实现中的 capture bucket 是实现细节，不是公开语义。契约只描述捕获了哪些 setup effects、暴露哪些 artifacts/disposers/handles，以及这些效果如何归属调用者。
 
 ## AsHookResult
@@ -256,9 +259,11 @@ disposer 的边界很重要：它用于让调用者在 setup 期间撤销 asHook
 
 ## State Projection
 
-asHook 内部创建或引入的 state 暴露给调用者时，应投影为 borrowed view，而不是 owned view。
+asHook 内部创建或引入的可控 state 暴露给调用者时，应投影为 borrowed view，而不是 owned view。
 
 这表示调用者可以读取、设置默认值、在 runtime 设置值，并注册 watcher；但这个 state 的来源仍然是 asHook 引入的可复用逻辑，不是调用者直接声明并完全拥有的 state。
+
+特权 asHook 引入的系统维护事实，也可以暴露为 observed 且 state-backed 的 handle。它们仍应携带标准 state metadata，使 rule、expose 与 diagnostics 能把它们当作 state-shaped value 消费。
 
 interaction state 也遵守这条边界。若 asHook 内部声明 interaction state，它必须归属调用者所在交互主体，而不是成为 asHook 私有 state。
 
@@ -282,6 +287,8 @@ trace 不是原型作者可写状态，也不是 runtime 行为通路。诊断�
 特权 asHook 是官方提供的 asHook 形态，用于把过于强力、过于依赖宿主，或不适合直接暴露给原型作者的 module port 能力，以受限 API 交给原型作者使用。
 
 典型方向包括 focus、overlay、hit participation、interaction boundary，以及 `asTrigger` 这类需要移动 event target 或协调多个模块的能力。
+
+特权 asHook 仍然共享普通 asHook 的 `def` 语法权利。props、state、event、feedback、expose、context、rule、lifecycle 等可以由原型语法表达的部分，应优先通过 `def` 表达。非公开 module port、facade 或 host capability 应保留给普通原型语法无法表达的部分。
 
 每个特权 asHook 都是独特 API，必须定义自己的：
 

@@ -1,21 +1,29 @@
 import type { HitParticipationConfigPatch, HitParticipationHandle } from '@proto.ui/core';
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asHitParticipation(
+type HitParticipationFacade = {
+  getHitParticipation<P extends PropsBaseType = PropsBaseType>(): HitParticipationHandle<P>;
+};
+
+const getHitParticipation = definePrivilegedAsHook<
+  PropsBaseType,
+  HitParticipationHandle<PropsBaseType>
+>({
+  name: 'asHitParticipation',
+  setup: ({ facades }) => {
+    const facade = facades['hit-participation'] as HitParticipationFacade | undefined;
+    if (!facade || typeof facade.getHitParticipation !== 'function') {
+      throw new Error('[AsHook] hit-participation facade unavailable for asHitParticipation.');
+    }
+    return facade.getHitParticipation();
+  },
+});
+
+export function asHitParticipation<P extends PropsBaseType = PropsBaseType>(
   patch?: HitParticipationConfigPatch
-): HitParticipationHandle<any> {
-  const { rt, facades } = getActiveAsHookContext('asHitParticipation');
-  rt.ensureSetup('asHook(asHitParticipation)');
-  rt.register('asHitParticipation', { privileged: true, mode: 'configurable' });
-
-  const facade = facades['hit-participation'] as
-    | { getHitParticipation: () => HitParticipationHandle<any> }
-    | undefined;
-  if (!facade || typeof facade.getHitParticipation !== 'function') {
-    throw new Error('[AsHook] hit-participation facade unavailable for asHitParticipation.');
-  }
-
-  const handle = facade.getHitParticipation();
+): HitParticipationHandle<P> {
+  const handle = getHitParticipation() as HitParticipationHandle<P>;
   if (patch) handle.configure(patch);
   return handle;
 }

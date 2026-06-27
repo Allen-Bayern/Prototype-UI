@@ -1,17 +1,22 @@
-import type { FocusableConfigPatch, FocusableHandle } from '@proto.ui/core';
-import { getActiveAsHookContext } from '@proto.ui/core/internal';
+import type { FocusableHandle } from '@proto.ui/core';
+import type { PropsBaseType } from '@proto.ui/types';
+import { definePrivilegedAsHook } from './privileged';
 
-export function asFocusable(patch?: FocusableConfigPatch): FocusableHandle<any> {
-  const { rt, facades } = getActiveAsHookContext('asFocusable');
-  rt.ensureSetup(`asHook(asFocusable)`);
-  rt.register('asFocusable', { privileged: true, mode: 'configurable' });
+type FocusableFacade = {
+  getFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P>;
+};
 
-  const facade = facades.focus as { getFocusable: () => FocusableHandle<any> } | undefined;
-  if (!facade || typeof facade.getFocusable !== 'function') {
-    throw new Error(`[AsHook] focus facade unavailable for asFocusable.`);
-  }
+const getFocusable = definePrivilegedAsHook<PropsBaseType, FocusableHandle<PropsBaseType>>({
+  name: 'asFocusable',
+  setup: ({ facades }) => {
+    const facade = facades.focus as FocusableFacade | undefined;
+    if (!facade || typeof facade.getFocusable !== 'function') {
+      throw new Error(`[AsHook] focus facade unavailable for asFocusable.`);
+    }
+    return facade.getFocusable();
+  },
+});
 
-  const handle = facade.getFocusable();
-  if (patch) handle.configure(patch);
-  return handle;
+export function asFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P> {
+  return getFocusable() as FocusableHandle<P>;
 }

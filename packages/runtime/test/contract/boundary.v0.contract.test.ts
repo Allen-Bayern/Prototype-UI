@@ -31,17 +31,17 @@ const createHost = <P extends PropsBaseType>(
 
 describe('runtime contract: interaction boundary (v0)', () => {
   it('BOUNDARY-0100: repeated asBoundary(...) calls on one instance reuse one underlying boundary and merge setup-time configuration deterministically', () => {
-    let a!: BoundaryHandle<any>;
-    let b!: BoundaryHandle<any>;
+    let a!: BoundaryHandle<PropsBaseType>;
+    let b!: BoundaryHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-boundary-0100',
       setup() {
-        a = asBoundary({
+        a = asBoundary<PropsBaseType>({
           debugLabel: 'alpha',
           meta: { origin: 'first' },
         });
-        b = asBoundary({
+        b = asBoundary<PropsBaseType>({
           debugLabel: 'beta',
           meta: { step: 2 },
         });
@@ -65,7 +65,7 @@ describe('runtime contract: interaction boundary (v0)', () => {
       expect.arrayContaining([expect.stringContaining('debugLabel overridden')])
     );
     expect((P as any).__asHooks).toEqual([
-      { name: 'asBoundary', order: 0, privileged: true, mode: 'configurable' },
+      { name: 'asBoundary', order: 0, privileged: true, mode: 'once' },
     ]);
   });
 
@@ -339,15 +339,15 @@ describe('runtime contract: interaction boundary (v0)', () => {
 
   it('BOUNDARY-0800: stacked consumers can distinguish the top-most boundary so one outside interaction does not close multiple layers', async () => {
     const outsider = document.createElement('button');
-    let firstBoundary!: BoundaryHandle<any>;
-    let secondBoundary!: BoundaryHandle<any>;
+    let firstBoundary!: BoundaryHandle<PropsBaseType>;
+    let secondBoundary!: BoundaryHandle<PropsBaseType>;
     let firstOutsideCalls = 0;
     let secondOutsideCalls = 0;
 
     const First = definePrototype({
       name: 'x-boundary-0800-first',
       setup() {
-        firstBoundary = asBoundary();
+        firstBoundary = asBoundary<PropsBaseType>();
         firstBoundary.subscribeOutside(() => {
           firstOutsideCalls += 1;
         });
@@ -358,7 +358,7 @@ describe('runtime contract: interaction boundary (v0)', () => {
     const Second = definePrototype({
       name: 'x-boundary-0800-second',
       setup() {
-        secondBoundary = asBoundary();
+        secondBoundary = asBoundary<PropsBaseType>();
         secondBoundary.subscribeOutside(() => {
           secondOutsideCalls += 1;
         });

@@ -25,14 +25,18 @@ describe('runtime contract: focus-group (v0)', () => {
   it('FOCUS-GROUP-0100: repeated asFocusGroup calls reuse one handle and keep last patch', () => {
     const first = createFocusGroupKey({ debugLabel: 'group-1' });
     const second = createFocusGroupKey({ debugLabel: 'group-2' });
-    let a!: FocusGroupHandle<any>;
-    let b!: FocusGroupHandle<any>;
+    let a!: FocusGroupHandle<PropsBaseType>;
+    let b!: FocusGroupHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-group-0100',
       setup() {
-        a = asFocusGroup({ key: first, navigation: 'arrow' });
-        b = asFocusGroup({ key: second, orientation: 'horizontal', selectOnFocus: true });
+        a = asFocusGroup<PropsBaseType>({ key: first, navigation: 'arrow' });
+        b = asFocusGroup<PropsBaseType>({
+          key: second,
+          orientation: 'horizontal',
+          selectOnFocus: true,
+        });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -54,12 +58,12 @@ describe('runtime contract: focus-group (v0)', () => {
   });
 
   it('FOCUS-GROUP-0200: asFocusScope exposes its internal group handle', () => {
-    let group!: FocusGroupHandle<any>;
+    let group!: FocusGroupHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-focus-group-0200',
       setup() {
-        const scope = asFocusScope({
+        const scope = asFocusScope<PropsBaseType>({
           entry: 'selected',
           group: { navigation: 'arrow', orientation: 'horizontal' },
         });
