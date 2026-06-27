@@ -1,4 +1,4 @@
-import { defineAsHook } from '@proto.ui/core';
+import { defineHook } from '@proto.ui/core';
 import type {
   CollectionItemExposes,
   CollectionItemHandles,
@@ -20,21 +20,21 @@ const DEFAULT_ROLE = 'item';
 const DEFAULT_META_EXPOSE_KEY = '__collectionItem';
 
 function getAnatomyPort(): AnatomyPort {
-  const { ports } = getActiveAsHookContext('asCollectionItem');
+  const { ports } = getActiveAsHookContext('useCollectionItem');
   const anatomy = ports.anatomy as AnatomyPort | undefined;
   if (!anatomy?.order || typeof anatomy.subscribeOrder !== 'function') {
-    throw new Error('[AsHook:asCollectionItem] anatomy port unavailable.');
+    throw new Error('[Hook:useCollectionItem] anatomy port unavailable.');
   }
   return anatomy;
 }
 
-export const asCollectionItem = defineAsHook<
+export const useCollectionItem = defineHook<
   any,
   CollectionItemExposes,
   CollectionItemHandles,
   CollectionItemOptions<any>
 >({
-  name: 'asCollectionItem',
+  name: 'useCollectionItem',
   mode: 'once',
   setup(def, options, api) {
     const store = api.store as CollectionItemStore;
@@ -71,10 +71,10 @@ export const asCollectionItem = defineAsHook<
       const nextFirst = nextIndex === 0 && nextTotal > 0;
       const nextLast = nextIndex >= 0 && nextIndex === nextTotal - 1;
 
-      index.set(nextIndex, 'reason: asCollectionItem.sync => index');
-      total.set(nextTotal, 'reason: asCollectionItem.sync => total');
-      first.set(nextFirst, 'reason: asCollectionItem.sync => first');
-      last.set(nextLast, 'reason: asCollectionItem.sync => last');
+      index.set(nextIndex, 'reason: useCollectionItem.sync => index');
+      total.set(nextTotal, 'reason: useCollectionItem.sync => total');
+      first.set(nextFirst, 'reason: useCollectionItem.sync => first');
+      last.set(nextLast, 'reason: useCollectionItem.sync => last');
       store.snapshot = {
         ...nextMeta,
         index: nextIndex,

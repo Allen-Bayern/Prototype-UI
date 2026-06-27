@@ -56,7 +56,6 @@ function setupToggle(def: DefHandle<ToggleProps, ToggleExposes>): void {
 
 export const asToggle = defineAsHook<ToggleProps, ToggleExposes, ToggleAsHookContract>({
   name: 'as-toggle',
-  mode: 'once',
   setup: setupToggle,
 });
 

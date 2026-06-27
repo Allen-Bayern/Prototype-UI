@@ -60,7 +60,6 @@ export const asSelectValue = defineAsHook<
   SelectValueAsHookContract
 >({
   name: 'as-select-value',
-  mode: 'once',
   setup: setupSelectValue,
 });
 

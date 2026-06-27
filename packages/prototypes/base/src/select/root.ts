@@ -1,12 +1,12 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollection } from '@proto.ui/hooks';
-import { asOpenState } from '../tools';
+import { useCollection } from '@proto.ui/hooks';
+import { useOpenState } from '../tools';
 import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type { SelectRootAsHookContract, SelectRootExposes, SelectRootProps } from './types';
 
 function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): void {
   def.anatomy.claim(SELECT_FAMILY, { role: 'root' });
-  asCollection({ family: SELECT_FAMILY });
+  useCollection({ family: SELECT_FAMILY });
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
@@ -18,7 +18,7 @@ function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): vo
     closeOnSelect: true,
   } as any);
 
-  const openState = asOpenState();
+  const openState = useOpenState();
   const open = openState.getState?.('open');
   const value = def.state.string('value', '');
   const textValue = def.state.string('textValue', '');
@@ -148,7 +148,6 @@ export const asSelectRoot = defineAsHook<
   SelectRootAsHookContract
 >({
   name: 'as-select-root',
-  mode: 'once',
   setup: setupSelectRoot,
 });
 

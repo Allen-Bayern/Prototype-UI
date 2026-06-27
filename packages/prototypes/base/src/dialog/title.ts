@@ -12,7 +12,6 @@ export const asDialogTitle = defineAsHook<
   DialogTitleAsHookContract
 >({
   name: 'as-dialog-title',
-  mode: 'once',
   setup: setupDialogTitle,
 });
 

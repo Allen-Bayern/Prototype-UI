@@ -2,7 +2,7 @@
 
 Anatomy missing query policy exists to tolerate transient invalid-domain windows, not to express semantic optionality.
 
-It is currently useful for privileged structural projections such as `asCollection` and `asCollectionItem`, where a read model can temporarily return `null` or `[]` until the structure becomes valid again. That does not mean the anatomy relationship is optional in the way `context.try*` is optional.
+It is currently useful for structural projection helpers such as `useCollection` and `useCollectionItem`, where a read model can temporarily return `null` or `[]` until the structure becomes valid again. That does not mean the anatomy relationship is optional in the way `context.try*` is optional.
 
 Resolution direction:
 

@@ -34,7 +34,6 @@ export const asDialogClose = defineAsHook<
   DialogCloseAsHookContract
 >({
   name: 'as-dialog-close',
-  mode: 'once',
   setup: setupDialogClose,
 });
 

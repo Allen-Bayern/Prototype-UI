@@ -43,4 +43,4 @@ This keeps the layering explicit:
 - roving focus policy
 - keyboard paging policy
 
-Those belong to higher-level hooks above anatomy order. `asCollection()` only projects ordered structure semantics; navigation hooks such as roving focus should live in a separate behavior layer.
+Those belong to higher-level hooks above anatomy order. `useCollection()` only projects ordered structure semantics; navigation hooks such as roving focus should live in a separate behavior layer.

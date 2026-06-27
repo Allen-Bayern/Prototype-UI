@@ -73,7 +73,6 @@ export const asCheckboxIndicator = defineAsHook<
   CheckboxIndicatorAsHookContract
 >({
   name: 'as-checkbox-indicator',
-  mode: 'once',
   setup: setupCheckboxIndicator,
 });
 

@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollectionItem, asFocusable } from '@proto.ui/hooks';
+import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
 import { asButton } from '../button';
 import { SELECT_CONTEXT, SELECT_FAMILY, SELECT_FOCUS_GROUP } from './shared';
 import type { SelectItemAsHookContract, SelectItemExposes, SelectItemProps } from './types';
@@ -23,7 +23,7 @@ function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): vo
   const active = def.state.bool('active', false);
   const selected = def.state.fromAccessibility('selected');
 
-  asCollectionItem({
+  useCollectionItem({
     family: SELECT_FAMILY,
     getMeta: (run) => {
       const props = run.props.get();
@@ -186,7 +186,6 @@ export const asSelectItem = defineAsHook<
   SelectItemAsHookContract
 >({
   name: 'as-select-item',
-  mode: 'once',
   setup: setupSelectItem,
 });
 

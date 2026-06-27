@@ -7,5 +7,5 @@ export * from './as-overlay';
 export * from './as-trigger';
 export * from './as-transition';
 export * from './as-transition-types';
-export * from './collection/as-collection';
-export * from './collection/as-collection-item';
+export * from './collection/use-collection';
+export * from './collection/use-collection-item';

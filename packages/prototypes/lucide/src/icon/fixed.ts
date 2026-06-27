@@ -47,7 +47,6 @@ export function createLucideFixedIcon(options: {
     LucideFixedIconAsHookContract
   >({
     name: options.asHookName,
-    mode: 'once',
     setup: setupFixedIcon,
   });
 

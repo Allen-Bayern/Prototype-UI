@@ -1,4 +1,4 @@
-import type { AsHookResult, State } from '@proto.ui/core';
+import { defineAsHook, type AsHookResult, type State } from '@proto.ui/core';
 
 type Props = { disabled?: boolean };
 
@@ -33,3 +33,26 @@ type LegacyStateMap = {
 declare const legacyResult: AsHookResult<Props, LegacyStateMap>;
 
 legacyResult.stateHandles?.open.get();
+
+const asNoArgs = defineAsHook({
+  name: 'asNoArgs',
+  setup() {},
+});
+
+asNoArgs();
+// @ts-expect-error authored asHook callers are no-arg in v0
+asNoArgs({ enabled: true });
+
+defineAsHook({
+  name: 'asNoMode',
+  // @ts-expect-error authored asHook definitions do not expose install modes
+  mode: 'multiple',
+  setup() {},
+});
+
+defineAsHook({
+  name: 'asNoConfigure',
+  setup() {},
+  // @ts-expect-error authored asHook definitions do not expose configure callbacks
+  configure() {},
+});

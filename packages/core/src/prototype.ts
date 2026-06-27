@@ -116,16 +116,9 @@ export type AsHookPrototype<
   Props extends PropsBaseType = PropsBaseType,
   Exposes = Record<string, unknown>,
   ContractInput = {},
-  Options = void,
 > = {
   name: string;
-  mode?: AsHookMode;
-  setup: (
-    def: DefHandle<Props, Exposes>,
-    options: Options,
-    api: AsHookConfigApi
-  ) => RenderFn | void;
-  configure?: (api: AsHookConfigApi, options: Options, tools: AsHookConfigureTools) => void;
+  setup: (def: DefHandle<Props, Exposes>) => RenderFn | void;
 };
 
 export type AsHookRuntime = {
@@ -150,10 +143,9 @@ export type AsHookCaller<
   Props extends PropsBaseType = PropsBaseType,
   Exposes = Record<string, unknown>,
   ContractInput = {},
-  Options = void,
-> = ((options?: Options) => AsHookResult<Props, ContractInput>) & {
+> = (() => AsHookResult<Props, ContractInput>) & {
   readonly kind: 'asHook';
-  readonly definition: AsHookPrototype<Props, Exposes, ContractInput, Options>;
+  readonly definition: AsHookPrototype<Props, Exposes, ContractInput>;
 };
 
 export type HookContract = AsHookContract;
@@ -182,7 +174,16 @@ export type HookPrototype<
   Exposes = Record<string, unknown>,
   ContractInput = {},
   Options = void,
-> = AsHookPrototype<Props, Exposes, ContractInput, Options>;
+> = {
+  name: string;
+  mode?: AsHookMode;
+  setup: (
+    def: DefHandle<Props, Exposes>,
+    options: Options,
+    api: AsHookConfigApi
+  ) => RenderFn | void;
+  configure?: (api: AsHookConfigApi, options: Options, tools: AsHookConfigureTools) => void;
+};
 export type HookRuntime = AsHookRuntime;
 export type HookCaller<
   Props extends PropsBaseType = PropsBaseType,
@@ -221,23 +222,17 @@ export function definePrototype<P extends PropsBaseType, E = Record<string, unkn
  * AsHook is still "a prototype authored by Component Author",
  * but its *import result* will be treated as borrowed in the future.
  */
-export function defineAsHook<
-  P extends PropsBaseType,
-  E = Record<string, unknown>,
-  C = {},
-  O = void,
->(proto: AsHookPrototype<P, E, C, O>): AsHookCaller<P, E, C, O>;
-export function defineAsHook<
-  P extends PropsBaseType,
-  E = Record<string, unknown>,
-  C = {},
-  O = void,
->(proto: AsHookPrototype<P, E, C, O>): AsHookCaller<P, E, C, O> {
-  return createHookCaller(proto, 'asHook') as AsHookCaller<P, E, C, O>;
+export function defineAsHook<P extends PropsBaseType, E = Record<string, unknown>, C = {}>(
+  proto: AsHookPrototype<P, E, C>
+): AsHookCaller<P, E, C>;
+export function defineAsHook<P extends PropsBaseType, E = Record<string, unknown>, C = {}>(
+  proto: AsHookPrototype<P, E, C>
+): AsHookCaller<P, E, C> {
+  return createHookCaller(proto, 'asHook') as AsHookCaller<P, E, C>;
 }
 
 function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, C = {}, O = void>(
-  proto: AsHookPrototype<P, E, C, O>,
+  proto: AsHookPrototype<P, E, C> | HookPrototype<P, E, C, O>,
   kind: 'asHook' | 'hook'
 ) {
   if (!proto || typeof proto !== 'object') {
@@ -261,9 +256,10 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     const def = activeDef as DefHandle<P, E>;
 
     rt.ensureSetup(`asHook(${proto.name})`);
+    const mode = kind === 'hook' ? (proto as HookPrototype<P, E, C, O>).mode : 'once';
     const reg = rt.register(proto.name, {
       privileged: false,
-      mode: proto.mode ?? 'once',
+      mode: mode ?? 'once',
     });
     const api: AsHookConfigApi = {
       name: proto.name,
@@ -288,7 +284,11 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     if (reg.action === 'setup') {
       rt.beginCapture(proto.name);
       try {
-        const render = normalizeAsHookRender(proto.setup(def, options as O, api));
+        const render = normalizeAsHookRender(
+          kind === 'hook'
+            ? (proto as HookPrototype<P, E, C, O>).setup(def, options as O, api)
+            : (proto as AsHookPrototype<P, E, C>).setup(def)
+        );
         const result = rt.endCapture(render);
         let finalResult = result;
         if (result && typeof result === 'object' && 'state' in result) {
@@ -298,8 +298,13 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
           }
         }
         reg.state.result = finalResult;
-        if ((proto.mode ?? 'once') === 'configurable' && typeof proto.configure === 'function') {
-          proto.configure(api, options as O, tools);
+        const hookProto = proto as HookPrototype<P, E, C, O>;
+        if (
+          kind === 'hook' &&
+          (hookProto.mode ?? 'once') === 'configurable' &&
+          typeof hookProto.configure === 'function'
+        ) {
+          hookProto.configure(api, options as O, tools);
         }
         return reg.state.result ?? {};
       } catch (e) {
@@ -308,11 +313,12 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
       }
     }
 
-    if (typeof proto.configure === 'function') {
-      proto.configure(api, options as O, tools);
+    const hookProto = proto as HookPrototype<P, E, C, O>;
+    if (kind === 'hook' && typeof hookProto.configure === 'function') {
+      hookProto.configure(api, options as O, tools);
     }
     return reg.state.result ?? {};
-  }) as AsHookCaller<P, E, C, O> | HookCaller<P, E, C, O>;
+  }) as AsHookCaller<P, E, C> | HookCaller<P, E, C, O>;
 
   Object.defineProperty(caller, 'kind', {
     value: kind,
@@ -333,5 +339,5 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
 export function defineHook<P extends PropsBaseType, E = Record<string, unknown>, C = {}, O = void>(
   proto: HookPrototype<P, E, C, O>
 ): HookCaller<P, E, C, O> {
-  return createHookCaller(proto as AsHookPrototype<P, E, C, O>, 'hook') as HookCaller<P, E, C, O>;
+  return createHookCaller(proto, 'hook') as HookCaller<P, E, C, O>;
 }

@@ -154,7 +154,6 @@ export const asCheckboxRoot = defineAsHook<
   CheckboxRootAsHookContract
 >({
   name: 'as-checkbox-root',
-  mode: 'once',
   setup: setupCheckboxRoot,
 });
 

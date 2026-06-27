@@ -68,7 +68,6 @@ export const asSwitchThumb = defineAsHook<
   SwitchThumbAsHookContract
 >({
   name: 'as-switch-thumb',
-  mode: 'once',
   setup: setupSwitchThumb,
 });
 

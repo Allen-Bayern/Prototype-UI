@@ -56,6 +56,8 @@ asHook 在 v0 中提供：
 - 语义：
   - asHook 仍是“原型定义”，但其 **引入效果必须附着在调用者原型上**。
   - asHook 不产生独立主体。
+  - 普通 authored asHook 的 `setup` 只接收 `def`，不接收 options / configure API。
+  - `defineAsHook(...)` 不暴露 `mode` 或 `configure`；需要配置能力时，应优先通过首次调用返回的 handle/API 暴露 setup 期配置入口，或由后续明确契约单独定义。
 
 ### 2.2 命名规范（v0 强制）
 
@@ -71,6 +73,7 @@ asHook 在 v0 中提供：
 - asHook 通过 **调用器** 被调用。
 - 调用器必须支持以下最小形态：
   - `asX()`
+- 普通 authored asHook 的调用器必须是无参数形式；`asX(options)` 不属于 v0 authored asHook 契约。
 - 调用器允许扩展为具名子调用器：
   - `asX.mode()`
 
@@ -149,6 +152,18 @@ v0 允许存在一类 **配置型特权 asHook**（例如后续的 focus 系统�
 - 不允许安全覆盖的字段必须抛错，或至少给出明确告警
 
 > 该例外不适用于普通 `defineAsHook(...)` 产物；普通 asHook 仍遵循 6.1。
+
+### 6.3 普通 authored asHook 的配置方向
+
+普通 authored asHook 在 v0 中不得依赖重复调用完成配置。若需要配置能力，第一次调用应返回 setup-only 的配置 API、handle 或等价的 hook-owned surface。
+
+这使重复策略保持简单：
+
+- 安装一次
+- 复用第一次返回值
+- 配置入口显式存在于返回 API 上
+
+未来若要稳定参数化 authored asHook，必须在单独契约中定义 identity、合并规则、冲突诊断、返回值复用以及 setup/runtime 阶段边界。
 
 ---
 

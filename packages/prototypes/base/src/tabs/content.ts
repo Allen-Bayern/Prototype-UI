@@ -52,7 +52,6 @@ export const asTabsContent = defineAsHook<
   TabsContentAsHookContract
 >({
   name: 'as-tabs-content',
-  mode: 'once',
   setup: setupTabsContent,
 });
 

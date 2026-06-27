@@ -50,9 +50,8 @@ function readSnapshot(part: { getExpose(key: string): unknown | null }, key: str
   return next && typeof next === 'object' ? (next as FocusRovingItemSnapshot) : {};
 }
 
-export const asFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRovingOptions<any>>({
-  name: 'asFocusRoving',
-  mode: 'once',
+export const useFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRovingOptions<any>>({
+  name: 'useFocusRoving',
   setup(def, options, api) {
     const itemRole = options.itemRole ?? DEFAULT_ITEM_ROLE;
     const snapshotMethodKey = options.snapshotMethodKey ?? DEFAULT_SNAPSHOT_METHOD_KEY;

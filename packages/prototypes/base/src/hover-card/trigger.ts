@@ -60,7 +60,6 @@ export const asHoverCardTrigger = defineAsHook<
   HoverCardTriggerAsHookContract
 >({
   name: 'as-hover-card-trigger',
-  mode: 'once',
   setup: setupHoverCardTrigger,
 });
 

@@ -93,7 +93,6 @@ export const asHoverCardContent = defineAsHook<
   HoverCardContentAsHookContract
 >({
   name: 'as-hover-card-content',
-  mode: 'once',
   setup: setupHoverCardContent,
 });
 

@@ -37,13 +37,14 @@ sources:
   - path: packages/runtime/test/contract/as-hook.v0.contract.test.ts
     sections:
       - AS-HOOK-0200
-      - AS-HOOK-0900
+      - AS-HOOK-0800
 dependsOn:
   contracts:
     - C-AS-HOOK-0001
 relates:
   decisions:
     - D-AS-HOOK-CONFIGURABLE-AUTHORED-0001
+    - D-AS-HOOK-NO-ARG-ONCE-0001
 revisions:
   - version: 0.1.0
     change: introduced

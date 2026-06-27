@@ -3,14 +3,14 @@ type: contract
 title: defineAsHook accepts a prototype-compatible spec
 status: draft
 since: 0.1.0
-summary: defineAsHook must accept the standard prototype definition shape, where name remains the prototype spec name and setup follows the prototype setup contract.
+summary: defineAsHook must accept the standard no-arg prototype definition shape, where name remains the prototype spec name and setup follows the prototype setup contract.
 statement:
   zh-CN: >-
-    `defineAsHook(spec)` 至少必须接受与 `definePrototype(spec)` 兼容的定义描述。`spec.name` 是 prototype spec 的名称属性，必须遵守 prototype name 的命名规则；它不是作者代码中的 caller binding name。`spec.setup` 仍然是 prototype setup 入口，其返回值只能是 render function 或 void。asHook 可以在此基础上拥有更复杂的定义形状，但不得破坏 prototype-compatible baseline。
+    `defineAsHook(spec)` 必须接受与 `definePrototype(spec)` 兼容的无参数定义描述。`spec.name` 是 prototype spec 的名称属性，必须遵守 prototype name 的命名规则；它不是作者代码中的 caller binding name。`spec.setup` 仍然是 prototype setup 入口，其返回值只能是 render function 或 void。普通 authored asHook 的 `setup` 不接收 options/configure API，额外配置能力应由返回 handle/API 或后续明确契约提供。
 
 
   en: >-
-    `defineAsHook(spec)` must at least accept a definition shape compatible with `definePrototype(spec)`. `spec.name` is the prototype spec name and must follow prototype name rules; it is not the caller binding name used in author code. `spec.setup` remains the prototype setup entry, and its return value must be a render function or void. asHook may support richer definition shapes beyond this baseline, but must not break the prototype-compatible baseline.
+    `defineAsHook(spec)` must accept a no-arg definition shape compatible with `definePrototype(spec)`. `spec.name` is the prototype spec name and must follow prototype name rules; it is not the caller binding name used in author code. `spec.setup` remains the prototype setup entry, and its return value must be a render function or void. Ordinary authored asHook `setup` does not receive options/configure APIs; extra configuration capability should come from returned handles/APIs or future explicit contracts.
 
 
 criteria:
@@ -37,11 +37,11 @@ criteria:
   - id: C-AS-HOOK-0003-C
     text:
       zh-CN: >-
-        asHook 的 `setup` 返回值必须遵守 prototype setup 契约：只能返回 render function 或 void。
+        asHook 的 `setup` 必须是无参数配置入口，其返回值必须遵守 prototype setup 契约：只能返回 render function 或 void。
 
 
       en: >-
-        asHook `setup` return value must follow the prototype setup contract: render function or void only.
+        asHook `setup` must be a no-options configuration entry, and its return value must follow the prototype setup contract: render function or void only.
 
 
   - id: C-AS-HOOK-0003-D
@@ -68,6 +68,7 @@ dependsOn:
 relates:
   decisions:
     - D-AS-HOOK-CALLER-NAME-0001
+    - D-AS-HOOK-NO-ARG-ONCE-0001
 revisions:
   - version: 0.1.0
     change: introduced

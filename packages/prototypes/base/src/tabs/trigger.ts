@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollectionItem, asFocusable } from '@proto.ui/hooks';
+import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
 import { asButton } from '../button';
 import { TABS_CONTEXT, TABS_FAMILY, TABS_FOCUS_GROUP } from './shared';
 import type { TabsTriggerAsHookContract, TabsTriggerExposes, TabsTriggerProps } from './types';
@@ -17,7 +17,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   const focusable = asFocusable({ groupKey: TABS_FOCUS_GROUP });
   const focused = def.state.fromInteraction('focused');
   const selected = def.state.fromAccessibility('selected');
-  asCollectionItem({
+  useCollectionItem({
     family: TABS_FAMILY,
     role: 'trigger',
     getMeta: (run) => {
@@ -144,7 +144,6 @@ export const asTabsTrigger = defineAsHook<
   TabsTriggerAsHookContract
 >({
   name: 'as-tabs-trigger',
-  mode: 'once',
   setup: setupTabsTrigger,
 });
 
