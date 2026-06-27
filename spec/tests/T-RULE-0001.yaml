@@ -18,6 +18,14 @@ cases:
       - C-RULE-0004-D
       - C-RULE-INTENT-0001-A
     expectation: analyzable-rule-spec-recorded
+  - id: T-RULE-0001-CASE-AUTHORING-TYPES
+    title: def.rule exposes typed WhenBuilder and IntentBuilder to prototype authors
+    covers:
+      - C-RULE-0004-C
+      - C-RULE-0004-D
+      - C-RULE-WHEN-0001-C
+      - C-RULE-INTENT-FEEDBACK-STYLE-0001-B
+    expectation: typed-rule-authoring-surface
   - id: T-RULE-0001-CASE-SERIALIZABLE-IR
     title: RuleIR contains serializable identities instead of functions, host objects, closures, or live handles
     covers:
@@ -52,6 +60,13 @@ implementations:
     consumesCases:
       - T-RULE-0001-CASE-SPEC-RECORDING
       - T-RULE-0001-CASE-SERIALIZABLE-IR
+  - id: rule-authoring-type-contract
+    kind: workspace-check
+    status: passing
+    path: internal/contracts/types/rule.contract.v0.type-test.ts
+    required: true
+    consumesCases:
+      - T-RULE-0001-CASE-AUTHORING-TYPES
 verifies:
   contracts:
     - id: C-RULE-0003
@@ -66,6 +81,12 @@ verifies:
         - C-RULE-0004-B
         - C-RULE-0004-C
         - C-RULE-0004-D
+    - id: C-RULE-WHEN-0001
+      anchors:
+        - C-RULE-WHEN-0001-C
+    - id: C-RULE-INTENT-FEEDBACK-STYLE-0001
+      anchors:
+        - C-RULE-INTENT-FEEDBACK-STYLE-0001-B
     - id: C-CORE-SYNTAX-0007
       anchors:
         - C-CORE-SYNTAX-0007-A
@@ -86,6 +107,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added rule declaration and serializable IR boundary test mapping.
+  - version: 0.1.0
+    change: updated
+    summary: Added the rule authoring type contract for typed WhenBuilder and IntentBuilder inference.
 tags:
   - rule
   - ir

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tw, type Prototype } from '@proto.ui/core';
+import { tw, type DefHandle, type Prototype } from '@proto.ui/core';
 
 import { createMountedReactAdapter } from './utils/fake-react';
 
@@ -7,14 +7,14 @@ describe('adapter-react: rule props -> style', () => {
   it('applies rule style on prop change and removes it on deactivate', () => {
     const proto: Prototype<{ active?: boolean }> = {
       name: 'react-rule-props-style',
-      setup(def: any) {
+      setup(def: DefHandle<{ active?: boolean }>) {
         def.props.define({
           active: { type: 'boolean', default: false },
         });
 
         def.rule({
-          when: (w: any) => w.prop('active').eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.prop('active').eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         return (r: any) => [r.el('div', {}, ['ok'])];

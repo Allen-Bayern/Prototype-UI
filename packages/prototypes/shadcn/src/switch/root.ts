@@ -37,45 +37,45 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
     def.rule({
-      when: (w: any) => w.state(checked).eq(true),
-      intent: (i: any) =>
+      when: (w) => w.state(checked).eq(true),
+      intent: (i) =>
         i.feedback.style.use(tw('pl-[22px] pr-0.5 bg-primary text-primary-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(checked).eq(false), w.state(hovered).eq(true)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-input')),
+      when: (w) => w.all(w.state(checked).eq(false), w.state(hovered).eq(true)),
+      intent: (i) => i.feedback.style.use(tw('bg-input')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(checked).eq(true), w.state(hovered).eq(true)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-primary/90')),
+      when: (w) => w.all(w.state(checked).eq(true), w.state(hovered).eq(true)),
+      intent: (i) => i.feedback.style.use(tw('bg-primary/90')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('scale-[0.98]')),
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) => i.feedback.style.use(tw('scale-[0.98]')),
     });
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) =>
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) =>
         i.feedback.style.use(tw('ring-3 ring-ring/50 ring-offset-2 ring-offset-background')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.meta('colorScheme').eq('dark'), w.state(checked).eq(false)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-input/50')),
+      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.state(checked).eq(false)),
+      intent: (i) => i.feedback.style.use(tw('bg-input/50')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.meta('colorScheme').eq('dark'), w.state(checked).eq(true)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-primary')),
+      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.state(checked).eq(true)),
+      intent: (i) => i.feedback.style.use(tw('bg-primary')),
     });
   },
 });

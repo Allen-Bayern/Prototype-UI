@@ -1,8 +1,9 @@
 // packages/modules/rule/src/eval.ts
 import type { RuleIR, RulePlanV0, RuleEvalCtx, WhenExpr, WhenValue } from './types';
 import { mergeTwTokensV0 } from '@proto.ui/core';
+import type { PropsBaseType } from '@proto.ui/types';
 
-function evalValue<Props extends {}>(v: WhenValue<Props>, ctx: RuleEvalCtx<Props>): any {
+function evalValue<Props extends PropsBaseType>(v: WhenValue<Props>, ctx: RuleEvalCtx<Props>): any {
   switch (v.type) {
     case 'prop':
       return (ctx.props as any)[v.key];
@@ -15,7 +16,10 @@ function evalValue<Props extends {}>(v: WhenValue<Props>, ctx: RuleEvalCtx<Props
   }
 }
 
-function evalExpr<Props extends {}>(e: WhenExpr<Props>, ctx: RuleEvalCtx<Props>): boolean {
+function evalExpr<Props extends PropsBaseType>(
+  e: WhenExpr<Props>,
+  ctx: RuleEvalCtx<Props>
+): boolean {
   switch (e.type) {
     case 'true':
       return true;
@@ -39,7 +43,7 @@ function evalExpr<Props extends {}>(e: WhenExpr<Props>, ctx: RuleEvalCtx<Props>)
  * - Deterministic ordering: declaration order
  * - Collect ops, concatenate tokens in order, semantic-merge -> tokens
  */
-export function evaluateRulesToPlan<Props extends {}>(
+export function evaluateRulesToPlan<Props extends PropsBaseType>(
   rules: RuleIR<Props>[],
   ctx: RuleEvalCtx<Props>
 ): RulePlanV0 {

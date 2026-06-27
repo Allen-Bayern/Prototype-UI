@@ -2,8 +2,12 @@
 import type { RuleIR, RuleSpec, RuleOp } from './types';
 import { createWhenBuilder } from './when-builder';
 import { createIntentBuilder } from './intent-builder';
+import type { PropsBaseType } from '@proto.ui/types';
 
-function attachDefaultReasons(ops: RuleOp[], spec: RuleSpec<any>): RuleOp[] {
+function attachDefaultReasons<Props extends PropsBaseType>(
+  ops: RuleOp<Props>[],
+  spec: RuleSpec<Props>
+): RuleOp<Props>[] {
   return ops.map((op, idx) => {
     if (op.kind !== 'state.set') return op;
     if (op.reason !== undefined) return op;
@@ -23,7 +27,7 @@ function attachDefaultReasons(ops: RuleOp[], spec: RuleSpec<any>): RuleOp[] {
  * Compile a RuleSpec into pure-data RuleIR.
  * v0: must be called during setup by runtime's def.rule.
  */
-export function compileRule<Props extends {}>(
+export function compileRule<Props extends PropsBaseType>(
   spec: RuleSpec<Props>,
   opt?: {
     registerStateHandle?: (id: any, handle: any) => void;
@@ -34,7 +38,7 @@ export function compileRule<Props extends {}>(
   });
   const when = spec.when(w);
 
-  const { builder, exportIntent } = createIntentBuilder();
+  const { builder, exportIntent } = createIntentBuilder<Props>();
   spec.intent(builder);
 
   const intent = exportIntent();

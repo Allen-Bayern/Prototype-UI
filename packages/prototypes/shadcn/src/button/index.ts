@@ -82,8 +82,8 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
     // Variant surface rules map the public `variant` prop to visual tokens.
     (Object.keys(VARIANT_TOKENS) as ShadcnButtonVariant[]).forEach((variant) => {
       def.rule({
-        when: (w: any) => w.prop('variant').eq(variant),
-        intent: (i: any) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
+        when: (w) => w.prop('variant').eq(variant),
+        intent: (i) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
       });
     });
 
@@ -91,8 +91,8 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
     // top without re-encoding every variant.
     (Object.keys(SIZE_TOKENS) as ShadcnButtonSize[]).forEach((size) => {
       def.rule({
-        when: (w: any) => w.prop('size').eq(size),
-        intent: (i: any) => i.feedback.style.use(tw(SIZE_TOKENS[size])),
+        when: (w) => w.prop('size').eq(size),
+        intent: (i) => i.feedback.style.use(tw(SIZE_TOKENS[size])),
       });
     });
 
@@ -100,113 +100,112 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
     // shadcn styling can stay inside rule semantics instead of hard-coding
     // host-specific pseudo selectors.
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(focusVisible).eq(true), w.prop('variant').eq('destructive')),
-      intent: (i: any) => i.feedback.style.use(tw('border-destructive/40 ring-destructive/20')),
+      when: (w) => w.all(w.state(focusVisible).eq(true), w.prop('variant').eq('destructive')),
+      intent: (i) => i.feedback.style.use(tw('border-destructive/40 ring-destructive/20')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('translate-y-px')),
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) => i.feedback.style.use(tw('translate-y-px')),
     });
 
     // Hovered surface rules are split by variant so later dark/meta branches
     // can replace them cleanly without duplicating the base variant tokens.
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('default')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-primary/80')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('default')),
+      intent: (i) => i.feedback.style.use(tw('bg-primary/80')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('secondary')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-secondary/80')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('secondary')),
+      intent: (i) => i.feedback.style.use(tw('bg-secondary/80')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('outline')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('outline')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('ghost')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('ghost')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('link')),
-      intent: (i: any) => i.feedback.style.use(tw('underline')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('link')),
+      intent: (i) => i.feedback.style.use(tw('underline')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('destructive')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-destructive/20')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('destructive')),
+      intent: (i) => i.feedback.style.use(tw('bg-destructive/20')),
     });
 
     // Accessibility semantics stay in the official shared state lane. This
     // keeps button-compatible semantics like `expanded` / `invalid` reusable
     // by higher-level triggers instead of reintroducing ad-hoc aria props here.
     def.rule({
-      when: (w: any) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('outline')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('outline')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('secondary')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-secondary text-secondary-foreground')),
+      when: (w) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('secondary')),
+      intent: (i) => i.feedback.style.use(tw('bg-secondary text-secondary-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(invalid).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('border-destructive ring-3 ring-destructive/20')),
+      when: (w) => w.state(invalid).eq(true),
+      intent: (i) => i.feedback.style.use(tw('border-destructive ring-3 ring-destructive/20')),
     });
 
     // Dark mode stays in meta so the prototype remains host-agnostic while web
     // adapters still have a clean place to optimize to `dark:*`.
     def.rule({
-      when: (w: any) => w.all(w.meta('colorScheme').eq('dark'), w.prop('variant').eq('outline')),
-      intent: (i: any) => i.feedback.style.use(tw('border-input bg-input/30')),
+      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.prop('variant').eq('outline')),
+      intent: (i) => i.feedback.style.use(tw('border-input bg-input/30')),
     });
     def.rule({
-      when: (w: any) =>
+      when: (w) =>
         w.all(
           w.meta('colorScheme').eq('dark'),
           w.state(hovered).eq(true),
           w.prop('variant').eq('outline')
         ),
-      intent: (i: any) => i.feedback.style.use(tw('bg-input/50')),
+      intent: (i) => i.feedback.style.use(tw('bg-input/50')),
     });
     def.rule({
-      when: (w: any) =>
-        w.all(w.meta('colorScheme').eq('dark'), w.prop('variant').eq('destructive')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-destructive/20')),
+      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.prop('variant').eq('destructive')),
+      intent: (i) => i.feedback.style.use(tw('bg-destructive/20')),
     });
     def.rule({
-      when: (w: any) =>
+      when: (w) =>
         w.all(
           w.meta('colorScheme').eq('dark'),
           w.state(hovered).eq(true),
           w.prop('variant').eq('destructive')
         ),
-      intent: (i: any) => i.feedback.style.use(tw('bg-destructive/30')),
+      intent: (i) => i.feedback.style.use(tw('bg-destructive/30')),
     });
     def.rule({
-      when: (w: any) =>
+      when: (w) =>
         w.all(
           w.meta('colorScheme').eq('dark'),
           w.state(focusVisible).eq(true),
           w.prop('variant').eq('destructive')
         ),
-      intent: (i: any) => i.feedback.style.use(tw('ring-destructive/40')),
+      intent: (i) => i.feedback.style.use(tw('ring-destructive/40')),
     });
     def.rule({
-      when: (w: any) => w.all(w.meta('colorScheme').eq('dark'), w.state(invalid).eq(true)),
-      intent: (i: any) => i.feedback.style.use(tw('border-destructive/50 ring-destructive/40')),
+      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.state(invalid).eq(true)),
+      intent: (i) => i.feedback.style.use(tw('border-destructive/50 ring-destructive/40')),
     });
 
     // Disabled remains a standalone rule because it semantically cuts across
     // every variant and size, and we now source it from the shared button
     // behavior instead of duplicating prop semantics locally.
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
   },
 });

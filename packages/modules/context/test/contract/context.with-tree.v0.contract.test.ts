@@ -23,7 +23,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1000: subscribe requires provider at setup', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const sys = createSysCaps();
     sys.__setExecPhase('setup');
@@ -37,7 +37,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1100: provide + subscribe + update triggers callback', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerToken = { id: 'provider' };
     const consumerToken = { id: 'consumer' };
@@ -85,7 +85,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1120: provider can update its provided context without subscribing', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerToken = { id: 'provider' };
     const consumerToken = { id: 'consumer' };
@@ -132,7 +132,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1150: subscribe returns unsubscribe that deactivates callback', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerToken = { id: 'provider' };
     const consumerToken = { id: 'consumer' };
@@ -170,7 +170,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1200: update requires prior subscription', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerToken = { id: 'provider' };
     const consumerToken = { id: 'consumer' };
@@ -199,7 +199,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1300: tryUpdate returns false when provider missing', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const consumerToken = { id: 'consumer' };
 
@@ -221,7 +221,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1400: T-CONTEXT-0001-CASE-PROVIDE-VALUE rejects invalid context values', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const sys = createSysCaps();
     sys.__setExecPhase('setup');
@@ -247,7 +247,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1500: consumer can rebind to a new provider via tree change', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerAToken = { id: 'provider-A' };
     const providerBToken = { id: 'provider-B' };
@@ -291,7 +291,7 @@ describe('context-module: contract v0 (with-tree)', () => {
 
   it('CTX-MOD-V0-1600: provider removal leads to disconnected reads', () => {
     const parentMap = new Map<any, any>();
-    const getParent = (i: any) => parentMap.get(i) ?? null;
+    const getParent = (i: unknown) => parentMap.get(i) ?? null;
 
     const providerToken = { id: 'provider' };
     const consumerToken = { id: 'consumer' };

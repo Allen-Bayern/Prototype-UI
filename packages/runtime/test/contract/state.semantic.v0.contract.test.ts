@@ -70,8 +70,8 @@ describe('runtime contract: state semantic accessors (v0)', () => {
         b = def.state.fromInteraction('disabled');
 
         def.rule({
-          when: (w: any) => w.state(a).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(a).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onCreated(() => {
@@ -101,8 +101,8 @@ describe('runtime contract: state semantic accessors (v0)', () => {
         b = def.state.fromAccessibility('expanded');
 
         def.rule({
-          when: (w: any) => w.state(a).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('bg-muted')),
+          when: (w) => w.state(a).eq(true),
+          intent: (i) => i.feedback.style.use(tw('bg-muted')),
         });
 
         def.lifecycle.onCreated(() => {

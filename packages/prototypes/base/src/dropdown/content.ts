@@ -219,8 +219,8 @@ function setupDropdownContent(
   });
 
   def.rule({
-    when: (w: any) => w.state(open).eq(false),
-    intent: (i: any) => i.feedback.style.use(tw('hidden')),
+    when: (w) => w.state(open).eq(false),
+    intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }
 

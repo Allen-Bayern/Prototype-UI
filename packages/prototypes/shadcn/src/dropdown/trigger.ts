@@ -99,23 +99,23 @@ const dropdownTrigger = definePrototype<ShadcnDropdownTriggerProps, ShadcnDropdo
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
     def.rule({
-      when: (w: any) => w.state(hovered).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.state(hovered).eq(true),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('ring-3 ring-ring/50 ring-offset-2')),
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) => i.feedback.style.use(tw('ring-3 ring-ring/50 ring-offset-2')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('translate-y-px bg-muted text-foreground')),
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) => i.feedback.style.use(tw('translate-y-px bg-muted text-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
 
     return (renderer) => {

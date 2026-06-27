@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
+import type { DefHandle, Prototype } from '@proto.ui/core';
 import { tw } from '@proto.ui/core';
 import { AdaptToWebComponent } from '../../src/adapt';
 
@@ -7,13 +7,13 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
   it('short-circuits to selector token when state is exposed and non-continuous', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-opt',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const disabled = def.state.bool('btn.disabled', false);
         def.expose('disabled', disabled);
 
         def.rule({
-          when: (w: any) => w.state(disabled).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(disabled).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onMounted(() => {
@@ -45,7 +45,7 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
   it('does not optimize when state is continuous number (number.range)', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-range',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const value = def.state.numberRange('slider.value', 0.5, {
           min: 0,
           max: 1,
@@ -53,8 +53,8 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
         def.expose('value', value);
 
         def.rule({
-          when: (w: any) => w.state(value).eq(0.5),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(value).eq(0.5),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         return (r: any) => [r.el('div', {}, ['ok'])];
@@ -80,13 +80,13 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
   it('optimizes state+meta(colorScheme=dark) rule into dark:* selector tokens', async () => {
     const proto: Prototype = {
       name: 'x-rule-meta-dark-opt',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const disabled = def.state.bool('btn.disabled', false);
         def.expose('disabled', disabled);
 
         def.rule({
-          when: (w: any) => w.all(w.state(disabled).eq(true), w.meta('colorScheme').eq('dark')),
-          intent: (i: any) => i.feedback.style.use(tw('bg-zinc-950')),
+          when: (w) => w.all(w.state(disabled).eq(true), w.meta('colorScheme').eq('dark')),
+          intent: (i) => i.feedback.style.use(tw('bg-zinc-950')),
         });
 
         def.lifecycle.onMounted(() => {
@@ -114,7 +114,7 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
   it('maps supported official semantics to standard web variants', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-semantic-opt',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const hovered = def.state.fromInteraction('hovered');
         const pressed = def.state.fromInteraction('pressed');
         const invalid = def.state.fromAccessibility('invalid');
@@ -124,16 +124,16 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
         def.expose('invalid', invalid);
 
         def.rule({
-          when: (w: any) => w.state(hovered).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(hovered).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
         def.rule({
-          when: (w: any) => w.state(pressed).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('ring-2')),
+          when: (w) => w.state(pressed).eq(true),
+          intent: (i) => i.feedback.style.use(tw('ring-2')),
         });
         def.rule({
-          when: (w: any) => w.state(invalid).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('border-destructive')),
+          when: (w) => w.state(invalid).eq(true),
+          intent: (i) => i.feedback.style.use(tw('border-destructive')),
         });
 
         def.lifecycle.onMounted(() => {
@@ -166,7 +166,7 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
   it('can fall back to data-* selectors when host policy disallows native variants', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-semantic-fallback',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const disabled = def.state.fromInteraction('disabled');
         const focusVisible = def.state.fromInteraction('focusVisible');
 
@@ -174,12 +174,12 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
         def.expose('focusVisible', focusVisible);
 
         def.rule({
-          when: (w: any) => w.state(disabled).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(disabled).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
         def.rule({
-          when: (w: any) => w.state(focusVisible).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('ring-2')),
+          when: (w) => w.state(focusVisible).eq(true),
+          intent: (i) => i.feedback.style.use(tw('ring-2')),
         });
 
         def.lifecycle.onMounted(() => {

@@ -65,49 +65,49 @@ const dialogClose = definePrototype<ShadcnDialogCloseProps, ShadcnDialogCloseExp
 
     (Object.keys(VARIANT_TOKENS) as ShadcnDialogCloseVariant[]).forEach((variant) => {
       def.rule({
-        when: (w: any) => w.prop('variant').eq(variant),
-        intent: (i: any) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
+        when: (w) => w.prop('variant').eq(variant),
+        intent: (i) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
       });
     });
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('translate-y-px')),
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) => i.feedback.style.use(tw('translate-y-px')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('default')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-primary/80')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('default')),
+      intent: (i) => i.feedback.style.use(tw('bg-primary/80')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('secondary')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-secondary/80')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('secondary')),
+      intent: (i) => i.feedback.style.use(tw('bg-secondary/80')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('outline')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('outline')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('ghost')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('ghost')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('link')),
-      intent: (i: any) => i.feedback.style.use(tw('underline')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('link')),
+      intent: (i) => i.feedback.style.use(tw('underline')),
     });
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('destructive')),
-      intent: (i: any) => i.feedback.style.use(tw('bg-destructive/20')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.prop('variant').eq('destructive')),
+      intent: (i) => i.feedback.style.use(tw('bg-destructive/20')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
   },
 });

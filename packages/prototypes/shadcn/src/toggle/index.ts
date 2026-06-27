@@ -57,37 +57,37 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
     (Object.keys(VARIANT_TOKENS) as Array<NonNullable<ShadcnToggleProps['variant']>>).forEach(
       (variant) => {
         def.rule({
-          when: (w: any) => w.prop('variant').eq(variant),
-          intent: (i: any) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
+          when: (w) => w.prop('variant').eq(variant),
+          intent: (i) => i.feedback.style.use(tw(VARIANT_TOKENS[variant])),
         });
       }
     );
 
     (Object.keys(SIZE_TOKENS) as Array<NonNullable<ShadcnToggleProps['size']>>).forEach((size) => {
       def.rule({
-        when: (w: any) => w.prop('size').eq(size),
-        intent: (i: any) => i.feedback.style.use(tw(SIZE_TOKENS[size])),
+        when: (w) => w.prop('size').eq(size),
+        intent: (i) => i.feedback.style.use(tw(SIZE_TOKENS[size])),
       });
     });
 
     def.rule({
-      when: (w: any) => w.state(checked).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted')),
+      when: (w) => w.state(checked).eq(true),
+      intent: (i) => i.feedback.style.use(tw('bg-muted')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.state(checked).eq(false)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.state(checked).eq(false)),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) => i.feedback.style.use(tw('border-ring ring-3 ring-ring/50')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
   },
 });
