@@ -41,8 +41,8 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   });
 
   def.rule({
-    when: (w: any) => w.state(current).eq(false),
-    intent: (i: any) => i.feedback.style.use(tw('hidden')),
+    when: (w) => w.state(current).eq(false),
+    intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }
 

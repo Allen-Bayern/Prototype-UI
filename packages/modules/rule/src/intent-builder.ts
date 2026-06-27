@@ -3,10 +3,10 @@ import type { IntentBuilder, RuleIntent, RuleOp, StateIntentBuilder } from './ty
 import type { StyleHandle, OwnedStateHandle, BorrowedStateHandle } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 
-export function createIntentBuilder() {
-  const ops: RuleOp[] = [];
+export function createIntentBuilder<Props extends PropsBaseType = PropsBaseType>() {
+  const ops: RuleOp<Props>[] = [];
 
-  const builder: IntentBuilder = {
+  const builder: IntentBuilder<Props> = {
     feedback: {
       style: {
         use: (...handles: StyleHandle[]) => {
@@ -15,19 +15,19 @@ export function createIntentBuilder() {
       },
     },
     state: <T>(
-      handle: OwnedStateHandle<T> | BorrowedStateHandle<T, PropsBaseType>
+      handle: OwnedStateHandle<T> | BorrowedStateHandle<T, Props>
     ): StateIntentBuilder<T> => ({
       be(value: T) {
         ops.push({
           kind: 'state.set',
-          handle: handle as any,
+          handle,
           value,
         });
       },
     }),
   };
 
-  const exportIntent = (): RuleIntent => ({ kind: 'ops', ops: ops.slice() });
+  const exportIntent = (): RuleIntent<Props> => ({ kind: 'ops', ops: ops.slice() });
 
   return { builder, exportIntent };
 }

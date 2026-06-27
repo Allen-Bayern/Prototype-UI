@@ -36,7 +36,7 @@ export function createRuleModule<Props extends PropsBaseType>(
 
       return {
         facade: {
-          rule: (spec) => impl.define(spec as any),
+          rule: (spec) => impl.define(spec),
         },
         port: {
           exportIR: () => impl.exportIR(),

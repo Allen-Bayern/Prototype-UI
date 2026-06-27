@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
+import type { DefHandle, Prototype } from '@proto.ui/core';
 import { tw } from '@proto.ui/core';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
@@ -9,10 +9,10 @@ describe('runtime contract: rule meta (v0)', () => {
   it('evaluates when.meta using host-provided meta getter', () => {
     const proto: Prototype = {
       name: 'rule-meta-dark-contract',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         def.rule({
-          when: (w: any) => w.meta('colorScheme').eq('dark'),
-          intent: (i: any) => i.feedback.style.use(tw('bg-zinc-950')),
+          when: (w) => w.meta('colorScheme').eq('dark'),
+          intent: (i) => i.feedback.style.use(tw('bg-zinc-950')),
         });
         return (r: any) => [r.el('div', {}, ['ok'])];
       },

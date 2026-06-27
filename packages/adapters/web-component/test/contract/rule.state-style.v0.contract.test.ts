@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
+import type { DefHandle, Prototype } from '@proto.ui/core';
 import { tw } from '@proto.ui/core';
 import { AdaptToWebComponent } from '../../src/adapt';
 
@@ -9,12 +9,12 @@ describe('adapter-web-component: rule state -> style (v0)', () => {
   it('applies rule style on state change and removes it on deactivate', async () => {
     const proto: Prototype = {
       name: 'rule-state-style-wc',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const pressed = def.state.bool('pressed', false);
 
         def.rule({
-          when: (w: any) => w.state(pressed).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(pressed).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onUpdated(() => {

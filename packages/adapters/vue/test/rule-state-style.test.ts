@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tw, type Prototype } from '@proto.ui/core';
+import { tw, type DefHandle, type Prototype } from '@proto.ui/core';
 
 import { createMountedVueAdapter, flushVue } from './utils/vue';
 
@@ -7,12 +7,12 @@ describe('adapter-vue: rule state -> style', () => {
   it('applies rule style on state change and removes it on deactivate', async () => {
     const proto: Prototype = {
       name: 'vue-rule-state-style',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         const pressed = def.state.bool('pressed', false);
 
         def.rule({
-          when: (w: any) => w.state(pressed).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(pressed).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onUpdated(() => {

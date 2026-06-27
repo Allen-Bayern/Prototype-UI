@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { EffectsPort, Prototype, StyleHandle } from '@proto.ui/core';
+import type { DefHandle, EffectsPort, Prototype, StyleHandle } from '@proto.ui/core';
 import { tw } from '@proto.ui/core';
 import { EFFECTS_CAP } from '@proto.ui/module-feedback';
 import { executeWithHost, type RuntimeHost } from '../../src';
@@ -9,7 +9,7 @@ describe('runtime: feedback.style runtime patch v0', () => {
     const styles: StyleHandle[] = [];
     const proto: Prototype = {
       name: 'feedback-style-runtime-patch-surface',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         def.feedback.style.use(tw('opacity-50 bg-blue-500'));
         def.lifecycle.onMounted((run: any) => {
           expect(typeof run.feedback.style.patch).toBe('function');
@@ -36,7 +36,7 @@ describe('runtime: feedback.style runtime patch v0', () => {
 
     const proto: Prototype = {
       name: 'feedback-style-runtime-patch-no-render',
-      setup(def: any) {
+      setup(def: DefHandle<any>) {
         def.feedback.style.use(tw('opacity-50 bg-blue-500 text-white'));
         def.lifecycle.onMounted((run: any) => {
           run.feedback.style.patch(tw('opacity-100'));
@@ -68,11 +68,11 @@ describe('runtime: feedback.style runtime patch v0', () => {
 
     const proto: Prototype<{ active?: boolean }> = {
       name: 'feedback-style-runtime-patch-after-rule',
-      setup(def: any) {
+      setup(def: DefHandle<{ active?: boolean }>) {
         def.props.define({ active: { type: 'boolean', default: true } } as any);
         def.rule({
-          when: (w: any) => w.prop('active').eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50 bg-blue-500')),
+          when: (w) => w.prop('active').eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50 bg-blue-500')),
         });
         def.lifecycle.onMounted((run: any) => {
           run.feedback.style.patch(tw('opacity-100'));

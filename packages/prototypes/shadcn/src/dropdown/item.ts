@@ -34,24 +34,24 @@ const dropdownItem = definePrototype<ShadcnDropdownItemProps, ShadcnDropdownItem
     def.feedback.style.use(tw(ITEM_BASE_TOKENS));
 
     def.rule({
-      when: (w: any) =>
+      when: (w) =>
         w.any(w.state(hovered).eq(true), w.state(focused).eq(true), w.state(focusVisible).eq(true)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('ring-2 ring-ring/40 ring-inset')),
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) => i.feedback.style.use(tw('ring-2 ring-ring/40 ring-inset')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('bg-muted/80 text-foreground')),
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) => i.feedback.style.use(tw('bg-muted/80 text-foreground')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
   },
 });

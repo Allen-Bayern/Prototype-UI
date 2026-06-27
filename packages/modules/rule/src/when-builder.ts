@@ -1,5 +1,6 @@
 // packages/modules/rule/src/when-builder.ts
 import type { RuleDep, WhenBuilder, WhenExpr, WhenLiteral, WhenSignal } from './types';
+import type { PropsBaseType } from '@proto.ui/types';
 
 function stateIdOf(s: any): string {
   const id = s?.__stateId ?? s?.id ?? s;
@@ -7,7 +8,7 @@ function stateIdOf(s: any): string {
   return `obj:${String(id)}`;
 }
 
-export function createWhenBuilder<Props extends {}>(opts?: {
+export function createWhenBuilder<Props extends PropsBaseType>(opts?: {
   onStateHandle?: (id: any, handle: any) => void;
 }) {
   const deps: RuleDep<Props>[] = [];
@@ -30,7 +31,7 @@ export function createWhenBuilder<Props extends {}>(opts?: {
 
   const makeSignal = (left: any): WhenSignal<Props, any> => ({
     eq(lit: WhenLiteral): WhenExpr<Props> {
-      return { type: 'eq', left, right: lit } as any;
+      return { type: 'eq', left, right: lit };
     },
   });
 
@@ -55,20 +56,20 @@ export function createWhenBuilder<Props extends {}>(opts?: {
     },
 
     all(...exprs: WhenExpr<Props>[]): WhenExpr<Props> {
-      return { type: 'all', exprs } as any;
+      return { type: 'all', exprs };
     },
     any(...exprs: WhenExpr<Props>[]): WhenExpr<Props> {
-      return { type: 'any', exprs } as any;
+      return { type: 'any', exprs };
     },
     not(expr: WhenExpr<Props>): WhenExpr<Props> {
-      return { type: 'not', expr } as any;
+      return { type: 'not', expr };
     },
 
     t(): WhenExpr<Props> {
-      return { type: 'true' } as any;
+      return { type: 'true' };
     },
     f(): WhenExpr<Props> {
-      return { type: 'false' } as any;
+      return { type: 'false' };
     },
   };
 

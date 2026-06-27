@@ -226,8 +226,8 @@ describe('runtime contract: asHook (v0)', () => {
         artifacts = res.artifacts;
 
         def.rule({
-          when: (w: any) => w.state(openHandle).eq(true),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.state(openHandle).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onCreated(() => {
@@ -362,8 +362,8 @@ describe('runtime contract: asHook (v0)', () => {
       name: 'asRule',
       setup(def) {
         def.rule({
-          when: (w: any) => w.t(),
-          intent: (i: any) => i.feedback.style.use(tw('opacity-50')),
+          when: (w) => w.t(),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
       },
     });

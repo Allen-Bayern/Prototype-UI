@@ -20,7 +20,7 @@ import {
   SvgFactories,
 } from './spec';
 import type { AnatomyClaimDecl, AnatomyFamily, AnatomyOrderView, AnatomyPartView } from './anatomy';
-import { State, StateDefAPI } from './state';
+import { State, StateDefAPI, type BorrowedStateHandle, type OwnedStateHandle } from './state';
 import type { Unsubscribe } from './state';
 
 // 统一错误上下文，方便在 runtime 做 phase guard 时给出可诊断信息
@@ -51,6 +51,87 @@ export type ExposeMap = Record<
   string,
   ExposeEvent<any> | ExposeMethod<any> | ExposeValue<any> | ExposeState<any>
 >;
+
+export type RuleHandle = {
+  readonly id: number;
+  dispose(): void;
+};
+
+export type RuleDep<Props extends PropsBaseType> =
+  | { kind: 'prop'; key: keyof Props }
+  | { kind: 'state'; id: unknown }
+  | { kind: 'context'; key: unknown }
+  | { kind: 'meta'; key: string };
+
+export type WhenLiteral = string | number | boolean | null;
+export type WhenComparable<T> =
+  Extract<T, WhenLiteral> extends never ? WhenLiteral : Extract<T, WhenLiteral>;
+
+export type WhenValue<Props extends PropsBaseType> =
+  | { type: 'prop'; key: keyof Props }
+  | { type: 'state'; id: unknown }
+  | { type: 'context'; key: unknown }
+  | { type: 'meta'; key: string };
+
+export type WhenExpr<Props extends PropsBaseType> =
+  | { type: 'true' }
+  | { type: 'false' }
+  | { type: 'eq'; left: WhenValue<Props>; right: WhenLiteral }
+  | { type: 'not'; expr: WhenExpr<Props> }
+  | { type: 'all'; exprs: WhenExpr<Props>[] }
+  | { type: 'any'; exprs: WhenExpr<Props>[] };
+
+export interface WhenSignal<Props extends PropsBaseType, T> {
+  eq(lit: WhenComparable<T>): WhenExpr<Props>;
+}
+
+export interface WhenBuilder<Props extends PropsBaseType> {
+  prop<K extends keyof Props & string>(key: K): WhenSignal<Props, Props[K]>;
+  state<T>(state: State<T>): WhenSignal<Props, T>;
+  ctx<T extends JsonObject>(key: ContextKey<T>): WhenSignal<Props, unknown>;
+  meta(key: string): WhenSignal<Props, unknown>;
+
+  all(...exprs: WhenExpr<Props>[]): WhenExpr<Props>;
+  any(...exprs: WhenExpr<Props>[]): WhenExpr<Props>;
+  not(expr: WhenExpr<Props>): WhenExpr<Props>;
+
+  t(): WhenExpr<Props>;
+  f(): WhenExpr<Props>;
+}
+
+export type RuleOp<Props extends PropsBaseType = PropsBaseType> =
+  | { kind: 'feedback.style.use'; handles: StyleHandle[] }
+  | {
+      kind: 'state.set';
+      handle: OwnedStateHandle<any> | BorrowedStateHandle<any, Props>;
+      value: any;
+      reason?: any;
+    };
+
+export type RuleIntent<Props extends PropsBaseType = PropsBaseType> = {
+  kind: 'ops';
+  ops: RuleOp<Props>[];
+};
+
+export interface StateIntentBuilder<T> {
+  be(value: T): void;
+}
+
+export interface IntentBuilder<Props extends PropsBaseType = PropsBaseType> {
+  feedback: {
+    style: {
+      use(...handles: StyleHandle[]): void;
+    };
+  };
+  state: <T>(handle: OwnedStateHandle<T> | BorrowedStateHandle<T, Props>) => StateIntentBuilder<T>;
+}
+
+export type RuleSpec<Props extends PropsBaseType> = {
+  label?: string;
+  note?: string;
+  when: (w: WhenBuilder<Props>) => WhenExpr<Props>;
+  intent: (i: IntentBuilder<Props>) => void;
+};
 
 /**
  * Handles are how we strictly separate phases:
@@ -148,7 +229,7 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
     ) => void;
   };
 
-  rule: (spec: any) => { readonly id: number; dispose(): void };
+  rule: (spec: RuleSpec<Props>) => RuleHandle;
 
   event: {
     on(

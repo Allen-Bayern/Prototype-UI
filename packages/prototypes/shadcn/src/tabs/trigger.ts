@@ -33,8 +33,8 @@ const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExp
     def.feedback.style.use(tw(BASE_TOKENS));
 
     def.rule({
-      when: (w: any) => w.state(focusVisible).eq(true),
-      intent: (i: any) =>
+      when: (w) => w.state(focusVisible).eq(true),
+      intent: (i) =>
         i.feedback.style.use(
           tw(
             'bg-background text-foreground shadow-xs ring-3 ring-ring/50 ring-offset-2 ring-offset-background'
@@ -43,24 +43,24 @@ const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExp
     });
 
     def.rule({
-      when: (w: any) => w.state(selected).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('bg-background text-foreground shadow-xs')),
+      when: (w) => w.state(selected).eq(true),
+      intent: (i) => i.feedback.style.use(tw('bg-background text-foreground shadow-xs')),
     });
 
     def.rule({
-      when: (w: any) => w.all(w.state(hovered).eq(true), w.state(selected).eq(false)),
-      intent: (i: any) => i.feedback.style.use(tw('bg-background/70 text-foreground shadow-xs')),
+      when: (w) => w.all(w.state(hovered).eq(true), w.state(selected).eq(false)),
+      intent: (i) => i.feedback.style.use(tw('bg-background/70 text-foreground shadow-xs')),
     });
 
     def.rule({
-      when: (w: any) => w.state(pressed).eq(true),
-      intent: (i: any) =>
+      when: (w) => w.state(pressed).eq(true),
+      intent: (i) =>
         i.feedback.style.use(tw('scale-[0.99] bg-background text-foreground shadow-xs')),
     });
 
     def.rule({
-      when: (w: any) => w.state(disabled).eq(true),
-      intent: (i: any) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
+      when: (w) => w.state(disabled).eq(true),
+      intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
   },
 });

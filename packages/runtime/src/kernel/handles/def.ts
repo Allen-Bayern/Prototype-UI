@@ -192,9 +192,9 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
       return fn;
     })(),
 
-    rule: (spec: RuleSpec<any>) => {
+    rule: (spec: RuleSpec<P>) => {
       ensureSetup('def.rule');
-      const handle = rules.rule(spec as any);
+      const handle = rules.rule(spec);
       recordCaptured(def, 'context', { op: 'rule', handle, off: () => handle.dispose() });
       return handle;
     },
