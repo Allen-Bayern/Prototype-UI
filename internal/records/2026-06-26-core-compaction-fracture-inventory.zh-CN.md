@@ -611,7 +611,7 @@ Decision 潜力：
 
 当前事实：
 
-- `asButton` 调用 `asFocusable({ disabled: false })`。
+- 当时 `asButton` 使用带 patch 参数的 `asFocusable` 调用；2026-06-27 已迁移为 `asFocusable()` 加返回 handle 配置。
 - button 的 exposed states 包含 `focused` 与 `focusVisible`。
 - `focusSelf` expose method 依赖 focus handle。
 - focus tests 已覆盖 disabled focusable rejects focus requests。

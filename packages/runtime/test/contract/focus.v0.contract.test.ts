@@ -2,16 +2,51 @@ import { describe, expect, it } from 'vitest';
 import {
   createFocusScopeKey,
   definePrototype,
+  tw,
   type FocusScopeHandle,
   type FocusableHandle,
 } from '@proto.ui/core';
 import { asFocusable, asFocusScope } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
+import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
 import type { FocusPort } from '@proto.ui/module-focus';
 import type { PropsBaseType } from '@proto.ui/types';
 
-const createHost = <P extends PropsBaseType>(name: string) => {
+function createMockTarget() {
+  type Rec = { type: string; fn: (ev: any) => void; options?: unknown };
+  const listeners: Rec[] = [];
+
+  return {
+    addEventListener(type: string, fn: (ev: any) => void, options?: unknown) {
+      listeners.push({ type, fn, options });
+    },
+    removeEventListener(type: string, fn: (ev: any) => void, options?: unknown) {
+      for (let i = listeners.length - 1; i >= 0; i--) {
+        const rec = listeners[i]!;
+        if (rec.type !== type || rec.fn !== fn || rec.options !== options) continue;
+        listeners.splice(i, 1);
+        return;
+      }
+    },
+    dispatchEvent() {
+      return true;
+    },
+    fire(type: string, ev: any = { type }) {
+      for (const rec of listeners.filter((item) => item.type === type).slice()) {
+        rec.fn(ev);
+      }
+    },
+  } as EventTarget & { fire(type: string, ev?: any): void };
+}
+
+const createHost = <P extends PropsBaseType>(
+  name: string,
+  targets?: { root?: EventTarget | null; global?: EventTarget | null }
+) => {
+  const rootTarget = targets?.root === undefined ? createMockTarget() : targets.root;
+  const globalTarget = targets?.global === undefined ? createMockTarget() : targets.global;
+
   const host: RuntimeHost<P> = {
     prototypeName: name,
     getRawProps: () => ({}) as any,
@@ -20,6 +55,12 @@ const createHost = <P extends PropsBaseType>(name: string) => {
     },
     schedule(task) {
       task();
+    },
+    onRuntimeReady(wiring) {
+      wiring.attach('event', [
+        [EVENT_ROOT_TARGET_CAP, () => rootTarget ?? null],
+        [EVENT_GLOBAL_TARGET_CAP, () => globalTarget ?? null],
+      ]);
     },
   };
 
@@ -36,8 +77,10 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0100',
       setup() {
-        a = asFocusable({ scopeKey: first });
-        b = asFocusable({ scopeKey: second });
+        a = asFocusable();
+        a.configure({ scopeKey: first });
+        b = asFocusable();
+        b.configure({ scopeKey: second });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -134,7 +177,8 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0400',
       setup(def) {
-        focusable = asFocusable({ disabled: false });
+        focusable = asFocusable();
+        focusable.configure({ disabled: false });
         def.lifecycle.onCreated(() => {
           focusable.focus({ reason: 'keyboard' });
         });
@@ -155,13 +199,76 @@ describe('runtime contract: focus (v0)', () => {
     });
   });
 
+  it('FOCUS-0450: host focus events update focus-owned observed facts', () => {
+    let focusable!: FocusableHandle<any>;
+    const root = createMockTarget();
+    const global = createMockTarget();
+
+    const P = definePrototype({
+      name: 'x-focus-0450',
+      setup() {
+        focusable = asFocusable();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, { root, global });
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focusable.focused.get()).toBe(false);
+    expect((focusable.focused as any).__stateId).toBeTruthy();
+    expect((focusable.focused as any).__stateSemantic).toBe('@focus/focused');
+    expect((focusable.focusVisible as any).__stateSemantic).toBe('@focus/focusVisible');
+    global.fire('key.down', { type: 'key.down' });
+    root.fire('host:focus', { type: 'host:focus' });
+    expect(focusable.focused.get()).toBe(true);
+    expect(focusable.focusVisible.get()).toBe(true);
+    expect(port?.getFacts().active).toBe(true);
+
+    root.fire('pointer.down', { type: 'pointer.down' });
+    expect(focusable.focusVisible.get()).toBe(false);
+
+    root.fire('host:blur', { type: 'host:blur' });
+    expect(focusable.focused.get()).toBe(false);
+    expect(port?.getFacts().active).toBe(false);
+  });
+
+  it('FOCUS-0460: focus fact handles are rule-consumable state handles', () => {
+    let focusable!: FocusableHandle<any>;
+    const root = createMockTarget();
+    const global = createMockTarget();
+
+    const P = definePrototype({
+      name: 'x-focus-0460',
+      setup(def) {
+        focusable = asFocusable();
+        def.rule({
+          when: (w) => w.state(focusable.focusVisible).eq(true),
+          intent: (i) => i.feedback.style.use(tw('ring-2')),
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, { root, global });
+    const result = executeWithHost(P as any, host as any);
+
+    expect(result.controller.getRuleStyleTokens()).not.toContain('ring-2');
+
+    global.fire('key.down', { type: 'key.down' });
+    root.fire('host:focus', { type: 'host:focus' });
+    expect(result.controller.getRuleStyleTokens()).toContain('ring-2');
+  });
+
   it('FOCUS-0500: disabled focusable rejects focus requests', () => {
     let focusable!: FocusableHandle<any>;
 
     const P = definePrototype({
       name: 'x-focus-0500',
       setup(def) {
-        focusable = asFocusable({ disabled: true });
+        focusable = asFocusable();
+        focusable.configure({ disabled: true });
         def.lifecycle.onCreated(() => {
           focusable.focus({ reason: 'keyboard' });
         });
@@ -186,7 +293,8 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0600',
       setup() {
-        asFocusable({ autoFocus: true });
+        const focusable = asFocusable();
+        focusable.configure({ autoFocus: true });
         return (r) => r.el('div', 'ok');
       },
     });

@@ -7,8 +7,10 @@ function mapOfficialSemanticName(semantic: string): string | null {
     case '@interaction/pressed':
       return 'pressed';
     case '@interaction/focused':
+    case '@focus/focused':
       return 'focused';
     case '@interaction/focusVisible':
+    case '@focus/focusVisible':
       return 'focus-visible';
     case '@accessibility/expanded':
       return 'expanded';
@@ -63,6 +65,8 @@ export function createExposeStateWebNativeVariantPolicy({ semantic }: { semantic
     case '@interaction/disabled':
     case '@interaction/focused':
     case '@interaction/focusVisible':
+    case '@focus/focused':
+    case '@focus/focusVisible':
       return false;
     default:
       return true;

@@ -7,7 +7,6 @@ import type { StateInteractionFacade, StateInteractionModule } from './types';
 
 class StateInteractionModuleImpl {
   private readonly handles = new Map<InteractionStateName, any>();
-  private keyboardModality = false;
 
   constructor(
     private readonly stateFacade: StateFacade,
@@ -74,32 +73,8 @@ class StateInteractionModuleImpl {
         return;
       }
 
-      case 'focused': {
-        this.eventPort.on('host:focus', () => {
-          if (this.isDisabled()) return;
-          state.set(true, 'reason: state-interaction.host:focus => focused');
-        });
-        this.eventPort.on('host:blur', () => {
-          state.set(false, 'reason: state-interaction.host:blur => focused');
-        });
-        return;
-      }
-
+      case 'focused':
       case 'focusVisible': {
-        this.eventPort.onGlobal('key.down', () => {
-          this.keyboardModality = true;
-        });
-        this.eventPort.on('pointer.down', () => {
-          this.keyboardModality = false;
-          state.set(false, 'reason: state-interaction.pointer.down => focusVisible');
-        });
-        this.eventPort.on('host:focus', () => {
-          if (this.isDisabled()) return;
-          state.set(this.keyboardModality, 'reason: state-interaction.host:focus => focusVisible');
-        });
-        this.eventPort.on('host:blur', () => {
-          state.set(false, 'reason: state-interaction.host:blur => focusVisible');
-        });
         return;
       }
 
@@ -117,7 +92,7 @@ class StateInteractionModuleImpl {
   }
 
   private clearTransientInteractionStates(reason: string) {
-    for (const name of ['hovered', 'pressed', 'focused', 'focusVisible'] as const) {
+    for (const name of ['hovered', 'pressed'] as const) {
       this.handles.get(name)?.set?.(false, reason);
     }
   }

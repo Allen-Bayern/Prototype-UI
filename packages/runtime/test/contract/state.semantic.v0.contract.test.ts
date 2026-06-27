@@ -185,36 +185,28 @@ describe('runtime contract: state semantic accessors (v0)', () => {
     expect(seenInAuthorCallback).toBe(true);
   });
 
-  it('runtime-managed interaction state respects disabled as an interaction gate', () => {
+  it('runtime-managed interaction state respects disabled as a hover/press interaction gate', () => {
     let disabled: any;
     let hovered: any;
-    let focused: any;
-    let focusVisible: any;
     let pressed: any;
     const root = createMockTarget();
-    const global = createMockTarget();
 
     const P: Prototype = {
       name: 'state-interaction-disabled-gate',
       setup(def) {
         disabled = def.state.fromInteraction('disabled');
         hovered = def.state.fromInteraction('hovered');
-        focused = def.state.fromInteraction('focused');
-        focusVisible = def.state.fromInteraction('focusVisible');
         pressed = def.state.fromInteraction('pressed');
         return (r) => [r.el('div', 'ok')];
       },
     };
 
-    const result = executeWithHost(P as any, createHost(P.name, { root, global }) as any);
+    const result = executeWithHost(P as any, createHost(P.name, { root }) as any);
 
     root.fire('pointer.enter', { type: 'pointer.enter' });
-    global.fire('key.down', { type: 'key.down' });
-    root.fire('host:focus', { type: 'host:focus' });
     root.fire('pointer.down', { type: 'pointer.down' });
 
     expect(hovered.get()).toBe(true);
-    expect(focused.get()).toBe(true);
     expect(pressed.get()).toBe(true);
 
     result.invokeInCallbackScope(() => {
@@ -222,21 +214,16 @@ describe('runtime contract: state semantic accessors (v0)', () => {
     });
 
     expect(hovered.get()).toBe(false);
-    expect(focused.get()).toBe(false);
-    expect(focusVisible.get()).toBe(false);
     expect(pressed.get()).toBe(false);
 
     root.fire('pointer.enter', { type: 'pointer.enter' });
-    root.fire('host:focus', { type: 'host:focus' });
     root.fire('pointer.down', { type: 'pointer.down' });
 
     expect(hovered.get()).toBe(false);
-    expect(focused.get()).toBe(false);
-    expect(focusVisible.get()).toBe(false);
     expect(pressed.get()).toBe(false);
   });
 
-  it('runtime-managed focusVisible is cleared by pointer modality', () => {
+  it('legacy focusVisible interaction slot is shared but not runtime-managed by state-interaction', () => {
     let focusVisible: any;
     const root = createMockTarget();
     const global = createMockTarget();
@@ -253,7 +240,7 @@ describe('runtime contract: state semantic accessors (v0)', () => {
 
     global.fire('key.down', { type: 'key.down' });
     root.fire('host:focus', { type: 'host:focus' });
-    expect(focusVisible.get()).toBe(true);
+    expect(focusVisible.get()).toBe(false);
 
     root.fire('pointer.down', { type: 'pointer.down' });
     expect(focusVisible.get()).toBe(false);

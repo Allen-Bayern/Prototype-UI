@@ -1,4 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { asFocusable } from '@proto.ui/hooks';
 import { asButton } from '../button';
 import { HOVER_CARD_CONTEXT, HOVER_CARD_FAMILY } from './shared';
 import type {
@@ -22,7 +23,8 @@ function setupHoverCardTrigger(
 
   def.context.subscribe(HOVER_CARD_CONTEXT);
   const hovered = def.state.fromInteraction('hovered');
-  const focused = def.state.fromInteraction('focused');
+  const focusable = asFocusable();
+  const focused = focusable.focused;
 
   const updateFlags = (
     run: any,

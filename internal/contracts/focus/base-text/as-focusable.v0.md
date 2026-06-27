@@ -2,13 +2,13 @@
 
 > Status: Draft - v0
 >
-> This document defines the v0 contract for `asFocusable(...)`.
+> This document defines the v0 contract for `asFocusable()`.
 
 ---
 
 ## 0. Positioning
 
-`asFocusable(...)` declares that the current prototype instance participates as a **focus node**.
+`asFocusable()` declares that the current prototype instance participates as a **focus node**.
 
 It is responsible for:
 
@@ -27,25 +27,26 @@ It is **not** responsible for:
 
 ## 1. Invocation Model
 
-`asFocusable(...)` is a privileged, configurable, singleton-install asHook.
+`asFocusable()` is a privileged, no-arg, singleton-install asHook.
 
 - the first call installs the focusable capability
 - later calls must reuse the same underlying handle
-- repeated calls may contribute setup-time configuration patches
+- setup-time configuration must go through the returned handle
 - repeated calls must not reinstall the focusable capability
 
 ---
 
-## 2. Initial Parameters
+## 2. Setup-Time Configuration
 
-Initial parameters should be optional by default.
+`asFocusable()` accepts no initialization parameter.
 
 v0 intent:
 
-- `asFocusable()` with no arguments should be valid
-- fields that can be configured later in setup should not be init-required
+- `asFocusable()` with no arguments declares default focusable participation
+- fields that need refinement must be configured through `handle.configure(...)`
+- privileged asHook caller shape must not reintroduce parameter patches
 
-Possible late-configurable fields include:
+Setup-configurable fields include:
 
 - `scopeKey`
 - `autoFocus`
@@ -53,7 +54,7 @@ Possible late-configurable fields include:
 - `navParticipation`
 - `meta`
 
-Any field that must be init-required in the future must be explicitly justified by structure or safety constraints.
+Any field that must become init-required in the future must be represented by a distinct privileged asHook contract, not by adding parameters back to `asFocusable()`.
 
 ---
 
@@ -74,11 +75,11 @@ If no `scopeKey` is provided:
 
 ## 4. Return Handle
 
-`asFocusable(...)` should return a `FocusableHandle`-like object.
+`asFocusable()` should return a `FocusableHandle`-like object.
 
 Its v0 surface should minimally allow:
 
-- reading focus facts
+- reading state-backed focus facts
 - issuing focus requests
 - setup-only configuration refinement
 
@@ -100,35 +101,39 @@ type FocusableHandle = {
 
 `configure(...)` must be setup-only.
 
+The focus fact handles returned by `asFocusable()` must be standard state-shaped handles backed by the State module metadata. They are observed, not author-owned: callers may read and watch them, and rule/expose systems may consume them as state handles, but prototype authors must not receive direct write authority for these facts.
+
 ---
 
 ## 5. Repeated Configuration
 
-When `asFocusable(...)` is called multiple times in setup:
+When `asFocusable()` is called multiple times in setup:
 
 - installation must remain singleton-like
-- setup-time configuration may be merged deterministically
+- setup-time configuration through the returned handle may be merged deterministically
 - later compatible fields may override earlier compatible fields
 - unsafe conflicts must throw, or at minimum emit a clear warning
 
-v0 should prefer explicit configuration merge over repeated side-effectful installation.
+v0 should prefer explicit returned-handle configuration over repeated side-effectful installation.
 
 ---
 
 ## 6. Projection Boundary
 
-`asFocusable(...)` may project to:
+`asFocusable()` may expose or project to:
 
-- interaction-derived state such as `focused`
+- focus-owned state such as `focused` and `focusVisible`
 - outward expose methods such as `focus()`
 
 But the hook itself is the primary authoring boundary for focus-node semantics.
+
+Compatibility projections to legacy interaction state slots may exist during migration, but `state-interaction` is not the owner of focus facts.
 
 ---
 
 ## 7. Non-Goals
 
-v0 does not require `asFocusable(...)` to expose:
+v0 does not require `asFocusable()` to expose:
 
 - arbitrary member lookup
 - next/prev navigation

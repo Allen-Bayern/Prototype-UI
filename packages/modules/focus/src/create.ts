@@ -10,6 +10,7 @@ import {
   FocusScopeConfigPatch,
   FocusScopeHandle,
   FocusScopeKey,
+  type OwnedStateHandle,
   type FocusableConfig,
   FocusableConfigPatch,
   FocusableHandle,
@@ -19,7 +20,8 @@ import { createModule, defineModule, ModuleBase } from '@proto.ui/module-base';
 import type { ModuleFactoryArgs } from '@proto.ui/module-base';
 import type { PropsBaseType } from '@proto.ui/types';
 import type { FocusFacade, FocusModule, FocusPort } from './types';
-import type { StateEvent } from '@proto.ui/types';
+import type { EventPort } from '@proto.ui/module-event';
+import type { StateFacade, StatePort } from '@proto.ui/module-state';
 import {
   FOCUS_BLUR_CAP,
   FOCUS_INSTANCE_TOKEN_CAP,
@@ -55,34 +57,6 @@ const DEFAULT_GROUP_CONFIG: FocusGroupConfig = Object.freeze({
   selectOnFocus: false,
 });
 
-function createObservedBoolHandle(initialValue = false) {
-  let value = initialValue;
-  const watchers = new Set<(run: any, e: StateEvent<boolean>) => void>();
-
-  const handle: ObservedStateHandle<boolean, any> = {
-    get: () => value,
-    watch: (cb) => {
-      watchers.add(cb as any);
-      return () => {
-        watchers.delete(cb as any);
-      };
-    },
-  };
-
-  return {
-    handle: Object.freeze(handle),
-    set(next: boolean, reason?: unknown) {
-      if (Object.is(next, value)) return;
-      const prev = value;
-      value = next;
-      const event: StateEvent<boolean> = { type: 'next', next, prev, reason };
-      for (const watcher of watchers) {
-        watcher(undefined as any, event);
-      }
-    },
-  };
-}
-
 function mergeMeta(
   prev: Readonly<Record<string, unknown>> | undefined,
   next: Readonly<Record<string, unknown>> | undefined
@@ -113,16 +87,82 @@ class FocusModuleImpl extends ModuleBase {
   private readonly prototypeName: string;
   private readonly warnings: string[] = [];
   private didAutoFocus = false;
+  private keyboardModality = false;
+  private hostEventsWired = false;
 
-  private readonly focusedState = createObservedBoolHandle(false);
-  private readonly focusVisibleState = createObservedBoolHandle(false);
-  private readonly focusableState = createObservedBoolHandle(false);
-  private readonly activeState = createObservedBoolHandle(false);
-  private readonly hasFocusedState = createObservedBoolHandle(false);
+  private readonly focusedOwned: OwnedStateHandle<boolean>;
+  private readonly focusVisibleOwned: OwnedStateHandle<boolean>;
+  private readonly focusableOwned: OwnedStateHandle<boolean>;
+  private readonly activeOwned: OwnedStateHandle<boolean>;
+  private readonly hasFocusedOwned: OwnedStateHandle<boolean>;
 
-  constructor(caps: ModuleFactoryArgs['caps'], prototypeName: string) {
+  private readonly focusedState: ObservedStateHandle<boolean, any>;
+  private readonly focusVisibleState: ObservedStateHandle<boolean, any>;
+  private readonly focusableState: ObservedStateHandle<boolean, any>;
+  private readonly activeState: ObservedStateHandle<boolean, any>;
+  private readonly hasFocusedState: ObservedStateHandle<boolean, any>;
+
+  private readonly focusableHandle: FocusableHandle<any>;
+  private readonly scopeHandle: FocusScopeHandle<any>;
+  private readonly groupHandle: FocusGroupHandle<any>;
+
+  constructor(
+    caps: ModuleFactoryArgs['caps'],
+    prototypeName: string,
+    private readonly eventPort: EventPort,
+    private readonly statePort: StatePort,
+    stateFacade: StateFacade
+  ) {
     super(caps);
     this.prototypeName = prototypeName;
+
+    this.focusedOwned = stateFacade.bool('@focus/focused', false);
+    this.focusVisibleOwned = stateFacade.bool('@focus/focusVisible', false);
+    this.focusableOwned = stateFacade.bool('@focus/focusable', false);
+    this.activeOwned = stateFacade.bool('@focus/active', false);
+    this.hasFocusedOwned = stateFacade.bool('@focus/hasFocused', false);
+
+    this.focusedState = statePort.createObservedHandle(this.focusedOwned) as any;
+    this.focusVisibleState = statePort.createObservedHandle(this.focusVisibleOwned) as any;
+    this.focusableState = statePort.createObservedHandle(this.focusableOwned) as any;
+    this.activeState = statePort.createObservedHandle(this.activeOwned) as any;
+    this.hasFocusedState = statePort.createObservedHandle(this.hasFocusedOwned) as any;
+
+    this.focusableHandle = {
+      focused: this.focusedState,
+      focusVisible: this.focusVisibleState,
+      focusable: this.focusableState,
+      focus: (options?: FocusRequestOptions) => this.requestFocus(options),
+      focusSelf: (options?: FocusRequestOptions) => this.requestNativeFocus(options),
+      blur: () => this.blur(),
+      isFocused: () => this.focusedState.get(),
+      setDisabled: (disabled: boolean) => this.setDisabled(disabled),
+      configure: (patch: FocusableConfigPatch) => this.configureFocusable(patch),
+    };
+
+    this.scopeHandle = {
+      active: this.activeState,
+      hasFocused: this.hasFocusedState,
+      focusFirst: () => this.focusFirst(),
+      focusLast: () => this.focusLast(),
+      focusNext: () => this.focusNext(),
+      focusPrev: () => this.focusPrev(),
+      focusSelected: () => this.focusSelected(),
+      restoreFocus: () => this.restoreFocus(),
+      configure: (patch: FocusScopeConfigPatch) => this.configureScope(patch),
+      getGroup: () => this.groupHandle,
+    };
+
+    this.groupHandle = {
+      active: this.activeState,
+      hasFocused: this.hasFocusedState,
+      focusFirst: () => this.focusFirst(),
+      focusLast: () => this.focusLast(),
+      focusNext: () => this.focusNext(),
+      focusPrev: () => this.focusPrev(),
+      focusSelected: () => this.focusSelected(),
+      configure: (patch: FocusGroupConfigPatch) => this.configureGroup(patch),
+    };
   }
 
   private ensureSetup(op: string) {
@@ -139,6 +179,24 @@ class FocusModuleImpl extends ModuleBase {
     if (!this.caps.has(FOCUS_ROOT_TARGET_CAP)) return null;
     const getter = this.caps.get(FOCUS_ROOT_TARGET_CAP);
     return getter?.() ?? null;
+  }
+
+  private getCallbackCtx(): unknown {
+    return this.sys?.getCallbackCtx?.() ?? undefined;
+  }
+
+  private setFocusState(
+    handle: OwnedStateHandle<boolean>,
+    next: boolean,
+    reason?: unknown,
+    options?: { defaultOnly?: boolean }
+  ): void {
+    if (Object.is(handle.get(), next)) return;
+    if (options?.defaultOnly) {
+      this.statePort.setDefault(handle, next);
+      return;
+    }
+    this.statePort.set(handle, next, reason, this.getCallbackCtx());
   }
 
   private getSelfToken() {
@@ -184,43 +242,53 @@ class FocusModuleImpl extends ModuleBase {
     }
   }
 
-  private readonly focusableHandle: FocusableHandle<any> = {
-    focused: this.focusedState.handle,
-    focusVisible: this.focusVisibleState.handle,
-    focusable: this.focusableState.handle,
-    focus: (options?: FocusRequestOptions) => this.requestFocus(options),
-    focusSelf: (options?: FocusRequestOptions) => this.requestNativeFocus(options),
-    blur: () => this.blur(),
-    isFocused: () => this.focusedState.handle.get(),
-    setDisabled: (disabled: boolean) => this.setDisabled(disabled),
-    configure: (patch: FocusableConfigPatch) => this.configureFocusable(patch),
-  };
+  private declareFocusable(): void {
+    if (!this.focusableDeclared) {
+      this.focusableDeclared = true;
+      this.setFocusState(this.focusableOwned, !this.focusableConfig.disabled, 'focus declared', {
+        defaultOnly: true,
+      });
+    }
+    this.wireHostFocusEvents();
+    this.syncHostFocusable();
+    this.syncCenter();
+  }
 
-  private readonly scopeHandle: FocusScopeHandle<any> = {
-    active: this.activeState.handle,
-    hasFocused: this.hasFocusedState.handle,
-    focusFirst: () => this.focusFirst(),
-    focusLast: () => this.focusLast(),
-    focusNext: () => this.focusNext(),
-    focusPrev: () => this.focusPrev(),
-    focusSelected: () => this.focusSelected(),
-    restoreFocus: () => this.restoreFocus(),
-    configure: (patch: FocusScopeConfigPatch) => this.configureScope(patch),
-    getGroup: () => this.groupHandle,
-  };
+  private wireHostFocusEvents(): void {
+    if (this.hostEventsWired) return;
+    this.hostEventsWired = true;
 
-  private readonly groupHandle: FocusGroupHandle<any> = {
-    active: this.activeState.handle,
-    hasFocused: this.hasFocusedState.handle,
-    focusFirst: () => this.focusFirst(),
-    focusLast: () => this.focusLast(),
-    focusNext: () => this.focusNext(),
-    focusPrev: () => this.focusPrev(),
-    focusSelected: () => this.focusSelected(),
-    configure: (patch: FocusGroupConfigPatch) => this.configureGroup(patch),
-  };
+    this.eventPort.onGlobal('key.down', () => {
+      this.keyboardModality = true;
+    });
+    this.eventPort.on('pointer.down', () => {
+      this.keyboardModality = false;
+      this.setFocusState(
+        this.focusVisibleOwned,
+        false,
+        'reason: focus.pointer.down => focusVisible'
+      );
+    });
+    this.eventPort.on('host:focus', () => {
+      if (!this.focusableDeclared || this.focusableConfig.disabled) return;
+      this.setFocusState(this.focusedOwned, true, 'reason: focus.host:focus => focused');
+      this.setFocusState(
+        this.focusVisibleOwned,
+        this.keyboardModality,
+        'reason: focus.host:focus => focusVisible'
+      );
+      this.setFocusState(this.activeOwned, true, 'reason: focus.host:focus => active');
+      this.setFocusState(this.hasFocusedOwned, true, 'reason: focus.host:focus => hasFocused');
+    });
+    this.eventPort.on('host:blur', () => {
+      this.setFocusState(this.focusedOwned, false, 'reason: focus.host:blur => focused');
+      this.setFocusState(this.focusVisibleOwned, false, 'reason: focus.host:blur => focusVisible');
+      this.setFocusState(this.activeOwned, false, 'reason: focus.host:blur => active');
+    });
+  }
 
   getFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P> {
+    this.declareFocusable();
     return this.focusableHandle as FocusableHandle<P>;
   }
 
@@ -234,7 +302,7 @@ class FocusModuleImpl extends ModuleBase {
 
   configureFocusable(patch: FocusableConfigPatch): void {
     this.ensureSetup('focus.configureFocusable');
-    this.focusableDeclared = true;
+    this.declareFocusable();
     if (typeof patch.autoFocus !== 'undefined') {
       pushOverrideWarning(
         this.warnings,
@@ -426,10 +494,10 @@ class FocusModuleImpl extends ModuleBase {
     if (target && this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
       this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
     }
-    this.focusedState.set(true, options?.reason ?? 'programmatic');
-    this.focusVisibleState.set(options?.reason === 'keyboard', options?.reason);
-    this.activeState.set(true, options?.reason ?? 'programmatic');
-    this.hasFocusedState.set(true, options?.reason ?? 'programmatic');
+    this.setFocusState(this.focusedOwned, true, options?.reason ?? 'programmatic');
+    this.setFocusState(this.focusVisibleOwned, options?.reason === 'keyboard', options?.reason);
+    this.setFocusState(this.activeOwned, true, options?.reason ?? 'programmatic');
+    this.setFocusState(this.hasFocusedOwned, true, options?.reason ?? 'programmatic');
   }
 
   private requestNativeFocus(options?: FocusRequestOptions): void {
@@ -445,9 +513,9 @@ class FocusModuleImpl extends ModuleBase {
     if (target && this.caps.has(FOCUS_BLUR_CAP)) {
       this.caps.get(FOCUS_BLUR_CAP)(target);
     }
-    this.focusedState.set(false, 'blur');
-    this.focusVisibleState.set(false, 'blur');
-    this.activeState.set(false, 'blur');
+    this.setFocusState(this.focusedOwned, false, 'blur');
+    this.setFocusState(this.focusVisibleOwned, false, 'blur');
+    this.setFocusState(this.activeOwned, false, 'blur');
   }
 
   focusFirst(): void {
@@ -467,10 +535,10 @@ class FocusModuleImpl extends ModuleBase {
     }
     if (this.focusableConfig.disabled) return;
     if (this.scopeConfig.emptyPolicy === 'container') {
-      this.activeState.set(true, 'focusFirst:container');
-      this.hasFocusedState.set(false, 'focusFirst:container');
-      this.focusedState.set(false, 'focusFirst:container');
-      this.focusVisibleState.set(false, 'focusFirst:container');
+      this.setFocusState(this.activeOwned, true, 'focusFirst:container');
+      this.setFocusState(this.hasFocusedOwned, false, 'focusFirst:container');
+      this.setFocusState(this.focusedOwned, false, 'focusFirst:container');
+      this.setFocusState(this.focusVisibleOwned, false, 'focusFirst:container');
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
@@ -557,7 +625,9 @@ class FocusModuleImpl extends ModuleBase {
       ...this.focusableConfig,
       disabled,
     });
-    this.focusableState.set(this.focusableDeclared && !disabled, reason);
+    this.setFocusState(this.focusableOwned, this.focusableDeclared && !disabled, reason, {
+      defaultOnly: this.sys?.execPhase?.() === 'setup',
+    });
     if (disabled) {
       this.blur();
     }
@@ -601,11 +671,11 @@ class FocusModuleImpl extends ModuleBase {
 
   getFacts(): FocusFacts {
     return Object.freeze({
-      focused: this.focusedState.handle.get(),
-      focusVisible: this.focusVisibleState.handle.get(),
-      focusable: this.focusableState.handle.get(),
-      active: this.activeState.handle.get(),
-      hasFocused: this.hasFocusedState.handle.get(),
+      focused: this.focusedState.get(),
+      focusVisible: this.focusVisibleState.get(),
+      focusable: this.focusableState.get(),
+      active: this.activeState.get(),
+      hasFocused: this.hasFocusedState.get(),
     });
   }
 
@@ -631,8 +701,11 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
     init,
     caps,
     deps,
-    build: () => {
-      const impl = new FocusModuleImpl(caps, init.prototypeName);
+    build: ({ deps }) => {
+      const eventPort = deps.requirePort<EventPort>('event');
+      const statePort = deps.requirePort<StatePort>('state');
+      const stateFacade = deps.requireFacade<StateFacade>('state');
+      const impl = new FocusModuleImpl(caps, init.prototypeName, eventPort, statePort, stateFacade);
       const port: FocusPort = {
         configureFocusable: (patch) => impl.configureFocusable(patch),
         configureGroup: (patch) => impl.configureGroup(patch),
@@ -673,6 +746,6 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
 
 export const FocusModuleDef = defineModule({
   name: 'focus',
-  deps: [],
+  deps: ['event', 'state'],
   create: createFocusModule,
 });

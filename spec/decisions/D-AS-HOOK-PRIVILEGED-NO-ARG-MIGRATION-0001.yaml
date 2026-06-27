@@ -6,11 +6,11 @@ since: 0.1.0
 summary: Privileged asHooks that still accept patch/options parameters are an open migration fracture; the intended direction is no-arg callers with setup-time configuration exposed through returned handles or explicit configuration APIs.
 statement:
   zh-CN: >-
-    v0 的 asHook 语义收口不只影响普通 `defineAsHook(...)` 产物，也暴露了既有特权 asHook 的迁移断口。现存 `asFocusable(patch)`、`asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 等 API 仍带有参数化或 configurable 重复调用语义；这些能力暂按各自既有实现维持，但不应继续作为长期 asHook caller 形态扩散。后续迁移方向是：特权 asHook caller 本身也应尽可能无参数；需要配置时，通过第一次调用返回的 handle/API 提供 setup 期配置入口，并由对应特权 asHook 契约定义合并、冲突诊断和返回值复用规则。
+    v0 的 asHook 语义收口不只影响普通 `defineAsHook(...)` 产物，也暴露了既有特权 asHook 的迁移断口。`asFocusable(patch)` 已按本决策迁移为 `asFocusable()` 加返回 handle 配置；现存 `asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 等 API 仍带有参数化或 configurable 重复调用语义。这些能力暂按各自既有实现维持，但不应继续作为长期 asHook caller 形态扩散。后续迁移方向是：特权 asHook caller 本身也应尽可能无参数；需要配置时，通过第一次调用返回的 handle/API 提供 setup 期配置入口，并由对应特权 asHook 契约定义合并、冲突诊断和返回值复用规则。
 
 
   en: >-
-    The v0 asHook semantic narrowing affects more than ordinary `defineAsHook(...)` products: it exposes an open migration fracture in existing privileged asHooks. Current APIs such as `asFocusable(patch)`, `asOverlay(patch)`, `asFocusScope(patch)`, `asFocusGroup(patch)`, `asBoundary(patch)`, `asHitParticipation(...)`, and `asTransition(options)` still carry parameterized or configurable repeat-call semantics. These capabilities remain governed by their existing implementations for now, but should not continue to spread as the long-term asHook caller shape. The migration direction is that privileged asHook callers should also be no-arg where possible; configuration should be exposed through setup-time handles/APIs returned by the first call, with merge, conflict diagnostics, and return-value reuse defined by each privileged asHook contract.
+    The v0 asHook semantic narrowing affects more than ordinary `defineAsHook(...)` products: it exposes an open migration fracture in existing privileged asHooks. `asFocusable(patch)` has now migrated under this decision to `asFocusable()` plus returned-handle configuration; current APIs such as `asOverlay(patch)`, `asFocusScope(patch)`, `asFocusGroup(patch)`, `asBoundary(patch)`, `asHitParticipation(...)`, and `asTransition(options)` still carry parameterized or configurable repeat-call semantics. These capabilities remain governed by their existing implementations for now, but should not continue to spread as the long-term asHook caller shape. The migration direction is that privileged asHook callers should also be no-arg where possible; configuration should be exposed through setup-time handles/APIs returned by the first call, with merge, conflict diagnostics, and return-value reuse defined by each privileged asHook contract.
 
 
 openQuestions:
@@ -85,6 +85,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Recorded the privileged asHook no-arg migration as an open fracture after narrowing ordinary authored asHook semantics.
+  - version: 0.1.1
+    change: partially-implemented
+    summary: Migrated asFocusable to a no-arg caller with setup-time configuration through the returned FocusableHandle.
 tags:
   - as-hook
   - privileged

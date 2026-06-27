@@ -53,11 +53,11 @@ Each interaction signal has the following properties:
 
 v0 MUST provide at least the following interaction signals:
 
-### 2.1 `focused: boolean`
+### 2.1 `hovered: boolean`
 
 #### Semantics
 
-Indicates whether the component is currently in a “focused” state.
+Indicates whether the component is currently in a hover interaction.
 
 #### Default
 
@@ -65,17 +65,18 @@ Indicates whether the component is currently in a “focused” state.
 
 #### Enter conditions (illustrative)
 
-- Host interaction indicates that the component gains focus
+- Host interaction indicates pointer hover over the component
 
 #### Exit conditions (illustrative)
 
-- Host interaction indicates that the component loses focus
+- Pointer leaves the component
+- Pointer interaction is cancelled
 
 #### Consistency requirement (v0)
 
-- After unmount / dispose, `focused` MUST NOT remain `true`
+- After unmount / dispose, `hovered` MUST NOT remain `true`
 
-> Note: v0 does not mandate whether focus semantics are root-focus or focus-within. Adapters are free to choose a consistent policy.
+> Note: focus-owned facts such as `focused` and `focusVisible` are governed by the focus privileged asHook domain, not by state-interaction.
 
 ---
 
