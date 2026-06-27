@@ -72,7 +72,6 @@ export const asSelectTrigger = defineAsHook<
   SelectTriggerAsHookContract
 >({
   name: 'as-select-trigger',
-  mode: 'once',
   setup: setupSelectTrigger,
 });
 

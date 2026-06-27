@@ -18,7 +18,6 @@ export const asDialogDescription = defineAsHook<
   DialogDescriptionAsHookContract
 >({
   name: 'as-dialog-description',
-  mode: 'once',
   setup: setupDialogDescription,
 });
 

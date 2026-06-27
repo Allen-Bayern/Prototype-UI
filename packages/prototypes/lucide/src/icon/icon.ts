@@ -33,7 +33,6 @@ export const asLucideIcon = defineAsHook<
   LucideIconAsHookContract
 >({
   name: 'as-lucide-icon',
-  mode: 'once',
   setup: setupLucideIcon,
 });
 

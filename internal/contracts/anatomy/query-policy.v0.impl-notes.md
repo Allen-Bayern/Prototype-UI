@@ -58,8 +58,8 @@ This should be the normal choice for:
 
 Practical examples:
 
-- `asCollection`
-- `asCollectionItem`
+- `useCollection`
+- `useCollectionItem`
 - other structure-derived read models that do not themselves decide interaction outcomes
 
 ---

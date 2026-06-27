@@ -1,0 +1,61 @@
+id: T-AS-TRIGGER-0001
+type: test
+title: asTrigger nested event route contract tests
+status: draft
+since: 0.1.0
+summary: Runtime contract tests for asTrigger ownership marking, continuous nested trigger route merging, and non-trigger parent stop behavior.
+cases:
+  - id: T-AS-TRIGGER-0001-CASE-CONFIRM-OWNER
+    title: asTrigger marks the current host target as trigger confirmation owner
+    covers:
+      - C-AS-TRIGGER-0001-A
+      - C-AS-TRIGGER-0001-B
+      - C-AS-TRIGGER-0001-C
+    expectation: trigger-confirm-owner-mark
+  - id: T-AS-TRIGGER-0001-CASE-PARENT-REDIRECT
+    title: A trigger directly nested inside a trigger redirects the event root to the parent trigger
+    covers:
+      - C-AS-TRIGGER-0001-D
+    expectation: direct-parent-trigger-route-merge
+  - id: T-AS-TRIGGER-0001-CASE-OUTERMOST-REDIRECT
+    title: A continuous multi-level trigger chain redirects the event root to the outermost trigger
+    covers:
+      - C-AS-TRIGGER-0001-D
+    expectation: outermost-continuous-trigger-route-merge
+  - id: T-AS-TRIGGER-0001-CASE-NON-TRIGGER-STOP
+    title: A non-trigger parent stops route merging and the current trigger keeps its own route owner
+    covers:
+      - C-AS-TRIGGER-0001-E
+      - C-AS-TRIGGER-0001-F
+    expectation: non-trigger-parent-stops-route-merge
+implementations:
+  - id: runtime-as-trigger-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/as-trigger.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-AS-TRIGGER-0001-CASE-CONFIRM-OWNER
+      - T-AS-TRIGGER-0001-CASE-PARENT-REDIRECT
+      - T-AS-TRIGGER-0001-CASE-OUTERMOST-REDIRECT
+      - T-AS-TRIGGER-0001-CASE-NON-TRIGGER-STOP
+verifies:
+  contracts:
+    - id: C-AS-TRIGGER-0001
+      anchors:
+        - C-AS-TRIGGER-0001-A
+        - C-AS-TRIGGER-0001-B
+        - C-AS-TRIGGER-0001-C
+        - C-AS-TRIGGER-0001-D
+        - C-AS-TRIGGER-0001-E
+        - C-AS-TRIGGER-0001-F
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Mapped existing runtime asTrigger contract tests to the asTrigger core contract.
+tags:
+  - as-trigger
+  - as-hook
+  - privileged
+  - event
+  - contract-test

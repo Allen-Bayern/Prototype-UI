@@ -1,7 +1,7 @@
-export { asEscapeKey } from './as-escape-key';
-export type { EscapeKeyOptions } from './as-escape-key';
-export { asOpenState } from './as-open-state';
-export type { OpenStateExposes, OpenStateHandles, OpenStateOptions } from './as-open-state';
+export { useEscapeKey } from './use-escape-key';
+export type { EscapeKeyOptions } from './use-escape-key';
+export { useOpenState } from './use-open-state';
+export type { OpenStateExposes, OpenStateHandles, OpenStateOptions } from './use-open-state';
 // asTransition 已移动到 @proto.ui/hooks
 export { asTransition } from '@proto.ui/hooks';
 export type {

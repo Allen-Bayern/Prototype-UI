@@ -57,6 +57,14 @@ implementations:
       - T-AS-HOOK-0001-CASE-PROTOTYPE-COMPATIBLE
       - T-AS-HOOK-0001-CASE-ONCE-DEFAULT
       - T-AS-HOOK-0001-CASE-TRACE
+  - id: type-as-hook-authoring-contract
+    kind: workspace-check
+    status: passing
+    path: internal/contracts/types/as-hook.contract.v0.type-test.ts
+    required: true
+    consumesCases:
+      - T-AS-HOOK-0001-CASE-PROTOTYPE-COMPATIBLE
+      - T-AS-HOOK-0001-CASE-ONCE-DEFAULT
 verifies:
   contracts:
     - id: C-AS-HOOK-0001
@@ -95,6 +103,10 @@ exercises:
       role: diagnostic-policy
       coverageImpact: review-test-surface
       note: Runtime tests cover spec-name behavior; caller binding name validation remains tooling work.
+    - id: D-AS-HOOK-NO-ARG-ONCE-0001
+      role: api-surface
+      coverageImpact: exercises-test-surface
+      note: Type tests reject options/mode/configure for authored defineAsHook while runtime tests cover once result reuse.
 revisions:
   - version: 0.1.0
     change: introduced

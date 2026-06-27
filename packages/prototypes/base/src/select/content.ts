@@ -1,6 +1,6 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
 import { asBoundary, asFocusGroup, asOverlay } from '@proto.ui/hooks';
-import { asFocusRoving } from '../behaviors';
+import { useFocusRoving } from '../behaviors';
 import { SELECT_CONTEXT, SELECT_FAMILY, SELECT_FOCUS_GROUP } from './shared';
 import type {
   SelectContentAsHookContract,
@@ -18,7 +18,7 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     orientation: 'vertical',
     entry: 'manual',
   });
-  const roving = asFocusRoving({
+  const roving = useFocusRoving({
     family: SELECT_FAMILY,
     itemRole: 'item',
     loop: false,
@@ -191,7 +191,6 @@ export const asSelectContent = defineAsHook<
   SelectContentAsHookContract
 >({
   name: 'as-select-content',
-  mode: 'once',
   setup: setupSelectContent,
 });
 

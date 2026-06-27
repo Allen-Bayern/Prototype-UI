@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asOpenState } from '../tools';
+import { useOpenState } from '../tools';
 import { HOVER_CARD_CONTEXT, HOVER_CARD_FAMILY, type HoverCardContextValue } from './shared';
 import type {
   HoverCardRootAsHookContract,
@@ -35,7 +35,7 @@ function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExpo
     contentHovered: false,
     contentFocused: false,
   });
-  const openState = asOpenState({
+  const openState = useOpenState({
     exposeOpenMethodKey: 'openHoverCard',
   });
   const open = openState.getState?.('open');
@@ -100,7 +100,6 @@ export const asHoverCardRoot = defineAsHook<
   HoverCardRootAsHookContract
 >({
   name: 'as-hover-card-root',
-  mode: 'once',
   setup: setupHoverCardRoot,
 });
 

@@ -1,0 +1,93 @@
+id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
+type: decision
+title: Privileged asHooks must migrate toward no-arg callers
+status: draft
+since: 0.1.0
+summary: Privileged asHooks that still accept patch/options parameters are an open migration fracture; the intended direction is no-arg callers with setup-time configuration exposed through returned handles or explicit configuration APIs.
+statement:
+  zh-CN: >-
+    v0 的 asHook 语义收口不只影响普通 `defineAsHook(...)` 产物，也暴露了既有特权 asHook 的迁移断口。现存 `asFocusable(patch)`、`asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 等 API 仍带有参数化或 configurable 重复调用语义；这些能力暂按各自既有实现维持，但不应继续作为长期 asHook caller 形态扩散。后续迁移方向是：特权 asHook caller 本身也应尽可能无参数；需要配置时，通过第一次调用返回的 handle/API 提供 setup 期配置入口，并由对应特权 asHook 契约定义合并、冲突诊断和返回值复用规则。
+
+
+  en: >-
+    The v0 asHook semantic narrowing affects more than ordinary `defineAsHook(...)` products: it exposes an open migration fracture in existing privileged asHooks. Current APIs such as `asFocusable(patch)`, `asOverlay(patch)`, `asFocusScope(patch)`, `asFocusGroup(patch)`, `asBoundary(patch)`, `asHitParticipation(...)`, and `asTransition(options)` still carry parameterized or configurable repeat-call semantics. These capabilities remain governed by their existing implementations for now, but should not continue to spread as the long-term asHook caller shape. The migration direction is that privileged asHook callers should also be no-arg where possible; configuration should be exposed through setup-time handles/APIs returned by the first call, with merge, conflict diagnostics, and return-value reuse defined by each privileged asHook contract.
+
+
+openQuestions:
+  - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001-Q1
+    question:
+      zh-CN: >-
+        `useCollection` / `useCollectionItem` 最终应作为真正的特权 asHook、受治理的 use-style hook，还是普通内部函数存在？
+
+
+      en: >-
+        Should `useCollection` / `useCollectionItem` ultimately be modeled as true privileged asHooks, governed use-style hooks, or ordinary internal functions?
+
+
+    context:
+      zh-CN: >-
+        它们当前使用 `defineHook` 并改名为 use-style API 只是为了隔离普通 authored asHook 契约；早期记录仍把 collection structural projection 视为 privileged 能力。
+
+
+      en: >-
+        They currently use `defineHook` and use-style names only to isolate the ordinary authored asHook contract; earlier records still classify collection structural projection as a privileged capability.
+
+
+    blocks:
+      - collection-hook-contract
+      - privileged-as-hook-migration
+  - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001-Q2
+    question:
+      zh-CN: 哪些特权 asHook 可以直接改为无参数 caller，哪些需要先设计返回配置 API？
+      en: Which privileged asHooks can become no-arg callers directly, and which need returned configuration APIs first?
+    blocks:
+      - privileged-as-hook-migration
+relates:
+  contracts:
+    - C-AS-HOOK-PRIVILEGED-0001
+  decisions:
+    - D-AS-HOOK-NO-ARG-ONCE-0001
+    - D-AS-HOOK-CONFIGURABLE-AUTHORED-0001
+    - D-AS-HOOK-DEFINE-HOOK-0001
+sources:
+  - path: packages/hooks/src/as-focusable.ts
+    sections:
+      - asFocusable
+  - path: packages/hooks/src/as-overlay.ts
+    sections:
+      - asOverlay
+  - path: packages/hooks/src/as-focus-scope.ts
+    sections:
+      - asFocusScope
+  - path: packages/hooks/src/as-focus-group.ts
+    sections:
+      - asFocusGroup
+  - path: packages/hooks/src/as-boundary.ts
+    sections:
+      - asBoundary
+  - path: packages/hooks/src/as-hit-participation.ts
+    sections:
+      - asHitParticipation
+  - path: packages/hooks/src/as-transition.ts
+    sections:
+      - asTransition
+  - path: packages/hooks/src/collection/use-collection.ts
+    sections:
+      - useCollection
+  - path: packages/hooks/src/collection/use-collection-item.ts
+    sections:
+      - useCollectionItem
+  - path: internal/records/2026-04-03-dropdown-anatomy-context-record.md
+    sections:
+      - asCollection remains privileged for now
+  - path: internal/records/2026-06-27-as-hook-privileged-no-arg-migration-fracture.zh-CN.md
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Recorded the privileged asHook no-arg migration as an open fracture after narrowing ordinary authored asHook semantics.
+tags:
+  - as-hook
+  - privileged
+  - migration
+  - fracture
+  - debt

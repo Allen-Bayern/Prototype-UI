@@ -1,6 +1,6 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
 import { asBoundary, asFocusGroup, asOverlay } from '@proto.ui/hooks';
-import { asFocusRoving } from '../behaviors';
+import { useFocusRoving } from '../behaviors';
 import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY, DROPDOWN_FOCUS_GROUP } from './shared';
 import type {
   DropdownContentAsHookContract,
@@ -24,7 +24,7 @@ function setupDropdownContent(
     orientation: 'vertical',
     entry: 'manual',
   });
-  const roving = asFocusRoving({
+  const roving = useFocusRoving({
     family: DROPDOWN_FAMILY,
     itemRole: 'item',
     loop: false,
@@ -230,7 +230,6 @@ export const asDropdownContent = defineAsHook<
   DropdownContentAsHookContract
 >({
   name: 'as-dropdown-content',
-  mode: 'once',
   setup: setupDropdownContent,
 });
 

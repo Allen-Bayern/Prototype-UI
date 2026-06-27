@@ -34,7 +34,7 @@ Proto UI 里的 prototype 负责描述交互主体。
 
 - `asButton()` 为 button 类原型提供通用的按钮交互语义
 - `asToggle()` 在 button 基础上补充 checked 切换逻辑
-- `asOpenState()` 把 open / defaultOpen / disabled 相关逻辑抽成可复用能力
+- `useOpenState()` 把 open / defaultOpen / disabled 相关逻辑抽成可复用能力
 
 像 `switch`、`dropdown`、`hover-card` 这类原型，很多地方都依赖这种复用。
 
@@ -42,14 +42,14 @@ Proto UI 里的 prototype 负责描述交互主体。
 例如：
 
 - `anatomy.order` 提供同 family part 的有序宿主视图
-- `asCollection()`、`asCollectionItem()` 则建立在这层视图上，抽出有序 collection 的结构语义
+- `useCollection()`、`useCollectionItem()` 则建立在这层视图上，抽出有序 collection 的结构语义
 
 这里的关键点是：
 
 - `anatomy.order` 仍然属于结构能力的增强
-- `asCollection` 则是基于这层能力组织出来的结构语义 hook
+- `useCollection` 则是基于这层能力组织出来的结构语义 helper
 
-这个边界需要保持清楚：`asCollection` 负责“谁在集合里、顺序是什么、我排第几个”，但不负责 roving focus、active item 策略或 selection。
+这个边界需要保持清楚：`useCollection` 负责“谁在集合里、顺序是什么、我排第几个”，但不负责 roving focus、active item 策略或 selection。
 
 也就是说，Proto UI 不是先引入一个新的顶级 `collection` 概念，  
 而是先让 `asHook` 站在已有能力之上，逐步长出更高层语义。

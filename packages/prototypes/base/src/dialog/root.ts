@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asOpenState } from '../tools';
+import { useOpenState } from '../tools';
 import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogContextValue } from './shared';
 import type { DialogRootAsHookContract, DialogRootExposes, DialogRootProps } from './types';
 
@@ -34,7 +34,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     alert: false,
   });
 
-  const openState = asOpenState({
+  const openState = useOpenState({
     exposeOpenMethodKey: 'openDialog',
   });
   const open = openState.getState?.('open');
@@ -99,7 +99,6 @@ export const asDialogRoot = defineAsHook<
   DialogRootAsHookContract
 >({
   name: 'as-dialog-root',
-  mode: 'once',
   setup: setupDialogRoot,
 });
 

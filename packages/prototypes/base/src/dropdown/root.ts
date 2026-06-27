@@ -1,12 +1,12 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollection } from '@proto.ui/hooks';
-import { asOpenState } from '../tools';
+import { useCollection } from '@proto.ui/hooks';
+import { useOpenState } from '../tools';
 import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
 import type { DropdownRootAsHookContract, DropdownRootExposes, DropdownRootProps } from './types';
 
 function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes>): void {
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'root' });
-  asCollection({ family: DROPDOWN_FAMILY });
+  useCollection({ family: DROPDOWN_FAMILY });
 
   def.props.define({
     open: { type: 'boolean', empty: 'fallback' },
@@ -33,7 +33,7 @@ function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes
     openEntry: 'active-or-first',
     openEntryValue: '',
   });
-  const openState = asOpenState();
+  const openState = useOpenState();
   const open = openState.getState?.('open');
   const activeValue = def.state.string('activeValue', '');
   let controlled = false;
@@ -100,7 +100,6 @@ export const asDropdownRoot = defineAsHook<
   DropdownRootAsHookContract
 >({
   name: 'as-dropdown-root',
-  mode: 'once',
   setup: setupDropdownRoot,
 });
 

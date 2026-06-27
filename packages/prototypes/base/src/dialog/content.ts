@@ -138,7 +138,6 @@ export const asDialogContent = defineAsHook<
   DialogContentAsHookContract
 >({
   name: 'as-dialog-content',
-  mode: 'once',
   setup: setupDialogContent,
 });
 

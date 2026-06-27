@@ -1,11 +1,11 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollection } from '@proto.ui/hooks';
+import { useCollection } from '@proto.ui/hooks';
 import { TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsRootAsHookContract, TabsRootExposes, TabsRootProps } from './types';
 
 function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   def.anatomy.claim(TABS_FAMILY, { role: 'root' });
-  asCollection({ family: TABS_FAMILY, itemRole: 'trigger' });
+  useCollection({ family: TABS_FAMILY, itemRole: 'trigger' });
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
@@ -77,7 +77,6 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
 
 export const asTabsRoot = defineAsHook<TabsRootProps, TabsRootExposes, TabsRootAsHookContract>({
   name: 'as-tabs-root',
-  mode: 'once',
   setup: setupTabsRoot,
 });
 

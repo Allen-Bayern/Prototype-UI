@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollectionItem, asFocusable } from '@proto.ui/hooks';
+import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
 import { asButton } from '../button';
 import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY, DROPDOWN_FOCUS_GROUP } from './shared';
 import type { DropdownItemAsHookContract, DropdownItemExposes, DropdownItemProps } from './types';
@@ -12,7 +12,7 @@ function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes
   const hovered = def.state.fromInteraction('hovered');
   const focused = def.state.fromInteraction('focused');
   const active = def.state.bool('active', false);
-  asCollectionItem({
+  useCollectionItem({
     family: DROPDOWN_FAMILY,
     getMeta: (run) => {
       const props = run.props.get();
@@ -140,7 +140,6 @@ export const asDropdownItem = defineAsHook<
   DropdownItemAsHookContract
 >({
   name: 'as-dropdown-item',
-  mode: 'once',
   setup: setupDropdownItem,
 });
 

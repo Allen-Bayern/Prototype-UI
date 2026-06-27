@@ -344,7 +344,7 @@ The order view is not collection semantics. It is not responsible for item metad
 
 Ordinary author-facing runtime queries are strict by default: if the current instance cannot resolve a valid domain, the query should fail.
 
-The implementation keeps missing-domain query policy for a few privileged structural projections, such as `asCollection` returning `null` or `[]` during transient structural windows. This is not semantic optionality like `context.try*`, and it does not mean the anatomy relationship itself is optional.
+The implementation keeps missing-domain query policy for a few structural projection helpers, such as `useCollection` returning `null` or `[]` during transient structural windows. This is not semantic optionality like `context.try*`, and it does not mean the anatomy relationship itself is optional.
 
 ## Contract Previews
 

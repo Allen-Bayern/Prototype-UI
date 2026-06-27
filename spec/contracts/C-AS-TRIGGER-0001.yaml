@@ -1,0 +1,78 @@
+id: C-AS-TRIGGER-0001
+type: contract
+title: asTrigger merges continuous nested trigger event routes to the outermost trigger
+status: draft
+since: 0.1.0
+summary: asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain.
+statement:
+  zh-CN: >-
+    `asTrigger()` 是核心契约中的特权 asHook。它把宿主中直接连续嵌套的 trigger 原型视为同一个 trigger event route，并将该 route 统一合并到连续 trigger 链的最外层 trigger 原型。直接父子关系与父原型查询由 host-cap 提供；`asTrigger` 消费这些 host-cap 结果，但不自行定义宿主树、DOM containment 或跨宿主 parent 关系。链路在第一个非 trigger 原型、缺失 parent、缺失 prototype 查询结果或 host-cap 无法证明直接父子关系处停止。
+
+
+  en: >-
+    `asTrigger()` is a privileged asHook in the core contract set. It treats directly and continuously nested trigger prototypes in a host as one trigger event route, and merges that route to the outermost trigger prototype in the continuous trigger chain. Direct parenthood and parent prototype lookup are provided by host caps; `asTrigger` consumes those host-cap results but does not define the host tree, DOM containment, or cross-host parent relation itself. The chain stops at the first non-trigger prototype, missing parent, missing prototype lookup result, or host-cap result that cannot prove direct parenthood.
+
+
+criteria:
+  - id: C-AS-TRIGGER-0001-A
+    text:
+      zh-CN: '`asTrigger()` 必须被建模为特权 asHook，而不是普通 authored asHook 或普通事件注册 helper。'
+      en: '`asTrigger()` must be modeled as a privileged asHook, not as an ordinary authored asHook or plain event registration helper.'
+  - id: C-AS-TRIGGER-0001-B
+    text:
+      zh-CN: '`asTrigger()` 必须在 caller prototype 的 asHook trace 中以 privileged trigger identity 记录自身。'
+      en: '`asTrigger()` must record itself in the caller prototype asHook trace with a privileged trigger identity.'
+  - id: C-AS-TRIGGER-0001-C
+    text:
+      zh-CN: '`asTrigger()` 必须把当前 caller 的宿主 target 标记为 trigger confirmation owner，使 event routing 能识别 trigger ownership。'
+      en: '`asTrigger()` must mark the current caller host target as a trigger confirmation owner so event routing can recognize trigger ownership.'
+  - id: C-AS-TRIGGER-0001-D
+    text:
+      zh-CN: 当当前 trigger 的直接 parent 也是 trigger，并且该关系连续成立时，activation/event root route 必须合并到连续 trigger 链的最外层 trigger。
+      en: When the current trigger's direct parent is also a trigger and that relation remains continuous, the activation/event root route must merge to the outermost trigger in the continuous trigger chain.
+  - id: C-AS-TRIGGER-0001-E
+    text:
+      zh-CN: 当 parent 缺失、parent prototype 缺失、parent 不是 trigger，或 host-cap 不能证明直接 trigger 父子关系时，合并必须停止，当前 trigger 保持自身 route owner。
+      en: When the parent is missing, the parent prototype is missing, the parent is not a trigger, or host caps cannot prove direct trigger parenthood, merging must stop and the current trigger remains its own route owner.
+  - id: C-AS-TRIGGER-0001-F
+    text:
+      zh-CN: '`asTrigger()` 的稳定依赖只应包括 asHook privileged/trace 语义、event 通路，以及 host-cap 提供的 instance、parent 和 prototype 查询；不得要求 focus、state interaction、overlay、boundary 或 hit-participation 参与其核心语义。'
+      en: '`asTrigger()` stable dependencies should include only asHook privileged/trace semantics, the event path, and host-cap-provided instance, parent, and prototype lookup; it must not require focus, state interaction, overlay, boundary, or hit-participation for its core semantics.'
+sources:
+  - path: packages/hooks/src/as-trigger.ts
+    sections:
+      - asTrigger
+  - path: packages/modules/as-trigger/src/impl.ts
+    sections:
+      - AsTriggerModuleImpl.apply
+  - path: packages/runtime/test/contract/as-trigger.v0.contract.test.ts
+    sections:
+      - AS-TRIGGER-0050
+      - AS-TRIGGER-0100
+      - AS-TRIGGER-0150
+      - AS-TRIGGER-0200
+  - path: packages/adapters/base/src/events/web-event-router.ts
+    sections:
+      - trigger owner routing
+dependsOn:
+  contracts:
+    - C-AS-HOOK-0001
+    - C-AS-HOOK-0002
+    - C-AS-HOOK-0004
+    - C-AS-HOOK-0008
+    - C-AS-HOOK-PRIVILEGED-0001
+    - C-EVENT-0001
+    - C-EVENT-TYPE-0001
+relates:
+  decisions:
+    - D-AS-HOOK-CALLER-NAME-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured asTrigger as a minimal privileged asHook contract for nested trigger event route merging.
+tags:
+  - as-trigger
+  - as-hook
+  - privileged
+  - event
+  - trigger

@@ -339,7 +339,7 @@ order view 不等于 collection。它不负责 item metadata、selection、activ
 
 普通作者侧 runtime query 默认是 strict：当前 instance 如果无法解析到合法 domain，query 应该失败。
 
-实现内部保留 missing-domain query policy，用于少数 privileged 结构投影，例如 `asCollection` 在临时结构窗口中返回 `null` 或 `[]`。这不是 `context.try*` 那种语义可选性，也不表示 anatomy 关系本身可选。
+实现内部保留 missing-domain query policy，用于少数结构投影 helper，例如 `useCollection` 在临时结构窗口中返回 `null` 或 `[]`。这不是 `context.try*` 那种语义可选性，也不表示 anatomy 关系本身可选。
 
 ## 契约实体预览
 

@@ -38,7 +38,6 @@ export const asDialogTrigger = defineAsHook<
   DialogTriggerAsHookContract
 >({
   name: 'as-dialog-trigger',
-  mode: 'once',
   setup: setupDialogTrigger,
 });
 

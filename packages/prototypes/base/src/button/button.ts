@@ -81,9 +81,8 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
   });
 }
 
-export const asButton = defineAsHook<ButtonProps, ButtonExposes, ButtonAsHookContract, void>({
+export const asButton = defineAsHook<ButtonProps, ButtonExposes, ButtonAsHookContract>({
   name: 'as-button',
-  mode: 'once',
   setup: setupButton,
 });
 

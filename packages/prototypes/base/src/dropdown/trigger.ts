@@ -107,7 +107,6 @@ export const asDropdownTrigger = defineAsHook<
   DropdownTriggerAsHookContract
 >({
   name: 'as-dropdown-trigger',
-  mode: 'once',
   setup: setupDropdownTrigger,
 });
 

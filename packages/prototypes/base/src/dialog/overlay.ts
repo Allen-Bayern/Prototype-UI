@@ -112,7 +112,6 @@ export const asDialogMask = defineAsHook<
   DialogMaskAsHookContract
 >({
   name: 'as-dialog-mask',
-  mode: 'once',
   setup: setupDialogMask,
 });
 

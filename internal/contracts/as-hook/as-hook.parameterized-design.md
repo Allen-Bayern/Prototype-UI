@@ -2,7 +2,7 @@
 
 > Status: Draft note
 >
-> This note captures the intended author-facing shape for future parameterized/configurable authored asHooks.
+> This note captures a future design space for parameterized/configurable authored asHooks. It is not the v0 `defineAsHook(...)` contract. In v0, ordinary authored asHook callers are no-arg and once-only.
 
 ---
 
@@ -45,7 +45,7 @@ In particular:
 ### 3.1 Install-only hook
 
 ```ts
-const asButtonBehavior = defineAsHook({
+const asButtonBehavior = defineConfigurableAsHook({
   name: 'asButtonBehavior',
   mode: 'once',
   setup(def) {
@@ -63,8 +63,8 @@ asButtonBehavior();
 ### 3.2 Simple configurable hook
 
 ```ts
-const asEscapeKey = defineAsHook({
-  name: 'asEscapeKey',
+const asConfigurableEscapeKey = defineConfigurableAsHook({
+  name: 'asConfigurableEscapeKey',
   setup(def, options?: EscapeKeyOptions) {
     ...
   },
@@ -77,15 +77,15 @@ const asEscapeKey = defineAsHook({
 Usage:
 
 ```ts
-asEscapeKey();
-asEscapeKey({ enabled: true });
-asEscapeKey({ onEscape: close });
+asConfigurableEscapeKey();
+asConfigurableEscapeKey({ enabled: true });
+asConfigurableEscapeKey({ onEscape: close });
 ```
 
 ### 3.3 Complex configurable hook
 
 ```ts
-const asFocusBits = defineAsHook({
+const asFocusBits = defineConfigurableAsHook({
   name: 'asFocusBits',
   setup(def, options) {
     ...

@@ -1,4 +1,4 @@
-import { defineAsHook } from '@proto.ui/core';
+import { defineHook } from '@proto.ui/core';
 import type {
   AnatomyFamily,
   CollectionExposes,
@@ -50,21 +50,21 @@ function buildCollectionItemsFromPort(
 }
 
 function getAnatomyPort(): AnatomyPort {
-  const { ports } = getActiveAsHookContext('asCollection');
+  const { ports } = getActiveAsHookContext('useCollection');
   const anatomy = ports.anatomy as AnatomyPort | undefined;
   if (!anatomy?.order) {
-    throw new Error('[AsHook:asCollection] anatomy port unavailable.');
+    throw new Error('[Hook:useCollection] anatomy port unavailable.');
   }
   return anatomy;
 }
 
-export const asCollection = defineAsHook<
+export const useCollection = defineHook<
   any,
   CollectionExposes,
   CollectionHandles,
   CollectionOptions
 >({
-  name: 'asCollection',
+  name: 'useCollection',
   mode: 'once',
   setup(def, options, api) {
     const itemRole = options.itemRole ?? DEFAULT_ITEM_ROLE;
@@ -96,7 +96,7 @@ export const asCollection = defineAsHook<
       );
       api.store.items = items;
       api.store.version = version;
-      count.set(items.length, 'reason: asCollection.sync => collection count');
+      count.set(items.length, 'reason: useCollection.sync => collection count');
     };
 
     def.expose.state(exposeCountStateKey as keyof CollectionExposes & string, count);

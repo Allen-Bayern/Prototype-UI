@@ -14,7 +14,6 @@ export const asSwitchRoot = defineAsHook<
   SwitchRootAsHookContract
 >({
   name: 'as-switch-root',
-  mode: 'once',
   setup: setupSwitchRoot,
 });
 
