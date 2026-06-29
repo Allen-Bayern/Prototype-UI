@@ -33,7 +33,8 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
   const boundary = asBoundary();
 
-  const focusScope = asFocusScope({ trap: true });
+  const focusScope = asFocusScope<DialogContentProps>();
+  focusScope.configure({ trap: true });
 
   const transition = asTransition();
   const controls = transition.controls;
@@ -44,10 +45,13 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   let mountedRun: any = null;
 
   const updateOpen = (nextOpen: boolean, reason?: string) => {
+    const prevOpen = open.get();
     open.set(nextOpen, reason ?? 'reason: dialog content sync => open');
     if (nextOpen) {
       overlay.openOverlay(reason ?? 'dialog.open');
+      if (!prevOpen) focusScope.activate();
     } else {
+      if (prevOpen) focusScope.deactivate();
       overlay.close(reason ?? 'dialog.close');
     }
   };
@@ -105,6 +109,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     if (classification !== 'outside') return;
 
     if (ctx.controlled) {
+      focusScope.deactivate();
       overlay.close('outside.press');
       controls.leave();
       return;
@@ -119,6 +124,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     if (key !== 'Escape') return;
 
     if (ctx.controlled) {
+      focusScope.deactivate();
       overlay.close('escape');
       controls.leave();
       return;

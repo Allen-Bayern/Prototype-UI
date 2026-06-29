@@ -6,7 +6,7 @@ since: 0.1.0
 summary: Runtime contract tests for asFocusRoving singleton behavior, scope getRoving integration, and logical-parent roving membership without groupKey.
 cases:
   - id: T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
-    title: Repeated asFocusRoving calls reuse one handle and keep the last compatible patch
+    title: Repeated asFocusRoving calls reuse one handle and configure through the returned handle
     covers:
       - C-AS-FOCUS-ROVING-0001-A
       - C-AS-FOCUS-ROVING-0001-B

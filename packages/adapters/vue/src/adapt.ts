@@ -311,6 +311,14 @@ export function createVueAdapter(runtime: VueRuntime) {
             setExposes: (record) => {
               exposesRef.value = record;
             },
+            runInCallbackScope: (fn) => {
+              const invoke = invokeRef.value;
+              if (invoke) {
+                invoke(fn);
+                return;
+              }
+              fn();
+            },
             presenceBridge,
             overlayLayerScheduler,
           });

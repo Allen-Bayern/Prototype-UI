@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asBoundary, asFocusRoving, asOverlay } from '@proto.ui/hooks';
+import { asBoundary, asFocusRoving, asFocusScope, asOverlay } from '@proto.ui/hooks';
 import { useFocusRoving } from '../behaviors';
 import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
 import type {
@@ -18,7 +18,10 @@ function setupDropdownContent(
 ): void {
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'content' });
   let activeValue = '';
-  asFocusRoving({
+  const focusScope = asFocusScope<DropdownContentProps>();
+  focusScope.configure({ entry: 'manual', restore: 'previous' });
+  const focusRoving = asFocusRoving<DropdownContentProps>();
+  focusRoving.configure({
     navigation: 'none',
     orientation: 'vertical',
     entry: 'manual',
@@ -63,14 +66,6 @@ function setupDropdownContent(
     store.typeahead = '';
   };
 
-  const restoreTriggerFocus = (run: any) => {
-    const trigger = run.anatomy.partsOf(DROPDOWN_FAMILY, 'trigger')[0] ?? null;
-    const focusSelf = trigger?.getExpose('focusSelf') as
-      | ((options?: { reason?: 'programmatic' | 'keyboard' | 'pointer' }) => void)
-      | null;
-    focusSelf?.({ reason: 'programmatic' });
-  };
-
   const resolveOpenFocusAction = (
     _run: any,
     ctx: { activeValue?: string; openEntry?: string; openEntryValue?: string }
@@ -91,17 +86,33 @@ function setupDropdownContent(
     focusFirst?.();
   };
 
+  const scheduleOpenFocusAction = (run: any) => {
+    globalThis.queueMicrotask(() => {
+      const ctx = run.context.read(DROPDOWN_CONTEXT);
+      if (!ctx.open) return;
+      resolveOpenFocusAction(run, ctx);
+    });
+  };
+
   def.expose.state('open', open);
   def.context.subscribe(DROPDOWN_CONTEXT, (_run, next) => {
     activeValue = next.activeValue ?? '';
+    const wasOpen = open.get();
     open.set(next.open, 'reason: dropdown context sync => content open');
     if (next.open) {
-      overlay.openOverlay('controlled.sync');
-      resolveOpenFocusAction(_run, next);
+      if (!wasOpen) {
+        overlay.openOverlay('controlled.sync');
+        focusScope.activate();
+        resolveOpenFocusAction(_run, next);
+        scheduleOpenFocusAction(_run);
+      }
       return;
     }
     clearTypeahead();
-    overlay.close('controlled.sync');
+    if (wasOpen) {
+      focusScope.deactivate();
+      overlay.close('controlled.sync');
+    }
   });
 
   def.lifecycle.onMounted((run) => {
@@ -111,8 +122,11 @@ function setupDropdownContent(
     open.set(ctx.open, 'reason: lifecycle.onMounted => content open sync');
     if (ctx.open) {
       overlay.openOverlay('controlled.sync');
+      focusScope.activate();
       resolveOpenFocusAction(run, ctx);
+      scheduleOpenFocusAction(run);
     } else {
+      focusScope.deactivate();
       overlay.close('controlled.sync');
     }
   });
@@ -129,7 +143,7 @@ function setupDropdownContent(
       return;
     }
     clearTypeahead();
-    restoreTriggerFocus(run);
+    focusScope.deactivate();
     if (ctx.controlled) return;
     activeValue = '';
     run.context.update(DROPDOWN_CONTEXT, (prev: any) => ({

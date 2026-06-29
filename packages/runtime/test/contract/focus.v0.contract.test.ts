@@ -162,7 +162,7 @@ describe('runtime contract: focus (v0)', () => {
     ]);
   });
 
-  it('FOCUS-0200: repeated asFocusScope calls reuse one handle and key patch is retained', () => {
+  it('FOCUS-0200: repeated asFocusScope calls reuse one handle and configure through that handle', () => {
     const scopeKey = createFocusScopeKey({ debugLabel: 'scope-2' });
     let scopeA!: FocusScopeHandle<PropsBaseType>;
     let scopeB!: FocusScopeHandle<PropsBaseType>;
@@ -170,8 +170,10 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0200',
       setup() {
-        scopeA = asFocusScope<PropsBaseType>({ navigation: 'tab' });
-        scopeB = asFocusScope<PropsBaseType>({ key: scopeKey, navigation: 'arrow', loop: true });
+        scopeA = asFocusScope<PropsBaseType>();
+        scopeA.configure({ navigation: 'tab' });
+        scopeB = asFocusScope<PropsBaseType>();
+        scopeB.configure({ key: scopeKey, navigation: 'arrow', loop: true });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -377,7 +379,8 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0700',
       setup(def) {
-        scope = asFocusScope<PropsBaseType>({ emptyPolicy: 'container' });
+        scope = asFocusScope<PropsBaseType>();
+        scope.configure({ emptyPolicy: 'container' });
         def.lifecycle.onCreated(() => {
           scope.focusFirst();
         });

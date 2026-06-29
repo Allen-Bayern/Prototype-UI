@@ -1,4 +1,4 @@
-import type { FocusRovingConfigPatch, FocusRovingHandle } from '@proto.ui/core';
+import type { FocusRovingHandle } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import { definePrivilegedAsHook } from './privileged';
 
@@ -17,10 +17,6 @@ const getFocusRoving = definePrivilegedAsHook<PropsBaseType, FocusRovingHandle<P
   },
 });
 
-export function asFocusRoving<P extends PropsBaseType = PropsBaseType>(
-  patch?: FocusRovingConfigPatch
-): FocusRovingHandle<P> {
-  const handle = getFocusRoving() as FocusRovingHandle<P>;
-  if (patch) handle.configure(patch);
-  return handle;
+export function asFocusRoving<P extends PropsBaseType = PropsBaseType>(): FocusRovingHandle<P> {
+  return getFocusRoving() as FocusRovingHandle<P>;
 }

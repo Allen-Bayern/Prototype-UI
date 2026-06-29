@@ -172,6 +172,8 @@ export class FocusCenter {
     this.activeScopes.push({ scope: scope.instance, previous });
     scope.setScopeActive(true);
 
+    if (scope.getScopeConfig().entry === 'manual') return true;
+
     const target = scope.isRovingProvider()
       ? (this.getRovingMembers(scope)[0] ?? null)
       : (this.getScopeMembers(scope)[0] ?? null);

@@ -14,6 +14,8 @@ export type FocusRequestFocus = (target: HTMLElement, options?: FocusRequestOpti
 
 export type FocusBlur = (target: HTMLElement) => void;
 
+export type FocusRunInCallback = (fn: () => void) => void;
+
 export const FOCUS_ROOT_TARGET_CAP = cap<FocusRootTargetGetter>('@proto.ui/focus/getRootTarget');
 export const FOCUS_INSTANCE_TOKEN_CAP = cap<FocusInstanceToken>('@proto.ui/focus/instanceToken');
 export const FOCUS_PARENT_CAP = cap<FocusParentGetter>('@proto.ui/focus/getParent');
@@ -27,3 +29,5 @@ export const FOCUS_SET_FOCUSABLE_CAP = cap<FocusSetFocusable>('@proto.ui/focus/s
 export const FOCUS_REQUEST_FOCUS_CAP = cap<FocusRequestFocus>('@proto.ui/focus/requestFocus');
 
 export const FOCUS_BLUR_CAP = cap<FocusBlur>('@proto.ui/focus/blur');
+
+export const FOCUS_RUN_IN_CALLBACK_CAP = cap<FocusRunInCallback>('@proto.ui/focus/runInCallback');

@@ -2,13 +2,13 @@
 
 > Status: Draft - v0
 >
-> This document defines the v0 contract for `asFocusScope(...)`.
+> This document defines the v0 contract for `asFocusScope()`.
 
 ---
 
 ## 0. Positioning
 
-`asFocusScope(...)` declares that the current prototype instance forms a **focus coordination boundary**.
+`asFocusScope()` declares that the current prototype instance forms a **focus coordination boundary**.
 
 It is responsible for:
 
@@ -40,14 +40,14 @@ Routine local navigation should not require authors to manually script focus mov
 
 ## 2. Invocation Model
 
-`asFocusScope(...)` is a privileged, configurable, singleton-install asHook.
+`asFocusScope()` is a privileged, no-arg, singleton-install asHook.
 
 - first call installs the scope capability
 - later calls reuse the same underlying handle
-- repeated setup calls may contribute configuration patches
+- setup-time configuration is applied through the returned handle
 - repeated calls must not reinstall the scope
 
-Initial parameters should be optional by default.
+It accepts no initialization parameter. Any setup policy must be expressed by calling `configure(...)` on the returned `FocusScopeHandle`.
 
 ---
 
@@ -82,7 +82,7 @@ v0 should minimally support:
   - at least `container | none`
 
 - optional group composition
-  - a scope may carry an internal `asFocusRoving(...)`-style capability
+  - a scope may carry an internal `asFocusRoving()`-style capability
 
 These policies should cover common component-library scenarios without forcing manual focus scripting.
 
@@ -90,7 +90,7 @@ These policies should cover common component-library scenarios without forcing m
 
 ## 5. Return Handle
 
-`asFocusScope(...)` should return a `FocusScopeHandle`-like object.
+`asFocusScope()` should return a `FocusScopeHandle`-like object.
 
 Example shape:
 
@@ -138,7 +138,7 @@ Activation is an explicit runtime action:
 
 - activating a scope marks that scope as the active coordination boundary;
 - activation records the previously focused logical target when that target is outside the activating scope;
-- activation requests focus for the first eligible logical focusable child when one exists;
+- activation requests focus for the first eligible logical focusable child when one exists, except when `entry: manual` leaves entry focus to the caller;
 - if no eligible child exists, `emptyPolicy: container` may activate the scope boundary without forging node focus.
 
 Deactivation is also explicit:

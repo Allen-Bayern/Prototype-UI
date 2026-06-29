@@ -35,7 +35,8 @@ describe('adapter-react: focus wiring', () => {
     const proto = definePrototype({
       name: 'react-focus-scope-only',
       setup() {
-        asFocusScope({ emptyPolicy: 'container' });
+        const scope = asFocusScope();
+        scope.configure({ emptyPolicy: 'container' });
         return (r) => [r.el('div', 'ok')];
       },
     });

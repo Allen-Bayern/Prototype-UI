@@ -189,6 +189,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         },
       };
 
+      let runFocusCallbackScope: ((fn: () => void) => void) | null = null;
       const modules = createWebComponentModules({
         el: thisEl,
         router,
@@ -198,6 +199,13 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         exposeStateWebMode,
         setExposes: (record) => {
           this._exposes = record;
+        },
+        runInCallbackScope: (fn) => {
+          if (runFocusCallbackScope) {
+            runFocusCallbackScope(fn);
+            return;
+          }
+          fn();
         },
         presenceBridge,
         overlayLayerScheduler,
@@ -238,6 +246,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
           removeDebugHooks(this);
         },
       });
+      runFocusCallbackScope = hostSession.invokeInCallbackScope;
 
       const { controller, kernel } = hostSession;
       if (kernel && kernel.run) {

@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asBoundary, asFocusRoving, asOverlay } from '@proto.ui/hooks';
+import { asBoundary, asFocusRoving, asFocusScope, asOverlay } from '@proto.ui/hooks';
 import { useFocusRoving } from '../behaviors';
 import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type {
@@ -12,7 +12,10 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   def.anatomy.claim(SELECT_FAMILY, { role: 'content' });
   let activeValue = '';
   let selectedValue = '';
-  asFocusRoving({
+  const focusScope = asFocusScope<SelectContentProps>();
+  focusScope.configure({ entry: 'manual', restore: 'previous' });
+  const focusRoving = asFocusRoving<SelectContentProps>();
+  focusRoving.configure({
     navigation: 'none',
     orientation: 'vertical',
     entry: 'manual',
@@ -43,14 +46,6 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   const open = def.state.bool('open', false);
   let mountedRun: any = null;
 
-  const restoreTriggerFocus = (run: any) => {
-    const trigger = run.anatomy.partsOf(SELECT_FAMILY, 'trigger')[0] ?? null;
-    const focusSelf = trigger?.getExpose('focusSelf') as
-      | ((options?: { reason?: 'programmatic' | 'keyboard' | 'pointer' }) => void)
-      | null;
-    focusSelf?.({ reason: 'programmatic' });
-  };
-
   const resolveBoundaryValue = (run: any, boundary: 'first' | 'last' = 'first') => {
     const items = run.anatomy.partsOf(SELECT_FAMILY, 'item');
     const ordered = boundary === 'first' ? items : items.slice().reverse();
@@ -66,10 +61,11 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   };
 
   const resolveOpenFocusAction = (run: any, ctx: { activeValue?: string; value?: string }) => {
-    if (focusById?.(ctx.activeValue ?? '', { reason: 'keyboard' })) return;
     if (focusById?.(ctx.value ?? '', { reason: 'keyboard' })) return;
+    if (focusById?.(ctx.activeValue ?? '', { reason: 'keyboard' })) return;
     const boundaryValue = resolveBoundaryValue(run, 'first');
     if (boundaryValue) {
+      activeValue = boundaryValue;
       if (!(ctx.activeValue ?? '') && !(ctx.value ?? '')) {
         run.context.update(SELECT_CONTEXT, (prev: any) => ({
           ...prev,
@@ -80,6 +76,14 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
       return;
     }
     focusFirst?.();
+  };
+
+  const scheduleOpenFocusAction = (run: any) => {
+    globalThis.queueMicrotask(() => {
+      const ctx = run.context.read(SELECT_CONTEXT);
+      if (!ctx.open) return;
+      resolveOpenFocusAction(run, ctx);
+    });
   };
 
   const focusSelectedOrBoundary = (run: any, boundary: 'first' | 'last' = 'first') => {
@@ -97,15 +101,27 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   def.expose.state('open', open);
 
   def.context.subscribe(SELECT_CONTEXT, (run, next) => {
+    const previousSelectedValue = selectedValue;
     activeValue = next.activeValue ?? '';
     selectedValue = next.value ?? '';
+    const wasOpen = open.get();
     open.set(next.open, 'reason: select context sync => content open');
     if (next.open) {
-      overlay.openOverlay('controlled.sync');
-      resolveOpenFocusAction(run, next);
+      if (!wasOpen) {
+        overlay.openOverlay('controlled.sync');
+        focusScope.activate();
+        resolveOpenFocusAction(run, next);
+        scheduleOpenFocusAction(run);
+      }
+      if (wasOpen && selectedValue && selectedValue !== previousSelectedValue) {
+        resolveOpenFocusAction(run, { value: selectedValue, activeValue: '' });
+      }
       return;
     }
-    overlay.close('controlled.sync');
+    if (wasOpen) {
+      focusScope.deactivate();
+      overlay.close('controlled.sync');
+    }
   });
 
   def.lifecycle.onMounted((run) => {
@@ -116,8 +132,11 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     open.set(ctx.open, 'reason: lifecycle.onMounted => content open sync');
     if (ctx.open) {
       overlay.openOverlay('controlled.sync');
+      focusScope.activate();
       resolveOpenFocusAction(run, ctx);
+      scheduleOpenFocusAction(run);
     } else {
+      focusScope.deactivate();
       overlay.close('controlled.sync');
     }
   });
@@ -127,7 +146,7 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     const ctx = mountedRun?.context.read(SELECT_CONTEXT);
     if (!ctx) return;
     if (!event.next) {
-      restoreTriggerFocus(mountedRun);
+      focusScope.deactivate();
       if (!ctx.controlledOpen) {
         activeValue = '';
         mountedRun.context.update(SELECT_CONTEXT, (prev: any) => ({

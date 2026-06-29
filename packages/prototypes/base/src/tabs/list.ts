@@ -18,7 +18,8 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
     loop: false,
   });
 
-  asFocusRoving({
+  const focusRoving = asFocusRoving<TabsListProps>();
+  focusRoving.configure({
     navigation: 'none',
     orientation: 'horizontal',
     entry: 'manual',

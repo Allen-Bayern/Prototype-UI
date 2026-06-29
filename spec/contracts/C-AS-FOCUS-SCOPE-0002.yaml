@@ -6,11 +6,11 @@ since: 0.1.0
 summary: A focus scope may exist inactive in the logical tree; activation captures previous focus, moves focus into the scope, gates outside focus requests, and deactivation restores the captured owner.
 statement:
   zh-CN: >-
-    `asFocusScope(...)` 声明的 scope 不得因为存在于逻辑树中就自动生效。scope activation 必须是显式动作：激活时记录当前 scope 外部的 previous focus owner，将 scope 标记为 active，并把焦点移交给 scope 内第一个合格的 logical focusable child；取消激活时清除 active，并把焦点归还给激活前捕获的 previous owner。scope active 期间，scope 外部的普通 focus request 必须被忽略并产生诊断警告；scope 自身及其 logical descendants 的 focus request 继续允许。
+    `asFocusScope()` 声明的 scope 不得因为存在于逻辑树中就自动生效。scope activation 必须是显式动作：激活时记录当前 scope 外部的 previous focus owner，将 scope 标记为 active，并在非 manual entry 策略下把焦点移交给 scope 内第一个合格的 logical focusable child；取消激活时清除 active，并把焦点归还给激活前捕获的 previous owner。scope active 期间，scope 外部的普通 focus request 必须被忽略并产生诊断警告；scope 自身及其 logical descendants 的 focus request 继续允许。
 
 
   en: >-
-    A scope declared by `asFocusScope(...)` must not become effective merely because it exists in the logical tree. Scope activation must be an explicit action: activation captures the previous focus owner outside the scope, marks the scope active, and transfers focus to the first eligible logical focusable child inside the scope; deactivation clears active and restores focus to the previous owner captured before activation. While the scope is active, ordinary focus requests from outside the scope must be ignored with a diagnostic warning; focus requests from the scope itself or its logical descendants remain allowed.
+    A scope declared by `asFocusScope()` must not become effective merely because it exists in the logical tree. Scope activation must be an explicit action: activation captures the previous focus owner outside the scope, marks the scope active, and transfers focus to the first eligible logical focusable child inside the scope for non-manual entry policies; deactivation clears active and restores focus to the previous owner captured before activation. While the scope is active, ordinary focus requests from outside the scope must be ignored with a diagnostic warning; focus requests from the scope itself or its logical descendants remain allowed.
 
 
 criteria:
@@ -20,8 +20,8 @@ criteria:
       en: A scope must be able to exist in the logical tree while inactive; existence itself must not mean it is effective.
   - id: C-AS-FOCUS-SCOPE-0002-B
     text:
-      zh-CN: '`activate()` 必须将 scope 标记为 active，并优先请求 focus 到 scope 内第一个合格的 logical focusable child。'
-      en: '`activate()` must mark the scope active and should request focus for the first eligible logical focusable child inside the scope.'
+      zh-CN: '`activate()` 必须将 scope 标记为 active；非 manual entry 策略应优先请求 focus 到 scope 内第一个合格的 logical focusable child，`entry: manual` 则只激活边界并由调用者后续驱动入场。'
+      en: '`activate()` must mark the scope active; non-manual entry policies should request focus for the first eligible logical focusable child inside the scope, while `entry: manual` only activates the boundary and leaves entry focus to the caller.'
   - id: C-AS-FOCUS-SCOPE-0002-C
     text:
       zh-CN: '`activate()` 必须记录激活前位于 scope 外部的 previous focus owner。'

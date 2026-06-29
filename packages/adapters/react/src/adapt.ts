@@ -256,6 +256,14 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           setExposes: (record) => {
             exposesRef.current = record;
           },
+          runInCallbackScope: (fn) => {
+            const invoke = invokeInCallbackScopeRef.current;
+            if (invoke) {
+              invoke(fn);
+              return;
+            }
+            fn();
+          },
           presenceBridge,
           overlayLayerScheduler,
         });

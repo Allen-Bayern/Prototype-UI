@@ -12,7 +12,7 @@ cases:
       - C-AS-FOCUSABLE-0001-B
     expectation: focusable-singleton-no-arg
   - id: T-FOCUS-0001-CASE-SCOPE-ONCE
-    title: Repeated asFocusScope calls reuse one handle and merge setup patches
+    title: Repeated asFocusScope calls reuse one handle and configure through the returned handle
     covers:
       - C-AS-FOCUS-SCOPE-0001-A
     expectation: focus-scope-singleton-config

@@ -2,13 +2,13 @@
 
 > Status: Draft - v0
 >
-> This document defines the v0 contract direction for `asFocusRoving(...)`.
+> This document defines the v0 contract direction for `asFocusRoving()`.
 
 ---
 
 ## 0. Positioning
 
-`asFocusRoving(...)` declares that the current prototype instance owns sibling-local focus navigation.
+`asFocusRoving()` declares that the current prototype instance owns sibling-local focus navigation.
 
 It is responsible for:
 
@@ -26,12 +26,12 @@ It is not responsible for:
 
 ## 1. Relationship to FocusScope
 
-`asFocusRoving(...)` is a sibling privileged asHook to `asFocusScope(...)`.
+`asFocusRoving()` is a sibling privileged asHook to `asFocusScope()`.
 
 - a focus scope may internally expose a roving focus handle
 - a roving focus owner may exist without declaring a focus scope boundary
 
-`asFocusScope(...)` may expose its internal roving capability as a convenience surface, but that does not replace the standalone roving abstraction.
+`asFocusScope()` may expose its internal roving capability as a convenience surface, but that does not replace the standalone roving abstraction.
 
 ---
 
@@ -52,7 +52,9 @@ v0 should minimally support:
 
 ## 3. Return Handle
 
-`asFocusRoving(...)` should return a focus roving handle.
+`asFocusRoving()` should return a focus roving handle.
+
+It accepts no initialization parameter. Any setup policy must be expressed by calling `configure(...)` on the returned `FocusRovingHandle`.
 
 The current implementation keeps `FocusGroupHandle` only as a compatibility alias; the author-facing and implementation-preferred concept is roving focus.
 
@@ -88,6 +90,6 @@ v0 does not require:
 
 ## 5. Legacy Naming
 
-`asFocusGroup(...)` is absorbed by `asFocusRoving(...)`.
+`asFocusGroup(...)` is absorbed by `asFocusRoving()`.
 
 The old group name described a weak local focus group with its own navigation rules. That responsibility overlaps with roving focus, so v0 should keep only one author-facing concept for sibling-local focus navigation.

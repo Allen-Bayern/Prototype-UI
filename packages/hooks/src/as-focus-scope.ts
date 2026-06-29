@@ -1,4 +1,4 @@
-import type { FocusScopeConfigPatch, FocusScopeHandle } from '@proto.ui/core';
+import type { FocusScopeHandle } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import { definePrivilegedAsHook } from './privileged';
 
@@ -17,10 +17,6 @@ const getFocusScope = definePrivilegedAsHook<PropsBaseType, FocusScopeHandle<Pro
   },
 });
 
-export function asFocusScope<P extends PropsBaseType = PropsBaseType>(
-  patch?: FocusScopeConfigPatch
-): FocusScopeHandle<P> {
-  const handle = getFocusScope() as FocusScopeHandle<P>;
-  if (patch) handle.configure(patch);
-  return handle;
+export function asFocusScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P> {
+  return getFocusScope() as FocusScopeHandle<P>;
 }

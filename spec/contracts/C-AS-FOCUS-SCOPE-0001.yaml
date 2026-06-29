@@ -3,21 +3,21 @@ type: contract
 title: asFocusScope declares a focus coordination boundary
 status: draft
 since: 0.1.0
-summary: asFocusScope is a privileged singleton asHook for boundary-level focus coordination, including entry, restore, empty container policy, and access to an internal roving handle.
+summary: asFocusScope is a privileged no-arg singleton asHook for boundary-level focus coordination, including entry, restore, empty container policy, and access to an internal roving handle through its returned handle.
 statement:
   zh-CN: >-
-    `asFocusScope(...)` 是 focus domain 的特权 asHook，用于声明当前原型实例形成 focus coordination boundary。它负责 boundary-level 的 entry、restore、trap/containment、empty container policy 与 scope-level focus requests。它可以暴露内部 `asFocusRoving()` 风格的 roving handle，但不应吞并所有同级 item navigation 规则，也不负责把 child 自动变成 focusable。
+    `asFocusScope()` 是 focus domain 的特权 no-arg asHook，用于声明当前原型实例形成 focus coordination boundary。它负责 boundary-level 的 entry、restore、trap/containment、empty container policy 与 scope-level focus requests；setup 期配置必须通过返回的 scope handle 表达。它可以暴露内部 `asFocusRoving()` 风格的 roving handle，但不应吞并所有同级 item navigation 规则，也不负责把 child 自动变成 focusable。
 
 
   en: >-
-    `asFocusScope(...)` is the focus-domain privileged asHook for declaring that the current prototype instance forms a focus coordination boundary. It owns boundary-level entry, restore, trap/containment, empty container policy, and scope-level focus requests. It may expose an internal `asFocusRoving()`-style roving handle, but it should not absorb all sibling item navigation rules and does not make children focusable by itself.
+    `asFocusScope()` is the focus-domain privileged no-arg asHook for declaring that the current prototype instance forms a focus coordination boundary. It owns boundary-level entry, restore, trap/containment, empty container policy, and scope-level focus requests; setup-time configuration must be expressed through the returned scope handle. It may expose an internal `asFocusRoving()`-style roving handle, but it should not absorb all sibling item navigation rules and does not make children focusable by itself.
 
 
 criteria:
   - id: C-AS-FOCUS-SCOPE-0001-A
     text:
-      zh-CN: '`asFocusScope(...)` 必须是特权 asHook，并且同一 setup 内重复调用必须复用同一个 scope handle。'
-      en: '`asFocusScope(...)` must be a privileged asHook, and repeated calls in the same setup must reuse the same scope handle.'
+      zh-CN: '`asFocusScope()` 必须是特权 no-arg asHook，并且同一 setup 内重复调用必须复用同一个 scope handle。'
+      en: '`asFocusScope()` must be a privileged no-arg asHook, and repeated calls in the same setup must reuse the same scope handle.'
   - id: C-AS-FOCUS-SCOPE-0001-B
     text:
       zh-CN: scope handle 必须提供 `focusFirst`、`focusLast`、`focusNext`、`focusPrev`、`focusSelected` 与 `restoreFocus` 这类结构化 focus request。
@@ -25,7 +25,7 @@ criteria:
   - id: C-AS-FOCUS-SCOPE-0001-C
     text:
       zh-CN: scope 的 `configure(...)` 必须限制在 setup 期使用。
-      en: '`asFocusScope(...).configure(...)` must be restricted to setup-time use.'
+      en: '`asFocusScope().configure(...)` must be restricted to setup-time use.'
   - id: C-AS-FOCUS-SCOPE-0001-D
     text:
       zh-CN: '`emptyPolicy: container` 必须允许 scope 在没有 focusable child 的情况下激活自身 boundary 状态，而不伪造 node focus。'
@@ -65,6 +65,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured asFocusScope as the focus coordination boundary hook.
+  - version: 0.1.1
+    change: refined
+    summary: Clarified that asFocusScope is a no-arg caller and setup-time configuration goes through the returned scope handle.
 tags:
   - focus
   - as-hook

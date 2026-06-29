@@ -42,6 +42,7 @@ function setupDropdownTrigger(def: DefHandle<DropdownTriggerProps, DropdownTrigg
   };
 
   const requestOpen = (run: any, direction: 'first' | 'last') => {
+    focusable.focus({ reason: 'keyboard' });
     const boundaryValue = resolveBoundaryValue(run, direction);
     run.context.update(DROPDOWN_CONTEXT, (prev: any) => ({
       ...prev,
@@ -63,6 +64,7 @@ function setupDropdownTrigger(def: DefHandle<DropdownTriggerProps, DropdownTrigg
       return;
     }
     if (ctx.controlled) return;
+    if (!ctx.open) focusable.focus({ reason: 'pointer' });
     run.context.update(DROPDOWN_CONTEXT, (prev) => ({
       ...prev,
       open: !prev.open,

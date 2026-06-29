@@ -29,6 +29,7 @@ import {
   FOCUS_PARENT_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
+  FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
 } from './caps';
 import { FOCUS_CENTER, type FocusCenterEntry, type FocusRequestBehavior } from './center';
@@ -214,6 +215,14 @@ class FocusModuleImpl extends ModuleBase {
     return this.caps.get(FOCUS_PARENT_CAP);
   }
 
+  private runInCallbackScope(fn: () => void): void {
+    if (this.caps.has(FOCUS_RUN_IN_CALLBACK_CAP)) {
+      this.caps.get(FOCUS_RUN_IN_CALLBACK_CAP)(fn);
+      return;
+    }
+    fn();
+  }
+
   private createCenterEntry(): FocusCenterEntry | null {
     const self = this.getSelfToken();
     if (!self) return null;
@@ -228,10 +237,15 @@ class FocusModuleImpl extends ModuleBase {
       getRovingConfig: () => this.rovingConfig,
       getFacts: () => this.getFacts(),
       getRootTarget: () => this.getRootTarget(),
-      requestFocus: (options?: FocusRequestOptions, behavior?: FocusRequestBehavior) =>
-        behavior?.syncFacts === false
-          ? this.requestNativeFocusDirect(options)
-          : this.requestFocusDirect(options),
+      requestFocus: (options?: FocusRequestOptions, behavior?: FocusRequestBehavior) => {
+        this.runInCallbackScope(() => {
+          if (behavior?.syncFacts === false) {
+            this.requestNativeFocusDirect(options);
+            return;
+          }
+          this.requestFocusDirect(options);
+        });
+      },
       setScopeActive: (active: boolean) => this.setScopeActive(active),
       pushWarning: (message: string) => this.warnings.push(message),
     };

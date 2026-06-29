@@ -82,7 +82,7 @@ const createTreeHost = (
 });
 
 describe('runtime contract: focus-roving (v0)', () => {
-  it('FOCUS-ROVING-0100: repeated asFocusRoving calls reuse one handle and keep last patch', () => {
+  it('FOCUS-ROVING-0100: repeated asFocusRoving calls reuse one handle and configure through that handle', () => {
     const first = createFocusRovingKey({ debugLabel: 'roving-1' });
     const second = createFocusRovingKey({ debugLabel: 'roving-2' });
     let a!: FocusRovingHandle<PropsBaseType>;
@@ -91,8 +91,10 @@ describe('runtime contract: focus-roving (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-roving-0100',
       setup() {
-        a = asFocusRoving<PropsBaseType>({ key: first, navigation: 'arrow' });
-        b = asFocusRoving<PropsBaseType>({
+        a = asFocusRoving<PropsBaseType>();
+        a.configure({ key: first, navigation: 'arrow' });
+        b = asFocusRoving<PropsBaseType>();
+        b.configure({
           key: second,
           orientation: 'horizontal',
           selectOnFocus: true,
@@ -123,7 +125,8 @@ describe('runtime contract: focus-roving (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-roving-0200',
       setup() {
-        const scope = asFocusScope<PropsBaseType>({
+        const scope = asFocusScope<PropsBaseType>();
+        scope.configure({
           entry: 'selected',
           group: { navigation: 'arrow', orientation: 'horizontal' },
         });
@@ -147,7 +150,8 @@ describe('runtime contract: focus-roving (v0)', () => {
     const Roving = definePrototype({
       name: 'x-focus-roving-0300-owner',
       setup() {
-        asFocusRoving<PropsBaseType>({ navigation: 'arrow' });
+        const roving = asFocusRoving<PropsBaseType>();
+        roving.configure({ navigation: 'arrow' });
         return (r) => r.el('div', 'roving');
       },
     });

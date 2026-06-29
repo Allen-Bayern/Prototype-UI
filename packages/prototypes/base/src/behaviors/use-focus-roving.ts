@@ -9,6 +9,7 @@ type FocusRovingItemSnapshot = Readonly<Record<string, unknown> & { disabled?: b
 type FocusRovingEntry = {
   id: string;
   disabled: boolean;
+  focused: boolean;
   focusSelf: ((options?: { reason?: FocusReason }) => void) | null;
 };
 
@@ -95,9 +96,12 @@ export const useFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRovin
           }
         }
 
+        const focusedHandle = part.getExpose('focused') as { get?: () => boolean } | null;
+
         return {
           id,
           disabled: options.skipDisabled === false ? false : !!snapshot.disabled,
+          focused: !!focusedHandle?.get?.(),
           focusSelf: part.getExpose(focusMethodKey) as
             | ((options?: { reason?: FocusReason }) => void)
             | null,
@@ -145,7 +149,7 @@ export const useFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRovin
       const activeId = options.getActiveId?.(run);
       const startIndex = activeId
         ? entries.findIndex((entry) => entry.id === String(activeId))
-        : -1;
+        : entries.findIndex((entry) => entry.focused);
       const step = direction === 'next' ? 1 : -1;
       const fallbackIndex = direction === 'next' ? -1 : entries.length;
 
