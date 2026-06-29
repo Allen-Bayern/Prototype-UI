@@ -1,9 +1,9 @@
 import type {
   FocusFacts,
-  FocusGroupConfig,
-  FocusGroupConfigPatch,
-  FocusGroupHandle,
-  FocusGroupKey,
+  FocusRovingConfig,
+  FocusRovingConfigPatch,
+  FocusRovingHandle,
+  FocusRovingKey,
   FocusScopeConfig,
   FocusRequestOptions,
   FocusScopeConfigPatch,
@@ -18,13 +18,14 @@ import type { PropsBaseType } from '@proto.ui/types';
 
 export type FocusFacade = {
   getFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P>;
-  getGroup<P extends PropsBaseType = PropsBaseType>(): FocusGroupHandle<P>;
+  getRoving<P extends PropsBaseType = PropsBaseType>(): FocusRovingHandle<P>;
   getScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P>;
 };
 
 export type FocusPort = {
   configureFocusable(patch: FocusableConfigPatch): void;
-  configureGroup(patch: FocusGroupConfigPatch): void;
+  configureRoving(patch: FocusRovingConfigPatch): void;
+  configureGroup(patch: FocusRovingConfigPatch): void;
   configureScope(patch: FocusScopeConfigPatch): void;
   setDisabled(disabled: boolean): void;
   requestFocus(options?: FocusRequestOptions): void;
@@ -35,10 +36,15 @@ export type FocusPort = {
   focusPrev(): void;
   focusSelected(): void;
   restoreFocus(): void;
-  getEffectiveGroupKey(): FocusGroupKey | undefined;
+  activateScope(): void;
+  deactivateScope(): void;
+  isScopeActive(): boolean;
+  getEffectiveRovingKey(): FocusRovingKey | undefined;
+  getEffectiveGroupKey(): FocusRovingKey | undefined;
   getEffectiveScopeKey(): FocusScopeKey | undefined;
   getFocusableConfig(): FocusableConfig;
-  getGroupConfig(): FocusGroupConfig;
+  getRovingConfig(): FocusRovingConfig;
+  getGroupConfig(): FocusRovingConfig;
   getScopeConfig(): FocusScopeConfig;
   getFacts(): FocusFacts;
   getWarnings(): readonly string[];

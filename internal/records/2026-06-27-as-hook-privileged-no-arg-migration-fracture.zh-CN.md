@@ -25,7 +25,7 @@ Date: 2026-06-27
 - `defineAsHook(...)` authored caller 已经是无参数 caller。
 - 基于 prototype spec 声明的 authored asHook 通常天然无参数。
 - `asFocusable()` 已迁移为无参数 caller；setup-time 配置通过返回的 `FocusableHandle.configure(...)` 完成。
-- `asOverlay(patch)`、`asFocusScope(patch)`、`asFocusGroup(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 仍带参数化或 configurable 行为。
+- `asOverlay(patch)`、`asFocusScope(patch)`、`asFocusRoving(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 仍带参数化或 configurable 行为。
 - `useCollection(options)` / `useCollectionItem(options)` 当前通过 `defineHook` 实现，但它们仍消费 anatomy ports，不能简单归入普通作者函数。
 
 ## Progress

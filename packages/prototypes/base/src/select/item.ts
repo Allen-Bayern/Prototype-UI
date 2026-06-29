@@ -1,7 +1,7 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
 import { asButton } from '../button';
-import { SELECT_CONTEXT, SELECT_FAMILY, SELECT_FOCUS_GROUP } from './shared';
+import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type { SelectItemAsHookContract, SelectItemExposes, SelectItemProps } from './types';
 
 const SELECT_ROVING_HANDLED = '__selectRovingHandled';
@@ -18,7 +18,6 @@ function syncBoolState(
 function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): void {
   asButton();
   const focusable = asFocusable<SelectItemProps>();
-  focusable.configure({ groupKey: SELECT_FOCUS_GROUP });
   const hovered = def.state.fromInteraction('hovered');
   const focused = focusable.focused;
   const active = def.state.bool('active', false);

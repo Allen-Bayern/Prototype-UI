@@ -1,7 +1,7 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asBoundary, asFocusGroup, asOverlay } from '@proto.ui/hooks';
+import { asBoundary, asFocusRoving, asOverlay } from '@proto.ui/hooks';
 import { useFocusRoving } from '../behaviors';
-import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY, DROPDOWN_FOCUS_GROUP } from './shared';
+import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
 import type {
   DropdownContentAsHookContract,
   DropdownContentExposes,
@@ -18,8 +18,7 @@ function setupDropdownContent(
 ): void {
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'content' });
   let activeValue = '';
-  asFocusGroup({
-    key: DROPDOWN_FOCUS_GROUP,
+  asFocusRoving({
     navigation: 'none',
     orientation: 'vertical',
     entry: 'manual',

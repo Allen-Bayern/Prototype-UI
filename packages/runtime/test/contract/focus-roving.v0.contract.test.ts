@@ -1,0 +1,234 @@
+import { describe, expect, it } from 'vitest';
+import { createFocusRovingKey, definePrototype, type FocusRovingHandle } from '@proto.ui/core';
+import { asFocusable, asFocusRoving, asFocusScope } from '@proto.ui/hooks';
+import type { RuntimeHost } from '../../src';
+import { executeWithHost } from '../../src';
+import {
+  FOCUS_INSTANCE_TOKEN_CAP,
+  FOCUS_PARENT_CAP,
+  FOCUS_REQUEST_FOCUS_CAP,
+  FOCUS_ROOT_TARGET_CAP,
+  type FocusPort,
+} from '@proto.ui/module-focus';
+import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
+import type { PropsBaseType } from '@proto.ui/types';
+
+const createHost = <P extends PropsBaseType>(name: string) => {
+  const host: RuntimeHost<P> = {
+    prototypeName: name,
+    getRawProps: () => ({}) as any,
+    commit(_children, signal) {
+      signal?.done();
+    },
+    schedule(task) {
+      task();
+    },
+  };
+
+  return { host };
+};
+
+class FocusTarget extends EventTarget {
+  constructor(
+    readonly id: string,
+    private readonly order: Map<string, number>
+  ) {
+    super();
+  }
+
+  compareDocumentPosition(other: FocusTarget): number {
+    const a = this.order.get(this.id) ?? 0;
+    const b = this.order.get(other.id) ?? 0;
+    if (a < b) return Node.DOCUMENT_POSITION_FOLLOWING;
+    if (a > b) return Node.DOCUMENT_POSITION_PRECEDING;
+    return 0;
+  }
+}
+
+const createTreeHost = (
+  name: string,
+  target: FocusTarget,
+  options: {
+    globalTarget: FocusTarget;
+    parents: Map<unknown, unknown | null>;
+    focused: string[];
+  }
+): RuntimeHost<PropsBaseType> => ({
+  prototypeName: name,
+  getRawProps: () => ({}),
+  commit(_children, signal) {
+    signal?.done();
+  },
+  schedule(task) {
+    task();
+  },
+  onRuntimeReady(wiring) {
+    wiring.attach('event', [
+      [EVENT_ROOT_TARGET_CAP, () => target],
+      [EVENT_GLOBAL_TARGET_CAP, () => options.globalTarget],
+    ]);
+    wiring.attach('focus', [
+      [FOCUS_INSTANCE_TOKEN_CAP, target],
+      [FOCUS_PARENT_CAP, (instance: unknown) => options.parents.get(instance) ?? null],
+      [FOCUS_ROOT_TARGET_CAP, () => target as any],
+      [
+        FOCUS_REQUEST_FOCUS_CAP,
+        (nextTarget: FocusTarget) => {
+          options.focused.push(nextTarget.id);
+        },
+      ],
+    ]);
+  },
+});
+
+describe('runtime contract: focus-roving (v0)', () => {
+  it('FOCUS-ROVING-0100: repeated asFocusRoving calls reuse one handle and keep last patch', () => {
+    const first = createFocusRovingKey({ debugLabel: 'roving-1' });
+    const second = createFocusRovingKey({ debugLabel: 'roving-2' });
+    let a!: FocusRovingHandle<PropsBaseType>;
+    let b!: FocusRovingHandle<PropsBaseType>;
+
+    const P = definePrototype({
+      name: 'x-focus-roving-0100',
+      setup() {
+        a = asFocusRoving<PropsBaseType>({ key: first, navigation: 'arrow' });
+        b = asFocusRoving<PropsBaseType>({
+          key: second,
+          orientation: 'horizontal',
+          selectOnFocus: true,
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(a).toBe(b);
+    expect(port?.getEffectiveRovingKey()).toBe(second);
+    expect(port?.getRovingConfig()).toMatchObject({
+      key: second,
+      navigation: 'arrow',
+      orientation: 'horizontal',
+      selectOnFocus: true,
+      entry: 'first',
+      loop: false,
+    });
+  });
+
+  it('FOCUS-ROVING-0200: asFocusScope exposes its internal roving handle', () => {
+    let roving!: FocusRovingHandle<PropsBaseType>;
+
+    const P = definePrototype({
+      name: 'x-focus-roving-0200',
+      setup() {
+        const scope = asFocusScope<PropsBaseType>({
+          entry: 'selected',
+          group: { navigation: 'arrow', orientation: 'horizontal' },
+        });
+        roving = scope.getRoving()!;
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(roving).toBeTruthy();
+    expect(port?.getRovingConfig()).toMatchObject({
+      navigation: 'arrow',
+      orientation: 'horizontal',
+    });
+  });
+
+  it('FOCUS-ROVING-0300: logical parent roving owner owns child focusables without groupKey', () => {
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0300-owner',
+      setup() {
+        asFocusRoving<PropsBaseType>({ navigation: 'arrow' });
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-roving-0300-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['item-a', 1],
+      ['item-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      itemA: new FocusTarget('item-a', order),
+      itemB: new FocusTarget('item-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.itemA, targets.roving],
+      [targets.itemB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    const rovingExec = executeWithHost(
+      Roving as any,
+      createTreeHost(Roving.name, targets.roving, hostOptions) as any
+    );
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.itemA, hostOptions) as any);
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.itemB, hostOptions) as any);
+
+    rovingExec.caps.getPort<FocusPort>('focus')?.focusFirst();
+
+    expect(focused).toEqual(['item-a']);
+  });
+
+  it('FOCUS-ROVING-0310: scope getRoving handle declares logical roving ownership', () => {
+    const Scope = definePrototype({
+      name: 'x-focus-roving-0310-scope',
+      setup() {
+        const scope = asFocusScope<PropsBaseType>();
+        scope.getRoving();
+        return (r) => r.el('div', 'scope');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-roving-0310-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['scope', 0],
+      ['item', 1],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const scopeTarget = new FocusTarget('scope', order);
+    const itemTarget = new FocusTarget('item', order);
+    const parents = new Map<unknown, unknown | null>([
+      [scopeTarget, null],
+      [itemTarget, scopeTarget],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    const scopeExec = executeWithHost(
+      Scope as any,
+      createTreeHost(Scope.name, scopeTarget, hostOptions) as any
+    );
+    executeWithHost(Item as any, createTreeHost(Item.name, itemTarget, hostOptions) as any);
+
+    scopeExec.caps.getPort<FocusPort>('focus')?.focusFirst();
+
+    expect(focused).toEqual(['item']);
+  });
+});

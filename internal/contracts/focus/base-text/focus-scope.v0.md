@@ -15,7 +15,7 @@ It is responsible for:
 - defining a local focus boundary
 - applying entry and restore policies
 - handling trap/loop behavior where supported
-- optionally coordinating an internal focus group
+- optionally coordinating an internal focus roving owner
 
 It is not responsible for:
 
@@ -82,7 +82,7 @@ v0 should minimally support:
   - at least `container | none`
 
 - optional group composition
-  - a scope may carry an internal `asFocusGroup(...)`-style capability
+  - a scope may carry an internal `asFocusRoving(...)`-style capability
 
 These policies should cover common component-library scenarios without forcing manual focus scripting.
 
@@ -107,7 +107,7 @@ type FocusScopeHandle = {
   restoreFocus(): void;
 
   configure(patch: FocusScopeConfigPatch): void;
-  getGroup(): FocusGroupHandle | null;
+  getRoving(): FocusRovingHandle | null;
 };
 ```
 
@@ -126,7 +126,28 @@ Authors may influence policy, but should not need to manually script routine bou
 - selected-item entry on overlay open
 - trigger restoration on overlay close
 
-Routine next/previous item navigation may be delegated to a focus group capability.
+Routine next/previous item navigation may be delegated to a focus roving capability.
+
+---
+
+## 6.1 Activation Model
+
+A focus scope may exist in the logical tree without being active.
+
+Activation is an explicit runtime action:
+
+- activating a scope marks that scope as the active coordination boundary;
+- activation records the previously focused logical target when that target is outside the activating scope;
+- activation requests focus for the first eligible logical focusable child when one exists;
+- if no eligible child exists, `emptyPolicy: container` may activate the scope boundary without forging node focus.
+
+Deactivation is also explicit:
+
+- deactivation clears the scope active fact;
+- deactivation restores focus to the previously captured focus target when that target still exists;
+- restore is a controlled focus transfer and may bypass the active-scope gate that ordinary outside focus requests must obey.
+
+While a scope is active, ordinary focus requests from outside that scope should be ignored with a diagnostic warning. Focus requests from the active scope or its logical descendants remain allowed.
 
 ---
 

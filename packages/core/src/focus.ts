@@ -6,20 +6,24 @@ export type FocusScopeMeta = Readonly<{
   debugLabel?: string;
 }>;
 
-export type FocusGroupMeta = Readonly<{
+export type FocusRovingMeta = Readonly<{
   kind?: string;
   debugLabel?: string;
 }>;
+
+export type FocusGroupMeta = FocusRovingMeta;
 
 export type FocusScopeKey = Readonly<{
   id: symbol;
   meta?: FocusScopeMeta;
 }>;
 
-export type FocusGroupKey = Readonly<{
+export type FocusRovingKey = Readonly<{
   id: symbol;
-  meta?: FocusGroupMeta;
+  meta?: FocusRovingMeta;
 }>;
+
+export type FocusGroupKey = FocusRovingKey;
 
 export function createFocusScopeKey(meta?: FocusScopeMeta): FocusScopeKey {
   return Object.freeze({
@@ -28,11 +32,15 @@ export function createFocusScopeKey(meta?: FocusScopeMeta): FocusScopeKey {
   });
 }
 
-export function createFocusGroupKey(meta?: FocusGroupMeta): FocusGroupKey {
+export function createFocusRovingKey(meta?: FocusRovingMeta): FocusRovingKey {
   return Object.freeze({
-    id: Symbol(meta?.debugLabel ?? '@proto.ui/focus-group'),
+    id: Symbol(meta?.debugLabel ?? '@proto.ui/focus-roving'),
     meta: meta ? Object.freeze({ ...meta }) : undefined,
   });
+}
+
+export function createFocusGroupKey(meta?: FocusGroupMeta): FocusGroupKey {
+  return createFocusRovingKey(meta);
 }
 
 export type FocusRequestOptions = Readonly<{
@@ -41,7 +49,7 @@ export type FocusRequestOptions = Readonly<{
 
 export type FocusableConfigPatch = Readonly<{
   scopeKey?: FocusScopeKey;
-  groupKey?: FocusGroupKey;
+  groupKey?: FocusRovingKey;
   autoFocus?: boolean;
   disabled?: boolean;
   navParticipation?: 'auto' | 'none';
@@ -50,7 +58,7 @@ export type FocusableConfigPatch = Readonly<{
 
 export type FocusableConfig = Readonly<{
   scopeKey?: FocusScopeKey;
-  groupKey?: FocusGroupKey;
+  groupKey?: FocusRovingKey;
   autoFocus: boolean;
   disabled: boolean;
   navParticipation: 'auto' | 'none';
@@ -66,7 +74,7 @@ export type FocusScopeConfigPatch = Readonly<{
   entry?: 'first' | 'selected' | 'active' | 'container' | 'manual';
   restore?: 'previous' | 'trigger' | 'none';
   emptyPolicy?: 'container' | 'none';
-  group?: boolean | FocusGroupConfigPatch;
+  group?: boolean | FocusRovingConfigPatch;
   meta?: Readonly<Record<string, unknown>>;
 }>;
 
@@ -79,12 +87,12 @@ export type FocusScopeConfig = Readonly<{
   entry: 'first' | 'selected' | 'active' | 'container' | 'manual';
   restore: 'previous' | 'trigger' | 'none';
   emptyPolicy: 'container' | 'none';
-  group?: boolean | FocusGroupConfigPatch;
+  group?: boolean | FocusRovingConfigPatch;
   meta?: Readonly<Record<string, unknown>>;
 }>;
 
-export type FocusGroupConfigPatch = Readonly<{
-  key?: FocusGroupKey;
+export type FocusRovingConfigPatch = Readonly<{
+  key?: FocusRovingKey;
   loop?: boolean;
   navigation?: 'none' | 'tab' | 'arrow' | 'tab+arrow';
   orientation?: 'vertical' | 'horizontal' | 'both';
@@ -93,8 +101,8 @@ export type FocusGroupConfigPatch = Readonly<{
   meta?: Readonly<Record<string, unknown>>;
 }>;
 
-export type FocusGroupConfig = Readonly<{
-  key?: FocusGroupKey;
+export type FocusRovingConfig = Readonly<{
+  key?: FocusRovingKey;
   loop: boolean;
   navigation: 'none' | 'tab' | 'arrow' | 'tab+arrow';
   orientation: 'vertical' | 'horizontal' | 'both';
@@ -102,6 +110,9 @@ export type FocusGroupConfig = Readonly<{
   selectOnFocus: boolean;
   meta?: Readonly<Record<string, unknown>>;
 }>;
+
+export type FocusGroupConfigPatch = FocusRovingConfigPatch;
+export type FocusGroupConfig = FocusRovingConfig;
 
 export type FocusFacts = Readonly<{
   focused: boolean;
@@ -135,12 +146,15 @@ export interface FocusScopeHandle<P extends PropsBaseType = PropsBaseType> {
   focusPrev(): void;
   focusSelected(): void;
   restoreFocus(): void;
+  activate(): void;
+  deactivate(): void;
+  isActive(): boolean;
 
   configure(patch: FocusScopeConfigPatch): void;
-  getGroup(): FocusGroupHandle<P> | null;
+  getRoving(): FocusRovingHandle<P> | null;
 }
 
-export interface FocusGroupHandle<P extends PropsBaseType = PropsBaseType> {
+export interface FocusRovingHandle<P extends PropsBaseType = PropsBaseType> {
   active: ObservedStateHandle<boolean, P>;
   hasFocused: ObservedStateHandle<boolean, P>;
 
@@ -150,5 +164,7 @@ export interface FocusGroupHandle<P extends PropsBaseType = PropsBaseType> {
   focusPrev(): void;
   focusSelected(): void;
 
-  configure(patch: FocusGroupConfigPatch): void;
+  configure(patch: FocusRovingConfigPatch): void;
 }
+
+export type FocusGroupHandle<P extends PropsBaseType = PropsBaseType> = FocusRovingHandle<P>;

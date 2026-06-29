@@ -1,0 +1,82 @@
+id: T-FOCUS-0001
+type: test
+title: Focus target and scope runtime contract tests
+status: draft
+since: 0.1.0
+summary: Runtime contract tests for asFocusable target facts, setup-only configuration, disabled focus requests, autofocus, and asFocusScope singleton/empty-container behavior.
+cases:
+  - id: T-FOCUS-0001-CASE-FOCUSABLE-ONCE
+    title: Repeated asFocusable calls reuse one handle and record privileged once trace
+    covers:
+      - C-AS-FOCUSABLE-0001-A
+      - C-AS-FOCUSABLE-0001-B
+    expectation: focusable-singleton-no-arg
+  - id: T-FOCUS-0001-CASE-SCOPE-ONCE
+    title: Repeated asFocusScope calls reuse one handle and merge setup patches
+    covers:
+      - C-AS-FOCUS-SCOPE-0001-A
+    expectation: focus-scope-singleton-config
+  - id: T-FOCUS-0001-CASE-SETUP-ONLY
+    title: Focus handle configure calls are setup-only
+    covers:
+      - C-AS-FOCUSABLE-0001-D
+      - C-AS-FOCUS-SCOPE-0001-C
+    expectation: configure-after-setup-rejected
+  - id: T-FOCUS-0001-CASE-FACT-HANDLES
+    title: Focus facts are state-backed observed handles and rule-consumable
+    covers:
+      - C-FOCUS-0001-C
+      - C-AS-FOCUSABLE-0001-C
+    expectation: focus-facts-observed-state-handles
+  - id: T-FOCUS-0001-CASE-DISABLED
+    title: Disabled focusable rejects focus requests
+    covers:
+      - C-AS-FOCUSABLE-0001-E
+    expectation: disabled-focus-request-rejected
+  - id: T-FOCUS-0001-CASE-SCOPE-CONTAINER
+    title: Scope emptyPolicy=container activates boundary without node focus
+    covers:
+      - C-AS-FOCUS-SCOPE-0001-B
+      - C-AS-FOCUS-SCOPE-0001-D
+    expectation: empty-container-boundary-focus
+implementations:
+  - id: runtime-focus-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/focus.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-0001-CASE-FOCUSABLE-ONCE
+      - T-FOCUS-0001-CASE-SCOPE-ONCE
+      - T-FOCUS-0001-CASE-SETUP-ONLY
+      - T-FOCUS-0001-CASE-FACT-HANDLES
+      - T-FOCUS-0001-CASE-DISABLED
+      - T-FOCUS-0001-CASE-SCOPE-CONTAINER
+verifies:
+  contracts:
+    - id: C-FOCUS-0001
+      anchors:
+        - C-FOCUS-0001-C
+        - C-FOCUS-0001-D
+    - id: C-AS-FOCUSABLE-0001
+      anchors:
+        - C-AS-FOCUSABLE-0001-A
+        - C-AS-FOCUSABLE-0001-B
+        - C-AS-FOCUSABLE-0001-C
+        - C-AS-FOCUSABLE-0001-D
+        - C-AS-FOCUSABLE-0001-E
+    - id: C-AS-FOCUS-SCOPE-0001
+      anchors:
+        - C-AS-FOCUS-SCOPE-0001-A
+        - C-AS-FOCUS-SCOPE-0001-B
+        - C-AS-FOCUS-SCOPE-0001-C
+        - C-AS-FOCUS-SCOPE-0001-D
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Mapped existing focus runtime contract tests to focus target and scope contracts.
+tags:
+  - focus
+  - as-focusable
+  - focus-scope
+  - contract-test

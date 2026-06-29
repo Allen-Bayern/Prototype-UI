@@ -1,0 +1,59 @@
+id: T-FOCUS-ROVING-0001
+type: test
+title: Focus roving runtime contract tests
+status: draft
+since: 0.1.0
+summary: Runtime contract tests for asFocusRoving singleton behavior, scope getRoving integration, and logical-parent roving membership without groupKey.
+cases:
+  - id: T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
+    title: Repeated asFocusRoving calls reuse one handle and keep the last compatible patch
+    covers:
+      - C-AS-FOCUS-ROVING-0001-A
+      - C-AS-FOCUS-ROVING-0001-B
+    expectation: focus-roving-singleton-config
+  - id: T-FOCUS-ROVING-0001-CASE-SCOPE-GET-ROVING
+    title: asFocusScope exposes and declares its internal roving handle
+    covers:
+      - C-AS-FOCUS-SCOPE-0001-E
+      - C-AS-FOCUS-ROVING-0001-B
+    expectation: focus-scope-internal-roving-handle
+  - id: T-FOCUS-ROVING-0001-CASE-LOGICAL-MEMBERSHIP
+    title: A logical roving owner owns child focusables without groupKey
+    covers:
+      - C-FOCUS-0002-A
+      - C-FOCUS-0002-B
+      - C-AS-FOCUS-ROVING-0001-C
+    expectation: logical-parent-roving-membership
+implementations:
+  - id: runtime-focus-roving-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/focus-roving.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
+      - T-FOCUS-ROVING-0001-CASE-SCOPE-GET-ROVING
+      - T-FOCUS-ROVING-0001-CASE-LOGICAL-MEMBERSHIP
+verifies:
+  contracts:
+    - id: C-FOCUS-0002
+      anchors:
+        - C-FOCUS-0002-A
+        - C-FOCUS-0002-B
+    - id: C-AS-FOCUS-SCOPE-0001
+      anchors:
+        - C-AS-FOCUS-SCOPE-0001-E
+    - id: C-AS-FOCUS-ROVING-0001
+      anchors:
+        - C-AS-FOCUS-ROVING-0001-A
+        - C-AS-FOCUS-ROVING-0001-B
+        - C-AS-FOCUS-ROVING-0001-C
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Mapped focus-roving runtime tests to logical-topology and asFocusRoving contracts.
+tags:
+  - focus
+  - focus-roving
+  - logical-tree
+  - contract-test

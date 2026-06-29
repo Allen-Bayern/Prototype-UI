@@ -1,6 +1,6 @@
 export * from './as-boundary';
+export * from './as-focus-roving';
 export * from './as-focusable';
-export * from './as-focus-group';
 export * from './as-focus-scope';
 export * from './as-hit-participation';
 export * from './as-overlay';

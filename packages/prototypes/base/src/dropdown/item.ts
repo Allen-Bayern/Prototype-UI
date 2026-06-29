@@ -1,7 +1,7 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
 import { asButton } from '../button';
-import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY, DROPDOWN_FOCUS_GROUP } from './shared';
+import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
 import type { DropdownItemAsHookContract, DropdownItemExposes, DropdownItemProps } from './types';
 
 const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
@@ -9,7 +9,6 @@ const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
 function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes>): void {
   asButton();
   const focusable = asFocusable<DropdownItemProps>();
-  focusable.configure({ groupKey: DROPDOWN_FOCUS_GROUP });
   const hovered = def.state.fromInteraction('hovered');
   const focused = focusable.focused;
   const active = def.state.bool('active', false);

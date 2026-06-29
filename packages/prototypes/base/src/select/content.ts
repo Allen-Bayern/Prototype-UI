@@ -1,7 +1,7 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asBoundary, asFocusGroup, asOverlay } from '@proto.ui/hooks';
+import { asBoundary, asFocusRoving, asOverlay } from '@proto.ui/hooks';
 import { useFocusRoving } from '../behaviors';
-import { SELECT_CONTEXT, SELECT_FAMILY, SELECT_FOCUS_GROUP } from './shared';
+import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type {
   SelectContentAsHookContract,
   SelectContentExposes,
@@ -12,8 +12,7 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   def.anatomy.claim(SELECT_FAMILY, { role: 'content' });
   let activeValue = '';
   let selectedValue = '';
-  asFocusGroup({
-    key: SELECT_FOCUS_GROUP,
+  asFocusRoving({
     navigation: 'none',
     orientation: 'vertical',
     entry: 'manual',
