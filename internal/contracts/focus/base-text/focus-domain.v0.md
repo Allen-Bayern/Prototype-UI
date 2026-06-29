@@ -61,8 +61,8 @@ Focus commands are **requests**, not direct state mutation:
 
 The primary authoring entry for focus is:
 
-- `asFocusable(...)`
-- `asFocusScope(...)`
+- `asFocusable()`
+- `asFocusScope()`
 
 They are privileged asHooks because they:
 

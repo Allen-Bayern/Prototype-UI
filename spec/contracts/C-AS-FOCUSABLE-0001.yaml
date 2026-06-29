@@ -1,0 +1,72 @@
+id: C-AS-FOCUSABLE-0001
+type: contract
+title: asFocusable declares a no-arg singleton focus target
+status: draft
+since: 0.1.0
+summary: asFocusable is a privileged no-arg once asHook that declares the caller as a focus target and returns state-backed focus facts plus target-level focus requests.
+statement:
+  zh-CN: >-
+    `asFocusable()` 是 focus domain 的特权 asHook，用于声明当前原型实例是 focus target。它必须保持无参数、once/singleton 安装形态，并通过返回的 handle 提供 setup 期配置、focus facts observed state handle，以及 `focus`/`focusSelf`/`blur` 等 target-level focus requests。`asFocusable()` 不负责 scope entry、restore、trap 或 sibling roving navigation。
+
+
+  en: >-
+    `asFocusable()` is the focus-domain privileged asHook for declaring the current prototype instance as a focus target. It must remain a no-arg, once/singleton install hook, and expose setup-time configuration, focus fact observed state handles, and target-level focus requests such as `focus`, `focusSelf`, and `blur` through its returned handle. `asFocusable()` does not own scope entry, restore, trap, or sibling roving navigation.
+
+
+criteria:
+  - id: C-AS-FOCUSABLE-0001-A
+    text:
+      zh-CN: '`asFocusable()` 必须是特权 asHook，并必须以 no-arg caller 形态调用。'
+      en: '`asFocusable()` must be a privileged asHook and must be called as a no-arg caller.'
+  - id: C-AS-FOCUSABLE-0001-B
+    text:
+      zh-CN: 同一 setup 中重复调用 `asFocusable()` 必须复用同一个 focusable handle，不得重复安装 focusable capability。
+      en: Repeated `asFocusable()` calls in the same setup must reuse the same focusable handle and must not reinstall the focusable capability.
+  - id: C-AS-FOCUSABLE-0001-C
+    text:
+      zh-CN: '`asFocusable()` 返回的 `focused`、`focusVisible` 与 `focusable` 必须是 state-backed observed handles，而不是原型作者可写状态。'
+      en: 'The `focused`, `focusVisible`, and `focusable` values returned by `asFocusable()` must be state-backed observed handles, not author-writable states.'
+  - id: C-AS-FOCUSABLE-0001-D
+    text:
+      zh-CN: '`asFocusable()` 的 `configure(...)` 必须限制在 setup 期使用。'
+      en: '`asFocusable().configure(...)` must be restricted to setup-time use.'
+  - id: C-AS-FOCUSABLE-0001-E
+    text:
+      zh-CN: disabled focusable 不得接受 focus request 并激活 focus facts。
+      en: A disabled focusable must not accept focus requests that activate focus facts.
+sources:
+  - path: internal/contracts/focus/base-text/as-focusable.v0.md
+  - path: packages/hooks/src/as-focusable.ts
+    sections:
+      - asFocusable
+  - path: packages/modules/focus/src/create.ts
+    sections:
+      - FocusModuleImpl.getFocusable
+      - FocusModuleImpl.configureFocusable
+  - path: packages/runtime/test/contract/focus.v0.contract.test.ts
+    sections:
+      - FOCUS-0100
+      - FOCUS-0300
+      - FOCUS-0450
+      - FOCUS-0460
+      - FOCUS-0500
+dependsOn:
+  contracts:
+    - C-FOCUS-0001
+    - C-AS-HOOK-PRIVILEGED-0001
+relates:
+  decisions:
+    - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
+    - D-FOCUS-STATE-INTERACTION-BOUNDARY-0001
+verifies:
+  tests:
+    - T-FOCUS-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured asFocusable as the no-arg focus target privileged hook.
+tags:
+  - focus
+  - as-hook
+  - as-focusable
+  - privileged

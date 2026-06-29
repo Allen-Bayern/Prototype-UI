@@ -1,7 +1,7 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusGroup } from '@proto.ui/hooks';
+import { asFocusRoving } from '@proto.ui/hooks';
 import { useFocusRoving } from '../behaviors';
-import { TABS_CONTEXT, TABS_FAMILY, TABS_FOCUS_GROUP } from './shared';
+import { TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsListAsHookContract, TabsListExposes, TabsListProps } from './types';
 
 function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
@@ -18,8 +18,8 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
     loop: false,
   });
 
-  asFocusGroup({
-    key: TABS_FOCUS_GROUP,
+  const focusRoving = asFocusRoving<TabsListProps>();
+  focusRoving.configure({
     navigation: 'none',
     orientation: 'horizontal',
     entry: 'manual',

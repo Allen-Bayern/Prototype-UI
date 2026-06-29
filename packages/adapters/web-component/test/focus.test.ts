@@ -35,7 +35,8 @@ describe('adapter-web-component focus wiring', () => {
     const P = definePrototype({
       name: 'x-focus-scope-only',
       setup() {
-        asFocusScope({ emptyPolicy: 'container' });
+        const scope = asFocusScope();
+        scope.configure({ emptyPolicy: 'container' });
         return (r) => [r.el('div', 'ok')];
       },
     });

@@ -35,6 +35,7 @@ import {
   FOCUS_PARENT_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
+  FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
 } from '@proto.ui/module-focus';
 import {
@@ -73,6 +74,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     allowStringVar?: boolean;
   };
   setExposes: (record: Record<string, unknown>) => void;
+  runInCallbackScope: (fn: () => void) => void;
   presenceBridge?: PresenceHostBridge;
   overlayLayerScheduler?: OverlayLayerScheduler;
 }) {
@@ -118,6 +120,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
           target.focus();
         },
       ],
+      [FOCUS_RUN_IN_CALLBACK_CAP, args.runInCallbackScope],
       [
         FOCUS_BLUR_CAP,
         (target: HTMLElement) => {

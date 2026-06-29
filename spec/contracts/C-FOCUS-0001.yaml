@@ -1,0 +1,55 @@
+id: C-FOCUS-0001
+type: contract
+title: Focus is a host-mediated logical interaction target domain
+status: draft
+since: 0.1.0
+summary: Focus is a system domain for coordinating logical interaction targets, requests, facts, topology, and policy; it is not owned by state, event, expose, adapter, or any single asHook alone.
+statement:
+  zh-CN: >-
+    Focus 是宿主协同的逻辑交互目标管理域，用于决定哪个逻辑节点、边界或同级集合可以接收主导交互意图，并协调焦点请求、焦点事实、焦点资格、焦点拓扑与焦点策略。Focus 不是 State、Event、Expose、Adapter 或单个特权 asHook 的子领域；这些系统可以参与或投影 focus 语义，但不能单独定义 focus。
+
+
+  en: >-
+    Focus is a host-mediated logical interaction target management domain. It decides which logical node, boundary, or sibling set may receive primary interaction intent, and coordinates focus requests, focus facts, focus eligibility, focus topology, and focus policy. Focus is not a subdomain owned by State, Event, Expose, Adapter, or a single privileged asHook; those systems may participate in or project focus semantics, but none of them defines focus alone.
+
+
+criteria:
+  - id: C-FOCUS-0001-A
+    text:
+      zh-CN: Focus 契约必须被建模为系统域，而不是 `state`、`event`、`expose`、adapter capability 或单个 asHook 的普通子功能。
+      en: Focus contracts must model focus as a system domain, not as a plain subfeature of `state`, `event`, `expose`, adapter capability, or a single asHook.
+  - id: C-FOCUS-0001-B
+    text:
+      zh-CN: Focus domain 至少必须区分 focus facts、focus requests、focus eligibility、focus topology 与 focus policy。
+      en: The focus domain must at least distinguish focus facts, focus requests, focus eligibility, focus topology, and focus policy.
+  - id: C-FOCUS-0001-C
+    text:
+      zh-CN: Focus facts 可以以 state-shaped observed handle 形式被 rule、expose 或诊断消费，但事实所有权仍属于 focus domain。
+      en: Focus facts may be consumed by rule, expose, or diagnostics as state-shaped observed handles, but ownership remains in the focus domain.
+  - id: C-FOCUS-0001-D
+    text:
+      zh-CN: Focus requests 是对宿主/runtime 的请求，不得被解释为原型作者直接写入 focus facts。
+      en: Focus requests are requests to the host/runtime and must not be treated as prototype-author writes to focus facts.
+sources:
+  - path: internal/contracts/focus/base-text/focus-domain.v0.md
+  - path: internal/contracts/focus/base-text/focus-model.v0.md
+  - path: internal/records/2026-06-29-focus-logical-tree-model.zh-CN.md
+  - path: packages/modules/focus/src/create.ts
+    sections:
+      - FocusModuleImpl
+dependsOn:
+  contracts:
+    - C-AS-HOOK-PRIVILEGED-0001
+    - C-STATE-0005
+relates:
+  decisions:
+    - D-FOCUS-STATE-INTERACTION-BOUNDARY-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Captured the baseline focus domain model after the logical-tree focus discussion.
+tags:
+  - focus
+  - domain
+  - host
+  - system

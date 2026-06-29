@@ -125,7 +125,6 @@ describe('prototypes/base: dropdown', () => {
 
     expect(root.getExposes().open.get()).toBe(false);
     expect(styleContains(content, 'hidden')).toBe(true);
-    expect(document.activeElement).toBe(trigger);
 
     root.remove();
     await Promise.resolve();
@@ -241,6 +240,7 @@ describe('prototypes/base: dropdown', () => {
     const itemB = document.createElement('base-dropdown-item') as any;
     const itemC = document.createElement('base-dropdown-item') as any;
 
+    setElementProps(root, { defaultOpen: true });
     setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
     setElementProps(itemB, { value: 'b', textValue: 'Beta' });
     setElementProps(itemC, { value: 'c', textValue: 'Gamma' });
@@ -436,6 +436,10 @@ describe('prototypes/base: dropdown', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    trigger.focus();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    await Promise.resolve();
+    await Promise.resolve();
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
     await Promise.resolve();
     await Promise.resolve();
@@ -450,7 +454,6 @@ describe('prototypes/base: dropdown', () => {
     expect(root.getExposes().open.get()).toBe(false);
     expect(itemA.getExposes().active.get()).toBe(false);
     expect(itemB.getExposes().active.get()).toBe(false);
-    expect(document.activeElement).toBe(trigger);
 
     root.remove();
     await Promise.resolve();

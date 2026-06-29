@@ -10,7 +10,13 @@ import { asFocusable, asFocusScope } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
 import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
-import type { FocusPort } from '@proto.ui/module-focus';
+import {
+  FOCUS_INSTANCE_TOKEN_CAP,
+  FOCUS_PARENT_CAP,
+  FOCUS_REQUEST_FOCUS_CAP,
+  FOCUS_ROOT_TARGET_CAP,
+  type FocusPort,
+} from '@proto.ui/module-focus';
 import type { PropsBaseType } from '@proto.ui/types';
 
 function createMockTarget() {
@@ -67,6 +73,59 @@ const createHost = <P extends PropsBaseType>(
   return { host };
 };
 
+class FocusTarget extends EventTarget {
+  constructor(
+    readonly id: string,
+    private readonly order: Map<string, number>
+  ) {
+    super();
+  }
+
+  compareDocumentPosition(other: FocusTarget): number {
+    const a = this.order.get(this.id) ?? 0;
+    const b = this.order.get(other.id) ?? 0;
+    if (a < b) return Node.DOCUMENT_POSITION_FOLLOWING;
+    if (a > b) return Node.DOCUMENT_POSITION_PRECEDING;
+    return 0;
+  }
+}
+
+const createTreeHost = (
+  name: string,
+  target: FocusTarget,
+  options: {
+    globalTarget: FocusTarget;
+    parents: Map<unknown, unknown | null>;
+    focused: string[];
+  }
+): RuntimeHost<PropsBaseType> => ({
+  prototypeName: name,
+  getRawProps: () => ({}),
+  commit(_children, signal) {
+    signal?.done();
+  },
+  schedule(task) {
+    task();
+  },
+  onRuntimeReady(wiring) {
+    wiring.attach('event', [
+      [EVENT_ROOT_TARGET_CAP, () => target],
+      [EVENT_GLOBAL_TARGET_CAP, () => options.globalTarget],
+    ]);
+    wiring.attach('focus', [
+      [FOCUS_INSTANCE_TOKEN_CAP, target],
+      [FOCUS_PARENT_CAP, (instance: unknown) => options.parents.get(instance) ?? null],
+      [FOCUS_ROOT_TARGET_CAP, () => target as any],
+      [
+        FOCUS_REQUEST_FOCUS_CAP,
+        (nextTarget: FocusTarget) => {
+          options.focused.push(nextTarget.id);
+        },
+      ],
+    ]);
+  },
+});
+
 describe('runtime contract: focus (v0)', () => {
   it('FOCUS-0100: repeated asFocusable calls reuse one handle and last compatible scopeKey wins', () => {
     const first = createFocusScopeKey({ debugLabel: 'first' });
@@ -103,7 +162,7 @@ describe('runtime contract: focus (v0)', () => {
     ]);
   });
 
-  it('FOCUS-0200: repeated asFocusScope calls reuse one handle and key patch is retained', () => {
+  it('FOCUS-0200: repeated asFocusScope calls reuse one handle and configure through that handle', () => {
     const scopeKey = createFocusScopeKey({ debugLabel: 'scope-2' });
     let scopeA!: FocusScopeHandle<PropsBaseType>;
     let scopeB!: FocusScopeHandle<PropsBaseType>;
@@ -111,8 +170,10 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0200',
       setup() {
-        scopeA = asFocusScope<PropsBaseType>({ navigation: 'tab' });
-        scopeB = asFocusScope<PropsBaseType>({ key: scopeKey, navigation: 'arrow', loop: true });
+        scopeA = asFocusScope<PropsBaseType>();
+        scopeA.configure({ navigation: 'tab' });
+        scopeB = asFocusScope<PropsBaseType>();
+        scopeB.configure({ key: scopeKey, navigation: 'arrow', loop: true });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -318,7 +379,8 @@ describe('runtime contract: focus (v0)', () => {
     const P = definePrototype({
       name: 'x-focus-0700',
       setup(def) {
-        scope = asFocusScope<PropsBaseType>({ emptyPolicy: 'container' });
+        scope = asFocusScope<PropsBaseType>();
+        scope.configure({ emptyPolicy: 'container' });
         def.lifecycle.onCreated(() => {
           scope.focusFirst();
         });
@@ -337,5 +399,206 @@ describe('runtime contract: focus (v0)', () => {
       active: true,
       hasFocused: false,
     });
+  });
+
+  it('FOCUS-0800: activating a scope requests focus for its first logical focusable child', () => {
+    let scope!: FocusScopeHandle<PropsBaseType>;
+
+    const Scope = definePrototype({
+      name: 'x-focus-0800-scope',
+      setup() {
+        scope = asFocusScope<PropsBaseType>();
+        return (r) => r.el('div', 'scope');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-0800-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['scope', 0],
+      ['item', 1],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      scope: new FocusTarget('scope', order),
+      item: new FocusTarget('item', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.scope, null],
+      [targets.item, targets.scope],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    const scopeExec = executeWithHost(
+      Scope as any,
+      createTreeHost(Scope.name, targets.scope, hostOptions) as any
+    );
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.item, hostOptions) as any);
+
+    scope.activate();
+
+    expect(focused).toEqual(['item']);
+    expect(scope.isActive()).toBe(true);
+    expect(scopeExec.caps.getPort<FocusPort>('focus')?.getFacts().active).toBe(true);
+
+    scope.deactivate();
+  });
+
+  it('FOCUS-0810: deactivating a scope restores focus to the previous owner', () => {
+    let outside!: FocusableHandle<PropsBaseType>;
+    let scope!: FocusScopeHandle<PropsBaseType>;
+
+    const Outside = definePrototype({
+      name: 'x-focus-0810-outside',
+      setup() {
+        outside = asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'outside');
+      },
+    });
+    const Scope = definePrototype({
+      name: 'x-focus-0810-scope',
+      setup() {
+        scope = asFocusScope<PropsBaseType>();
+        return (r) => r.el('div', 'scope');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-0810-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['outside', 0],
+      ['scope', 1],
+      ['item', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      outside: new FocusTarget('outside', order),
+      scope: new FocusTarget('scope', order),
+      item: new FocusTarget('item', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.outside, null],
+      [targets.scope, null],
+      [targets.item, targets.scope],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(
+      Outside as any,
+      createTreeHost(Outside.name, targets.outside, hostOptions) as any
+    );
+    executeWithHost(Scope as any, createTreeHost(Scope.name, targets.scope, hostOptions) as any);
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.item, hostOptions) as any);
+
+    outside.focus({ reason: 'programmatic' });
+    scope.activate();
+    scope.deactivate();
+
+    expect(focused).toEqual(['outside', 'item', 'outside']);
+    expect(scope.isActive()).toBe(false);
+  });
+
+  it('FOCUS-0820: active scope ignores outside focus requests and records a warning', () => {
+    let outside!: FocusableHandle<PropsBaseType>;
+    let scope!: FocusScopeHandle<PropsBaseType>;
+
+    const Outside = definePrototype({
+      name: 'x-focus-0820-outside',
+      setup() {
+        outside = asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'outside');
+      },
+    });
+    const Scope = definePrototype({
+      name: 'x-focus-0820-scope',
+      setup() {
+        scope = asFocusScope<PropsBaseType>();
+        return (r) => r.el('div', 'scope');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-0820-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['outside', 0],
+      ['scope', 1],
+      ['item', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      outside: new FocusTarget('outside', order),
+      scope: new FocusTarget('scope', order),
+      item: new FocusTarget('item', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.outside, null],
+      [targets.scope, null],
+      [targets.item, targets.scope],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    const outsideExec = executeWithHost(
+      Outside as any,
+      createTreeHost(Outside.name, targets.outside, hostOptions) as any
+    );
+    executeWithHost(Scope as any, createTreeHost(Scope.name, targets.scope, hostOptions) as any);
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.item, hostOptions) as any);
+
+    outside.focus({ reason: 'programmatic' });
+    scope.activate();
+    outside.focus({ reason: 'programmatic' });
+
+    expect(focused).toEqual(['outside', 'item']);
+    expect(outsideExec.caps.getPort<FocusPort>('focus')?.getWarnings()).toEqual([
+      expect.stringContaining('requestFocus ignored'),
+    ]);
+
+    scope.deactivate();
+  });
+
+  it('FOCUS-0830: scope without focusable child remains inactive unless container activation is allowed', () => {
+    let scope!: FocusScopeHandle<PropsBaseType>;
+
+    const Scope = definePrototype({
+      name: 'x-focus-0830-scope',
+      setup() {
+        scope = asFocusScope<PropsBaseType>();
+        return (r) => r.el('div', 'scope');
+      },
+    });
+
+    const order = new Map<string, number>([['scope', 0]]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const target = new FocusTarget('scope', order);
+    const parents = new Map<unknown, unknown | null>([[target, null]]);
+    const focused: string[] = [];
+
+    executeWithHost(
+      Scope as any,
+      createTreeHost(Scope.name, target, { globalTarget, parents, focused }) as any
+    );
+
+    scope.activate();
+
+    expect(focused).toEqual([]);
+    expect(scope.isActive()).toBe(false);
   });
 });

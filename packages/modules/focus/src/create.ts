@@ -1,9 +1,9 @@
 import {
   type FocusFacts,
-  type FocusGroupConfig,
-  FocusGroupConfigPatch,
-  FocusGroupHandle,
-  FocusGroupKey,
+  type FocusRovingConfig,
+  FocusRovingConfigPatch,
+  FocusRovingHandle,
+  FocusRovingKey,
   type FocusScopeConfig,
   illegalPhase,
   FocusRequestOptions,
@@ -29,9 +29,10 @@ import {
   FOCUS_PARENT_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
+  FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
 } from './caps';
-import { FOCUS_CENTER } from './center';
+import { FOCUS_CENTER, type FocusCenterEntry, type FocusRequestBehavior } from './center';
 
 const DEFAULT_FOCUSABLE_CONFIG: FocusableConfig = Object.freeze({
   autoFocus: false,
@@ -49,7 +50,7 @@ const DEFAULT_SCOPE_CONFIG: FocusScopeConfig = Object.freeze({
   emptyPolicy: 'none',
 });
 
-const DEFAULT_GROUP_CONFIG: FocusGroupConfig = Object.freeze({
+const DEFAULT_ROVING_CONFIG: FocusRovingConfig = Object.freeze({
   loop: false,
   navigation: 'none',
   orientation: 'vertical',
@@ -82,7 +83,9 @@ function pushOverrideWarning(
 class FocusModuleImpl extends ModuleBase {
   private focusableConfig: FocusableConfig = DEFAULT_FOCUSABLE_CONFIG;
   private focusableDeclared = false;
-  private groupConfig: FocusGroupConfig = DEFAULT_GROUP_CONFIG;
+  private scopeDeclared = false;
+  private rovingDeclared = false;
+  private rovingConfig: FocusRovingConfig = DEFAULT_ROVING_CONFIG;
   private scopeConfig: FocusScopeConfig = DEFAULT_SCOPE_CONFIG;
   private readonly prototypeName: string;
   private readonly warnings: string[] = [];
@@ -104,7 +107,7 @@ class FocusModuleImpl extends ModuleBase {
 
   private readonly focusableHandle: FocusableHandle<any>;
   private readonly scopeHandle: FocusScopeHandle<any>;
-  private readonly groupHandle: FocusGroupHandle<any>;
+  private readonly rovingHandle: FocusRovingHandle<any>;
 
   constructor(
     caps: ModuleFactoryArgs['caps'],
@@ -149,11 +152,14 @@ class FocusModuleImpl extends ModuleBase {
       focusPrev: () => this.focusPrev(),
       focusSelected: () => this.focusSelected(),
       restoreFocus: () => this.restoreFocus(),
+      activate: () => this.activateScope(),
+      deactivate: () => this.deactivateScope(),
+      isActive: () => this.isScopeActive(),
       configure: (patch: FocusScopeConfigPatch) => this.configureScope(patch),
-      getGroup: () => this.groupHandle,
+      getRoving: () => this.getRoving(),
     };
 
-    this.groupHandle = {
+    this.rovingHandle = {
       active: this.activeState,
       hasFocused: this.hasFocusedState,
       focusFirst: () => this.focusFirst(),
@@ -161,7 +167,7 @@ class FocusModuleImpl extends ModuleBase {
       focusNext: () => this.focusNext(),
       focusPrev: () => this.focusPrev(),
       focusSelected: () => this.focusSelected(),
-      configure: (patch: FocusGroupConfigPatch) => this.configureGroup(patch),
+      configure: (patch: FocusRovingConfigPatch) => this.configureRoving(patch),
     };
   }
 
@@ -209,18 +215,46 @@ class FocusModuleImpl extends ModuleBase {
     return this.caps.get(FOCUS_PARENT_CAP);
   }
 
-  private syncCenter() {
+  private runInCallbackScope(fn: () => void): void {
+    if (this.caps.has(FOCUS_RUN_IN_CALLBACK_CAP)) {
+      this.caps.get(FOCUS_RUN_IN_CALLBACK_CAP)(fn);
+      return;
+    }
+    fn();
+  }
+
+  private createCenterEntry(): FocusCenterEntry | null {
     const self = this.getSelfToken();
-    if (!self) return;
-    FOCUS_CENTER.upsert({
+    if (!self) return null;
+    return {
       instance: self,
       getParent: this.getParentGetter(),
+      isFocusable: () => this.focusableDeclared,
+      isScopeProvider: () => this.scopeDeclared,
+      isRovingProvider: () => this.rovingDeclared,
       getFocusableConfig: () => this.focusableConfig,
-      getGroupConfig: () => this.groupConfig,
+      getScopeConfig: () => this.scopeConfig,
+      getRovingConfig: () => this.rovingConfig,
       getFacts: () => this.getFacts(),
       getRootTarget: () => this.getRootTarget(),
-      requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-    });
+      requestFocus: (options?: FocusRequestOptions, behavior?: FocusRequestBehavior) => {
+        this.runInCallbackScope(() => {
+          if (behavior?.syncFacts === false) {
+            this.requestNativeFocusDirect(options);
+            return;
+          }
+          this.requestFocusDirect(options);
+        });
+      },
+      setScopeActive: (active: boolean) => this.setScopeActive(active),
+      pushWarning: (message: string) => this.warnings.push(message),
+    };
+  }
+
+  private syncCenter() {
+    const entry = this.createCenterEntry();
+    if (!entry) return;
+    FOCUS_CENTER.upsert(entry);
   }
 
   private syncHostFocusable() {
@@ -251,6 +285,16 @@ class FocusModuleImpl extends ModuleBase {
     }
     this.wireHostFocusEvents();
     this.syncHostFocusable();
+    this.syncCenter();
+  }
+
+  private declareScope(): void {
+    this.scopeDeclared = true;
+    this.syncCenter();
+  }
+
+  private declareRoving(): void {
+    this.rovingDeclared = true;
     this.syncCenter();
   }
 
@@ -293,11 +337,13 @@ class FocusModuleImpl extends ModuleBase {
   }
 
   getScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P> {
+    this.declareScope();
     return this.scopeHandle as FocusScopeHandle<P>;
   }
 
-  getGroup<P extends PropsBaseType = PropsBaseType>(): FocusGroupHandle<P> {
-    return this.groupHandle as FocusGroupHandle<P>;
+  getRoving<P extends PropsBaseType = PropsBaseType>(): FocusRovingHandle<P> {
+    this.declareRoving();
+    return this.rovingHandle as FocusRovingHandle<P>;
   }
 
   configureFocusable(patch: FocusableConfigPatch): void {
@@ -361,6 +407,7 @@ class FocusModuleImpl extends ModuleBase {
 
   configureScope(patch: FocusScopeConfigPatch): void {
     this.ensureSetup('focus.configureScope');
+    this.declareScope();
     if (typeof patch.key !== 'undefined') {
       pushOverrideWarning(
         this.warnings,
@@ -418,7 +465,7 @@ class FocusModuleImpl extends ModuleBase {
     if (typeof patch.group !== 'undefined') {
       pushOverrideWarning(this.warnings, 'scope', 'group', this.scopeConfig.group, patch.group);
       if (patch.group && typeof patch.group === 'object') {
-        this.configureGroup(patch.group);
+        this.configureRoving(patch.group);
       }
     }
 
@@ -429,26 +476,33 @@ class FocusModuleImpl extends ModuleBase {
     });
   }
 
-  configureGroup(patch: FocusGroupConfigPatch): void {
-    this.ensureSetup('focus.configureGroup');
+  configureRoving(patch: FocusRovingConfigPatch): void {
+    this.ensureSetup('focus.configureRoving');
+    this.declareRoving();
     if (typeof patch.key !== 'undefined') {
       pushOverrideWarning(
         this.warnings,
         'scope',
-        'group.key',
-        this.groupConfig.key?.meta?.debugLabel ?? this.groupConfig.key?.id,
+        'roving.key',
+        this.rovingConfig.key?.meta?.debugLabel ?? this.rovingConfig.key?.id,
         patch.key?.meta?.debugLabel ?? patch.key?.id
       );
     }
     if (typeof patch.loop !== 'undefined') {
-      pushOverrideWarning(this.warnings, 'scope', 'group.loop', this.groupConfig.loop, patch.loop);
+      pushOverrideWarning(
+        this.warnings,
+        'scope',
+        'roving.loop',
+        this.rovingConfig.loop,
+        patch.loop
+      );
     }
     if (typeof patch.navigation !== 'undefined') {
       pushOverrideWarning(
         this.warnings,
         'scope',
-        'group.navigation',
-        this.groupConfig.navigation,
+        'roving.navigation',
+        this.rovingConfig.navigation,
         patch.navigation
       );
     }
@@ -456,8 +510,8 @@ class FocusModuleImpl extends ModuleBase {
       pushOverrideWarning(
         this.warnings,
         'scope',
-        'group.orientation',
-        this.groupConfig.orientation,
+        'roving.orientation',
+        this.rovingConfig.orientation,
         patch.orientation
       );
     }
@@ -465,8 +519,8 @@ class FocusModuleImpl extends ModuleBase {
       pushOverrideWarning(
         this.warnings,
         'scope',
-        'group.entry',
-        this.groupConfig.entry,
+        'roving.entry',
+        this.rovingConfig.entry,
         patch.entry
       );
     }
@@ -474,21 +528,21 @@ class FocusModuleImpl extends ModuleBase {
       pushOverrideWarning(
         this.warnings,
         'scope',
-        'group.selectOnFocus',
-        this.groupConfig.selectOnFocus,
+        'roving.selectOnFocus',
+        this.rovingConfig.selectOnFocus,
         patch.selectOnFocus
       );
     }
 
-    this.groupConfig = Object.freeze({
-      ...this.groupConfig,
+    this.rovingConfig = Object.freeze({
+      ...this.rovingConfig,
       ...patch,
-      meta: mergeMeta(this.groupConfig.meta, patch.meta),
+      meta: mergeMeta(this.rovingConfig.meta, patch.meta),
     });
     this.syncCenter();
   }
 
-  requestFocus(options?: FocusRequestOptions): void {
+  private requestFocusDirect(options?: FocusRequestOptions): void {
     if (!this.focusableDeclared || this.focusableConfig.disabled) return;
     const target = this.getRootTarget();
     if (target && this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
@@ -500,12 +554,32 @@ class FocusModuleImpl extends ModuleBase {
     this.setFocusState(this.hasFocusedOwned, true, options?.reason ?? 'programmatic');
   }
 
-  private requestNativeFocus(options?: FocusRequestOptions): void {
+  requestFocus(options?: FocusRequestOptions): void {
+    if (!this.focusableDeclared || this.focusableConfig.disabled) return;
+    const entry = this.createCenterEntry();
+    if (!entry) {
+      this.requestFocusDirect(options);
+      return;
+    }
+    FOCUS_CENTER.requestFocus(entry, options, { syncFacts: true });
+  }
+
+  private requestNativeFocusDirect(options?: FocusRequestOptions): void {
     if (!this.focusableDeclared || this.focusableConfig.disabled) return;
     const target = this.getRootTarget();
     if (target && this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
       this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
     }
+  }
+
+  private requestNativeFocus(options?: FocusRequestOptions): void {
+    if (!this.focusableDeclared || this.focusableConfig.disabled) return;
+    const entry = this.createCenterEntry();
+    if (!entry) {
+      this.requestNativeFocusDirect(options);
+      return;
+    }
+    FOCUS_CENTER.requestFocus(entry, options, { syncFacts: false });
   }
 
   blur(): void {
@@ -519,18 +593,9 @@ class FocusModuleImpl extends ModuleBase {
   }
 
   focusFirst(): void {
-    const self = this.getSelfToken();
-    if (self && this.groupConfig.key) {
-      const entry = {
-        instance: self,
-        getParent: this.getParentGetter(),
-        getFocusableConfig: () => this.focusableConfig,
-        getGroupConfig: () => this.groupConfig,
-        getFacts: () => this.getFacts(),
-        getRootTarget: () => this.getRootTarget(),
-        requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-      };
-      FOCUS_CENTER.focusInGroup(entry, 'first');
+    const entry = this.createCenterEntry();
+    if (entry && this.rovingDeclared) {
+      FOCUS_CENTER.focusInRoving(entry, 'first');
       return;
     }
     if (this.focusableConfig.disabled) return;
@@ -545,72 +610,36 @@ class FocusModuleImpl extends ModuleBase {
   }
 
   focusLast(): void {
-    const self = this.getSelfToken();
-    if (self && this.groupConfig.key) {
-      const entry = {
-        instance: self,
-        getParent: this.getParentGetter(),
-        getFocusableConfig: () => this.focusableConfig,
-        getGroupConfig: () => this.groupConfig,
-        getFacts: () => this.getFacts(),
-        getRootTarget: () => this.getRootTarget(),
-        requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-      };
-      FOCUS_CENTER.focusInGroup(entry, 'last');
+    const entry = this.createCenterEntry();
+    if (entry && this.rovingDeclared) {
+      FOCUS_CENTER.focusInRoving(entry, 'last');
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
   }
 
   focusNext(): void {
-    const self = this.getSelfToken();
-    if (self && this.groupConfig.key) {
-      const entry = {
-        instance: self,
-        getParent: this.getParentGetter(),
-        getFocusableConfig: () => this.focusableConfig,
-        getGroupConfig: () => this.groupConfig,
-        getFacts: () => this.getFacts(),
-        getRootTarget: () => this.getRootTarget(),
-        requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-      };
-      FOCUS_CENTER.focusInGroup(entry, 'next');
+    const entry = this.createCenterEntry();
+    if (entry && this.rovingDeclared) {
+      FOCUS_CENTER.focusInRoving(entry, 'next');
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
   }
 
   focusPrev(): void {
-    const self = this.getSelfToken();
-    if (self && this.groupConfig.key) {
-      const entry = {
-        instance: self,
-        getParent: this.getParentGetter(),
-        getFocusableConfig: () => this.focusableConfig,
-        getGroupConfig: () => this.groupConfig,
-        getFacts: () => this.getFacts(),
-        getRootTarget: () => this.getRootTarget(),
-        requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-      };
-      FOCUS_CENTER.focusInGroup(entry, 'prev');
+    const entry = this.createCenterEntry();
+    if (entry && this.rovingDeclared) {
+      FOCUS_CENTER.focusInRoving(entry, 'prev');
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
   }
 
   focusSelected(): void {
-    const self = this.getSelfToken();
-    if (self && this.groupConfig.key) {
-      const entry = {
-        instance: self,
-        getParent: this.getParentGetter(),
-        getFocusableConfig: () => this.focusableConfig,
-        getGroupConfig: () => this.groupConfig,
-        getFacts: () => this.getFacts(),
-        getRootTarget: () => this.getRootTarget(),
-        requestFocus: () => this.requestNativeFocus({ reason: 'keyboard' }),
-      };
-      FOCUS_CENTER.focusInGroup(entry, 'selected');
+    const entry = this.createCenterEntry();
+    if (entry && this.rovingDeclared) {
+      FOCUS_CENTER.focusInRoving(entry, 'selected');
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
@@ -618,6 +647,34 @@ class FocusModuleImpl extends ModuleBase {
 
   restoreFocus(): void {
     this.requestFocus({ reason: 'programmatic' });
+  }
+
+  activateScope(): void {
+    this.declareScope();
+    const entry = this.createCenterEntry();
+    if (!entry) return;
+    FOCUS_CENTER.activateScope(entry);
+  }
+
+  deactivateScope(): void {
+    const entry = this.createCenterEntry();
+    if (!entry) {
+      this.setScopeActive(false);
+      return;
+    }
+    FOCUS_CENTER.deactivateScope(entry);
+  }
+
+  isScopeActive(): boolean {
+    const entry = this.createCenterEntry();
+    return entry ? FOCUS_CENTER.isScopeActive(entry) : this.activeState.get();
+  }
+
+  private setScopeActive(active: boolean): void {
+    this.setFocusState(this.activeOwned, active, active ? 'scope.activate' : 'scope.deactivate');
+    if (active) {
+      this.setFocusState(this.hasFocusedOwned, true, 'scope.activate');
+    }
   }
 
   setDisabled(disabled: boolean, reason: unknown = 'focus.setDisabled'): void {
@@ -653,8 +710,8 @@ class FocusModuleImpl extends ModuleBase {
     return this.focusableConfig.scopeKey ?? this.scopeConfig.key;
   }
 
-  getEffectiveGroupKey(): FocusGroupKey | undefined {
-    return this.groupConfig.key;
+  getEffectiveRovingKey(): FocusRovingKey | undefined {
+    return this.rovingConfig.key;
   }
 
   getFocusableConfig(): FocusableConfig {
@@ -665,8 +722,8 @@ class FocusModuleImpl extends ModuleBase {
     return this.scopeConfig;
   }
 
-  getGroupConfig(): FocusGroupConfig {
-    return this.groupConfig;
+  getRovingConfig(): FocusRovingConfig {
+    return this.rovingConfig;
   }
 
   getFacts(): FocusFacts {
@@ -708,7 +765,8 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
       const impl = new FocusModuleImpl(caps, init.prototypeName, eventPort, statePort, stateFacade);
       const port: FocusPort = {
         configureFocusable: (patch) => impl.configureFocusable(patch),
-        configureGroup: (patch) => impl.configureGroup(patch),
+        configureRoving: (patch) => impl.configureRoving(patch),
+        configureGroup: (patch) => impl.configureRoving(patch),
         configureScope: (patch) => impl.configureScope(patch),
         setDisabled: (disabled) => impl.setDisabled(disabled),
         requestFocus: (options) => impl.requestFocus(options),
@@ -719,10 +777,15 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         focusPrev: () => impl.focusPrev(),
         focusSelected: () => impl.focusSelected(),
         restoreFocus: () => impl.restoreFocus(),
-        getEffectiveGroupKey: () => impl.getEffectiveGroupKey(),
+        activateScope: () => impl.activateScope(),
+        deactivateScope: () => impl.deactivateScope(),
+        isScopeActive: () => impl.isScopeActive(),
+        getEffectiveRovingKey: () => impl.getEffectiveRovingKey(),
+        getEffectiveGroupKey: () => impl.getEffectiveRovingKey(),
         getEffectiveScopeKey: () => impl.getEffectiveScopeKey(),
         getFocusableConfig: () => impl.getFocusableConfig(),
-        getGroupConfig: () => impl.getGroupConfig(),
+        getRovingConfig: () => impl.getRovingConfig(),
+        getGroupConfig: () => impl.getRovingConfig(),
         getScopeConfig: () => impl.getScopeConfig(),
         getFacts: () => impl.getFacts(),
         getWarnings: () => impl.getWarnings(),
@@ -731,7 +794,7 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
       return {
         facade: {
           getFocusable: () => impl.getFocusable(),
-          getGroup: () => impl.getGroup(),
+          getRoving: () => impl.getRoving(),
           getScope: () => impl.getScope(),
         },
         hooks: {
