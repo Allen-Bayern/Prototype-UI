@@ -146,8 +146,8 @@ export interface FocusScopeHandle<P extends PropsBaseType = PropsBaseType> {
   focusPrev(): void;
   focusSelected(): void;
   restoreFocus(): void;
-  activate(): void;
-  deactivate(): void;
+  activate(options?: FocusRequestOptions): void;
+  deactivate(options?: FocusRequestOptions): void;
   isActive(): boolean;
 
   configure(patch: FocusScopeConfigPatch): void;

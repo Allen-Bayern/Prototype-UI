@@ -92,6 +92,7 @@ class FocusModuleImpl extends ModuleBase {
   private didAutoFocus = false;
   private keyboardModality = false;
   private hostEventsWired = false;
+  private scopeEventsWired = false;
 
   private readonly focusedOwned: OwnedStateHandle<boolean>;
   private readonly focusVisibleOwned: OwnedStateHandle<boolean>;
@@ -152,8 +153,8 @@ class FocusModuleImpl extends ModuleBase {
       focusPrev: () => this.focusPrev(),
       focusSelected: () => this.focusSelected(),
       restoreFocus: () => this.restoreFocus(),
-      activate: () => this.activateScope(),
-      deactivate: () => this.deactivateScope(),
+      activate: (options?: FocusRequestOptions) => this.activateScope(options),
+      deactivate: (options?: FocusRequestOptions) => this.deactivateScope(options),
       isActive: () => this.isScopeActive(),
       configure: (patch: FocusScopeConfigPatch) => this.configureScope(patch),
       getRoving: () => this.getRoving(),
@@ -246,6 +247,9 @@ class FocusModuleImpl extends ModuleBase {
           this.requestFocusDirect(options);
         });
       },
+      clearFocus: (reason: unknown) => {
+        this.runInCallbackScope(() => this.clearFocus(reason));
+      },
       setScopeActive: (active: boolean) => this.setScopeActive(active),
       pushWarning: (message: string) => this.warnings.push(message),
     };
@@ -290,6 +294,7 @@ class FocusModuleImpl extends ModuleBase {
 
   private declareScope(): void {
     this.scopeDeclared = true;
+    this.wireScopeKeyEvents();
     this.syncCenter();
   }
 
@@ -323,11 +328,35 @@ class FocusModuleImpl extends ModuleBase {
       );
       this.setFocusState(this.activeOwned, true, 'reason: focus.host:focus => active');
       this.setFocusState(this.hasFocusedOwned, true, 'reason: focus.host:focus => hasFocused');
+      const entry = this.createCenterEntry();
+      if (entry) FOCUS_CENTER.noteFocused(entry);
     });
     this.eventPort.on('host:blur', () => {
       this.setFocusState(this.focusedOwned, false, 'reason: focus.host:blur => focused');
       this.setFocusState(this.focusVisibleOwned, false, 'reason: focus.host:blur => focusVisible');
       this.setFocusState(this.activeOwned, false, 'reason: focus.host:blur => active');
+    });
+  }
+
+  private wireScopeKeyEvents(): void {
+    if (this.scopeEventsWired) return;
+    this.scopeEventsWired = true;
+
+    this.eventPort.onGlobal('key.down', (ev) => {
+      if (!this.scopeDeclared) return;
+      if (!this.scopeConfig.trap) return;
+      if (this.scopeConfig.navigation !== 'tab' && this.scopeConfig.navigation !== 'tab+arrow') {
+        return;
+      }
+
+      const detail = ev?.detail;
+      if (detail?.key !== 'Tab') return;
+
+      const entry = this.createCenterEntry();
+      if (!entry || !FOCUS_CENTER.isTopActiveScope(entry)) return;
+
+      detail?.preventDefault?.();
+      FOCUS_CENTER.focusInScope(entry, detail?.shiftKey ? 'prev' : 'next');
     });
   }
 
@@ -554,6 +583,12 @@ class FocusModuleImpl extends ModuleBase {
     this.setFocusState(this.hasFocusedOwned, true, options?.reason ?? 'programmatic');
   }
 
+  private clearFocus(reason: unknown): void {
+    this.setFocusState(this.focusedOwned, false, reason);
+    this.setFocusState(this.focusVisibleOwned, false, reason);
+    this.setFocusState(this.activeOwned, false, reason);
+  }
+
   requestFocus(options?: FocusRequestOptions): void {
     if (!this.focusableDeclared || this.focusableConfig.disabled) return;
     const entry = this.createCenterEntry();
@@ -649,20 +684,20 @@ class FocusModuleImpl extends ModuleBase {
     this.requestFocus({ reason: 'programmatic' });
   }
 
-  activateScope(): void {
+  activateScope(options?: FocusRequestOptions): void {
     this.declareScope();
     const entry = this.createCenterEntry();
     if (!entry) return;
-    FOCUS_CENTER.activateScope(entry);
+    FOCUS_CENTER.activateScope(entry, options);
   }
 
-  deactivateScope(): void {
+  deactivateScope(options?: FocusRequestOptions): void {
     const entry = this.createCenterEntry();
     if (!entry) {
       this.setScopeActive(false);
       return;
     }
-    FOCUS_CENTER.deactivateScope(entry);
+    FOCUS_CENTER.deactivateScope(entry, options);
   }
 
   isScopeActive(): boolean {
@@ -777,8 +812,8 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         focusPrev: () => impl.focusPrev(),
         focusSelected: () => impl.focusSelected(),
         restoreFocus: () => impl.restoreFocus(),
-        activateScope: () => impl.activateScope(),
-        deactivateScope: () => impl.deactivateScope(),
+        activateScope: (options) => impl.activateScope(options),
+        deactivateScope: (options) => impl.deactivateScope(options),
         isScopeActive: () => impl.isScopeActive(),
         getEffectiveRovingKey: () => impl.getEffectiveRovingKey(),
         getEffectiveGroupKey: () => impl.getEffectiveRovingKey(),

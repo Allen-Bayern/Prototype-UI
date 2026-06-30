@@ -1,7 +1,11 @@
 import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
 
+export type DialogOpenFocusReason = 'programmatic' | 'keyboard' | 'pointer';
+
 export type DialogContextValue = {
   open: boolean;
+  openFocusReason: DialogOpenFocusReason | null;
+  returnFocusReason: DialogOpenFocusReason | null;
   controlled: boolean;
   disabled: boolean;
   alert: boolean;

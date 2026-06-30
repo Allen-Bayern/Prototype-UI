@@ -54,6 +54,7 @@ describe('prototypes/shadcn: dialog', () => {
     expect(styleContains(content, 'shadow-lg')).toBe(true);
     expect(styleContains(title, 'text-lg')).toBe(true);
     expect(styleContains(description, 'text-muted-foreground')).toBe(true);
+    expect(document.activeElement).toBe(close);
 
     close.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();

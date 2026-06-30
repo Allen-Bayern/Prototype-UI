@@ -49,4 +49,35 @@ describe('adapter-vue: focus wiring', () => {
 
     mounted.unmount();
   });
+
+  it('clears previous focus facts when another focusable receives host focus', async () => {
+    const createProto = (name: string) =>
+      definePrototype({
+        name,
+        setup() {
+          asButton();
+          return (r) => [r.el('button', name)];
+        },
+      });
+
+    const first = createMountedVueAdapter(createProto('vue-focus-unique-first'));
+    const second = createMountedVueAdapter(createProto('vue-focus-unique-second'));
+    await flushVue();
+
+    try {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+      first.root?.dispatchEvent(new FocusEvent('focus'));
+      expect(first.vm.getExposes().focused.get()).toBe(true);
+      expect(first.vm.getExposes().focusVisible.get()).toBe(true);
+
+      second.root?.dispatchEvent(new FocusEvent('focus'));
+      expect(second.vm.getExposes().focused.get()).toBe(true);
+      expect(second.vm.getExposes().focusVisible.get()).toBe(true);
+      expect(first.vm.getExposes().focused.get()).toBe(false);
+      expect(first.vm.getExposes().focusVisible.get()).toBe(false);
+    } finally {
+      second.unmount();
+      first.unmount();
+    }
+  });
 });
