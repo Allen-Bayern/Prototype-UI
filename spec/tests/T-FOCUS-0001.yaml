@@ -28,6 +28,12 @@ cases:
       - C-FOCUS-0001-C
       - C-AS-FOCUSABLE-0001-C
     expectation: focus-facts-observed-state-handles
+  - id: T-FOCUS-0001-CASE-UNIQUE-OWNER
+    title: A new host focus owner clears stale focus facts from the previous owner
+    covers:
+      - C-FOCUS-0001-E
+      - C-FOCUS-0001-F
+    expectation: focus-center-clears-stale-owner-without-blur
   - id: T-FOCUS-0001-CASE-DISABLED
     title: Disabled focusable rejects focus requests
     covers:
@@ -50,14 +56,31 @@ implementations:
       - T-FOCUS-0001-CASE-SCOPE-ONCE
       - T-FOCUS-0001-CASE-SETUP-ONLY
       - T-FOCUS-0001-CASE-FACT-HANDLES
+      - T-FOCUS-0001-CASE-UNIQUE-OWNER
       - T-FOCUS-0001-CASE-DISABLED
       - T-FOCUS-0001-CASE-SCOPE-CONTAINER
+  - id: adapter-react-focus-unique-owner
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/focus.test.ts
+    required: false
+    consumesCases:
+      - T-FOCUS-0001-CASE-UNIQUE-OWNER
+  - id: adapter-vue-focus-unique-owner
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/focus.test.ts
+    required: false
+    consumesCases:
+      - T-FOCUS-0001-CASE-UNIQUE-OWNER
 verifies:
   contracts:
     - id: C-FOCUS-0001
       anchors:
         - C-FOCUS-0001-C
         - C-FOCUS-0001-D
+        - C-FOCUS-0001-E
+        - C-FOCUS-0001-F
     - id: C-AS-FOCUSABLE-0001
       anchors:
         - C-AS-FOCUSABLE-0001-A
@@ -75,6 +98,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Mapped existing focus runtime contract tests to focus target and scope contracts.
+  - version: 0.1.1
+    change: refined
+    summary: Added unique focus owner coverage and cross-adapter focus fact cleanup implementations.
 tags:
   - focus
   - as-focusable

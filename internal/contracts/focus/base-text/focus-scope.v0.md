@@ -139,15 +139,19 @@ Activation is an explicit runtime action:
 - activating a scope marks that scope as the active coordination boundary;
 - activation records the previously focused logical target when that target is outside the activating scope;
 - activation requests focus for the first eligible logical focusable child when one exists, except when `entry: manual` leaves entry focus to the caller;
+- activation forwards the focus request reason to entry focus so keyboard-triggered entry keeps keyboard modality;
 - if no eligible child exists, `emptyPolicy: container` may activate the scope boundary without forging node focus.
 
 Deactivation is also explicit:
 
 - deactivation clears the scope active fact;
 - deactivation restores focus to the previously captured focus target when that target still exists;
+- deactivation forwards the focus request reason to restored focus so keyboard-triggered close keeps keyboard modality;
 - restore is a controlled focus transfer and may bypass the active-scope gate that ordinary outside focus requests must obey.
 
 While a scope is active, ordinary focus requests from outside that scope should be ignored with a diagnostic warning. Focus requests from the active scope or its logical descendants remain allowed.
+
+When trap/loop is enabled on the top active scope, Tab navigation should be interpreted as structured next/previous focus requests within that scope and should prevent host default traversal from escaping the scope. If the scope temporarily has no focused child because of pointer interaction on blank space or host variance, the next Tab navigation should recover from the last remembered scoped target or from the first/last eligible child.
 
 ---
 
