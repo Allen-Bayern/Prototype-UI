@@ -95,6 +95,7 @@ const UI_TEXT = {
     language: 'Language',
     entityTypes: {
       contract: 'Contracts',
+      prototype: 'Prototypes',
       module: 'Modules',
       decision: 'Decisions',
       'host-cap': 'Host Capabilities',
@@ -182,6 +183,7 @@ const UI_TEXT = {
     language: '语言',
     entityTypes: {
       contract: '契约',
+      prototype: '原型',
       module: '模块',
       decision: '决策',
       'host-cap': 'Host 能力',
@@ -1381,6 +1383,7 @@ function getGraphNodeRadius(id: string, selectedId: string | null): number {
 function getEntityTypePrefix(type: SpecEntity['type']): string {
   const prefixes: Record<SpecEntity['type'], string> = {
     contract: 'C',
+    prototype: 'P',
     module: 'M',
     decision: 'D',
     'host-cap': 'HC',
@@ -1401,12 +1404,13 @@ function getOrderedEntityTypes(groups: Record<string, SpecEntity[]>): Array<Spec
 function getEntityTypeOrder(type: SpecEntity['type']): number {
   const order: Record<SpecEntity['type'], number> = {
     contract: 0,
-    test: 1,
-    module: 2,
-    knowledge: 3,
-    decision: 4,
-    'host-cap': 5,
-    version: 6,
+    prototype: 1,
+    test: 2,
+    module: 3,
+    knowledge: 4,
+    decision: 5,
+    'host-cap': 6,
+    version: 7,
   };
 
   return order[type] ?? 99;

@@ -1,0 +1,54 @@
+id: D-PROTOTYPE-ENTITY-NAMING-0001
+type: decision
+title: Prototype contract entities use singleton P-prefixed protocol identities
+status: draft
+since: 0.1.0
+summary: Prototype-level contract catalog entries use the singleton `P-{PROTOCOL}` entity family and describe one stable prototype protocol, not one implementation file or one authoring form.
+statement:
+  zh-CN: >-
+    第一轮原型编目中，prototype-level contract entity 使用 `P-{PROTOCOL}` 标识，例如 `P-BASE-BUTTON`。一个 `P-*` 实体描述一个稳定 prototype protocol，并且同一原型协议默认只有一个 P 实体，不使用 `0001` 序号拆分。direct prototype form、authored asHook form 或其他官方 authoring entry 可以作为该实体的多个 authoring entries 记录。`P-*` 实体可以依赖 `C-*` 核心契约与特权 asHook 契约，但不把这些依赖重新定义为自身拥有的核心语义。
+
+
+  en: >-
+    In the first prototype cataloging pass, prototype-level contract entities use the `P-{PROTOCOL}` identifier family, such as `P-BASE-BUTTON`. A `P-*` entity describes one stable prototype protocol, and each prototype protocol has one P entity by default rather than `0001`-sequenced splits. Direct prototype forms, authored asHook forms, or other official authoring entries for the same protocol may be recorded as multiple authoring entries of that entity. A `P-*` entity may depend on `C-*` core contracts and privileged asHook contracts, but must not redefine those dependencies as core semantics owned by the prototype itself.
+
+
+criteria:
+  - id: D-PROTOTYPE-ENTITY-NAMING-0001-A
+    text:
+      zh-CN: 'Prototype contract entities 必须使用 `P-*` 前缀，而不是复用 `C-*` 核心契约前缀。'
+      en: 'Prototype contract entities must use the `P-*` prefix instead of reusing the `C-*` core-contract prefix.'
+  - id: D-PROTOTYPE-ENTITY-NAMING-0001-B
+    text:
+      zh-CN: '一个 `P-*` 实体描述一个 prototype protocol；它不得仅表示某个源码文件、包导出名或宿主 adapter 产物。'
+      en: 'A `P-*` entity describes one prototype protocol; it must not merely represent one source file, package export name, or host-adapter artifact.'
+  - id: D-PROTOTYPE-ENTITY-NAMING-0001-C
+    text:
+      zh-CN: '同一 prototype protocol 默认只允许一个 P 实体，并应使用 `P-{PROTOCOL}` 形态，例如 `P-BASE-BUTTON`；不得使用 `P-BASE-BUTTON-0001` 作为首选形态。'
+      en: 'One prototype protocol should have one P entity by default and should use the `P-{PROTOCOL}` shape, such as `P-BASE-BUTTON`; `P-BASE-BUTTON-0001` must not be the preferred shape.'
+  - id: D-PROTOTYPE-ENTITY-NAMING-0001-D
+    text:
+      zh-CN: '当 direct prototype 与 authored asHook 共享同一协议面时，必须在同一个 `P-*` 实体中记录为不同 authoring entries。'
+      en: 'When a direct prototype and an authored asHook share the same protocol surface, they must be recorded as distinct authoring entries in the same `P-*` entity.'
+  - id: D-PROTOTYPE-ENTITY-NAMING-0001-E
+    text:
+      zh-CN: '`P-*` 实体对核心能力的使用应通过 `dependsOn.contracts` 指向已有 `C-*` 契约，而不是在原型实体中重新定义核心能力。'
+      en: 'A `P-*` entity should point to existing `C-*` contracts through `dependsOn.contracts` for core capabilities instead of redefining those capabilities inside the prototype entity.'
+sources:
+  - path: internal/records/2026-06-26-core-compaction-fracture-inventory.zh-CN.md
+    sections:
+      - F-012
+  - path: internal/contracts/prototype-base/button.v0.md
+  - path: packages/prototypes/base/src/button/button.ts
+relates:
+  knowledge:
+    - K-COMPONENT-INTERACTION-0001
+    - K-PROTOTYPE-COMPOSITION-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Closed the minimum naming decision needed to start prototype-level P entity cataloging.
+tags:
+  - prototype
+  - catalog
+  - naming

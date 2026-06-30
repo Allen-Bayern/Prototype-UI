@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const SPEC_ENTITY_TYPES = [
   'contract',
+  'prototype',
   'module',
   'decision',
   'host-cap',
@@ -12,6 +13,7 @@ export const SPEC_ENTITY_TYPES = [
 
 export const SPEC_ENTITY_PREFIXES = {
   contract: 'C',
+  prototype: 'P',
   module: 'M',
   decision: 'D',
   'host-cap': 'HC',
@@ -78,10 +80,11 @@ export type SpecIdParts = {
   id: string;
   prefix: string;
   domain: string;
-  number: number;
+  number?: number;
 };
 
-const specIdPattern = /^(C|M|D|HC|T|V|K)-([A-Z0-9]+(?:-[A-Z0-9]+)*)-(\d{4})$/;
+const specIdPattern =
+  /^(?:(P)-([A-Z0-9]+(?:-[A-Z0-9]+)*)|((?:C|M|D|HC|T|V|K)-([A-Z0-9]+(?:-[A-Z0-9]+)*)-(\d{4})))$/;
 const semverPattern = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 
 export const specVersionSchema = z.string().regex(semverPattern, 'Expected a semver version.');
@@ -111,6 +114,7 @@ export const specRelationTargetSchema = z
 export const specRelationsSchema = z
   .object({
     contracts: z.array(specRelationTargetSchema).optional(),
+    prototypes: z.array(specRelationTargetSchema).optional(),
     modules: z.array(specRelationTargetSchema).optional(),
     decisions: z.array(specRelationTargetSchema).optional(),
     hostCaps: z.array(specRelationTargetSchema).optional(),
@@ -340,9 +344,9 @@ export function parseSpecId(id: string): SpecIdParts {
 
   return {
     id,
-    prefix: match[1],
-    domain: match[2],
-    number: Number(match[3]),
+    prefix: match[1] ?? match[3].split('-', 1)[0],
+    domain: match[2] ?? match[4],
+    number: match[5] ? Number(match[5]) : undefined,
   };
 }
 

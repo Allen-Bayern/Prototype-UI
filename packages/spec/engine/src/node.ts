@@ -144,6 +144,7 @@ function validateEntityTimelines(loaded: LoadedSpecEntity[], issues: SpecValidat
 
 const RELATION_TARGET_TYPES = {
   contracts: 'contract',
+  prototypes: 'prototype',
   modules: 'module',
   decisions: 'decision',
   hostCaps: 'host-cap',
