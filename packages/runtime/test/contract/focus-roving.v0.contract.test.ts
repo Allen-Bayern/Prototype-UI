@@ -14,6 +14,8 @@ import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module
 import type { PropsBaseType } from '@proto.ui/types';
 
 const createHost = <P extends PropsBaseType>(name: string) => {
+  const rootTarget = new EventTarget();
+  const globalTarget = new EventTarget();
   const host: RuntimeHost<P> = {
     prototypeName: name,
     getRawProps: () => ({}) as any,
@@ -22,6 +24,12 @@ const createHost = <P extends PropsBaseType>(name: string) => {
     },
     schedule(task) {
       task();
+    },
+    onRuntimeReady(wiring) {
+      wiring.attach('event', [
+        [EVENT_ROOT_TARGET_CAP, () => rootTarget],
+        [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+      ]);
     },
   };
 

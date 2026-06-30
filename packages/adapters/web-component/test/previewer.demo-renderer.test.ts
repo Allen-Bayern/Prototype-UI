@@ -2,9 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { loadPrototypes } from '../../../../apps/www/src/components/PrototypePreviewer/prototype-modules';
 import { renderDemo } from '../../../../apps/www/src/components/PrototypePreviewer/demo-renderer';
 import demo from '../../../../apps/www/src/content/docs/demo_components/tabs/demo-shadcn-tabs.demo';
+import baseDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-dialog.demo';
+import shadcnDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-shadcn-dialog.demo';
 
 function styleContains(el: Element | null, token: string): boolean {
   return (el?.getAttribute('data-pui-style') ?? '').split(/\s+/).includes(token);
+}
+
+async function settle() {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
 }
 
 describe('PrototypePreviewer demo-renderer / wc', () => {
@@ -43,6 +51,96 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     expect(styleContains(list, 'inline-flex')).toBe(true);
     expect(styleContains(trigger, 'rounded-lg')).toBe(true);
     expect(styleContains(content, 'min-h-28')).toBe(true);
+
+    await session.destroy();
+    host.remove();
+  });
+
+  it('moves focus into the base dialog demo when opened', async () => {
+    await loadPrototypes([
+      'base-dialog-root',
+      'base-dialog-trigger',
+      'base-dialog-mask',
+      'base-dialog-content',
+      'base-dialog-title',
+      'base-dialog-description',
+      'base-dialog-close',
+    ]);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const session = await renderDemo({
+      runtime: 'wc',
+      demo: baseDialogDemo as any,
+      host,
+    });
+
+    await settle();
+
+    const trigger = host.querySelector('wc-base-dialog-trigger') as HTMLElement | null;
+    const content = host.querySelector('wc-base-dialog-content') as HTMLElement | null;
+    const close = host.querySelector('wc-base-dialog-close') as HTMLElement | null;
+
+    expect(trigger).not.toBeNull();
+    expect(content).not.toBeNull();
+    expect(close).not.toBeNull();
+    expect(styleContains(content, 'hidden')).toBe(true);
+
+    trigger?.focus();
+    trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await settle();
+
+    expect(styleContains(content, 'hidden')).toBe(false);
+    expect(document.activeElement).toBe(close);
+
+    close?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await settle();
+
+    await session.destroy();
+    host.remove();
+  });
+
+  it('moves focus into the shadcn dialog demo when opened', async () => {
+    await loadPrototypes([
+      'shadcn-dialog-root',
+      'shadcn-dialog-trigger',
+      'shadcn-dialog-mask',
+      'shadcn-dialog-content',
+      'shadcn-dialog-title',
+      'shadcn-dialog-description',
+      'shadcn-dialog-close',
+    ]);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const session = await renderDemo({
+      runtime: 'wc',
+      demo: shadcnDialogDemo as any,
+      host,
+    });
+
+    await settle();
+
+    const trigger = host.querySelector('wc-shadcn-dialog-trigger') as HTMLElement | null;
+    const content = host.querySelector('wc-shadcn-dialog-content') as HTMLElement | null;
+    const close = host.querySelector('wc-shadcn-dialog-close') as HTMLElement | null;
+
+    expect(trigger).not.toBeNull();
+    expect(content).not.toBeNull();
+    expect(close).not.toBeNull();
+    expect(styleContains(content, 'hidden')).toBe(true);
+
+    trigger?.focus();
+    trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await settle();
+
+    expect(styleContains(content, 'hidden')).toBe(false);
+    expect(document.activeElement).toBe(close);
+
+    close?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await settle();
 
     await session.destroy();
     host.remove();

@@ -11,7 +11,11 @@ import {
   ANATOMY_ROOT_TARGET_CAP,
 } from '@proto.ui/module-anatomy';
 import { CONTEXT_INSTANCE_TOKEN_CAP, CONTEXT_PARENT_CAP } from '@proto.ui/module-context';
-import { FOCUS_INSTANCE_TOKEN_CAP, FOCUS_PARENT_CAP } from '@proto.ui/module-focus';
+import {
+  FOCUS_INSTANCE_TOKEN_CAP,
+  FOCUS_PARENT_CAP,
+  FOCUS_RUN_IN_CALLBACK_CAP,
+} from '@proto.ui/module-focus';
 import {
   AS_TRIGGER_GET_PROTO_CAP,
   AS_TRIGGER_INSTANCE_CAP,
@@ -81,6 +85,7 @@ function createDropdownRuntimeTree(options?: {
     const scheduled: Array<() => void> = [];
     let raw = { ...(args.raw ?? {}) };
     let exposes: Record<string, any> | null = null;
+    let runInCallbackScope: ((fn: () => void) => void) | null = null;
 
     const host: RuntimeHost<any> = {
       prototypeName: args.prototypeName,
@@ -112,6 +117,16 @@ function createDropdownRuntimeTree(options?: {
         wiring.attach('focus', [
           [FOCUS_INSTANCE_TOKEN_CAP, args.target],
           [FOCUS_PARENT_CAP, (instance: unknown) => parents.get(instance) ?? null],
+          [
+            FOCUS_RUN_IN_CALLBACK_CAP,
+            (fn: () => void) => {
+              if (runInCallbackScope) {
+                runInCallbackScope(fn);
+                return;
+              }
+              fn();
+            },
+          ],
         ]);
         wiring.attach('as-trigger', [
           [AS_TRIGGER_INSTANCE_CAP, args.target],
@@ -126,6 +141,9 @@ function createDropdownRuntimeTree(options?: {
       scheduled,
       target: args.target,
       getExposes: () => exposes,
+      setRunInCallbackScope(next: (fn: () => void) => void) {
+        runInCallbackScope = next;
+      },
       applyRawProps(next: Record<string, unknown>) {
         raw = { ...next };
       },
@@ -158,6 +176,10 @@ function createDropdownRuntimeTree(options?: {
     itemA: executeWithHost(dropdownItem as any, itemA.host as any),
     itemB: executeWithHost(dropdownItem as any, itemB.host as any),
   };
+  root.setRunInCallbackScope(execs.root.invokeInCallbackScope);
+  content.setRunInCallbackScope(execs.content.invokeInCallbackScope);
+  itemA.setRunInCallbackScope(execs.itemA.invokeInCallbackScope);
+  itemB.setRunInCallbackScope(execs.itemB.invokeInCallbackScope);
 
   const syncAll = () => {
     execs.root.controller.update();

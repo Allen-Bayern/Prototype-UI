@@ -530,6 +530,12 @@ importers:
       '@proto.ui/module-base':
         specifier: workspace:*
         version: link:../base
+      '@proto.ui/module-event':
+        specifier: workspace:*
+        version: link:../event
+      '@proto.ui/module-state':
+        specifier: workspace:*
+        version: link:../state
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types

@@ -30,6 +30,14 @@ criteria:
     text:
       zh-CN: Focus requests 是对宿主/runtime 的请求，不得被解释为原型作者直接写入 focus facts。
       en: Focus requests are requests to the host/runtime and must not be treated as prototype-author writes to focus facts.
+  - id: C-FOCUS-0001-E
+    text:
+      zh-CN: 同一 focus domain 内，长期 `focused` 与 `focusVisible` 事实必须保持唯一主 owner；当新的 focusable 通过 focus request 或 host focus 上报成为 owner 时，runtime 必须清理其他 focusable 上残留的 `focused`、`focusVisible` 与 `active` 事实。
+      en: Within one focus domain, long-lived `focused` and `focusVisible` facts must keep a single primary owner; when a new focusable becomes the owner through a focus request or host focus report, runtime must clear stale `focused`, `focusVisible`, and `active` facts on other focusables.
+  - id: C-FOCUS-0001-F
+    text:
+      zh-CN: 焦点事实唯一性不得完全依赖宿主一定会投递 blur；adapter、commit gate 或宿主差异导致 blur 缺失时，focus center 仍必须维持内部事实一致性。
+      en: Focus fact uniqueness must not rely entirely on the host always delivering blur; if adapter, commit gate, or host variance causes blur to be missed, the focus center must still preserve internal fact consistency.
 sources:
   - path: internal/contracts/focus/base-text/focus-domain.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -37,6 +45,14 @@ sources:
   - path: packages/modules/focus/src/create.ts
     sections:
       - FocusModuleImpl
+  - path: packages/modules/focus/src/center.ts
+    sections:
+      - FocusCenter
+      - FocusCenter.requestFocus
+      - FocusCenter.noteFocused
+  - path: packages/runtime/test/contract/focus.v0.contract.test.ts
+    sections:
+      - FOCUS-0470
 dependsOn:
   contracts:
     - C-AS-HOOK-PRIVILEGED-0001
@@ -48,6 +64,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured the baseline focus domain model after the logical-tree focus discussion.
+  - version: 0.1.1
+    change: refined
+    summary: Added focus fact uniqueness and stale fact cleanup requirements learned from cross-adapter dialog focus behavior.
 tags:
   - focus
   - domain

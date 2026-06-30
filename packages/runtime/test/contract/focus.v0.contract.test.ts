@@ -322,6 +322,58 @@ describe('runtime contract: focus (v0)', () => {
     expect(result.controller.getRuleStyleTokens()).toContain('ring-2');
   });
 
+  it('FOCUS-0470: host focus clears stale focus facts from the previous owner', () => {
+    let first!: FocusableHandle<PropsBaseType>;
+    let second!: FocusableHandle<PropsBaseType>;
+
+    const First = definePrototype({
+      name: 'x-focus-0470-first',
+      setup() {
+        first = asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'first');
+      },
+    });
+    const Second = definePrototype({
+      name: 'x-focus-0470-second',
+      setup() {
+        second = asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'second');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['first', 0],
+      ['second', 1],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      first: new FocusTarget('first', order),
+      second: new FocusTarget('second', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.first, null],
+      [targets.second, null],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(First as any, createTreeHost(First.name, targets.first, hostOptions) as any);
+    executeWithHost(Second as any, createTreeHost(Second.name, targets.second, hostOptions) as any);
+
+    globalTarget.dispatchEvent(new Event('key.down'));
+    targets.first.dispatchEvent(new Event('host:focus'));
+
+    expect(first.focused.get()).toBe(true);
+    expect(first.focusVisible.get()).toBe(true);
+
+    targets.second.dispatchEvent(new Event('host:focus'));
+
+    expect(second.focused.get()).toBe(true);
+    expect(second.focusVisible.get()).toBe(true);
+    expect(first.focused.get()).toBe(false);
+    expect(first.focusVisible.get()).toBe(false);
+  });
+
   it('FOCUS-0500: disabled focusable rejects focus requests', () => {
     let focusable!: FocusableHandle<PropsBaseType>;
 

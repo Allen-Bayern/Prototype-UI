@@ -25,6 +25,7 @@ export type FocusCenterEntry = {
   getFacts(): FocusFacts;
   getRootTarget(): HTMLElement | null;
   requestFocus(options?: FocusRequestOptions, behavior?: FocusRequestBehavior): void;
+  clearFocus(reason: unknown): void;
   setScopeActive(active: boolean): void;
   pushWarning(message: string): void;
 };
@@ -37,6 +38,7 @@ type ActiveScopeRecord = {
 export class FocusCenter {
   private readonly entries = new Map<FocusInstanceToken, FocusCenterEntry>();
   private readonly activeScopes: ActiveScopeRecord[] = [];
+  private readonly lastFocusedByScope = new Map<FocusInstanceToken, FocusInstanceToken>();
   private currentFocused: FocusInstanceToken | null = null;
 
   upsert(entry: FocusCenterEntry): void {
@@ -46,6 +48,10 @@ export class FocusCenter {
   remove(instance: FocusInstanceToken): void {
     this.entries.delete(instance);
     if (this.currentFocused === instance) this.currentFocused = null;
+    this.lastFocusedByScope.delete(instance);
+    for (const [scope, focused] of this.lastFocusedByScope) {
+      if (focused === instance) this.lastFocusedByScope.delete(scope);
+    }
     for (let i = this.activeScopes.length - 1; i >= 0; i--) {
       if (this.activeScopes[i]?.scope === instance || this.activeScopes[i]?.previous === instance) {
         this.activeScopes.splice(i, 1);
@@ -114,10 +120,20 @@ export class FocusCenter {
   private getFocusedEntry(): FocusCenterEntry | null {
     if (this.currentFocused) {
       const entry = this.entries.get(this.currentFocused);
-      if (entry) return entry;
+      if (entry?.getFacts().focused) return entry;
       this.currentFocused = null;
     }
     return Array.from(this.entries.values()).find((entry) => entry.getFacts().focused) ?? null;
+  }
+
+  private clearOtherFocusedEntries(next: FocusCenterEntry, reason: unknown): void {
+    for (const entry of this.entries.values()) {
+      if (entry.instance === next.instance) continue;
+      if (!entry.isFocusable()) continue;
+      const facts = entry.getFacts();
+      if (!facts.focused && !facts.focusVisible && !facts.active) continue;
+      entry.clearFocus(reason);
+    }
   }
 
   private getScopeMembers(scope: FocusCenterEntry): FocusCenterEntry[] {
@@ -152,14 +168,28 @@ export class FocusCenter {
       );
       return false;
     }
+    this.clearOtherFocusedEntries(entry, options?.reason ?? 'focus.request');
     entry.requestFocus(options, behavior);
     if (behavior?.syncFacts !== false) {
       this.currentFocused = entry.instance;
     }
+    this.noteFocused(entry);
     return true;
   }
 
-  activateScope(scope: FocusCenterEntry): boolean {
+  noteFocused(entry: FocusCenterEntry): void {
+    this.clearOtherFocusedEntries(entry, 'focus.host:focus');
+    this.currentFocused = entry.instance;
+    for (const record of this.activeScopes) {
+      const scope = this.entries.get(record.scope);
+      if (!scope?.isScopeProvider()) continue;
+      if (this.isDescendantOf(entry, scope)) {
+        this.lastFocusedByScope.set(scope.instance, entry.instance);
+      }
+    }
+  }
+
+  activateScope(scope: FocusCenterEntry, options?: FocusRequestOptions): boolean {
     if (!scope.isScopeProvider()) return false;
 
     const existingIndex = this.activeScopes.findIndex((record) => record.scope === scope.instance);
@@ -178,7 +208,7 @@ export class FocusCenter {
       ? (this.getRovingMembers(scope)[0] ?? null)
       : (this.getScopeMembers(scope)[0] ?? null);
     if (target) {
-      this.requestFocus(target, { reason: 'programmatic' }, { syncFacts: true });
+      this.requestFocus(target, options ?? { reason: 'programmatic' }, { syncFacts: true });
       return true;
     }
 
@@ -188,7 +218,7 @@ export class FocusCenter {
     return false;
   }
 
-  deactivateScope(scope: FocusCenterEntry): boolean {
+  deactivateScope(scope: FocusCenterEntry, options?: FocusRequestOptions): boolean {
     let index = -1;
     for (let i = this.activeScopes.length - 1; i >= 0; i--) {
       if (this.activeScopes[i]?.scope === scope.instance) {
@@ -206,20 +236,49 @@ export class FocusCenter {
 
     const previousEntry = previous ? (this.entries.get(previous) ?? null) : null;
     if (previousEntry) {
-      this.requestFocus(
-        previousEntry,
-        { reason: 'programmatic' },
-        {
-          bypassGate: true,
-          syncFacts: true,
-        }
-      );
+      this.requestFocus(previousEntry, options ?? { reason: 'programmatic' }, {
+        bypassGate: true,
+        syncFacts: true,
+      });
     }
     return true;
   }
 
   isScopeActive(scope: FocusCenterEntry): boolean {
     return this.activeScopes.some((record) => record.scope === scope.instance);
+  }
+
+  isTopActiveScope(scope: FocusCenterEntry): boolean {
+    return this.getTopActiveScope()?.instance === scope.instance;
+  }
+
+  focusInScope(scope: FocusCenterEntry, op: 'next' | 'prev'): boolean {
+    if (!scope.isScopeProvider() || !this.isTopActiveScope(scope)) return false;
+
+    const members = this.getScopeMembers(scope);
+    if (members.length === 0) return false;
+
+    const focused = this.getFocusedEntry();
+    const remembered = this.lastFocusedByScope.get(scope.instance) ?? null;
+    const currentIndex = focused
+      ? members.findIndex((entry) => entry.instance === focused.instance)
+      : remembered
+        ? members.findIndex((entry) => entry.instance === remembered)
+        : -1;
+    const delta = op === 'next' ? 1 : -1;
+    let nextIndex =
+      currentIndex >= 0 ? currentIndex + delta : op === 'next' ? 0 : members.length - 1;
+
+    if (scope.getScopeConfig().loop) {
+      nextIndex = (nextIndex + members.length) % members.length;
+    } else {
+      nextIndex = Math.max(0, Math.min(members.length - 1, nextIndex));
+    }
+
+    const target = members[nextIndex] ?? null;
+    if (!target) return false;
+    this.requestFocus(target, { reason: 'keyboard' }, { syncFacts: false });
+    return true;
   }
 
   getRovingMembers(provider: FocusCenterEntry): FocusCenterEntry[] {

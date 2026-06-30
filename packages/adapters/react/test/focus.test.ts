@@ -47,4 +47,34 @@ describe('adapter-react: focus wiring', () => {
 
     mounted.unmount();
   });
+
+  it('clears previous focus facts when another focusable receives host focus', () => {
+    const createProto = (name: string) =>
+      definePrototype({
+        name,
+        setup() {
+          asButton();
+          return (r) => [r.el('button', name)];
+        },
+      });
+
+    const first = createMountedReactAdapter(createProto('react-focus-unique-first'));
+    const second = createMountedReactAdapter(createProto('react-focus-unique-second'));
+
+    try {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab' }));
+      first.root?.dispatchEvent(new FocusEvent('focus'));
+      expect(first.ref.current.getExposes().focused.get()).toBe(true);
+      expect(first.ref.current.getExposes().focusVisible.get()).toBe(true);
+
+      second.root?.dispatchEvent(new FocusEvent('focus'));
+      expect(second.ref.current.getExposes().focused.get()).toBe(true);
+      expect(second.ref.current.getExposes().focusVisible.get()).toBe(true);
+      expect(first.ref.current.getExposes().focused.get()).toBe(false);
+      expect(first.ref.current.getExposes().focusVisible.get()).toBe(false);
+    } finally {
+      second.unmount();
+      first.unmount();
+    }
+  });
 });

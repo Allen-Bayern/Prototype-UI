@@ -49,11 +49,14 @@ Focus facts are **system-owned**:
 
 - Component Authors may observe them
 - Component Authors must not write them directly as author-owned state
+- The focus system must keep long-lived `focused` and `focusVisible` facts internally consistent.
+- When a new focusable target becomes the owner through a focus request or host focus report, stale `focused`, `focusVisible`, and `active` facts on other focusable targets must be cleared.
 
 Focus commands are **requests**, not direct state mutation:
 
 - issuing a focus command does not itself prove focus has changed
 - actual facts must come from host/runtime resolution
+- fact uniqueness must not depend solely on the host always delivering a matching blur event.
 
 ---
 
@@ -106,7 +109,7 @@ In particular, v0 does not require:
 - identical focus granularity across adapters
 - a single implementation strategy such as DOM roving tabindex
 
-Adapters must preserve **internal consistency** for the focus semantics they implement.
+Adapters must preserve **internal consistency** for the focus semantics they implement. Within one Proto UI focus domain, a missed host blur must not leave multiple focusable targets claiming long-lived `focused` or `focusVisible` ownership.
 
 ---
 

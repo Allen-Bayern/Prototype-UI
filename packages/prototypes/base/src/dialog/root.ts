@@ -6,6 +6,8 @@ import type { DialogRootAsHookContract, DialogRootExposes, DialogRootProps } fro
 function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
   return (
     a.open === b.open &&
+    a.openFocusReason === b.openFocusReason &&
+    a.returnFocusReason === b.returnFocusReason &&
     a.controlled === b.controlled &&
     a.disabled === b.disabled &&
     a.alert === b.alert
@@ -29,6 +31,8 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
 
   def.context.provide(DIALOG_CONTEXT, {
     open: false,
+    openFocusReason: null,
+    returnFocusReason: null,
     controlled: false,
     disabled: false,
     alert: false,
@@ -41,6 +45,8 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
 
   const initialContext: DialogContextValue = {
     open: false,
+    openFocusReason: null,
+    returnFocusReason: null,
     controlled: false,
     disabled: false,
     alert: false,

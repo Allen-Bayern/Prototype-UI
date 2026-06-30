@@ -36,8 +36,8 @@ export type FocusPort = {
   focusPrev(): void;
   focusSelected(): void;
   restoreFocus(): void;
-  activateScope(): void;
-  deactivateScope(): void;
+  activateScope(options?: FocusRequestOptions): void;
+  deactivateScope(options?: FocusRequestOptions): void;
   isScopeActive(): boolean;
   getEffectiveRovingKey(): FocusRovingKey | undefined;
   getEffectiveGroupKey(): FocusRovingKey | undefined;

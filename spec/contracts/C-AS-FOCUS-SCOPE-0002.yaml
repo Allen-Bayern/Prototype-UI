@@ -38,6 +38,18 @@ criteria:
     text:
       zh-CN: active scope 自身及其 logical descendants 的 focus request 必须继续允许。
       en: Focus requests from the active scope itself and its logical descendants must remain allowed.
+  - id: C-AS-FOCUS-SCOPE-0002-G
+    text:
+      zh-CN: '`activate(options)` 与 `deactivate(options)` 必须把 focus request reason 传递给 scope entry focus 与 previous owner restore；键盘触发的 open/close 不得在 scope 边界处丢失 keyboard modality。'
+      en: '`activate(options)` and `deactivate(options)` must forward focus request reason to scope entry focus and previous-owner restore; keyboard-triggered open/close must not lose keyboard modality at the scope boundary.'
+  - id: C-AS-FOCUS-SCOPE-0002-H
+    text:
+      zh-CN: active top scope 启用 trap/loop 时，Tab 导航必须由 scope 统一解释为 scope 内 next/prev focus request，并阻止宿主默认遍历逃离 active scope。
+      en: When the active top scope enables trap/loop, Tab navigation must be interpreted by the scope as in-scope next/previous focus requests and must prevent host default traversal from escaping the active scope.
+  - id: C-AS-FOCUS-SCOPE-0002-I
+    text:
+      zh-CN: active scope 内部因指针点击空白区域或宿主差异暂时没有 focused child 时，后续 Tab 导航必须能从 scope 记忆的最近 scoped focus 或首尾 eligible child 恢复，不能让焦点遍历逃离 scope。
+      en: If an active scope temporarily has no focused child due to pointer interaction on blank space or host variance, subsequent Tab navigation must recover from the scope's remembered scoped focus or the first/last eligible child and must not let traversal escape the scope.
 sources:
   - path: internal/contracts/focus/base-text/focus-scope.v0.md
     sections:
@@ -54,12 +66,17 @@ sources:
     sections:
       - FocusModuleImpl.activateScope
       - FocusModuleImpl.deactivateScope
+      - FocusModuleImpl.wireScopeKeyEvents
   - path: packages/runtime/test/contract/focus.v0.contract.test.ts
     sections:
       - FOCUS-0800
       - FOCUS-0810
       - FOCUS-0820
       - FOCUS-0830
+  - path: packages/adapters/web-component/test/dialog-overlay.test.ts
+    sections:
+      - restores focus-visible to the trigger after keyboard close
+      - traps tab navigation inside active dialog content
 dependsOn:
   contracts:
     - C-FOCUS-0001
@@ -73,6 +90,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured explicit focus scope activation, outside request gating, and previous owner restore.
+  - version: 0.1.1
+    change: refined
+    summary: Added request reason propagation and active scope Tab trap recovery requirements from dialog focus stabilization.
 tags:
   - focus
   - focus-scope

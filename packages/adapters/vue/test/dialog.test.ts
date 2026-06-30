@@ -11,6 +11,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
@@ -45,6 +47,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
@@ -76,6 +80,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: false,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
@@ -113,6 +119,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
@@ -149,6 +157,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
@@ -180,6 +190,8 @@ describe('adapter-vue: dialog integration', () => {
       setup(def) {
         def.context.provide(DIALOG_CONTEXT, {
           open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
           controlled: false,
           disabled: false,
           alert: false,
