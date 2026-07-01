@@ -52,7 +52,7 @@ export class PropsKernel<P extends PropsBaseType> {
   private prevValid: Partial<Record<keyof P, any>> = {};
 
   private raw: Readonly<P & PropsBaseType> = Object.freeze({} as Readonly<P & PropsBaseType>);
-  private resolved: PropsSnapshot<P> = Object.freeze({} as PropsSnapshot<P>);
+  private resolved: PropsSnapshot<P> = Object.freeze({} as PropsSnapshot<P>) as PropsSnapshot<P>;
 
   private diags: PropsKernelDiag[] = [];
   private hydrated = false;
@@ -454,7 +454,7 @@ export class PropsKernel<P extends PropsBaseType> {
     this.defaultStack = [];
     this.prevValid = {};
     this.raw = Object.freeze({} as Readonly<P & PropsBaseType>);
-    this.resolved = Object.freeze({} as PropsSnapshot<P>);
+    this.resolved = Object.freeze({} as PropsSnapshot<P>) as PropsSnapshot<P>;
   }
 
   private normalizeRawInput(input: Record<string, any>): Record<string, any> {

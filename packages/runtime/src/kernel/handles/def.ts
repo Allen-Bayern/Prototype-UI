@@ -174,7 +174,7 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
       fn.state = (key: string, handle: any) => {
         ensureSetup('def.expose.state');
         expose.expose(key, handle);
-        recordCaptured(def, 'state', handle);
+        recordCaptured(def, 'state', { op: 'expose.state', key, handle });
       };
 
       fn.value = (key: string, value: any) => {

@@ -247,6 +247,51 @@ describe('runtime contract: asHook (v0)', () => {
     expect(controller.getRuleStyleTokens()).toContain('opacity-50');
   });
 
+  it('AS-HOOK-0455: expose.state key names the projected state handle', () => {
+    let named: any;
+    let publicHandle: any;
+
+    const asState = defineAsHook<
+      PropsBaseType,
+      { open: State<boolean> },
+      { state: { open: State<boolean> } }
+    >({
+      name: 'asExposeNamedState',
+      setup(def) {
+        const internalOpen = def.state.bool('@internal/open', false);
+        def.expose.state('open', internalOpen);
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0455',
+      setup(def) {
+        const res = asState();
+        named = res.stateHandles;
+        publicHandle = res.getState?.('open');
+
+        def.rule({
+          when: (w) => w.state(publicHandle).eq(true),
+          intent: (i) => i.feedback.style.use(tw('opacity-50')),
+        });
+
+        def.lifecycle.onCreated(() => {
+          publicHandle?.set(true);
+        });
+
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const { controller } = executeWithHost(P as any, host as any);
+
+    expect(typeof named?.open?.watch).toBe('function');
+    expect(named?.open).toBe(publicHandle);
+    expect(named?.['@internal/open']).toBeUndefined();
+    expect(controller.getRuleStyleTokens()).toContain('opacity-50');
+  });
+
   it('AS-HOOK-0460: event disposers are exposed but remain setup-only', () => {
     let calls = 0;
     let res: any;

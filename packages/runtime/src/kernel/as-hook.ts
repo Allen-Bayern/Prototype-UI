@@ -52,17 +52,34 @@ function isStateHandleLike(x: any): x is StateHandleLike {
 function collectNamedStateHandles(entries: unknown[]): Record<string, StateHandleLike> | undefined {
   const named = new Map<string, StateHandleLike>();
   const seenIds = new Set<unknown>();
+  const namesById = new Map<unknown, string[]>();
 
   for (const entry of entries) {
-    if (!isStateHandleLike(entry)) continue;
+    const exposeKey =
+      (entry as any)?.op === 'expose.state' && typeof (entry as any)?.key === 'string'
+        ? ((entry as any).key as string)
+        : undefined;
+    const handle = exposeKey ? (entry as any).handle : entry;
+    if (!isStateHandleLike(handle)) continue;
 
-    const semantic = entry.__stateSemantic;
+    const semantic = exposeKey ?? handle.__stateSemantic;
     if (typeof semantic !== 'string' || !semantic) continue;
 
-    const id = entry.__stateId ?? semantic;
+    const id = handle.__stateId ?? semantic;
+    if (exposeKey) {
+      for (const previousName of namesById.get(id) ?? []) {
+        named.delete(previousName);
+      }
+      namesById.set(id, [semantic]);
+      seenIds.add(id);
+      named.set(semantic, handle);
+      continue;
+    }
+
     if (seenIds.has(id)) continue;
     seenIds.add(id);
-    named.set(semantic, entry);
+    namesById.set(id, [semantic]);
+    named.set(semantic, handle);
   }
 
   if (named.size === 0) return undefined;

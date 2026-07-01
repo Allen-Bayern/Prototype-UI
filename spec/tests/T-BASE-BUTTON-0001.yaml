@@ -1,0 +1,91 @@
+id: T-BASE-BUTTON-0001
+type: test
+title: Base Button protocol contract tests
+status: draft
+since: 0.1.0
+summary: Contract test coverage for the Base Button prototype protocol and its asButton authoring entry.
+cases:
+  - id: T-BASE-BUTTON-0001-CASE-DISABLED-CONTROLLED
+    title: disabled props synchronize disabled exposure and interaction capabilities
+    covers:
+      - P-BASE-BUTTON-PROP-DISABLED
+      - P-BASE-BUTTON-PROP-DISABLED-CONTROLLED
+      - P-BASE-BUTTON-DISABLED-EXPOSE
+      - P-BASE-BUTTON-DISABLED-CLEAR-TRANSIENT
+      - P-BASE-BUTTON-DISABLED-REJECT-FOCUS
+    expectation: disabled-props-synchronize-button-state-and-capabilities
+  - id: T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
+    title: pointer, focus, and press interactions are exposed as button state
+    covers:
+      - P-BASE-BUTTON-POINTER-HOVER
+      - P-BASE-BUTTON-PRESS-LIFECYCLE
+      - P-BASE-BUTTON-FOCUSABLE
+    expectation: button-interaction-facts-are-exposed
+  - id: T-BASE-BUTTON-0001-CASE-CLICK-SIGNAL
+    title: confirmed activation emits the click outward signal while enabled
+    covers:
+      - P-BASE-BUTTON-ROLE-COMMAND
+      - P-BASE-BUTTON-DISABLED-SUPPRESS-ACTIVATION
+      - P-BASE-BUTTON-CLICK-SIGNAL
+      - P-BASE-BUTTON-CLICK-PROTOCOL-NAME
+      - P-BASE-BUTTON-TRIGGER-SEMANTICS
+    expectation: press-commit-emits-click-only-while-enabled
+  - id: T-BASE-BUTTON-0001-CASE-KEYBOARD-SPACE
+    title: focused Space activation requests prevention of host default side effects
+    covers:
+      - P-BASE-BUTTON-KEYBOARD-ACTIVATION
+      - P-BASE-BUTTON-KEYBOARD-SPACE-PREVENT-DEFAULT
+    expectation: focused-space-prevents-host-default
+  - id: T-BASE-BUTTON-0001-CASE-AUTHORING-ENTRIES
+    title: base-button and asButton remain authoring entries of one Button protocol
+    covers:
+      - P-BASE-BUTTON-AUTHORING-ENTRIES
+      - P-BASE-BUTTON-PROP-NO-EVENT-CALLBACK
+      - P-BASE-BUTTON-REQUEST-FOCUS
+    expectation: base-button-and-as-button-share-protocol-surface
+  - id: T-BASE-BUTTON-0001-CASE-DEFERRED-SURFACES
+    title: deferred accessibility, form, command, visual, and content surfaces remain catalog-visible
+    covers:
+      - P-BASE-BUTTON-PROP-LABEL-DEFERRED
+      - P-BASE-BUTTON-PROP-FORM-DEFERRED
+      - P-BASE-BUTTON-PROP-COMMAND-DEFERRED
+      - P-BASE-BUTTON-PROP-VISUAL-DEFERRED
+      - P-BASE-BUTTON-ACCESSIBLE-ROLE
+      - P-BASE-BUTTON-ACCESSIBLE-NAME
+      - P-BASE-BUTTON-NO-VISUAL-VARIANT-CORE
+      - P-BASE-BUTTON-CONTENT-LABEL-SOURCE
+      - P-BASE-BUTTON-ICON-CONTENT
+      - P-BASE-BUTTON-FORM-EXTENSION
+      - P-BASE-BUTTON-A11Y-ENHANCEMENT
+    expectation: deferred-button-surfaces-remain-explicit
+implementations:
+  - id: prototypes-base-as-button-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/as-button.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-BUTTON-0001-CASE-DISABLED-CONTROLLED
+      - T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
+      - T-BASE-BUTTON-0001-CASE-CLICK-SIGNAL
+      - T-BASE-BUTTON-0001-CASE-KEYBOARD-SPACE
+    exercises:
+      - P-BASE-BUTTON
+    notes:
+      - Covers current executable Button behavior through the asButton authoring entry.
+      - Does not yet cover a11y, form, command, or visual deferred surfaces.
+sources:
+  - path: packages/prototypes/base/test/as-button.test.ts
+  - path: packages/prototypes/base/src/button/button.ts
+exercises:
+  prototypes:
+    - P-BASE-BUTTON
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Introduced Base Button protocol test entity aligned to P-BASE-BUTTON criteria.
+tags:
+  - prototype
+  - base
+  - button
+  - test

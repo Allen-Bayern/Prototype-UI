@@ -67,12 +67,11 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       disabled: false,
     });
 
-    asButton();
-    const disabled = def.state.fromInteraction('disabled');
-    const hovered = def.state.fromInteraction('hovered');
-    const focused = def.state.fromInteraction('focused');
-    const focusVisible = def.state.fromInteraction('focusVisible');
-    const pressed = def.state.fromInteraction('pressed');
+    const buttonState = asButton().stateHandles;
+    if (!buttonState) {
+      throw new Error('[shadcn-button] asButton must project Button state handles.');
+    }
+    const { disabled, hovered, focusVisible, pressed } = buttonState;
     const expanded = def.state.fromAccessibility('expanded');
     const invalid = def.state.fromAccessibility('invalid');
 
