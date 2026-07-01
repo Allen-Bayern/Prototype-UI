@@ -15,7 +15,7 @@ import {
   AS_TRIGGER_PARENT_CAP,
 } from '@proto.ui/module-as-trigger';
 import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
-import { asButton } from '../src/button';
+import button, { asButton } from '../src/button';
 
 function createHost(initialRaw: Record<string, unknown> = {}) {
   let raw = { ...initialRaw };
@@ -63,6 +63,9 @@ function createHost(initialRaw: Record<string, unknown> = {}) {
 
 describe('prototypes/base: asButton', () => {
   it('tracks hovered/focused/pressed and gates click emission when disabled', () => {
+    // T-BASE-BUTTON-0001-CASE-DISABLED-CONTROLLED
+    // T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
+    // T-BASE-BUTTON-0001-CASE-CLICK-SIGNAL
     const P: Prototype<{ disabled?: boolean }> = definePrototype({
       name: 'x-base-as-button',
       setup() {
@@ -119,6 +122,7 @@ describe('prototypes/base: asButton', () => {
   });
 
   it('prevents Space default action when focused', () => {
+    // T-BASE-BUTTON-0001-CASE-KEYBOARD-SPACE
     const P: Prototype<{ disabled?: boolean }> = definePrototype({
       name: 'x-base-as-button-space-boundary',
       setup() {
@@ -149,5 +153,33 @@ describe('prototypes/base: asButton', () => {
     );
 
     expect(prevented).toBe(true);
+  });
+
+  it('keeps base-button and asButton aligned as Button authoring entries', () => {
+    // T-BASE-BUTTON-0001-CASE-AUTHORING-ENTRIES
+    const asHookCtx = createHost({ disabled: false });
+    const Direct = button as Prototype<{ disabled?: boolean }>;
+    const directCtx = createHost({ disabled: false });
+    const P: Prototype<{ disabled?: boolean }> = definePrototype({
+      name: 'x-base-as-button-authoring-entry',
+      setup() {
+        asButton();
+        return (r) => r.el('button', 'ok');
+      },
+    });
+
+    executeWithHost(P as any, asHookCtx.host as any);
+    executeWithHost(Direct as any, directCtx.host as any);
+
+    const asHookExposes = asHookCtx.getExposes() as any;
+    const directExposes = directCtx.getExposes() as any;
+
+    expect(Object.keys(directExposes).sort()).toEqual(Object.keys(asHookExposes).sort());
+
+    asHookCtx.rootTarget.dispatchEvent(new CustomEvent('press.commit'));
+    directCtx.rootTarget.dispatchEvent(new CustomEvent('press.commit'));
+
+    expect(asHookCtx.emitted).toEqual(['click']);
+    expect(directCtx.emitted).toEqual(['click']);
   });
 });

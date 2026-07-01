@@ -153,7 +153,7 @@ export interface RunHandle<Props extends PropsBaseType> {
   };
 
   props: {
-    get(): Readonly<Props>;
+    get(): PropsSnapshot<Props>;
     getRaw(): Readonly<Props & PropsBaseType>;
     isProvided(key: keyof Props): boolean;
   };
@@ -302,15 +302,21 @@ export interface ReservedFactories {
   slot(): TemplateNode;
 }
 
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
 /**
  * Resolved props snapshot type:
- * - Shape is P
- * - Values are whatever component author declared in P (including nulls if they want them)
- *
- * Note: runtime canonicalization (undefined -> null) is a policy detail; TS can only reflect it
- * if author chose to include null in P[K]. That’s intentional to avoid lying types.
+ * - Declared keys are present on the resolved snapshot.
+ * - Undefined is not a resolved value. Empty/fallback resolution may still produce null
+ *   only when the declared value domain allows it.
+ * - `any` stays wide so generic prototype registries can remain intentionally erased.
  */
-export type PropsSnapshot<P extends PropsBaseType> = Readonly<P>;
+export type PropsSnapshot<P extends PropsBaseType> =
+  IsAny<P> extends true
+    ? Readonly<P>
+    : Readonly<{
+        [K in keyof P]-?: Exclude<P[K], undefined>;
+      }>;
 
 /** Defaults should be aligned to Props shape. */
 export type PropsDefaults<P extends PropsBaseType> = Partial<P>;

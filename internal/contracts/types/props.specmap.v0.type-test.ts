@@ -1,4 +1,10 @@
+import type { PropsSnapshot } from '@proto.ui/core';
 import type { PropsSpecMap } from '@proto.ui/types';
+
+type Equal<A, B> =
+  (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ? 1 : 2 ? true : false;
+type IsAny<T> = 0 extends 1 & T ? true : false;
+type Expect<T extends true> = T;
 
 type P = { disabled: boolean | null; count: number };
 
@@ -35,6 +41,17 @@ type P2 = { disabled: boolean; count: number };
   disabled: { type: 'boolean', empty: 'accept' },
   count: { type: 'number' },
 }) satisfies PropsSpecMap<P2>;
+
+type ResolvedOptional = PropsSnapshot<{ disabled?: boolean; label?: string | null }>;
+type ResolvedAny = PropsSnapshot<any>;
+
+type _ResolvedOptionalHasDeclaredKeys = Expect<
+  Equal<ResolvedOptional, Readonly<{ disabled: boolean; label: string | null }>>
+>;
+type _ResolvedOptionalExcludesUndefined = Expect<
+  Equal<Extract<ResolvedOptional['disabled'], undefined>, never>
+>;
+type _ResolvedAnyStaysKeyWide = Expect<IsAny<ResolvedAny['anyKey']>>;
 
 // ❌ kind mismatch
 
