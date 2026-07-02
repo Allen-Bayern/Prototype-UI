@@ -13,6 +13,7 @@ import {
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
 } from '@proto.ui/module-as-trigger';
+import { A11Y_PROJECT_CAP, createWebA11yProjector } from '@proto.ui/module-a11y';
 import { createWebBoundaryHostBridge, BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
 import { CONTEXT_INSTANCE_TOKEN_CAP, CONTEXT_PARENT_CAP } from '@proto.ui/module-context';
 import { EFFECTS_CAP } from '@proto.ui/module-feedback';
@@ -80,6 +81,7 @@ export function createReactModules<Props extends PropsBaseType>(args: {
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
     .use('feedback', [[EFFECTS_CAP, effectsPort]])
+    .use('a11y', [[A11Y_PROJECT_CAP, createWebA11yProjector(el)]])
     .use('event', [
       [EVENT_ROOT_TARGET_CAP, () => router.rootTarget],
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],

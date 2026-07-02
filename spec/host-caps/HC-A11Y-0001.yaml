@@ -1,0 +1,35 @@
+id: HC-A11Y-0001
+type: host-cap
+title: Host can project accessibility semantics
+status: draft
+since: 0.1.0
+summary: The host can receive Proto UI accessibility semantic object IR and project it to its accessibility surface.
+statement:
+  zh-CN: >-
+    Host 可以接收 Proto UI a11y semantic object IR，并将 role、name、description、state、action 等语义投影到自身的 accessibility surface。不同宿主可以投影到 ARIA/native attributes、平台 accessibility API、测试语义树，或保留诊断数据。
+
+
+  en: >-
+    The host can receive Proto UI a11y semantic object IR and project role, name, description, state, action, and related semantics to its accessibility surface. Different hosts may project to ARIA/native attributes, platform accessibility APIs, test semantic trees, or diagnostic data.
+
+
+criteria:
+  - id: HC-A11Y-0001-A
+    text:
+      zh-CN: host-cap 必须允许 adapter 接收完整 a11y IR。
+      en: The host capability must let adapters receive the complete a11y IR.
+  - id: HC-A11Y-0001-B
+    text:
+      zh-CN: host-cap 不要求所有宿主都支持相同的原生投影能力。
+      en: The host capability does not require every host to support the same native projection abilities.
+relates:
+  contracts:
+    - C-A11Y-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Drafted the host projection capability for a11y semantic IR.
+tags:
+  - host-capability
+  - a11y
+  - accessibility

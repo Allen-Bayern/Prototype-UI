@@ -11,6 +11,7 @@
     "@proto.ui/adapter-base": "workspace:*",
     "@proto.ui/module-anatomy": "workspace:*",
     "@proto.ui/module-as-trigger": "workspace:*",
+    "@proto.ui/module-a11y": "workspace:*",
     "@proto.ui/module-boundary": "workspace:*",
     "@proto.ui/module-feedback": "workspace:*",
     "@proto.ui/module-props": "workspace:*",

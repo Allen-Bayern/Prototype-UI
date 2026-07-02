@@ -1,0 +1,79 @@
+id: T-A11Y-0001
+type: test
+title: A11y semantic object contract tests
+status: draft
+since: 0.1.0
+summary: Contract tests for a11y semantic object IR, Button consumption, and Web adapter projection.
+cases:
+  - id: T-A11Y-0001-CASE-IR
+    title: A prototype can declare role, name, state, and action into a stable a11y IR
+    covers:
+      - C-A11Y-0001-A
+      - C-A11Y-0001-B
+      - C-A11Y-0001-C
+      - C-A11Y-0001-D
+      - C-A11Y-0001-E
+      - C-A11Y-0001-F
+    expectation: semantic-object-ir
+  - id: T-A11Y-0001-CASE-BUTTON
+    title: Base Button declares button role, content-derived name policy, disabled state, and activate action
+    covers:
+      - C-A11Y-0001-B
+      - C-A11Y-0001-C
+      - C-A11Y-0001-D
+      - C-A11Y-0001-E
+      - C-A11Y-0001-F
+    expectation: base-button-a11y-consumption
+  - id: T-A11Y-0001-CASE-WEB-PROJECTION
+    title: Web adapter projects supported a11y IR to host attributes
+    covers:
+      - C-A11Y-0001-G
+      - HC-A11Y-0001-A
+      - HC-A11Y-0001-B
+    expectation: web-a11y-projection
+implementations:
+  - id: runtime-a11y-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/a11y.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-A11Y-0001-CASE-IR
+  - id: base-button-a11y-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/as-button.test.ts
+    required: true
+    consumesCases:
+      - T-A11Y-0001-CASE-BUTTON
+  - id: web-component-a11y-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/web-component/test/contract/a11y.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-A11Y-0001-CASE-WEB-PROJECTION
+verifies:
+  contracts:
+    - id: C-A11Y-0001
+      anchors:
+        - C-A11Y-0001-A
+        - C-A11Y-0001-B
+        - C-A11Y-0001-C
+        - C-A11Y-0001-D
+        - C-A11Y-0001-E
+        - C-A11Y-0001-F
+        - C-A11Y-0001-G
+  hostCaps:
+    - id: HC-A11Y-0001
+      anchors:
+        - HC-A11Y-0001-A
+        - HC-A11Y-0001-B
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Added the first a11y semantic object test mapping.
+tags:
+  - a11y
+  - accessibility
+  - contract-test

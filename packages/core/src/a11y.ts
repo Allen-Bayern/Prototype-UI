@@ -1,0 +1,41 @@
+import type { State } from './state';
+
+export type A11yRole = string;
+
+export type A11yTextAlternative = { kind: 'content' } | { kind: 'text'; value: string };
+
+export type A11yStateKey = string;
+export type A11yActionKey = string;
+
+export type A11yStateBinding<V = unknown> = {
+  key: A11yStateKey;
+  state: State<V>;
+};
+
+export type A11yActionSpec = {
+  event?: string;
+};
+
+export type A11yTreeBehavior = {
+  hidden?: boolean;
+  mergeChildren?: boolean;
+};
+
+export type A11ySemanticObjectSnapshot = {
+  role?: A11yRole;
+  name?: A11yTextAlternative;
+  description?: A11yTextAlternative;
+  states: Record<A11yStateKey, unknown>;
+  actions: Record<A11yActionKey, A11yActionSpec>;
+  tree?: A11yTreeBehavior;
+};
+
+export type A11yDefAPI = {
+  role(role: A11yRole): void;
+  name(value: string): void;
+  nameFromContent(): void;
+  description(value: string): void;
+  state<V>(key: A11yStateKey, handle: State<V>): void;
+  action(key: A11yActionKey, spec?: A11yActionSpec): void;
+  tree(patch: A11yTreeBehavior): void;
+};

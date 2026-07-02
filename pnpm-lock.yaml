@@ -187,6 +187,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../../hooks
+      '@proto.ui/module-a11y':
+        specifier: workspace:*
+        version: link:../../modules/a11y
       '@proto.ui/module-anatomy':
         specifier: workspace:*
         version: link:../../modules/anatomy
@@ -250,6 +253,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../../hooks
+      '@proto.ui/module-a11y':
+        specifier: workspace:*
+        version: link:../../modules/a11y
       '@proto.ui/module-anatomy':
         specifier: workspace:*
         version: link:../../modules/anatomy
@@ -313,6 +319,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../../hooks
+      '@proto.ui/module-a11y':
+        specifier: workspace:*
+        version: link:../../modules/a11y
       '@proto.ui/module-anatomy':
         specifier: workspace:*
         version: link:../../modules/anatomy
@@ -404,6 +413,18 @@ importers:
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../types
+
+  packages/modules/a11y:
+    dependencies:
+      '@proto.ui/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@proto.ui/module-base':
+        specifier: workspace:*
+        version: link:../base
+      '@proto.ui/module-state':
+        specifier: workspace:*
+        version: link:../state
 
   packages/modules/anatomy:
     dependencies:
@@ -770,6 +791,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@proto.ui/module-a11y':
+        specifier: workspace:*
+        version: link:../modules/a11y
       '@proto.ui/module-anatomy':
         specifier: workspace:*
         version: link:../modules/anatomy

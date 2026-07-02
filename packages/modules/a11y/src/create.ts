@@ -1,0 +1,182 @@
+import { createModule, defineModule, ModuleBase } from '@proto.ui/module-base';
+import type { ModuleFactoryArgs } from '@proto.ui/module-base';
+import type {
+  A11yActionKey,
+  A11yActionSpec,
+  A11yRole,
+  A11ySemanticObjectSnapshot,
+  A11yStateKey,
+  A11yTextAlternative,
+  A11yTreeBehavior,
+  State,
+  Unsubscribe,
+} from '@proto.ui/core';
+import type { StatePort } from '@proto.ui/module-state';
+
+import { A11Y_PROJECT_CAP } from './caps';
+import type { A11yFacade, A11yModule, A11yPort, A11ySemanticObjectIR } from './types';
+
+class A11yModuleImpl extends ModuleBase {
+  private readonly ir: A11ySemanticObjectIR = {
+    states: new Map(),
+    actions: new Map(),
+  };
+  private readonly stateWatchOffs: Unsubscribe[] = [];
+  private stateWatchesInstalled = false;
+
+  constructor(
+    caps: ModuleFactoryArgs['caps'],
+    private readonly statePort: StatePort
+  ) {
+    super(caps);
+  }
+
+  readonly facade: A11yFacade = {
+    role: (role) => {
+      this.ensureSetup('def.a11y.role');
+      this.ir.role = role;
+      this.applyProjection();
+    },
+    name: (value) => {
+      this.ensureSetup('def.a11y.name');
+      this.ir.name = { kind: 'text', value };
+      this.applyProjection();
+    },
+    nameFromContent: () => {
+      this.ensureSetup('def.a11y.nameFromContent');
+      this.ir.name = { kind: 'content' };
+      this.applyProjection();
+    },
+    description: (value) => {
+      this.ensureSetup('def.a11y.description');
+      this.ir.description = { kind: 'text', value };
+      this.applyProjection();
+    },
+    state: <V>(key: A11yStateKey, handle: State<V>) => {
+      this.ensureSetup('def.a11y.state');
+      this.ir.states.set(key, { key, handle: handle as State<unknown> });
+      this.applyProjection();
+    },
+    action: (key: A11yActionKey, spec: A11yActionSpec = {}) => {
+      this.ensureSetup('def.a11y.action');
+      this.ir.actions.set(key, { ...spec });
+      this.applyProjection();
+    },
+    tree: (patch: A11yTreeBehavior) => {
+      this.ensureSetup('def.a11y.tree');
+      this.ir.tree = { ...(this.ir.tree ?? {}), ...patch };
+      this.applyProjection();
+    },
+  };
+
+  readonly port: A11yPort = {
+    getSnapshot: () => this.getSnapshot(),
+    getIR: () => ({
+      role: this.ir.role,
+      name: cloneTextAlternative(this.ir.name),
+      description: cloneTextAlternative(this.ir.description),
+      states: new Map(this.ir.states),
+      actions: new Map(this.ir.actions),
+      tree: this.ir.tree ? { ...this.ir.tree } : undefined,
+    }),
+  };
+
+  override onProtoPhase(phase: 'setup' | 'mounted' | 'updated' | 'unmounted'): void {
+    super.onProtoPhase(phase);
+    if (phase === 'mounted' || phase === 'updated') {
+      this.installStateWatches();
+      this.applyProjection();
+    }
+    if (phase === 'unmounted') {
+      this.dispose();
+    }
+  }
+
+  afterRenderCommit(): void {
+    this.installStateWatches();
+    this.applyProjection();
+  }
+
+  dispose(): void {
+    while (this.stateWatchOffs.length) {
+      this.stateWatchOffs.pop()?.();
+    }
+    this.stateWatchesInstalled = false;
+  }
+
+  private ensureSetup(op: string): void {
+    this.sys.ensureSetup(op);
+  }
+
+  private installStateWatches(): void {
+    if (this.stateWatchesInstalled) return;
+
+    for (const binding of this.ir.states.values()) {
+      const off = this.statePort.watch(binding.handle as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
+    this.stateWatchesInstalled = true;
+  }
+
+  private getSnapshot(): A11ySemanticObjectSnapshot {
+    const states: Record<string, unknown> = {};
+    for (const [key, binding] of this.ir.states) {
+      states[key] = binding.handle.get();
+    }
+
+    return {
+      role: this.ir.role,
+      name: cloneTextAlternative(this.ir.name),
+      description: cloneTextAlternative(this.ir.description),
+      states,
+      actions: Object.fromEntries(this.ir.actions),
+      tree: this.ir.tree ? { ...this.ir.tree } : undefined,
+    };
+  }
+
+  private applyProjection(): void {
+    if (!this.caps.has(A11Y_PROJECT_CAP)) return;
+    this.caps.get(A11Y_PROJECT_CAP)(this.getSnapshot());
+  }
+}
+
+function cloneTextAlternative(
+  value: A11yTextAlternative | undefined
+): A11yTextAlternative | undefined {
+  if (!value) return undefined;
+  return value.kind === 'text' ? { kind: 'text', value: value.value } : { kind: 'content' };
+}
+
+export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {
+  const { init, caps, deps } = ctx;
+
+  return createModule<'a11y', 'instance', A11yFacade, A11yPort>({
+    name: 'a11y',
+    scope: 'instance',
+    init,
+    caps,
+    deps,
+    build: ({ caps, deps }) => {
+      const impl = new A11yModuleImpl(caps, deps.requirePort<StatePort>('state'));
+
+      return {
+        facade: impl.facade,
+        port: impl.port,
+        hooks: {
+          onProtoPhase: (p) => impl.onProtoPhase(p),
+          afterRenderCommit: () => impl.afterRenderCommit(),
+          dispose: () => impl.dispose(),
+        },
+      };
+    },
+  }) as A11yModule;
+}
+
+export const A11yModuleDef = defineModule({
+  name: 'a11y',
+  deps: ['state'],
+  create: createA11yModule,
+});
