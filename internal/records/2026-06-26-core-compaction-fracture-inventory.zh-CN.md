@@ -23,7 +23,13 @@ type FractureStatus = 'open' | 'resolved' | 'obsolete' | 'merged' | 'deferred';
 ```
 
 ```ts
-type FractureAction = 'close' | 'merge' | 'defer' | 'decide-now' | 'carry-to-prototype-stage';
+type FractureAction =
+  | 'close'
+  | 'merge'
+  | 'defer'
+  | 'decide-now'
+  | 'carry-to-prototype-stage'
+  | 'carry-to-next-asHook-pass';
 ```
 
 ---
@@ -57,33 +63,35 @@ type FractureAction = 'close' | 'merge' | 'defer' | 'decide-now' | 'carry-to-pro
 | F-009 | `module` 实体 schema 未定 | deferred | no | none | defer |
 | F-010 | `host-cap` 实体 schema 未定 | deferred | no | adapter | defer |
 | F-011 | `adapter profile` 实体预留策略未定 | deferred | no | adapter | defer |
-| F-012 | `prototype` 实体命名、编号与继承关系未定 | open | yes | base-prototype | decide-now |
+| F-012 | `prototype` 实体命名、编号与继承关系未定 | resolved | no | none | close |
 | F-013 | focus/overlay/hit/boundary 与 asHook scope 总问题过宽 | merged | no | none | merge |
-| F-014 | focus 是核心能力、privileged asHook 还是 adapter expectation | open | yes | base-prototype | decide-now |
+| F-014 | focus 是核心能力、privileged asHook 还是 adapter expectation | resolved | no | none | close |
 | F-015 | overlay/hit/boundary 与 privileged asHook 的关系图未定 | deferred | no | none | defer |
 | F-016 | 旧契约文档归档目录与迁移策略未定 | deferred | no | none | defer |
 | F-017 | asHook name / trace identity 规则与实现不一致 | resolved | no | as-hook | carry-to-prototype-stage |
-| F-018 | parameterized/configurable asHook 已实现但文档仍标 proposed | open | no | as-hook | carry-to-prototype-stage |
+| F-018 | parameterized/configurable asHook 已实现但文档仍标 proposed | open | no | as-hook | carry-to-next-asHook-pass |
 | F-019 | `asTrigger` 缺少独立契约归属与实体边界 | resolved | no | as-hook | carry-to-prototype-stage |
-| F-020 | `disabled` 行为的所有权边界未压实 | open | yes | base-prototype | decide-now |
-| F-021 | interaction signal 集合与 `fromInteraction` 投影未完全同步 | open | yes | base-prototype | decide-now |
-| F-022 | expose event `click` 与 native/proto event 的边界需明确 | open | yes | base-prototype | decide-now |
+| F-020 | `disabled` 行为的所有权边界未压实 | resolved | no | none | close |
+| F-021 | interaction signal 集合与 `fromInteraction` 投影未完全同步 | deferred | no | base-prototype | defer |
+| F-022 | expose event `click` 与 native/proto event 的边界需明确 | resolved | no | none | close |
 
-Pilot 阻塞项：
+Pilot 阻塞项（2026-07-02 更新后）：
 
 ```text
-F-012 prototype 实体命名、编号与继承关系
-F-014 focus scope 边界
-F-020 disabled 所有权边界
-F-021 interaction signal / fromInteraction 同步
-F-022 expose event click 边界
+当前没有仍阻塞 BaseButton/asButton 与 asTrigger 常见使用路径的已知断口。
+F-018、F-021 仍保留后续治理问题，但不再阻塞本轮 pilot。
 ```
 
-本轮已处理或进入落地的项：
+本轮已处理或进入落地的项（2026-07-02 更新）：
 
 ```text
+F-012 已由 D-PROTOTYPE-ENTITY-NAMING-0001 与 P-BASE-BUTTON 试点落地覆盖。
+F-014 已由 focus domain / asFocusable / asFocusScope / asFocusRoving 契约与实现修复覆盖；roving 细节进入后续列表类原型阶段。
 F-017 已由 D-AS-HOOK-CALLER-NAME-0001 覆盖，剩余工作是文档/tooling 落地。
-F-019 已起草 asTrigger 最小核心契约实体，剩余工作是 review 与后续映射收口。
+F-019 已由 C-AS-TRIGGER-0001 与 T-AS-TRIGGER-0001 覆盖。
+F-020 已在 P-BASE-BUTTON / asButton 实现中收口为 Button 自治协调 disabled prop、state、focus eligibility 与 activation gate。
+F-021 中 focus facts 越权归属问题已由 D-FOCUS-STATE-INTERACTION-BOUNDARY-0001 解决；通用 interaction signal 集合同步延期。
+F-022 已在 P-BASE-BUTTON 中明确：Button 的 `click` 是 protocol outward signal，不等同 native click 或 `press.commit`。
 ```
 
 ---
@@ -529,15 +537,16 @@ Decision 潜力：
 当前事实：
 
 - `internal/contracts/prototype-base/button.v0.md` 已经把 `base-button` 与 `asButton` 视为同一协议面。
-- 但 prototype 实体的命名、编号、继承/复用关系尚未正式定案。
-- 第一轮 pilot 必须创建或更新 prototype-level 实体，否则无法稳定映射规则、测试和依赖。
+- `spec/decisions/D-PROTOTYPE-ENTITY-NAMING-0001.yaml` 已记录 prototype 实体命名规则。
+- `spec/prototypes/P-BASE-BUTTON.yaml` 已作为首个 prototype 实体落地，并采用单一 `P-BASE-BUTTON` 实体承载 `base-button` direct prototype 与 `asButton` authoring entry。
+- `spec/tests/T-BASE-BUTTON-0001.yaml` 已建立 Button prototype 测试实体映射。
 
 判断：
 
-- status: `open`
-- blocksPrototypeCataloging: `true`
-- affectedNextStage: `base-prototype`
-- action: `decide-now`
+- status: `resolved`
+- blocksPrototypeCataloging: `false`
+- affectedNextStage: `none`
+- action: `close`
 
 Issue 潜力：
 
@@ -549,15 +558,12 @@ Decision 潜力：
 
 分析：
 
-这是阻塞项。无需一次性解决所有 inheritance 语义，但必须先定一个 pilot 用法。例如：
-
-- `prototype-base.button.v0` 作为协议实体。
-- `base-button` 与 `asButton` 作为同一协议的两个 authoring entry。
-- higher-level prototypes 对 button 的复用先用 `depends-on` 或 `implements`，暂不引入复杂继承模型。
+该断口已经解除。当前试点选择不引入复杂继承模型，而是让一个官方基础原型对应一个稳定 `P-*` 实体；direct prototype 与 asHook authoring entry 作为同一 protocol 的不同入口记录在 prototype 实体 criteria 中。higher-level prototypes 对基础原型的复用仍应通过后续关系图治理继续压实，但不再阻塞 Button/asTrigger pilot。
 
 下一步：
 
-- 在正式编目 `BaseButton/asButton` 前，先写一条最小 naming decision。
+- 在 Core Compaction closure 中标记 F-012 closed。
+- 后续批量原型编目继续沿用 `P-*` 单实体模型，除非出现需要单独决策的继承/扩展场景。
 
 ---
 
@@ -612,18 +618,21 @@ Decision 潜力：
 当前事实：
 
 - 当时 `asButton` 使用带 patch 参数的 `asFocusable` 调用；2026-06-27 已迁移为 `asFocusable()` 加返回 handle 配置。
+- focus 已被编目为宿主协同的逻辑交互目标管理域，见 `C-FOCUS-0001` 与 `C-FOCUS-0002`。
+- `asFocusable()` 已被编目为特权 no-arg once asHook，见 `C-AS-FOCUSABLE-0001`。
+- `asFocusScope()` 与 `asFocusRoving()` 已完成契约与测试实体编目，见 `C-AS-FOCUS-SCOPE-*`、`C-AS-FOCUS-ROVING-0001`、`T-FOCUS-*`。
+- `D-FOCUS-STATE-INTERACTION-BOUNDARY-0001` 已记录 focus facts 不再由 generic state-interaction 直接拥有。
 - button 的 exposed states 包含 `focused` 与 `focusVisible`。
 - `focusSelf` expose method 依赖 focus handle。
 - focus tests 已覆盖 disabled focusable rejects focus requests。
-- `as-focusable.v0.md` 将 `asFocusable(...)` 定位为 privileged、configurable、singleton-install asHook。
-- adapter 层也有 asButton focus tests。
+- dialog / adapter 手动验证中暴露的 focus scope activation、restore 与 focus-visible 问题已经通过 focus center 与 adapter wiring 修复，并由 runtime/adapter 测试覆盖。
 
 判断：
 
-- status: `open`
-- blocksPrototypeCataloging: `true`
-- affectedNextStage: `base-prototype`
-- action: `decide-now`
+- status: `resolved`
+- blocksPrototypeCataloging: `false`
+- affectedNextStage: `none`
+- action: `close`
 
 Issue 潜力：
 
@@ -635,18 +644,18 @@ Decision 潜力：
 
 分析：
 
-这不是“focus 行为不存在”的问题，而是归属边界问题。对 `BaseButton/asButton` 来说，至少要定：
+这不是“focus 行为不存在”的问题，而是归属边界问题。当前归属已足够支持 Button/asTrigger pilot：
 
-- `focused/focusVisible` 是 button 暴露的状态，但其事实来源是 focus/interaction 系统。
+- `focused/focusVisible` 是 Button 暴露的状态，但其事实来源是 focus domain / `asFocusable()`。
 - `focusSelf` 是 button 暴露的方法，但实际执行由 `asFocusable`/focus port 负责。
 - `disabled` 同步到 focusable config 后，focus 请求必须被拒绝。
 
-不需要在 pilot 中解决 focus scope、roving focus、trap/restore 等问题。
+focus scope、roving focus、trap/restore 等能力已经完成最小契约与实现修复，足以支撑 dialog 与 Button 当前路径。已发现的 roving 细节问题不阻塞 Button/asTrigger pilot，应等列表、菜单、tabs 等集合类原型编目时再提升。
 
 下一步：
 
-- 为 BaseButton 依赖清单增加 `depends-on focus.as-focusable`。
-- 明确 BaseButton 只承诺消费 focus node 能力，不定义 focus domain 全部语义。
+- 在 Core Compaction closure 中标记 F-014 closed for pilot。
+- 把 roving 细节问题留给集合类原型编目阶段，而不是继续阻塞 Button/asTrigger。
 
 ---
 
@@ -799,14 +808,17 @@ Decision 潜力：
 - asHook contract 将 parameterized caller shape、mode model、setup/configure split 标为 proposed direction。
 - core/runtime 已支持 `options`、`mode: configurable`、`configure(...)`。
 - runtime tests 覆盖 `AS-HOOK-0700`、`AS-HOOK-0800`、`AS-HOOK-0900`、`AS-HOOK-1000`。
-- `asFocusable(...)` contract 也依赖 privileged configurable singleton-install 模型。
+- 普通 authored asHook 已收口为 no-arg once caller。
+- `asFocusable()`、`asFocusScope()` 与 `asFocusRoving()` 已迁移为 no-arg caller，并通过返回 handle 进行 setup-time 配置。
+- `D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001` 与 `C-AS-HOOK-PRIVILEGED-0001` 已记录特权 asHook 迁移方向。
+- `asOverlay(patch)`、`asBoundary(patch)`、`asHitParticipation(...)`、`asTransition(options)` 与 collection/use-style hooks 仍需要逐个归类与迁移计划。
 
 判断：
 
 - status: `open`
 - blocksPrototypeCataloging: `false`
 - affectedNextStage: `as-hook`
-- action: `carry-to-prototype-stage`
+- action: `carry-to-next-asHook-pass`
 
 Issue 潜力：
 
@@ -818,12 +830,12 @@ Decision 潜力：
 
 分析：
 
-它不直接阻塞 `asButton` 与 `asTrigger`，因为 `asButton` 是 `mode: once`，`asTrigger` 也是 privileged once。它间接影响 `asFocusable`，因为 focus 已经是 configurable privileged asHook。
+它不直接阻塞 `asButton` 与 `asTrigger`，因为 `asButton` 是 ordinary once authored asHook，`asTrigger` 是 privileged once asHook。它过去间接影响 `asFocusable`，但 focus 相关 hooks 已经完成 no-arg + returned handle 的迁移。剩余问题属于下一轮 asHook governance，而不是当前 prototype pilot blocker。
 
 下一步：
 
-- Pilot 中只引用已被测试覆盖的最小行为。
-- 不在本轮强行完整提升 configurable authored asHook 模型。
+- Pilot 中只引用已被测试覆盖的 no-arg once 与 privileged asHook 行为。
+- 下一轮 asHook pass 中继续处理剩余 parameterized privileged hooks 与 collection/use-style hook 的最终归类。
 
 ---
 
@@ -892,16 +904,19 @@ Decision 潜力：
 - `button` contract 要求 `disabled=true` suppress `click` 并清除 transient interaction states。
 - `asButton` 定义 `disabled` prop，创建 `def.state.fromInteraction('disabled')`，并 expose `disabled` state。
 - `syncDisabled` 会设置 disabled state，并调用 `focusable.setDisabled(nextDisabled)`。
-- state-interaction module 中 `disabled` 会清理 hovered、pressed、focused、focusVisible。
+- state-interaction module 中 `disabled` 会清理 `hovered` 与 `pressed` 等 interaction-owned transient state；focus facts 已移出 state-interaction ownership。
 - Web event router 有 `isEnabled` gate，disabled 时不 emit `press.commit` 或 global key events。
 - focus tests 证明 disabled focusable rejects focus requests。
+- `P-BASE-BUTTON` 已明确 Button 拥有 `disabled` props input、disabled exposed state、activation suppression 与 transient state cleanup 的协调责任。
+- `asButton` 实现已将 disabled 同步到 state、focus eligibility 与 activation handler。
+- `T-BASE-BUTTON-0001` 已覆盖 disabled props 同步、interaction cleanup、focus rejection 与 disabled activation suppression。
 
 判断：
 
-- status: `open`
-- blocksPrototypeCataloging: `true`
-- affectedNextStage: `base-prototype`
-- action: `decide-now`
+- status: `resolved`
+- blocksPrototypeCataloging: `false`
+- affectedNextStage: `none`
+- action: `close`
 
 Issue 潜力：
 
@@ -913,20 +928,20 @@ Decision 潜力：
 
 分析：
 
-`disabled` 不是单一行为。它至少跨越五层：
+`disabled` 不是单一行为。当前 Button pilot 已将其拆分为多层协作：
 
 1. props default 与 prop watch：`asButton` 拥有。
 2. exposed disabled state：`asButton` 承诺。
 3. focus disabled config：focus/asFocusable 拥有。
-4. transient interaction state reset：state-interaction 拥有。
+4. transient interaction state reset：Button 触发 disabled 同步，state-interaction 与 focus 分别清理自己拥有的事实。
 5. press/click/event suppression：event router gate 与 button `press.commit` handler 共同承担。
 
-如果不压实边界，后续 higher-level prototype 会不知道该依赖 `asButton`、`asTrigger`、focus、event gate，还是自己重复实现 disabled。
+这已足够支撑常见 Button 使用方式。不同组件对 disabled 的细分语义仍可能不同，但该问题属于后续对应原型的自治设计，不再阻塞 BaseButton/asButton。
 
 下一步：
 
-- 在 BaseButton 依赖清单中拆出 disabled 子关系。
-- 最小决策建议：BaseButton 拥有 disabled prop/expose/coordination；focus 与 event/state-interaction 拥有各自响应 disabled 的机制。
+- 在 Core Compaction closure 中标记 F-020 closed。
+- 后续原型若拥有不同 disabled 语义，应在各自 P 实体中记录，而不是让 state-interaction 独断所有 disabled 行为。
 
 ---
 
@@ -942,18 +957,20 @@ Decision 潜力：
 
 当前事实：
 
-- public core type `InteractionStateName` 包含 `disabled | hovered | pressed | focused | focusVisible`。
-- `BaseButton/asButton` 使用全部五个中的多个。
+- public core type `InteractionStateName` 包含 `disabled | hovered | pressed` 等 interaction-owned facts；focus facts 已改由 focus domain 直接提供。
+- `BaseButton/asButton` 使用 `disabled`、`hovered`、`pressed`，并通过 `asFocusable()` 消费 `focused` 与 `focusVisible`。
 - `interaction-signals.v0.md` 只明确列出 `focused` 与 `pressed`，措辞是 v0 MUST provide at least。
 - interaction-state-projection 文档只存在于 `base-text` 目录，没有同步到根级英文 contract 文件。
 - state core 文档明确 interaction-derived / fromInteraction 不在 state core 中定义。
+- `D-FOCUS-STATE-INTERACTION-BOUNDARY-0001` 已解决 focus facts 是否属于 state-interaction 的阻塞问题。
+- `P-BASE-BUTTON` 与 `T-BASE-BUTTON-0001` 已覆盖 Button 当前使用的 interaction facts。
 
 判断：
 
-- status: `open`
-- blocksPrototypeCataloging: `true`
+- status: `deferred`
+- blocksPrototypeCataloging: `false`
 - affectedNextStage: `base-prototype`
-- action: `decide-now`
+- action: `defer`
 
 Issue 潜力：
 
@@ -965,12 +982,12 @@ Decision 潜力：
 
 分析：
 
-这是 `BaseButton/asButton` 的直接阻塞项。实现和测试已经依赖这些 names，但核心 contract 尚未完整列出并同步 projection 文档。如果不处理，button 规则会引用一组核心契约未正式承认的 interaction-derived handles。
+这不再是 `BaseButton/asButton` 的直接阻塞项。阻塞点主要来自 focus facts 是否被 generic interaction signals 越权拥有；该问题已经通过 focus domain 编目和实现迁移解决。剩余问题是通用 interaction signal 集合与旧文档同步：哪些事实是所有交互原型可共享的 generic facts，哪些事实应由具体原型、focus、a11y 或其它 domain 自治。
 
 下一步：
 
-- 最小决策：为 button pilot 明确 v0 button-relevant interaction projection set。
-- 可以先不全量重写 interaction contract，但依赖清单必须标出该断口。
+- 将 Button pilot 需要的 interaction facts 映射保留在 `P-BASE-BUTTON` / `T-BASE-BUTTON-0001`。
+- 后续单独整理 state-interaction contract，避免把 focus、a11y 或组件自治语义重新吸回 generic interaction signals。
 
 ---
 
@@ -992,13 +1009,16 @@ Decision 潜力：
 - event type contract 把 `press.commit` 定义为 protocol core activation intent。
 - expose event contract 说 outward events live in a dedicated namespace and must be fired via event module emit capability。
 - Web event router 明确由 `event.emit()` 分发的 CustomEvent 不触发 `press.commit`，避免 `asButton` 合成 `click` 导致重复 toggle。
+- `P-BASE-BUTTON` 已记录 `click` 是 Button protocol 约定的 outward signal 名称。
+- Button 实现通过 `press.commit` 输入语义派生 `run.expose.emit('click')` 输出语义。
+- `T-BASE-BUTTON-0001` 已覆盖 enabled activation emits `click`，disabled activation suppresses `click`。
 
 判断：
 
-- status: `open`
-- blocksPrototypeCataloging: `true`
-- affectedNextStage: `base-prototype`
-- action: `decide-now`
+- status: `resolved`
+- blocksPrototypeCataloging: `false`
+- affectedNextStage: `none`
+- action: `close`
 
 Issue 潜力：
 
@@ -1010,22 +1030,20 @@ Decision 潜力：
 
 分析：
 
-这是 `BaseButton/asButton` 编目必须压实的边界。button 的 outward `click` 不是 native DOM click，也不是 Proto core event `press.commit`。它是 component → app maker 的 exposed event，由 button protocol 从 activation intent 派生。
+这是 `BaseButton/asButton` 编目必须压实的边界。当前已经明确：button 的 outward `click` 不是 native DOM click，也不是 Proto core event `press.commit`。它是 component → app maker 的 exposed event，由 Button protocol 从 activation intent 派生。
 
 如果不明确，后续测试映射会把 native click、host:click、press.commit、expose click 混在一起。
 
 下一步：
 
-- 在 BaseButton contract 中明确：
-  - `press.commit` 是输入事件语义。
-  - exposed `click` 是输出事件语义。
-  - 输出 click 不应重新进入 press.commit 映射。
+- 在 Core Compaction closure 中标记 F-022 closed。
+- 后续 adapter profile 可继续讨论 outward `click` 在不同宿主中投影得多贴近原生事件，但这不改变 Button protocol 的输入/输出边界。
 
 ---
 
-## 6）第一批建议处理顺序
+## 6）第一批建议处理顺序（2026-07-02 状态更新）
 
-建议先处理这些 `decide-now` 项：
+第一批 `decide-now` 项目前已经处理到不再阻塞 Button/asTrigger pilot：
 
 1. F-012：prototype 实体命名、编号与直接/组合 entry 的绑定方式。
 2. F-017：asHook name / trace identity 命名域。
@@ -1040,6 +1058,13 @@ Decision 潜力：
 - 先定实体命名和 asHook identity，否则后续关系图会污染。
 - 再定 `asTrigger`，因为 `BaseButton` 依赖 official privileged trigger path。
 - 再定 interaction/focus/disabled/click，因为它们构成 `BaseButton` 的行为规则主体。
+
+当前结果：
+
+- F-012、F-014、F-017、F-019、F-020、F-022 可以在 closure report 中标记为 closed / resolved for pilot。
+- F-018 保持 open，但已从 Button/asTrigger pilot blocker 变为下一轮 asHook governance 任务。
+- F-021 降级为 deferred：Button 所需的 interaction facts 已有实体与测试映射，通用 interaction signal 集合同步留给后续 state-interaction pass。
+- a11y 并非本 inventory 的原始 F 项，但它在 Button 编目中暴露为新的基础能力缺口；当前已由 `D-A11Y-SEMANTIC-DOMAIN-0001`、`C-A11Y-0001`、`HC-A11Y-0001`、`M-A11Y-0001` 与 `T-A11Y-0001` 完成最小闭环。Button 的 optional a11y enhancement / relation / name source priority 继续 deferred。
 
 ---
 
@@ -1057,31 +1082,36 @@ Decision 潜力：
 
 ---
 
-## 8）下一步
+## 8）下一步（2026-07-02 状态更新）
 
-下一步建议产出两类文件：
+下一步不再是继续逐个处理上述 blocker，而是产出 Core Compaction Pass 0.1 closure：
 
-1. `Prototype Cataloging Dependencies` 初稿：
+1. `Core Compaction Pass 0.1 Closure` record：
+   - 已关闭断口。
+   - 部分解决 / carry-to-next-pass 断口。
+   - deferred 扩展能力断口。
+   - Button/asTrigger pilot readiness。
+
+2. `Prototype Cataloging Dependencies` 清单：
    - `BaseButton / asButton`
    - `asTrigger`
+   - 标明 props、state-interaction、focus、asTrigger、event/expose-event、a11y 等依赖的稳定度。
 
-2. 最小决策记录：
-   - prototype entity naming
-   - asHook identity naming
-   - `asTrigger` contract home
-   - interaction projection set
-   - disabled ownership
-   - exposed click boundary
-
-完成这些后，才能进入规则 verification 与测试映射压实。
+3. Rule verification 与 test mapping 的收尾：
+   - `T-AS-TRIGGER-0001`
+   - `T-BASE-BUTTON-0001`
+   - `T-FOCUS-*`
+   - `T-A11Y-0001`
+   - asHook result ergonomics 断口对应的 `T-AS-HOOK-*` 增量。
 
 ---
 
-## 9）后续讨论待办
+## 9）后续讨论待办（2026-07-02 状态更新）
 
-以下问题保留为后续设计讨论，不纳入 `asTrigger` 最小核心契约：
+以下问题保留为后续设计讨论，不纳入当前 Button/asTrigger pilot blocker：
 
-- F-014：focus 在 BaseButton 中的依赖边界。重点讨论 focus 状态是否应由 focus privileged asHook 投影，而不是由 generic interaction signals 直接拥有。
-- F-020：disabled 所有权边界。重点讨论 `disabled` 是否适合作为 generic interaction signal；不同交互组件对 disabled 的语义可能不同，props 上的 `disabled` 只表示 prototype 接收该输入，如何协调输入与内部交互状态应由具体 prototype 或特权 asHook 负责。
-- F-021：interaction signal 集合与 `fromInteraction` 投影。重点拆分 pointer/press facts 与 focus facts，不让 interaction signals 越权定义尚未编目的 focus 系统。
-- F-022：exposed `click` 边界。初步方向是 Button 的 `click` 是 button protocol 的 outward custom event/signal，不是 native click，也不是 `press.commit` 的别名；adapter 可以决定它在宿主中映射得多贴近原生事件。
+- F-018：剩余 parameterized privileged hooks 的 no-arg / returned-handle migration。
+- F-021：通用 interaction signal 集合与 `fromInteraction` 文档同步；重点避免 focus、a11y 或具体原型自治事实被 generic interaction signals 重新吞并。
+- asHook result ergonomics：`stateHandles` / `getState(...)` / expose-key projection 的推荐 authoring surface 与类型收紧。
+- a11y enhancement：relation、description composition、disabled reason、explicit label/name source priority、host projection 降级策略。
+- focus roving 细节：等列表、菜单、tabs 等集合类原型编目时跟进。
