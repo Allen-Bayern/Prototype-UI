@@ -164,6 +164,10 @@ function validateWorkspaceRelations(
     for (const relationKind of SPEC_RELATION_KINDS) {
       validateRelationGroup(entry, byId, issues, relationKind, entry.entity[relationKind]);
     }
+
+    for (const criterion of entry.entity.criteria) {
+      validateRelationGroup(entry, byId, issues, 'dependsOn', criterion.dependsOn, criterion.id);
+    }
   }
 }
 
@@ -198,7 +202,8 @@ function validateRelationGroup(
   byId: Map<string, LoadedSpecEntity>,
   issues: SpecValidationIssue[],
   groupName: SpecRelationKind,
-  relations: SpecRelations
+  relations: SpecRelations,
+  sourceId = entry.entity.id
 ): void {
   if (!relations) return;
 
@@ -209,7 +214,7 @@ function validateRelationGroup(
       if (target.since && target.until && compareSpecVersions(target.until, target.since) <= 0) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} relation to ${target.id} has until <= since.`,
+          message: `${sourceId} ${groupName}.${relationKey} relation to ${target.id} has until <= since.`,
         });
       }
 
@@ -218,7 +223,7 @@ function validateRelationGroup(
       if (!targetEntry) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} target does not exist: ${target.id}.`,
+          message: `${sourceId} ${groupName}.${relationKey} target does not exist: ${target.id}.`,
         });
         continue;
       }
@@ -226,7 +231,7 @@ function validateRelationGroup(
       if (targetEntry.entity.type !== expectedType) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} target ${target.id} is ${targetEntry.entity.type}, expected ${expectedType}.`,
+          message: `${sourceId} ${groupName}.${relationKey} target ${target.id} is ${targetEntry.entity.type}, expected ${expectedType}.`,
         });
       }
 
@@ -235,14 +240,14 @@ function validateRelationGroup(
       if (compareSpecVersions(relationSince, entry.entity.since) < 0) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} relation to ${target.id} starts before the source entity exists.`,
+          message: `${sourceId} ${groupName}.${relationKey} relation to ${target.id} starts before the source entity exists.`,
         });
       }
 
       if (compareSpecVersions(relationSince, targetEntry.entity.since) < 0) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} relation to ${target.id} starts before the target entity exists.`,
+          message: `${sourceId} ${groupName}.${relationKey} relation to ${target.id} starts before the target entity exists.`,
         });
       }
 
@@ -252,7 +257,7 @@ function validateRelationGroup(
       ) {
         issues.push({
           filePath: entry.filePath,
-          message: `${entry.entity.id} ${groupName}.${relationKey} relation to ${target.id} extends beyond the target removal version.`,
+          message: `${sourceId} ${groupName}.${relationKey} relation to ${target.id} extends beyond the target removal version.`,
         });
       }
     }

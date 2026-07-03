@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Prototype } from '@proto.ui/core';
+import type { A11ySemanticObjectSnapshot } from '@proto.ui/core';
 import { definePrototype } from '@proto.ui/core';
 import type { RuntimeHost } from '@proto.ui/runtime';
 import { executeWithHost } from '@proto.ui/runtime';
@@ -14,6 +15,7 @@ import {
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
 } from '@proto.ui/module-as-trigger';
+import { A11Y_PROJECT_CAP } from '@proto.ui/module-a11y';
 import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
 import button, { asButton } from '../src/button';
 
@@ -22,6 +24,7 @@ function createHost(initialRaw: Record<string, unknown> = {}) {
   const rootTarget = new EventTarget();
   const globalTarget = new EventTarget();
   const emitted: string[] = [];
+  const a11ySnapshots: A11ySemanticObjectSnapshot[] = [];
   let exposes: Record<string, any> | null = null;
 
   const host: RuntimeHost<any> = {
@@ -44,6 +47,14 @@ function createHost(initialRaw: Record<string, unknown> = {}) {
         [AS_TRIGGER_PARENT_CAP, () => null],
         [AS_TRIGGER_GET_PROTO_CAP, () => null],
       ]);
+      wiring.attach('a11y', [
+        [
+          A11Y_PROJECT_CAP,
+          (snapshot: A11ySemanticObjectSnapshot) => {
+            a11ySnapshots.push(snapshot);
+          },
+        ],
+      ]);
       wiring.attach('expose-state', [
         [EXPOSE_STATE_SET_EXPOSES_CAP, (next: Record<string, unknown>) => (exposes = next)],
       ]);
@@ -57,6 +68,9 @@ function createHost(initialRaw: Record<string, unknown> = {}) {
     emitted,
     getExposes() {
       return exposes;
+    },
+    getA11ySnapshot() {
+      return a11ySnapshots.at(-1);
     },
   };
 }
@@ -80,6 +94,12 @@ describe('prototypes/base: asButton', () => {
 
     const exposes = ctx.getExposes() as any;
     expect(exposes).toBeTruthy();
+    expect(ctx.getA11ySnapshot()).toMatchObject({
+      role: 'button',
+      name: { kind: 'content' },
+      states: { disabled: false },
+      actions: { activate: { event: 'click' } },
+    });
 
     ctx.rootTarget.dispatchEvent(new CustomEvent('pointer.enter'));
     expect(exposes.hovered.get()).toBe(true);
@@ -98,6 +118,7 @@ describe('prototypes/base: asButton', () => {
     expect(ctx.emitted).toEqual(['click']);
 
     controller.applyRawProps({ disabled: true } as any);
+    expect(ctx.getA11ySnapshot()?.states.disabled).toBe(true);
     expect(exposes.hovered.get()).toBe(false);
     expect(exposes.focused.get()).toBe(false);
     expect(exposes.focusVisible.get()).toBe(false);

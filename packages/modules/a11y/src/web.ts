@@ -1,0 +1,80 @@
+import type { A11ySemanticObjectSnapshot } from '@proto.ui/core';
+
+import type { A11yProjector } from './caps';
+
+const ARIA_STATE_ATTRS: Record<string, string> = {
+  checked: 'aria-checked',
+  disabled: 'aria-disabled',
+  expanded: 'aria-expanded',
+  invalid: 'aria-invalid',
+  pressed: 'aria-pressed',
+  selected: 'aria-selected',
+};
+
+export function createWebA11yProjector(el: HTMLElement): A11yProjector {
+  return (snapshot) => {
+    applyWebA11ySnapshot(el, snapshot);
+  };
+}
+
+export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObjectSnapshot): void {
+  if (typeof snapshot.role !== 'undefined') {
+    setOptionalAttr(el, 'role', snapshot.role);
+  }
+
+  if (snapshot.name) {
+    if (snapshot.name.kind === 'text') {
+      el.setAttribute('aria-label', snapshot.name.value);
+    } else {
+      el.removeAttribute('aria-label');
+    }
+  }
+
+  if (snapshot.description) {
+    if (snapshot.description.kind === 'text') {
+      el.setAttribute('aria-description', snapshot.description.value);
+    } else {
+      el.removeAttribute('aria-description');
+    }
+  }
+
+  for (const [key, attr] of Object.entries(ARIA_STATE_ATTRS)) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.states, key)) {
+      setNullableBooleanAttr(el, attr, snapshot.states[key]);
+    }
+  }
+
+  const actionKeys = Object.keys(snapshot.actions).sort();
+  if (actionKeys.length) {
+    setOptionalAttr(el, 'data-pui-a11y-actions', actionKeys.join(' '));
+  }
+
+  if (snapshot.tree) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'hidden')) {
+      setNullableBooleanAttr(el, 'aria-hidden', snapshot.tree.hidden);
+    }
+    if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'mergeChildren')) {
+      setNullableBooleanAttr(el, 'data-pui-a11y-merge-children', snapshot.tree.mergeChildren);
+    }
+  }
+}
+
+function setOptionalAttr(el: HTMLElement, attr: string, value: string | undefined): void {
+  if (value === undefined || value === '') {
+    el.removeAttribute(attr);
+    return;
+  }
+  el.setAttribute(attr, value);
+}
+
+function setNullableBooleanAttr(el: HTMLElement, attr: string, value: unknown): void {
+  if (value === undefined || value === null) {
+    el.removeAttribute(attr);
+    return;
+  }
+  if (typeof value === 'boolean') {
+    el.setAttribute(attr, value ? 'true' : 'false');
+    return;
+  }
+  el.setAttribute(attr, String(value));
+}

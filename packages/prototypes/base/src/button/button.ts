@@ -20,6 +20,7 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
   // P-BASE-BUTTON-DISABLED-EXPOSE
   const disabled = def.state.fromInteraction('disabled');
   def.expose.state('disabled', disabled);
+  def.a11y.state('disabled', disabled);
 
   // P-BASE-BUTTON-POINTER-HOVER
   const hovered = def.state.fromInteraction('hovered');
@@ -60,6 +61,14 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
 
   // P-BASE-BUTTON-CLICK-SIGNAL, P-BASE-BUTTON-CLICK-PROTOCOL-NAME
   def.expose.event('click', { payload: 'void' });
+  // P-BASE-BUTTON-ROLE-COMMAND
+  def.a11y.action('activate', { event: 'click' });
+
+  // P-BASE-BUTTON-ACCESSIBLE-ROLE
+  def.a11y.role('button');
+
+  // P-BASE-BUTTON-ACCESSIBLE-NAME, P-BASE-BUTTON-CONTENT-LABEL-SOURCE
+  def.a11y.nameFromContent();
 
   // P-BASE-BUTTON-KEYBOARD-ACTIVATION, P-BASE-BUTTON-KEYBOARD-SPACE-PREVENT-DEFAULT
   def.event.onGlobal('key.down', (_run, ev) => {
@@ -77,9 +86,6 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
   });
 
   /*
-   * TODO(P-BASE-BUTTON-ACCESSIBLE-ROLE): practice through the future a11y prototype syntax.
-   * TODO(P-BASE-BUTTON-ACCESSIBLE-NAME): practice through the future a11y prototype syntax.
-   * TODO(P-BASE-BUTTON-CONTENT-LABEL-SOURCE): practice through the future a11y prototype syntax.
    * TODO(P-BASE-BUTTON-PROP-LABEL-DEFERRED): keep accessible naming out of core props once a11y syntax exists.
    * TODO(P-BASE-BUTTON-A11Y-ENHANCEMENT): practice optional a11y enhancements through the future a11y syntax.
    */

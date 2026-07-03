@@ -11,6 +11,7 @@ export * from './errors';
 
 export * from './state';
 export * from './context';
+export * from './a11y';
 export * from './focus';
 export * from './boundary';
 export * from './hit-participation';

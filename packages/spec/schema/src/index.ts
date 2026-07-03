@@ -141,6 +141,7 @@ export const specCriterionSchema = z.object({
   id: z.string().min(1),
   text: specLocalizedTextSchema,
   rationale: specLocalizedTextSchema.optional(),
+  dependsOn: specRelationsSchema,
 });
 
 export const specOpenQuestionSchema = z.object({

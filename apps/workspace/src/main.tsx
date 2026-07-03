@@ -9,7 +9,12 @@ import {
   type SpecSnapshotDiff,
 } from '@proto.ui/spec-engine';
 import { buildSpecGraph, type SpecGraph } from '@proto.ui/spec-graph';
-import { SPEC_RELATION_KINDS, type SpecEntity } from '@proto.ui/spec-schema';
+import {
+  SPEC_RELATION_KINDS,
+  type SpecEntity,
+  type SpecRelations,
+  type SpecRelationTarget,
+} from '@proto.ui/spec-schema';
 
 import './styles.css';
 
@@ -79,6 +84,15 @@ const UI_TEXT = {
       exercises: 'Exercises',
       requires: 'Requires',
       owns: 'Owns',
+    },
+    relationTargetKinds: {
+      contracts: 'Contracts',
+      prototypes: 'Prototypes',
+      modules: 'Modules',
+      decisions: 'Decisions',
+      hostCaps: 'Host Capabilities',
+      tests: 'Tests',
+      knowledge: 'Knowledge',
     },
     semanticDiff: 'Semantic Diff',
     added: 'Added',
@@ -167,6 +181,15 @@ const UI_TEXT = {
       exercises: '演练',
       requires: '要求',
       owns: '拥有',
+    },
+    relationTargetKinds: {
+      contracts: '契约',
+      prototypes: '原型',
+      modules: '模块',
+      decisions: '决策',
+      hostCaps: 'Host 能力',
+      tests: '测试',
+      knowledge: '知识',
     },
     semanticDiff: '语义差异',
     added: '新增',
@@ -500,7 +523,12 @@ function WorkspaceView(props: {
         </header>
 
         <section className="main-grid">
-          <EntityInspector entity={props.selectedEntity} locale={props.locale} t={props.t} />
+          <EntityInspector
+            entity={props.selectedEntity}
+            locale={props.locale}
+            t={props.t}
+            onSelectEntity={props.onSelectEntity}
+          />
           <DiffPanel diff={props.diff} t={props.t} />
           <GraphPanel
             entities={props.snapshot.entities}
@@ -532,7 +560,12 @@ function SummaryMetric(props: { label: string; value: number; tone?: 'ok' | 'war
   );
 }
 
-function EntityInspector(props: { entity: SpecEntity | null; locale: Locale; t: UiText }) {
+function EntityInspector(props: {
+  entity: SpecEntity | null;
+  locale: Locale;
+  t: UiText;
+  onSelectEntity(id: string): void;
+}) {
   if (!props.entity) {
     return <section className="panel">{props.t.noEntity}</section>;
   }
@@ -576,7 +609,11 @@ function EntityInspector(props: { entity: SpecEntity | null; locale: Locale; t: 
           <h3>{props.t.criteria}</h3>
           <div className="criteria-list">
             {entity.criteria.map((criterion) => (
-              <article className="criterion-row" key={criterion.id}>
+              <article
+                className="criterion-row"
+                data-criterion-id={criterion.id}
+                key={criterion.id}
+              >
                 <strong>{criterion.id}</strong>
                 <p>{renderLocalizedText(criterion.text, props.locale)}</p>
                 {criterion.rationale ? (
@@ -585,6 +622,13 @@ function EntityInspector(props: { entity: SpecEntity | null; locale: Locale; t: 
                     {renderLocalizedText(criterion.rationale, props.locale)}
                   </p>
                 ) : null}
+                <RelationList
+                  compact
+                  relations={criterion.dependsOn}
+                  title={props.t.relationKinds.dependsOn}
+                  t={props.t}
+                  onSelectEntity={props.onSelectEntity}
+                />
               </article>
             ))}
           </div>
@@ -713,6 +757,8 @@ function EntityInspector(props: { entity: SpecEntity | null; locale: Locale; t: 
             key={relationKind}
             title={props.t.relationKinds[relationKind]}
             relations={entity[relationKind]}
+            t={props.t}
+            onSelectEntity={props.onSelectEntity}
           />
         ))}
       </section>
@@ -781,30 +827,72 @@ function getCaseImplementations(entity: SpecEntity): Map<string, SpecEntity['imp
   return caseImplementations;
 }
 
-function RelationList(props: { title: string; relations: SpecEntity['relates'] }) {
+function RelationList(props: {
+  title: string;
+  relations: SpecRelations;
+  t: UiText;
+  compact?: boolean;
+  onSelectEntity?(id: string): void;
+}) {
   if (!props.relations) return null;
 
   const entries = Object.entries(props.relations).flatMap(([kind, targets]) =>
-    (targets ?? []).map((target) => ({ kind, target }))
+    (targets ?? []).map((target) => ({ kind: kind as keyof NonNullable<SpecRelations>, target }))
   );
 
   if (entries.length === 0) return null;
 
   return (
-    <div className="relations">
+    <div className={props.compact ? 'relations compact-relations' : 'relations'}>
       <h3>{props.title}</h3>
       <div className="relation-list">
         {entries.map(({ kind, target }) => (
-          <span className="relation-chip" key={`${kind}:${target.id}`}>
-            <strong>{target.id}</strong>
-            {target.anchors?.length ? <small>{target.anchors.join(', ')}</small> : null}
-            {target.role ? <small>role={target.role}</small> : null}
-            {target.coverageImpact ? <small>coverageImpact={target.coverageImpact}</small> : null}
-            {target.note ? <small>{target.note}</small> : null}
-          </span>
+          <RelationChip
+            key={`${kind}:${target.id}`}
+            kind={kind}
+            target={target}
+            t={props.t}
+            onSelectEntity={props.onSelectEntity}
+          />
         ))}
       </div>
     </div>
+  );
+}
+
+function RelationChip(props: {
+  kind: keyof NonNullable<SpecRelations>;
+  target: SpecRelationTarget;
+  t: UiText;
+  onSelectEntity?(id: string): void;
+}) {
+  const content = (
+    <>
+      <strong>{props.target.id}</strong>
+      <small>{props.t.relationTargetKinds[props.kind]}</small>
+      {props.target.anchors?.length ? <small>{props.target.anchors.join(', ')}</small> : null}
+      {props.target.role ? <small>role={props.target.role}</small> : null}
+      {props.target.coverageImpact ? (
+        <small>coverageImpact={props.target.coverageImpact}</small>
+      ) : null}
+      {props.target.note ? <small>{props.target.note}</small> : null}
+    </>
+  );
+
+  if (!props.onSelectEntity) {
+    return <span className="relation-chip">{content}</span>;
+  }
+
+  return (
+    <button
+      className="relation-chip relation-button"
+      data-relation-kind={props.kind}
+      data-relation-target={props.target.id}
+      type="button"
+      onClick={() => props.onSelectEntity?.(props.target.id)}
+    >
+      {content}
+    </button>
   );
 }
 
