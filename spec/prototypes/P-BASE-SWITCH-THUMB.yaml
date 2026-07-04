@@ -267,10 +267,16 @@ relates:
 references:
   prototypes:
     - P-BASE-SWITCH
+verifies:
+  tests:
+    - T-BASE-SWITCH-THUMB-0001
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced the Base Switch Thumb prototype contract draft as a context-driven, eventless visual indicator part.
+  - version: 0.1.0
+    change: revised
+    summary: Added Switch Thumb indicator protocol test entity mapping.
 tags:
   - prototype
   - base

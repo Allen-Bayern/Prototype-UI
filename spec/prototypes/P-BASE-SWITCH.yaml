@@ -700,6 +700,10 @@ references:
 owns:
   prototypes:
     - P-BASE-SWITCH-THUMB
+verifies:
+  tests:
+    - T-BASE-SWITCH-0001
+    - T-BASE-SWITCH-THUMB-0001
 revisions:
   - version: 0.1.0
     change: introduced
@@ -710,6 +714,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: Promoted Switch Thumb into its own prototype entity while keeping Switch as the anatomy family owner.
+  - version: 0.1.0
+    change: revised
+    summary: Added Switch root and Switch Thumb test entity mappings.
 tags:
   - prototype
   - base

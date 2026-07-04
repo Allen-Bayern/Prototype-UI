@@ -7,7 +7,12 @@ AdaptToWebComponent(switchThumb as any);
 
 describe('prototypes/base: switch', () => {
   it('switch-root reuses toggle semantics for checked state and checkedChange', async () => {
+    // T-BASE-SWITCH-0001-CASE-UNCONTROLLED-CHECKED-CHANGE
     const root = document.createElement('base-switch-root') as any;
+    const checkedChanges: Array<{ checked: boolean }> = [];
+    root.addEventListener('checkedChange', (event: Event) => {
+      checkedChanges.push((event as CustomEvent).detail);
+    });
     document.body.appendChild(root);
 
     await Promise.resolve();
@@ -19,11 +24,13 @@ describe('prototypes/base: switch', () => {
     root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(exposes.checked.get()).toBe(true);
+    expect(checkedChanges).toEqual([{ checked: true }]);
     root.remove();
     await Promise.resolve();
   });
 
   it('switch-thumb reads root checked through anatomy runtime access', async () => {
+    // T-BASE-SWITCH-THUMB-0001-CASE-INDICATOR-ROLE
     const root = document.createElement('base-switch-root') as any;
     const thumb = document.createElement('base-switch-thumb') as any;
     root.appendChild(thumb);
@@ -45,7 +52,12 @@ describe('prototypes/base: switch', () => {
   });
 
   it('disabled switch-root suppresses checked changes', async () => {
+    // T-BASE-SWITCH-0001-CASE-DISABLED-GATING
     const root = document.createElement('base-switch-root') as any;
+    const checkedChanges: Array<{ checked: boolean }> = [];
+    root.addEventListener('checkedChange', (event: Event) => {
+      checkedChanges.push((event as CustomEvent).detail);
+    });
     setElementProps(root, { disabled: true });
     document.body.appendChild(root);
 
@@ -56,6 +68,7 @@ describe('prototypes/base: switch', () => {
     root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(exposes.checked.get()).toBe(false);
+    expect(checkedChanges).toEqual([]);
     root.remove();
     await Promise.resolve();
   });
