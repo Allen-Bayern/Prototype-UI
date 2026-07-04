@@ -42,6 +42,13 @@ const UI_TEXT = {
     since: 'Since',
     noEntity: 'No entity selected.',
     statement: 'Statement',
+    anatomy: 'Anatomy',
+    family: 'Family',
+    roles: 'Roles',
+    relations: 'Relations',
+    profiles: 'Profiles',
+    cardinality: 'Cardinality',
+    requires: 'Requires',
     rationale: 'Rationale',
     blocks: 'Blocks',
     covers: 'Covers',
@@ -140,6 +147,13 @@ const UI_TEXT = {
     since: '引入版本',
     noEntity: '未选择实体。',
     statement: '契约陈述',
+    anatomy: '解剖学',
+    family: '家族',
+    roles: '角色',
+    relations: '关系',
+    profiles: 'Profile',
+    cardinality: '基数',
+    requires: '要求',
     rationale: '理由',
     blocks: '阻塞项',
     covers: '覆盖',
@@ -606,6 +620,9 @@ function EntityInspector(props: {
           <p>{renderLocalizedText(entity.statement, props.locale)}</p>
         </section>
       ) : null}
+      {entity.anatomy ? (
+        <AnatomySection anatomy={entity.anatomy} locale={props.locale} t={props.t} />
+      ) : null}
       {entity.criteria.length > 0 ? (
         <section className="detail-section">
           <h3>{props.t.criteria}</h3>
@@ -773,6 +790,98 @@ function EntityInspector(props: {
       </section>
     </section>
   );
+}
+
+function AnatomySection(props: {
+  anatomy: NonNullable<SpecEntity['anatomy']>;
+  locale: Locale;
+  t: UiText;
+}) {
+  const roles = Object.entries(props.anatomy.roles);
+  const profiles = Object.entries(props.anatomy.profiles);
+
+  return (
+    <section className="detail-section anatomy-section">
+      <h3>{props.t.anatomy}</h3>
+      <div className="anatomy-family">
+        <span>{props.t.family}</span>
+        <code>{props.anatomy.family}</code>
+      </div>
+      <div className="anatomy-grid">
+        <div className="anatomy-block">
+          <h4>{props.t.roles}</h4>
+          <div className="anatomy-role-list">
+            {roles.map(([roleName, role]) => (
+              <article className="anatomy-role" key={roleName}>
+                <strong>{roleName}</strong>
+                <small>
+                  {props.t.cardinality}: {formatCardinality(role.cardinality)}
+                </small>
+                {role.summary ? <p>{renderLocalizedText(role.summary, props.locale)}</p> : null}
+                {role.requires.length > 0 ? (
+                  <div className="anatomy-requires">
+                    <span>{props.t.requires}</span>
+                    {role.requires.map((requirement) => (
+                      <code key={`${requirement.kind}:${requirement.name}`}>
+                        {requirement.kind}:{requirement.name}
+                      </code>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </div>
+        <div className="anatomy-block">
+          <h4>{props.t.relations}</h4>
+          {props.anatomy.relations.length > 0 ? (
+            <div className="anatomy-relation-list">
+              {props.anatomy.relations.map((relation, index) => (
+                <code key={`${relation.kind}:${relation.parent}:${relation.child}:${index}`}>
+                  {relation.kind}({relation.parent}, {relation.child})
+                </code>
+              ))}
+            </div>
+          ) : (
+            <p className="empty">{props.t.none}</p>
+          )}
+        </div>
+      </div>
+      {profiles.length > 0 ? (
+        <div className="anatomy-block anatomy-profiles">
+          <h4>{props.t.profiles}</h4>
+          <div className="anatomy-role-list">
+            {profiles.map(([profileName, profile]) => (
+              <article className="anatomy-role" key={profileName}>
+                <strong>{profileName}</strong>
+                {Object.entries(profile.roles).map(([roleName, role]) => (
+                  <small key={roleName}>
+                    {roleName}
+                    {role.cardinality ? ` ${formatPartialCardinality(role.cardinality)}` : ''}
+                  </small>
+                ))}
+                {profile.relations.map((relation, index) => (
+                  <code key={`${relation.kind}:${relation.parent}:${relation.child}:${index}`}>
+                    {relation.kind}({relation.parent}, {relation.child})
+                  </code>
+                ))}
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function formatCardinality(cardinality: { min: number; max: number | '*' }): string {
+  return `${cardinality.min}..${cardinality.max}`;
+}
+
+function formatPartialCardinality(cardinality: { min?: number; max?: number | '*' }): string {
+  const min = cardinality.min ?? '*';
+  const max = cardinality.max ?? '*';
+  return `${min}..${max}`;
 }
 
 function CaseCoverageList(props: {

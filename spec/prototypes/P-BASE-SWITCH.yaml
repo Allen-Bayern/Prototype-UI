@@ -13,6 +13,27 @@ statement:
     Base Switch is a focusable, disable-able on/off value control whose root owns the semantics and state. It displays a persistent binary state, flips to the opposite state after successful activation, and emits an outward signal named `checkedChange` to the App Maker. The `base-switch-root` direct prototype and the `asSwitchRoot` authored asHook are two authoring entries of the same Switch root protocol; Switch may include anatomy parts such as thumb or indicator, but those parts do not own activation or value semantics.
 
 
+anatomy:
+  family: base-switch
+  roles:
+    root:
+      cardinality:
+        min: 1
+        max: 1
+      summary:
+        zh-CN: Switch 的 semantic owner、value owner 与 anatomy domain anchor。
+        en: Switch semantic owner, value owner, and anatomy domain anchor.
+    thumb:
+      cardinality:
+        min: 0
+        max: '*'
+      summary:
+        zh-CN: 可选且可重复的 same-domain indicator，不拥有 activation 或 value 语义。
+        en: Optional and repeatable same-domain indicator that does not own activation or value semantics.
+  relations:
+    - kind: contains
+      parent: root
+      child: thumb
 criteria:
   - id: P-BASE-SWITCH-ROLE-ON-OFF-VALUE
     text:
@@ -72,11 +93,19 @@ criteria:
         - C-EXPOSE-EVENT-0001
   - id: P-BASE-SWITCH-ANATOMY-FAMILY
     text:
-      zh-CN: Switch 可以作为 compound anatomy family 表达 root 与 indicator part 的结构关系，但 anatomy 不得创建 part 或注入行为。
-      en: Switch may be expressed as a compound anatomy family relating root and indicator parts, but anatomy must not create parts or inject behavior.
+      zh-CN: Switch anatomy family 的 canonical structure 由顶层 `anatomy` 字段定义；anatomy 不得创建 part 或注入行为。
+      en: The canonical structure of the Switch anatomy family is defined by the top-level `anatomy` field; anatomy must not create parts or inject behavior.
     dependsOn:
       contracts:
         - C-ANATOMY-0001
+        - C-ANATOMY-0002
+        - C-ANATOMY-0004
+  - id: P-BASE-SWITCH-FAMILY-ROLES
+    text:
+      zh-CN: Switch anatomy family 第一轮必须至少定义 `root` 与 `thumb` roles。
+      en: The first Switch anatomy family must define at least the `root` and `thumb` roles.
+    dependsOn:
+      contracts:
         - C-ANATOMY-0002
         - C-ANATOMY-0004
   - id: P-BASE-SWITCH-ROOT-DOMAIN-ANCHOR
@@ -87,6 +116,14 @@ criteria:
       contracts:
         - C-ANATOMY-0004
         - C-ANATOMY-0005
+  - id: P-BASE-SWITCH-ROOT-CARDINALITY
+    text:
+      zh-CN: Switch anatomy family 中 `root` role 的 cardinality 必须是 `1..1`。
+      en: The `root` role cardinality in the Switch anatomy family must be `1..1`.
+    dependsOn:
+      contracts:
+        - C-ANATOMY-0002
+        - C-ANATOMY-0005
   - id: P-BASE-SWITCH-THUMB-INDICATOR
     text:
       zh-CN: Switch thumb 若作为官方 part 存在，只能作为 same-domain indicator 反映 root 的 checked/on-off state，不得拥有 activation 或 value 语义。
@@ -96,6 +133,22 @@ criteria:
         - C-ANATOMY-0008
         - C-ANATOMY-0009
         - C-EXPOSE-STATE-0001
+  - id: P-BASE-SWITCH-THUMB-CARDINALITY
+    text:
+      zh-CN: Switch anatomy family 中 `thumb` role 的 cardinality 必须是 `0..*`；thumb 是可选且可重复的 indicator。
+      en: The `thumb` role cardinality in the Switch anatomy family must be `0..*`; thumb is an optional and repeatable indicator.
+    dependsOn:
+      contracts:
+        - C-ANATOMY-0002
+        - C-ANATOMY-0005
+  - id: P-BASE-SWITCH-ROOT-CONTAINS-THUMB
+    text:
+      zh-CN: Switch anatomy family 必须声明 `root contains thumb` 的结构关系。
+      en: The Switch anatomy family must declare the `root contains thumb` structural relation.
+    dependsOn:
+      contracts:
+        - C-ANATOMY-0002
+        - C-ANATOMY-0005
   - id: P-BASE-SWITCH-THUMB-NOT-TARGET
     text:
       zh-CN: Switch thumb 不应成为独立 event target；activation route 属于 Switch root。
@@ -193,6 +246,49 @@ criteria:
       contracts:
         - C-STATE-0001
         - C-A11Y-0001
+  - id: P-BASE-SWITCH-CONTEXT-KEY
+    text:
+      zh-CN: Switch protocol 必须定义稳定的 ContextKey（例如 `SWITCH_CONTEXT` / `base-switch`），作为同一 Switch domain 内 root 与官方 anatomy parts 的协作身份。
+      en: Switch protocol must define a stable ContextKey, such as `SWITCH_CONTEXT` / `base-switch`, as the coordination identity for the root and official anatomy parts in the same Switch domain.
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0001
+        - C-CONTEXT-0003
+  - id: P-BASE-SWITCH-CONTEXT-PROVIDE
+    text:
+      zh-CN: Switch root 必须在 setup 期间 provide Switch context scope，并以 root 所属 Switch domain 作为该 context scope 的归属边界。
+      en: Switch root must provide the Switch context scope during setup and use the Switch domain owned by the root as that context scope's ownership boundary.
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0002
+        - C-CONTEXT-0005
+        - C-ANATOMY-0005
+  - id: P-BASE-SWITCH-CONTEXT-VALUE
+    text:
+      zh-CN: 'Switch context value 顶层必须是 JSON object，且至少包含 `checked: boolean` 与 `disabled: boolean`。'
+      en: 'The Switch context value must be a top-level JSON object and must contain at least `checked: boolean` and `disabled: boolean`.'
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0009
+        - C-STATE-0001
+        - C-STATE-INTERACTION-0001
+  - id: P-BASE-SWITCH-CONTEXT-SYNC
+    text:
+      zh-CN: 当 root 的 checked 或 disabled state 变化时，Switch root 必须同步更新 Switch context value 中对应字段。
+      en: When the root checked or disabled state changes, Switch root must synchronize the corresponding fields in the Switch context value.
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0008
+        - C-EXPOSE-STATE-0001
+  - id: P-BASE-SWITCH-PART-CONTEXT-CONSUME
+    text:
+      zh-CN: Switch 官方 indicator part 应通过 Switch context 读取或订阅 root state；不得通过复制 root props 或推断宿主 DOM 状态获得 Switch 协作信息。
+      en: Official Switch indicator parts should read or subscribe to root state through Switch context; they must not obtain Switch coordination information by copying root props or inferring host DOM state.
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0006
+        - C-CONTEXT-0007
+        - C-ANATOMY-0008
   - id: P-BASE-SWITCH-TRIGGER-SEMANTICS
     text:
       zh-CN: Switch root 必须通过官方 trigger 能力处理 activation route，但不得依赖 Button protocol 来获得 Switch 语义。
@@ -590,6 +686,14 @@ dependsOn:
     - C-ANATOMY-0005
     - C-ANATOMY-0008
     - C-ANATOMY-0009
+    - C-CONTEXT-0001
+    - C-CONTEXT-0002
+    - C-CONTEXT-0003
+    - C-CONTEXT-0005
+    - C-CONTEXT-0006
+    - C-CONTEXT-0007
+    - C-CONTEXT-0008
+    - C-CONTEXT-0009
 relates:
   decisions:
     - D-PROTOTYPE-ENTITY-NAMING-0001
@@ -607,6 +711,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced the first Base Switch prototype contract draft with root-owned on/off state, anatomy indicator boundaries, activation, accessibility, signal, and extension boundaries.
+  - version: 0.1.0
+    change: revised
+    summary: Added structured anatomy family metadata and Switch context criteria for root-to-part coordination.
 tags:
   - prototype
   - base

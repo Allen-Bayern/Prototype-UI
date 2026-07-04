@@ -457,6 +457,103 @@ h1 {
   gap: 10px;
 }
 
+.anatomy-section {
+  display: grid;
+  gap: 12px;
+}
+
+.anatomy-family {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.anatomy-family span,
+.anatomy-block h4 {
+  margin: 0;
+  color: #607068;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.anatomy-family code,
+.anatomy-role code,
+.anatomy-relation-list code,
+.anatomy-requires code {
+  border: 1px solid #d8e2dd;
+  border-radius: 6px;
+  background: #f6f9f7;
+  color: #314139;
+  padding: 4px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.anatomy-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 12px;
+}
+
+.anatomy-block {
+  display: grid;
+  gap: 8px;
+}
+
+.anatomy-role-list,
+.anatomy-relation-list {
+  display: grid;
+  gap: 8px;
+}
+
+.anatomy-role {
+  display: grid;
+  gap: 5px;
+  border: 1px solid #d8e2dd;
+  border-radius: 8px;
+  background: #fbfcfa;
+  padding: 10px;
+}
+
+.anatomy-role strong {
+  color: #26342e;
+  font-size: 13px;
+}
+
+.anatomy-role small {
+  color: #607068;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.anatomy-role p {
+  margin: 0;
+  color: #43524b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.anatomy-requires {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.anatomy-requires span {
+  color: #607068;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.anatomy-profiles {
+  margin-top: 2px;
+}
+
 .criterion-row {
   border-left: 3px solid #5c7869;
   background: #f6f8f6;
@@ -1056,7 +1153,8 @@ h1 {
   }
 
   .topbar,
-  .main-grid {
+  .main-grid,
+  .anatomy-grid {
     grid-template-columns: 1fr;
   }
 
