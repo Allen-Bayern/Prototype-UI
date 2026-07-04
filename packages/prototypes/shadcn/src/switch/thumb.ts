@@ -5,7 +5,10 @@ import type { ShadcnSwitchThumbExposes, ShadcnSwitchThumbProps } from './types';
 const THUMB_TOKENS = [
   'pointer-events-none',
   'block',
-  'size-5',
+  'h-5',
+  'w-5',
+  'min-w-5',
+  'shrink-0',
   'rounded-full',
   'bg-background',
   'border',
