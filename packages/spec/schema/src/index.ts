@@ -26,6 +26,7 @@ export const SPEC_ENTITY_STATUSES = ['draft', 'active', 'deprecated', 'removed']
 export const SPEC_RELATION_KINDS = [
   'relates',
   'dependsOn',
+  'references',
   'refines',
   'satisfies',
   'verifies',
@@ -142,6 +143,7 @@ export const specCriterionSchema = z.object({
   text: specLocalizedTextSchema,
   rationale: specLocalizedTextSchema.optional(),
   dependsOn: specRelationsSchema,
+  references: specRelationsSchema,
 });
 
 export const specOpenQuestionSchema = z.object({
@@ -192,6 +194,7 @@ export const specEntitySchema = z
     sources: z.array(specSourceRefSchema).default([]),
     relates: specRelationsSchema,
     dependsOn: specRelationsSchema,
+    references: specRelationsSchema,
     refines: specRelationsSchema,
     satisfies: specRelationsSchema,
     requires: specRelationsSchema,

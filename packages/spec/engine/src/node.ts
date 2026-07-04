@@ -166,7 +166,12 @@ function validateWorkspaceRelations(
     }
 
     for (const criterion of entry.entity.criteria) {
-      validateRelationGroup(entry, byId, issues, 'dependsOn', criterion.dependsOn, criterion.id);
+      validateRelationGroup(entry, byId, issues, 'dependsOn', criterion.dependsOn, criterion.id, {
+        validateAnchorsAsCriteria: true,
+      });
+      validateRelationGroup(entry, byId, issues, 'references', criterion.references, criterion.id, {
+        validateAnchorsAsCriteria: true,
+      });
     }
   }
 }
@@ -203,7 +208,8 @@ function validateRelationGroup(
   issues: SpecValidationIssue[],
   groupName: SpecRelationKind,
   relations: SpecRelations,
-  sourceId = entry.entity.id
+  sourceId = entry.entity.id,
+  options: { validateAnchorsAsCriteria?: boolean } = {}
 ): void {
   if (!relations) return;
 
@@ -235,6 +241,18 @@ function validateRelationGroup(
         });
       }
 
+      if (options.validateAnchorsAsCriteria) {
+        validateCriterionAnchors(
+          entry,
+          issues,
+          groupName,
+          relationKey,
+          sourceId,
+          targetEntry,
+          target
+        );
+      }
+
       const relationSince = target.since ?? entry.entity.since;
 
       if (compareSpecVersions(relationSince, entry.entity.since) < 0) {
@@ -261,6 +279,29 @@ function validateRelationGroup(
         });
       }
     }
+  }
+}
+
+function validateCriterionAnchors(
+  entry: LoadedSpecEntity,
+  issues: SpecValidationIssue[],
+  groupName: SpecRelationKind,
+  relationKey: string,
+  sourceId: string,
+  targetEntry: LoadedSpecEntity,
+  target: { id: string; anchors?: string[] }
+): void {
+  if (!target.anchors?.length) return;
+
+  const targetCriteriaIds = new Set(targetEntry.entity.criteria.map((criterion) => criterion.id));
+
+  for (const anchor of target.anchors) {
+    if (targetCriteriaIds.has(anchor)) continue;
+
+    issues.push({
+      filePath: entry.filePath,
+      message: `${sourceId} ${groupName}.${relationKey} relation to ${target.id} anchors unknown criterion ${anchor}.`,
+    });
   }
 }
 

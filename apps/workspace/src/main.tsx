@@ -77,6 +77,7 @@ const UI_TEXT = {
     relationKinds: {
       relates: 'Relates',
       dependsOn: 'Depends On',
+      references: 'References',
       refines: 'Refines',
       satisfies: 'Satisfies',
       verifies: 'Verifies',
@@ -174,6 +175,7 @@ const UI_TEXT = {
     relationKinds: {
       relates: '关联',
       dependsOn: '依赖',
+      references: '参考',
       refines: '细化',
       satisfies: '满足',
       verifies: '验证',
@@ -626,6 +628,13 @@ function EntityInspector(props: {
                   compact
                   relations={criterion.dependsOn}
                   title={props.t.relationKinds.dependsOn}
+                  t={props.t}
+                  onSelectEntity={props.onSelectEntity}
+                />
+                <RelationList
+                  compact
+                  relations={criterion.references}
+                  title={props.t.relationKinds.references}
                   t={props.t}
                   onSelectEntity={props.onSelectEntity}
                 />
