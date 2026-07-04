@@ -42,6 +42,7 @@ export type SwitchThumbExposes = {
 
 export type SwitchThumbStateHandles = {
   checked: State<boolean>;
+  disabled: State<boolean>;
 };
 
 export type SwitchThumbAsHookContract = {
