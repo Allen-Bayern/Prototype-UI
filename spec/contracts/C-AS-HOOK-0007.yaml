@@ -3,14 +3,14 @@ type: contract
 title: asHook state handles project to borrowed views
 status: draft
 since: 0.1.0
-summary: State handles introduced by an asHook must be exposed to the caller as borrowed views rather than owned views.
+summary: State handles introduced by an asHook must be exposed to the caller as borrowed views rather than owned views, and the projection obligation applies to all asHook-introduced state handles rather than only to externally exposed state.
 statement:
   zh-CN: >-
-    asHook 内部创建或引入的 state 不应以调用者完全 owned state 的身份暴露。调用者通过 asHook result 获得这些 state 时，必须得到 borrowed view：调用者可以读取、设置默认值、设置运行时值并 watch，但该 state 的来源仍然是 asHook 引入的可共享逻辑，而不是调用者直接声明的 owned state。
+    asHook 内部创建或引入的 state 不应以调用者完全 owned state 的身份暴露。调用者通过 asHook result 获得这些 state 时，必须得到 borrowed view：调用者可以读取、设置默认值、设置运行时值并 watch，但该 state 的来源仍然是 asHook 引入的可共享逻辑，而不是调用者直接声明的 owned state。该投影义务覆盖 asHook setup 引入的全部 state handles，而不只覆盖通过 `expose.state` 进入 App Maker surface 的 state。
 
 
   en: >-
-    State created or introduced inside an asHook should not be exposed to the caller as fully owned state. When the caller receives these states through the asHook result, they must be borrowed views: the caller may read, set defaults, set runtime values, and watch, but the state source remains reusable logic introduced by the asHook rather than owned state directly declared by the caller.
+    State created or introduced inside an asHook should not be exposed to the caller as fully owned state. When the caller receives these states through the asHook result, they must be borrowed views: the caller may read, set defaults, set runtime values, and watch, but the state source remains reusable logic introduced by the asHook rather than owned state directly declared by the caller. This projection obligation covers every state handle introduced during asHook setup, not only states that enter the App Maker surface through `expose.state`.
 
 
 criteria:
@@ -30,6 +30,23 @@ criteria:
     text:
       zh-CN: asHook 内部声明的 interaction state 必须归属调用者所在交互主体，而不是成为 asHook 私有 state。
       en: Interaction state declared inside an asHook must belong to the caller's interaction subject instead of becoming asHook-private state.
+  - id: C-AS-HOOK-0007-E
+    text:
+      zh-CN: asHook result 必须使调用者能够取得 asHook setup 引入的全部 state handles；该义务不得只覆盖 exposed states。
+      en: An asHook result must make every state handle introduced during asHook setup available to the caller; this obligation must not be limited to exposed states.
+  - id: C-AS-HOOK-0007-F
+    text:
+      zh-CN: asHook result 中用于组合的 named state handle 身份应来自 state declaration 的稳定名称，而不是仅由 `expose.state` 的 expose name 反推。
+      en: Named state handle identity for composition in an asHook result should come from the stable name of the state declaration, not only from the expose name passed to `expose.state`.
+openQuestions:
+  - id: C-AS-HOOK-0007-Q-STATE-NAME-API
+    question:
+      zh-CN: state declaration 的稳定名称应复用现有 semantic/name 参数，还是通过额外 options（例如 `{ name }`）显式提供？
+      en: Should the stable state declaration name reuse the existing semantic/name parameter, or be provided explicitly through additional options such as `{ name }`?
+  - id: C-AS-HOOK-0007-Q-EXPOSE-NAME-SEPARATION
+    question:
+      zh-CN: 迁移期间是否允许 `expose.state` 的 expose name 作为 fallback state handle name，还是应立即将 expose name 与 state name 完全分离？
+      en: During migration, should the expose name passed to `expose.state` remain a fallback state handle name, or should expose names and state names be separated immediately?
 sources:
   - path: internal/contracts/as-hook/as-hook.v0.md
     sections:
@@ -42,6 +59,7 @@ sources:
     sections:
       - AS-HOOK-0400
       - AS-HOOK-0450
+  - path: internal/records/2026-07-04-as-hook-state-handle-naming-fracture.zh-CN.md
 dependsOn:
   contracts:
     - C-AS-HOOK-0005
@@ -53,6 +71,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured borrowed state projection for asHook state handles.
+  - version: 0.1.1
+    change: clarified
+    summary: Clarified that asHook state projection covers all asHook-introduced state handles, and recorded the state-name versus expose-name naming fracture.
 tags:
   - as-hook
   - state
