@@ -109,6 +109,12 @@ Privileged asHooks may define their own parameter and configuration shape in the
 
 `AsHookResult` is the return value of the **asHook caller**, not the authored prototype setup result.
 
+This separates two return channels:
+
+- the authored asHook `setup` keeps the same return channel as `definePrototype`: `RenderFn | void`
+- `AsHookResult` is synthesized by the runtime after executing that setup and analyzing the setup frame
+- the synthesized result may include categorized setup contributions, such as state handles, artifacts, cancellable setup effects and their disposers, and the setup render function when one was returned
+
 It must be an object and may contain:
 
 - `props`
@@ -133,6 +139,7 @@ Only `state` is required to be projected as Borrowed view.
 
 - if `render` exists, the caller may compose it into its render
 - asHook does not directly trigger render commit
+- current v0 coverage for consuming asHook render fragments is intentionally narrow; richer render-fragment composition remains a known fracture for future value-style prototypes
 
 ---
 
