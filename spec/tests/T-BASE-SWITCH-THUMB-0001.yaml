@@ -46,11 +46,12 @@ implementations:
       - T-BASE-SWITCH-THUMB-0001-CASE-INDICATOR-ROLE
       - T-BASE-SWITCH-THUMB-0001-CASE-CONTEXT-CONSUMPTION
       - T-BASE-SWITCH-THUMB-0001-CASE-NO-INTERACTION-SURFACES
+      - T-BASE-SWITCH-THUMB-0001-CASE-AUTHORING-PRESENTATION-AND-DEFERRED-SURFACES
     exercises:
       - P-BASE-SWITCH-THUMB
     notes:
       - Covers current executable thumb behavior through the base-switch-thumb web component path.
-      - Does not yet cover the presentational a11y, form, and visual deferred surface group.
+      - Presentational a11y, form, and visual surfaces are covered as absence/declaration checks rather than positive integration behavior.
 verifies:
   prototypes:
     - id: P-BASE-SWITCH-THUMB

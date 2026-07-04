@@ -97,15 +97,19 @@ implementations:
     path: packages/prototypes/base/test/switch.test.ts
     required: true
     consumesCases:
+      - T-BASE-SWITCH-0001-CASE-ANATOMY-FAMILY
+      - T-BASE-SWITCH-0001-CASE-AUTHORING-ENTRIES
       - T-BASE-SWITCH-0001-CASE-UNCONTROLLED-CHECKED-CHANGE
       - T-BASE-SWITCH-0001-CASE-CONTROLLED-CHECKED
       - T-BASE-SWITCH-0001-CASE-DISABLED-GATING
+      - T-BASE-SWITCH-0001-CASE-INTERACTION-FOCUS-KEYBOARD
       - T-BASE-SWITCH-0001-CASE-CONTEXT
+      - T-BASE-SWITCH-0001-CASE-A11Y-AND-DEFERRED-SURFACES
     exercises:
       - P-BASE-SWITCH
     notes:
-      - Covers current executable Switch root behavior through the base-switch-root web component path.
-      - Does not yet cover the full focus/keyboard behavior or the complete a11y/deferred surface group.
+      - Covers current executable Switch root behavior through the base-switch-root web component path and focused runtime-host asHook checks.
+      - Deferred label, form, track, and visual surfaces are covered as absence/declaration checks rather than positive integration behavior.
 verifies:
   prototypes:
     - id: P-BASE-SWITCH

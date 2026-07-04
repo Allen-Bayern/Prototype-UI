@@ -80,6 +80,7 @@ describe('prototypes/base: asButton', () => {
     // T-BASE-BUTTON-0001-CASE-DISABLED-CONTROLLED
     // T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
     // T-BASE-BUTTON-0001-CASE-CLICK-SIGNAL
+    // T-BASE-BUTTON-0001-CASE-DEFERRED-SURFACES
     const P: Prototype<{ disabled?: boolean }> = definePrototype({
       name: 'x-base-as-button',
       setup() {
@@ -94,6 +95,8 @@ describe('prototypes/base: asButton', () => {
 
     const exposes = ctx.getExposes() as any;
     expect(exposes).toBeTruthy();
+    expect(exposes.click).toBeTruthy();
+    expect(exposes.onClick).toBeUndefined();
     expect(ctx.getA11ySnapshot()).toMatchObject({
       role: 'button',
       name: { kind: 'content' },
@@ -178,6 +181,7 @@ describe('prototypes/base: asButton', () => {
 
   it('keeps base-button and asButton aligned as Button authoring entries', () => {
     // T-BASE-BUTTON-0001-CASE-AUTHORING-ENTRIES
+    // T-BASE-BUTTON-0001-CASE-DEFERRED-SURFACES
     const asHookCtx = createHost({ disabled: false });
     const Direct = button as Prototype<{ disabled?: boolean }>;
     const directCtx = createHost({ disabled: false });
