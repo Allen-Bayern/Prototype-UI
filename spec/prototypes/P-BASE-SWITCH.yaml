@@ -583,16 +583,6 @@ criteria:
             - P-BASE-BUTTON-NO-VISUAL-VARIANT-CORE
             - P-BASE-BUTTON-PROP-VISUAL-DEFERRED
 openQuestions:
-  - id: P-BASE-SWITCH-Q-THUMB-ENTITY
-    question:
-      zh-CN: '`base-switch-thumb` / `asSwitchThumb` 是否应同轮提升为独立 `P-BASE-SWITCH-THUMB` 实体，还是先作为 `P-BASE-SWITCH` 的 anatomy indicator criteria 管理？'
-      en: Should `base-switch-thumb` / `asSwitchThumb` be promoted in the same round to an independent `P-BASE-SWITCH-THUMB` entity, or first be governed as anatomy indicator criteria under `P-BASE-SWITCH`?
-    context:
-      zh-CN: 当前 thumb 已是官方 authoring entry，并通过 anatomy part view 读取 root exposed checked state，但它不拥有 activation 或 value 语义。
-      en: Thumb is currently an official authoring entry and reads root exposed checked state through anatomy part views, but it does not own activation or value semantics.
-    blocks:
-      - switch thumb prototype catalog
-      - switch anatomy family final shape
   - id: P-BASE-SWITCH-Q-TRACK
     question:
       zh-CN: Switch track 是否应成为官方 anatomy role、profile recommendation、独立 part protocol，还是继续作为宿主模板内部结构？
@@ -707,6 +697,9 @@ relates:
 references:
   prototypes:
     - P-BASE-BUTTON
+owns:
+  prototypes:
+    - P-BASE-SWITCH-THUMB
 revisions:
   - version: 0.1.0
     change: introduced
@@ -714,6 +707,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: Added structured anatomy family metadata and Switch context criteria for root-to-part coordination.
+  - version: 0.1.0
+    change: revised
+    summary: Promoted Switch Thumb into its own prototype entity while keeping Switch as the anatomy family owner.
 tags:
   - prototype
   - base
