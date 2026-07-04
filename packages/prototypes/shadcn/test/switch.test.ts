@@ -25,8 +25,8 @@ describe('prototypes/shadcn: switch', () => {
     expect(root.getExposes().checked.get()).toBe(true);
     expect(thumb.getExposes().isChecked()).toBe(true);
     expect(root.getAttribute('aria-checked')).toBe('true');
-    expect(styleContains(root, 'aria-checked:bg-primary')).toBe(true);
-    expect(styleContains(root, 'aria-checked:pl-[20px]')).toBe(true);
+    expect(styleContains(root, 'data-[checked]:bg-primary')).toBe(true);
+    expect(styleContains(root, 'data-[checked]:pl-[20px]')).toBe(true);
     expect(styleContains(thumb, 'size-5')).toBe(true);
     expect(styleContains(thumb, 'translate-x-0')).toBe(true);
 

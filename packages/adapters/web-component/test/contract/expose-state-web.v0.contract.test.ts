@@ -142,7 +142,7 @@ describe('expose-state web extension', () => {
     expect(names.some((name) => /^data-.*hovered$/.test(name))).toBe(true);
   });
 
-  it('also reflects official accessibility semantics to aria-* attributes', async () => {
+  it('sanitizes official accessibility semantic names without reflecting aria attributes', async () => {
     const P: Prototype = {
       name: 'x-esw-official-aria',
       setup(def) {
@@ -167,7 +167,7 @@ describe('expose-state web extension', () => {
 
     expect(getAttr(el, 'data-checked')).toBe('');
     expect(getAttr(el, 'data-selected')).toBe('');
-    expect(getAttr(el, 'aria-checked')).toBe('true');
-    expect(getAttr(el, 'aria-selected')).toBe('true');
+    expect(getAttr(el, 'aria-checked')).toBe(null);
+    expect(getAttr(el, 'aria-selected')).toBe(null);
   });
 });
