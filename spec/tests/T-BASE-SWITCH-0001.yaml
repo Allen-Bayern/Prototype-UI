@@ -98,23 +98,14 @@ implementations:
     required: true
     consumesCases:
       - T-BASE-SWITCH-0001-CASE-UNCONTROLLED-CHECKED-CHANGE
+      - T-BASE-SWITCH-0001-CASE-CONTROLLED-CHECKED
       - T-BASE-SWITCH-0001-CASE-DISABLED-GATING
-    exercises:
-      - P-BASE-SWITCH
-    notes:
-      - Covers current executable Switch root behavior through the base-switch-root web component path.
-      - Does not yet cover controlled checked props, full focus/keyboard behavior, a11y projection, or Switch context.
-  - id: prototypes-base-switch-context-contract
-    kind: module-test
-    status: planned
-    path: packages/prototypes/base/test/switch.test.ts
-    required: true
-    consumesCases:
       - T-BASE-SWITCH-0001-CASE-CONTEXT
     exercises:
       - P-BASE-SWITCH
     notes:
-      - Planned for the implementation pass that migrates Switch root and official parts to Switch context.
+      - Covers current executable Switch root behavior through the base-switch-root web component path.
+      - Does not yet cover the full focus/keyboard behavior or the complete a11y/deferred surface group.
 verifies:
   prototypes:
     - id: P-BASE-SWITCH

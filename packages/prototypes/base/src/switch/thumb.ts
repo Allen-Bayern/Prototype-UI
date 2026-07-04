@@ -1,64 +1,31 @@
-import {
-  defineAsHook,
-  definePrototype,
-  type AnatomyPartView,
-  type DefHandle,
-  type RunHandle,
-} from '@proto.ui/core';
-import { SWITCH_FAMILY } from './shared';
+import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { SWITCH_CONTEXT, SWITCH_FAMILY, type SwitchContextValue } from './shared';
 import type { SwitchThumbAsHookContract, SwitchThumbExposes, SwitchThumbProps } from './types';
 
 function setupSwitchThumb(def: DefHandle<SwitchThumbProps, SwitchThumbExposes>): void {
   def.anatomy.claim(SWITCH_FAMILY, { role: 'thumb' });
   const checked = def.state.fromAccessibility('checked');
 
-  let rootPart: AnatomyPartView | null = null;
-  let rootCheckedOff: (() => void) | null = null;
-
   def.expose.state('checked', checked);
 
   def.expose.method('isChecked', () => {
-    const rootChecked = rootPart?.getExpose('checked') as { get?: () => boolean } | null;
-    if (!rootChecked || typeof rootChecked.get !== 'function') return null;
-    return rootChecked.get();
+    return checked.get();
   });
 
-  const syncRoot = (run: RunHandle<SwitchThumbProps>) => {
-    rootCheckedOff?.();
-    rootCheckedOff = null;
-    rootPart = run.anatomy.partsOf(SWITCH_FAMILY, 'root')[0] ?? null;
-    const rootChecked = rootPart?.getExpose('checked') as {
-      get?: () => boolean;
-      subscribe?: (cb: (e: { next: boolean }) => void) => () => void;
-      unsubscribe?: (off: () => void) => void;
-    } | null;
-    checked.set(!!rootChecked?.get?.(), 'reason: switch thumb sync => checked');
-    if (rootChecked && typeof rootChecked.subscribe === 'function') {
-      const off = rootChecked.subscribe((e) => {
-        checked.set(!!e.next, 'reason: switch thumb root checked subscription');
-      });
-      rootCheckedOff = () => {
-        if (typeof rootChecked.unsubscribe === 'function') {
-          rootChecked.unsubscribe(off);
-          return;
-        }
-        off();
-      };
-    }
+  const syncContext = (next: SwitchContextValue) => {
+    checked.set(!!next.checked, 'reason: switch thumb context checked sync');
   };
 
+  def.context.subscribe(SWITCH_CONTEXT, (_run, next) => {
+    syncContext(next);
+  });
+
   def.lifecycle.onMounted((run) => {
-    syncRoot(run);
+    syncContext(run.context.read(SWITCH_CONTEXT));
   });
 
   def.lifecycle.onUpdated((run) => {
-    syncRoot(run);
-  });
-
-  def.lifecycle.onUnmounted(() => {
-    rootCheckedOff?.();
-    rootCheckedOff = null;
-    rootPart = null;
+    syncContext(run.context.read(SWITCH_CONTEXT));
   });
 }
 

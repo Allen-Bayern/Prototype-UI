@@ -23,6 +23,17 @@ describe('contract: core / anatomy family (v0)', () => {
     expect(Object.isFrozen(first.decl)).toBe(true);
   });
 
+  it('allows unbounded role cardinality with star max', () => {
+    const family = createAnatomyFamily('indicator-family', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        indicator: { cardinality: { min: 0, max: '*' } },
+      },
+    });
+
+    expect(family.decl.roles.indicator.cardinality).toEqual({ min: 0, max: '*' });
+  });
+
   it('rejects family declarations without a root role', () => {
     expect(() =>
       createAnatomyFamily('missing-root', {

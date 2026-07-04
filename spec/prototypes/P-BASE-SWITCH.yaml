@@ -638,8 +638,8 @@ sources:
   - path: packages/prototypes/base/src/switch/types.ts
   - path: packages/prototypes/base/test/switch.test.ts
     sections:
-      - switch-root reuses toggle semantics for checked state and checkedChange
-      - switch-thumb reads root checked through anatomy runtime access
+      - switch-root owns checked state and emits checkedChange
+      - switch-thumb consumes switch context for repeatable indicator state
       - disabled switch-root suppresses checked changes
   - path: https://www.w3.org/TR/wai-aria-1.2/#switch
     label: WAI-ARIA switch role
@@ -717,6 +717,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: Added Switch root and Switch Thumb test entity mappings.
+  - version: 0.1.0
+    change: revised
+    summary: Aligned base-switch-root implementation to own Switch value semantics and provide Switch context.
 tags:
   - prototype
   - base

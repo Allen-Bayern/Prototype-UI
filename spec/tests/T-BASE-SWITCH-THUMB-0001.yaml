@@ -44,23 +44,13 @@ implementations:
     required: true
     consumesCases:
       - T-BASE-SWITCH-THUMB-0001-CASE-INDICATOR-ROLE
-    exercises:
-      - P-BASE-SWITCH-THUMB
-    notes:
-      - Covers current executable thumb behavior through the base-switch-thumb web component path.
-      - Current implementation still reads root checked through anatomy part view and Expose.
-  - id: prototypes-base-switch-thumb-context-contract
-    kind: module-test
-    status: planned
-    path: packages/prototypes/base/test/switch.test.ts
-    required: true
-    consumesCases:
       - T-BASE-SWITCH-THUMB-0001-CASE-CONTEXT-CONSUMPTION
       - T-BASE-SWITCH-THUMB-0001-CASE-NO-INTERACTION-SURFACES
     exercises:
       - P-BASE-SWITCH-THUMB
     notes:
-      - Planned for the implementation pass that changes Switch Thumb from anatomy/expose reads to required Switch context consumption.
+      - Covers current executable thumb behavior through the base-switch-thumb web component path.
+      - Does not yet cover the presentational a11y, form, and visual deferred surface group.
 verifies:
   prototypes:
     - id: P-BASE-SWITCH-THUMB

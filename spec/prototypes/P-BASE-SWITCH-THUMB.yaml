@@ -211,16 +211,6 @@ criteria:
         - id: P-BASE-SWITCH
           anchors:
             - P-BASE-SWITCH-NO-VISUAL-VARIANT-CORE
-openQuestions:
-  - id: P-BASE-SWITCH-THUMB-Q-CONTEXT-MIGRATION
-    question:
-      zh-CN: 现有 `base-switch-thumb` 实现从 anatomy part view 读取 root exposed checked state；应在哪个实现批次迁移为直接消费 Switch context？
-      en: The existing `base-switch-thumb` implementation reads root exposed checked state through anatomy part views; in which implementation batch should it migrate to direct Switch context consumption?
-    context:
-      zh-CN: 本 P 实体将 context 消费确认为目标协议，但当前实现仍反映旧的 anatomy + expose 协作路径。
-      en: This P entity confirms context consumption as the target protocol, while the current implementation still reflects the previous anatomy + expose coordination path.
-    blocks:
-      - switch thumb implementation alignment
 sources:
   - path: internal/records/2026-07-04-switch-toggle-prototype-boundary.zh-CN.md
   - path: spec/prototypes/P-BASE-SWITCH.yaml
@@ -237,7 +227,7 @@ sources:
       - SwitchThumbAsHookContract
   - path: packages/prototypes/base/test/switch.test.ts
     sections:
-      - switch-thumb reads root checked through anatomy runtime access
+      - switch-thumb consumes switch context for repeatable indicator state
 dependsOn:
   contracts:
     - C-CORE-SYNTAX-0003
@@ -277,6 +267,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: Added Switch Thumb indicator protocol test entity mapping.
+  - version: 0.1.0
+    change: revised
+    summary: Aligned base-switch-thumb implementation to required Switch context consumption.
 tags:
   - prototype
   - base
