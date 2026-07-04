@@ -12,6 +12,8 @@ cases:
       - C-STATE-0002-B
       - C-STATE-0002-C
       - C-STATE-0002-D
+      - C-STATE-0002-E
+      - C-STATE-0002-F
       - C-STATE-0007-A
       - C-STATE-0007-B
       - C-STATE-0007-C
@@ -63,6 +65,8 @@ verifies:
         - C-STATE-0002-B
         - C-STATE-0002-C
         - C-STATE-0002-D
+        - C-STATE-0002-E
+        - C-STATE-0002-F
     - id: C-STATE-0004
       anchors:
         - C-STATE-0004-A

@@ -13,6 +13,9 @@ import { EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
  * Skeleton only. Implementation pending.
  */
 describe('runtime contract: asHook (v0)', () => {
+  const resolvedStateKeyNames = (stateHandles: unknown): string[] =>
+    Object.keys((stateHandles ?? {}) as Record<string, unknown>).sort();
+
   const createHost = <P extends PropsBaseType>(name: string, initialRaw?: Record<string, any>) => {
     let raw = { ...(initialRaw ?? {}) };
     const commits: any[] = [];
@@ -247,18 +250,18 @@ describe('runtime contract: asHook (v0)', () => {
     expect(controller.getRuleStyleTokens()).toContain('opacity-50');
   });
 
-  it('AS-HOOK-0455: expose.state key names the projected state handle', () => {
+  it('AS-HOOK-0455: expose.state key does not name or override projected state handles', () => {
     let named: any;
-    let publicHandle: any;
+    let internalHandle: any;
 
     const asState = defineAsHook<
       PropsBaseType,
       { open: State<boolean> },
-      { state: { open: State<boolean> } }
+      { state: { internalOpen: State<boolean> } }
     >({
       name: 'asExposeNamedState',
       setup(def) {
-        const internalOpen = def.state.bool('@internal/open', false);
+        const internalOpen = def.state.bool('internalOpen', false);
         def.expose.state('open', internalOpen);
       },
     });
@@ -268,15 +271,15 @@ describe('runtime contract: asHook (v0)', () => {
       setup(def) {
         const res = asState();
         named = res.stateHandles;
-        publicHandle = res.getState?.('open');
+        internalHandle = res.getState?.('internalOpen');
 
         def.rule({
-          when: (w) => w.state(publicHandle).eq(true),
+          when: (w) => w.state(internalHandle).eq(true),
           intent: (i) => i.feedback.style.use(tw('opacity-50')),
         });
 
         def.lifecycle.onCreated(() => {
-          publicHandle?.set(true);
+          internalHandle?.set(true);
         });
 
         return (r) => r.el('div', 'ok');
@@ -286,10 +289,32 @@ describe('runtime contract: asHook (v0)', () => {
     const { host } = createHost(P.name);
     const { controller } = executeWithHost(P as any, host as any);
 
-    expect(typeof named?.open?.watch).toBe('function');
-    expect(named?.open).toBe(publicHandle);
-    expect(named?.['@internal/open']).toBeUndefined();
+    expect(typeof named?.internalOpen?.watch).toBe('function');
+    expect(named?.internalOpen).toBe(internalHandle);
+    expect(named?.open).toBeUndefined();
+    expect(resolvedStateKeyNames(named)).toEqual(['internalOpen']);
     expect(controller.getRuleStyleTokens()).toContain('opacity-50');
+  });
+
+  it('AS-HOOK-0456: duplicate state names in the same asHook setup frame must throw', () => {
+    const asDuplicateState = defineAsHook({
+      name: 'asDuplicateStateName',
+      setup(def) {
+        def.state.bool('open', false);
+        def.state.bool('open', true);
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0456',
+      setup() {
+        expect(() => asDuplicateState()).toThrow(/duplicate state name/i);
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    executeWithHost(P as any, host as any);
   });
 
   it('AS-HOOK-0460: event disposers are exposed but remain setup-only', () => {
@@ -453,6 +478,80 @@ describe('runtime contract: asHook (v0)', () => {
 
     const first = commits[0];
     expect(first).toEqual(['hook', 'host']);
+  });
+
+  it('AS-HOOK-0520: nested asHook state handles are not flattened into outer stateHandles', () => {
+    let result: any;
+
+    const asInner = defineAsHook<PropsBaseType, Record<string, never>, { value: State<boolean> }>({
+      name: 'asNestedInner',
+      setup(def) {
+        def.state.bool('value', false);
+      },
+    });
+
+    const asOuter = defineAsHook<
+      PropsBaseType,
+      Record<string, never>,
+      { state: { open: State<boolean> } }
+    >({
+      name: 'asNestedOuter',
+      setup(def) {
+        const nested = asInner();
+        def.asHook.result('nested', nested);
+        def.state.bool('open', false);
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0520',
+      setup() {
+        result = asOuter();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    executeWithHost(P as any, host as any);
+
+    expect(typeof result?.stateHandles?.open?.watch).toBe('function');
+    expect(result?.stateHandles?.value).toBeUndefined();
+    expect(typeof result?.nested?.stateHandles?.value?.watch).toBe('function');
+  });
+
+  it('AS-HOOK-0521: same state name is allowed across nested asHook setup frames', () => {
+    let result: any;
+
+    const asInner = defineAsHook<PropsBaseType, Record<string, never>, { value: State<boolean> }>({
+      name: 'asNestedSameNameInner',
+      setup(def) {
+        def.state.bool('value', false);
+      },
+    });
+
+    const asOuter = defineAsHook<PropsBaseType, Record<string, never>, { value: State<boolean> }>({
+      name: 'asNestedSameNameOuter',
+      setup(def) {
+        const nested = asInner();
+        def.asHook.result('nested', nested);
+        def.state.bool('value', true);
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0521',
+      setup() {
+        result = asOuter();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    executeWithHost(P as any, host as any);
+
+    expect(result?.stateHandles?.value?.get()).toBe(true);
+    expect(result?.nested?.stateHandles?.value?.get()).toBe(false);
+    expect(result?.stateHandles?.value).not.toBe(result?.nested?.stateHandles?.value);
   });
 
   it('AS-HOOK-0550: setup return must follow prototype contract (render function or void)', () => {

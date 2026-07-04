@@ -248,6 +248,10 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
 
   state: StateDefAPI;
 
+  asHook: {
+    result<K extends string, V>(key: K, value: V): void;
+  };
+
   context: {
     provide<T extends JsonObject>(key: ContextKey<T>, defaultValue: T): void;
     subscribe<T extends JsonObject>(

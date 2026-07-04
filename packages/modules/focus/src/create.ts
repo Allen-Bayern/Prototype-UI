@@ -125,6 +125,11 @@ class FocusModuleImpl extends ModuleBase {
     this.focusableOwned = stateFacade.bool('@focus/focusable', false);
     this.activeOwned = stateFacade.bool('@focus/active', false);
     this.hasFocusedOwned = stateFacade.bool('@focus/hasFocused', false);
+    (this.focusedOwned as any).__stateName = 'focused';
+    (this.focusVisibleOwned as any).__stateName = 'focusVisible';
+    (this.focusableOwned as any).__stateName = 'focusable';
+    (this.activeOwned as any).__stateName = 'active';
+    (this.hasFocusedOwned as any).__stateName = 'hasFocused';
 
     this.focusedState = statePort.createObservedHandle(this.focusedOwned) as any;
     this.focusVisibleState = statePort.createObservedHandle(this.focusVisibleOwned) as any;

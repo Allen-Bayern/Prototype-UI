@@ -22,6 +22,33 @@ import { executeWithHost, RuntimeHost } from '../../src';
  *   - After unmount + dispose, all handle operations MUST throw (guard responsibility).
  */
 describe('runtime contract: state basic (v0)', () => {
+  it('definition: state name must be non-empty and unique in the same setup frame', () => {
+    const host: RuntimeHost<any> = {
+      prototypeName: 'x-runtime-state-name',
+      getRawProps() {
+        return {};
+      },
+      commit(_children, signal) {
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+    };
+
+    const P: Prototype = {
+      name: 'x-runtime-state-name',
+      setup(def) {
+        expect(() => def.state.bool('', false)).toThrow(/state name/i);
+        def.state.bool('open', false);
+        expect(() => def.state.bool('open', true)).toThrow(/duplicate state name/i);
+        return (r) => [r.el('div', 'ok')];
+      },
+    };
+
+    executeWithHost(P, host);
+  });
+
   it('setup: setDefault works; set throws; created sees setup-default; initial render observes it', async () => {
     const logs: string[] = [];
 

@@ -133,6 +133,8 @@ export type AsHookRuntime = {
   };
   beginCapture(name: string): void;
   recordCaptured(kind: 'props' | 'state' | 'context' | 'event' | 'feedback', entry: unknown): void;
+  recordResult(key: string, value: unknown): void;
+  registerStateName(name: string, stateId?: unknown): void;
   endCapture(render?: RenderFn): AsHookResult<any, any>;
   abortCapture(): void;
   projectState<T>(state: T): T;
