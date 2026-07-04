@@ -142,3 +142,118 @@ def.state.fromInteraction('focusVisible', { name: 'focusVisible' });
 2. 将 state name API 形态保留为 open question。
 3. 后续决定 state name API 后，再更新 core/runtime 实现与 `AS-HOOK-0455` 测试。
 4. 最后回头修正 `shadcn-switch-root`，避免依赖重新创建同名 state handle 或只借用部分 state handle。
+
+---
+
+## 7）进一步决策：expose 不参与 asHook state handle 命名
+
+进一步讨论后，当前倾向已经更明确：
+
+> `expose.state` 不应参与 asHook state handle identity。过去依赖 expose key 为 asHook state handle 命名的实现与测试应被视为同期引入的局部补丁，可以彻底移除，不需要保留为长期兼容层。
+
+这个判断的理由是：
+
+- expose surface 面向 App Maker，state handle projection 面向 Prototype Maker composition。
+- expose name 与 state name 可以相同，但它们不是同一层身份。
+- 如果 expose key 可以覆盖 state name，下游 styled prototype 会难以判断 state handle 的真实来源。
+- 对没有 expose 的内部 composition state，这种命名方式天然失效。
+- 该行为是在 Button P 实体编目同期暴露出的局部修补，并非已发布长期历史包袱。
+
+对应决策实体：
+
+```text
+D-AS-HOOK-STATE-HANDLE-NAMING-0001
+```
+
+---
+
+## 8）asHook 嵌套返回值边界
+
+新的方向不是“递归返回所有 state handles”，而是：
+
+- asHook result 的自动 `stateHandles` 只包含本层 asHook setup frame 直接声明的 state handles。
+- 如果本层 asHook 调用了另一个 asHook，嵌套 asHook 的返回值应保留为嵌套 result。
+- 外层 asHook 可以显式返回、封装或重命名嵌套 result。
+- runtime 不应把嵌套 asHook 的 state handles 自动摊平进外层 result。
+
+这让 authoring 结构更可控：
+
+```ts
+const nested = asNested();
+const open = def.state.bool('open', false);
+
+return {
+  nested,
+  stateHandles: { open },
+};
+```
+
+调用者应看到：
+
+```ts
+result.stateHandles.open;
+result.nested.stateHandles.value;
+```
+
+而不是：
+
+```ts
+result.stateHandles.open;
+result.stateHandles.value; // nested 被运行时自动摊平
+```
+
+---
+
+## 9）state name 规则
+
+当前建议新增 state 层规则：
+
+1. 每个 state declaration 必须提供 stable state name。
+2. state name 是非空字符串。
+3. 同一 setup frame 内不得声明多个同名 state。
+4. 官方 JS/TS 原型应优先使用 identifier-safe state name。
+5. portable authoring 的基础要求仍然只是稳定字符串；非 identifier-safe name 必须可通过 `getState(name)` 访问。
+
+其中“同一 setup frame”是重要边界：
+
+- 普通 prototype setup 有自己的 state name namespace。
+- 每个 asHook setup frame 有自己的 state name namespace。
+- 嵌套 asHook 不与外层 asHook 自动合并 state namespace。
+
+---
+
+## 10）API 迁移计划草案
+
+后续实施可以分几步：
+
+1. Contract / test：
+   - 更新 `C-AS-HOOK-0007`，明确 direct setup frame state handles 与嵌套 result 边界。
+   - 更新 state contract，新增 state name 必填、setup frame 内唯一性。
+   - 删除或重写 `AS-HOOK-0455` 中“expose.state key names projected state handle”的断言。
+
+2. Runtime：
+   - 修改 asHook capture：区分本层 setup 直接声明的 state 与 nested asHook capture 合并效果。
+   - `collectNamedStateHandles` 不再用 expose key 覆盖 state name。
+   - 对同一 setup frame 内重复 state name 进行诊断或抛错。
+
+3. Core typing：
+   - 将 state definition API 的第一个参数契约化为 `name`。
+   - 如果 semantic 需要与 name 分离，再通过 options 或后续参数表达。
+   - 保留 `getState(name)` 访问任意字符串 name；TS property ergonomics 优先服务 identifier-safe names。
+
+4. Prototype cleanup：
+   - `base-switch` / `shadcn-switch` 回到统一从 `asSwitchRoot().stateHandles` 借用全部需要的 root states。
+   - 检查 Button / Toggle / Dialog 等使用 asHook state handles 的 styled prototypes，避免重新声明同名 state handle。
+
+---
+
+## 11）暂不直接决定的问题
+
+本记录仍不直接决定：
+
+- `def.state.bool` 等 API 是“把现有第一个参数直接解释为 name”，还是“新增 name 参数并把现有 semantic 参数后延”。
+- state semantic 与 state name 分离后，web projection、debug display、rule identity 的默认字段选择。
+- 迁移期是否需要短暂保留 expose key fallback。
+- 在 authored asHook `setup` 当前只能返回 render function 或 void 的边界下，外层 asHook 应通过什么显式 API 转交、封装或重命名嵌套 asHook result。
+
+这些问题由 `D-AS-HOOK-STATE-HANDLE-NAMING-0001` 的 open questions 继续跟踪。
