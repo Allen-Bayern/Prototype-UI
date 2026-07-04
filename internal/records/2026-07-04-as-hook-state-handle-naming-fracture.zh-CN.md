@@ -172,14 +172,14 @@ D-AS-HOOK-STATE-HANDLE-NAMING-0001
 新的方向不是“递归返回所有 state handles”，而是：
 
 - asHook result 的自动 `stateHandles` 只包含本层 asHook setup frame 直接声明的 state handles。
-- 如果本层 asHook 调用了另一个 asHook，嵌套 asHook 的返回值应保留为嵌套 result。
-- 外层 asHook 应通过明确的 result-composition 机制显式暴露、封装或重命名嵌套 result。
+- 如果本层 asHook 调用了另一个 asHook，runtime 应自动把 child asHook call 记录为 child asHook entry。
+- child asHook 的返回值应保留在 child entry result 中。
 - runtime 不应把嵌套 asHook 的 state handles 自动摊平进外层 result。
 
 这让 authoring 结构更可控：
 
 ```ts
-const nested = asNested();
+asNested();
 const open = def.state.bool('open', false);
 ```
 
@@ -187,7 +187,7 @@ const open = def.state.bool('open', false);
 
 ```ts
 result.stateHandles.open;
-result.nested.stateHandles.value;
+result.asHooks[0].result.stateHandles.value;
 ```
 
 而不是：
@@ -203,6 +203,8 @@ result.stateHandles.value; // nested 被运行时自动摊平
 - `AsHookResult` 是 asHook caller 的返回值，由 runtime 在执行 setup 后分析当前 setup frame 的语法贡献合成，包括 state handles、artifacts、可取消 setup effects 的 disposers，以及 setup 返回的 render function。
 
 因此，嵌套 asHook result 的保留、转交、封装或重命名，不应通过放宽 authored `setup` 的返回值形态来解决，而应通过明确的 result-composition 机制解决。当前运行时对 asHook render fragment 的消费覆盖也仍然很窄；这部分在 value 类原型需要复用渲染片段时会变成更明确的后续断口。
+
+后续实现已进一步收敛：child asHook result 的基础保留不需要 prototype author 显式声明，runtime 可以在 SPI 层自动收集当前 setup frame 直接调用过的 child asHook entries，并将其暴露为 `AsHookResult.asHooks` / `artifacts.asHooks`。
 
 ---
 
@@ -256,6 +258,6 @@ result.stateHandles.value; // nested 被运行时自动摊平
 - `def.state.bool` 等 API 是“把现有第一个参数直接解释为 name”，还是“新增 name 参数并把现有 semantic 参数后延”。
 - state semantic 与 state name 分离后，web projection、debug display、rule identity 的默认字段选择。
 - 迁移期是否需要短暂保留 expose key fallback。
-- 在 `setup` 返回通道保持 prototype-compatible、而 `AsHookResult` 由 runtime 分析 setup frame 合成的前提下，外层 asHook 应通过什么显式 API 或 result-composition 机制转交、封装或重命名嵌套 asHook result。
+- 在 runtime 已能自动收集 child asHook entries 的前提下，是否还需要额外的 result alias / rename / filtering SPI，以及它应面向 runtime/tooling 还是未来更高层 authoring helper。
 
 这些问题由 `D-AS-HOOK-STATE-HANDLE-NAMING-0001` 的 open questions 继续跟踪。

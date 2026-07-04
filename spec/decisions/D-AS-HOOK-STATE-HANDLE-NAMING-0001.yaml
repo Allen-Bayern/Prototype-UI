@@ -6,11 +6,11 @@ since: 0.1.0
 summary: asHook state handle projection should use stable names declared by state definitions, should not infer names from expose.state, and should preserve nested asHook result structure instead of flattening nested state handles.
 statement:
   zh-CN: >-
-    asHook result 中用于 prototype composition 的 state handles 应由 state declaration 自身的稳定 state name 命名，而不是从 `expose.state` 的 expose name 反推。`expose.state` 定义 App Maker 面向的 external state surface，不参与 asHook state handle identity。asHook 自动返回的 `stateHandles` 只覆盖当前 asHook setup frame 直接声明的 state handles；嵌套调用的 asHook 应保留自己的 result 结构，由外层 asHook 通过明确的 result-composition 机制显式暴露、封装或重命名，而不得被运行时自动摊平到外层 `stateHandles` 中。state declaration 必须提供非空字符串 name；同一 setup frame 内不得声明多个同名 state。官方 JS/TS 原型应优先使用 identifier-safe name，但长期 portable authoring 的基础要求仍是稳定字符串。
+    asHook result 中用于 prototype composition 的 state handles 应由 state declaration 自身的稳定 state name 命名，而不是从 `expose.state` 的 expose name 反推。`expose.state` 定义 App Maker 面向的 external state surface，不参与 asHook state handle identity。asHook 自动返回的 `stateHandles` 只覆盖当前 asHook setup frame 直接声明的 state handles；嵌套调用的 asHook 应保留自己的 result 结构，由 runtime 自动收集为 child asHook entries，而不得被运行时自动摊平到外层 `stateHandles` 中。state declaration 必须提供非空字符串 name；同一 setup frame 内不得声明多个同名 state。官方 JS/TS 原型应优先使用 identifier-safe name，但长期 portable authoring 的基础要求仍是稳定字符串。
 
 
   en: >-
-    State handles used for prototype composition in an asHook result should be named by the stable state name declared by the state declaration itself, not inferred from the expose name passed to `expose.state`. `expose.state` defines the App Maker-facing external state surface and must not participate in asHook state handle identity. Automatically returned `stateHandles` from an asHook cover only state handles directly declared in the current asHook setup frame; nested asHooks keep their own result structures and may be explicitly exposed, wrapped, or renamed by the outer asHook through an explicit result-composition mechanism, but must not be runtime-flattened into the outer `stateHandles`. A state declaration must provide a non-empty string name, and the same setup frame must not declare multiple states with the same name. Official JS/TS prototypes should prefer identifier-safe names, while the portable authoring baseline remains a stable string.
+    State handles used for prototype composition in an asHook result should be named by the stable state name declared by the state declaration itself, not inferred from the expose name passed to `expose.state`. `expose.state` defines the App Maker-facing external state surface and must not participate in asHook state handle identity. Automatically returned `stateHandles` from an asHook cover only state handles directly declared in the current asHook setup frame; nested asHooks keep their own result structures through runtime-collected child asHook entries, but must not be runtime-flattened into the outer `stateHandles`. A state declaration must provide a non-empty string name, and the same setup frame must not declare multiple states with the same name. Official JS/TS prototypes should prefer identifier-safe names, while the portable authoring baseline remains a stable string.
 
 
 criteria:
@@ -28,8 +28,8 @@ criteria:
       en: Automatically returned `stateHandles` from an asHook include only state handles directly declared in the current asHook setup frame.
   - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-D
     text:
-      zh-CN: 嵌套 asHook 的返回值结构必须保留；嵌套 asHook 的 state handles 不得被运行时自动摊平到外层 asHook 的 `stateHandles`。
-      en: Nested asHook result structure must be preserved; nested asHook state handles must not be automatically flattened into the outer asHook's `stateHandles` by runtime.
+      zh-CN: 嵌套 asHook 的返回值结构必须通过 runtime-collected child asHook entries 保留；嵌套 asHook 的 state handles 不得被运行时自动摊平到外层 asHook 的 `stateHandles`。
+      en: Nested asHook result structure must be preserved through runtime-collected child asHook entries; nested asHook state handles must not be automatically flattened into the outer asHook's `stateHandles` by runtime.
   - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-E
     text:
       zh-CN: 所有 state declaration 必须提供非空字符串 name。
@@ -70,8 +70,8 @@ openQuestions:
       - migration-safety
   - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-Q4
     question:
-      zh-CN: 在 `setup` 返回通道保持 prototype-compatible、而 `AsHookResult` 由 runtime 分析 setup frame 合成的前提下，外层 asHook 应通过什么显式 API 或 result-composition 机制转交、封装或重命名嵌套 asHook result？
-      en: Given that the `setup` return channel remains prototype-compatible while `AsHookResult` is synthesized by runtime analysis of the setup frame, what explicit API or result-composition mechanism should let an outer asHook forward, wrap, or rename a nested asHook result?
+      zh-CN: 在 runtime 已能自动收集 child asHook entries 的前提下，是否还需要额外的 result alias、rename 或 filtering SPI？
+      en: Given runtime-collected child asHook entries, is any additional result aliasing, renaming, or filtering SPI still needed?
     blocks:
       - nested-as-hook-result-structure
       - as-hook-result-api

@@ -1,6 +1,7 @@
 // packages/runtime/src/kernel/as-hook.ts
 import type {
   AsHookInstanceState,
+  AsHookChildResult,
   AsHookMode,
   AsHookRuntime,
   AsHookResult,
@@ -32,10 +33,12 @@ type EffectKind = 'props' | 'state' | 'context' | 'event' | 'feedback';
 type StateNameEntry = { stateId?: unknown };
 type EffectFrame = {
   name: string;
+  order: number;
+  privileged: boolean;
+  mode?: AsHookMode;
   effects: Record<EffectKind, unknown[]>;
-  resultFields: Record<string, unknown>;
+  asHooks: AsHookChildResult[];
   stateNames: Map<string, StateNameEntry>;
-  parent?: EffectFrame;
 };
 
 type StateHandleLike = {
@@ -223,10 +226,15 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
   let instanceOrder = 0;
   const projectState = opt?.projectState ?? ((state: any) => state);
 
-  const createFrame = (name: string, parent?: EffectFrame): EffectFrame => ({
+  const createFrame = (
+    name: string,
+    meta: { order: number; privileged: boolean; mode?: AsHookMode }
+  ): EffectFrame => ({
     name,
-    parent,
-    resultFields: {},
+    order: meta.order,
+    privileged: meta.privileged,
+    mode: meta.mode,
+    asHooks: [],
     stateNames: new Map(),
     effects: {
       props: [],
@@ -322,25 +330,22 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
 
       return { action: 'configure' as const, order: existing.order, state: existing.state };
     },
-    beginCapture: (name: string) => {
-      const parent = frameStack.length > 0 ? frameStack[frameStack.length - 1] : undefined;
-      frameStack.push(createFrame(name, parent));
+    beginCapture: (
+      name: string,
+      meta: { order: number; privileged: boolean; mode?: AsHookMode }
+    ) => {
+      frameStack.push(createFrame(name, meta));
     },
     recordCaptured: (kind: EffectKind, entry: unknown) => {
       if (frameStack.length === 0) return;
       const frame = frameStack[frameStack.length - 1];
       frame.effects[kind].push(entry);
     },
-    recordResult: (key: string, value: unknown) => {
-      ensureSetup('def.asHook.result');
-      if (typeof key !== 'string' || !key) {
-        throw new Error(`[AsHook] result key must be a non-empty string.`);
-      }
+    recordAsHookResult: (entry: AsHookChildResult) => {
+      ensureSetup('asHook.result');
       const frame = frameStack[frameStack.length - 1];
-      if (!frame) {
-        throw new Error(`[AsHook] def.asHook.result() can only be used inside asHook setup.`);
-      }
-      frame.resultFields[key] = value;
+      if (!frame) return;
+      frame.asHooks.push(Object.freeze({ ...entry }));
     },
     registerStateName: (name: string, stateId?: unknown) => {
       ensureSetup('def.state');
@@ -351,7 +356,7 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
       const frame = frameStack.pop();
       if (!frame) return render ? { render } : {};
 
-      const result: AsHookResult = { ...frame.resultFields };
+      const result: AsHookResult = {};
       const props = compact(frame.effects.props);
       const state = compact(frame.effects.state);
       const context = compact(frame.effects.context);
@@ -407,11 +412,17 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
         result.methods = methods;
         result.getMethod = (key: string) => methods[key];
       }
-      if (projectedStateHandles || eventKeys || methods) {
+      if (frame.asHooks.length > 0) {
+        const asHooks = Object.freeze(frame.asHooks.slice());
+        result.asHooks = asHooks;
+        result.getAsHook = (name: string) => asHooks.find((entry) => entry.name === name);
+      }
+      if (projectedStateHandles || eventKeys || methods || frame.asHooks.length > 0) {
         const artifacts: Record<string, unknown> = {};
         if (projectedStateHandles) artifacts.stateHandles = result.stateHandles;
         if (eventKeys) artifacts.eventKeys = Object.freeze(eventKeys);
         if (methods) artifacts.methods = methods;
+        if (frame.asHooks.length > 0) artifacts.asHooks = result.asHooks;
         result.artifacts = Object.freeze(artifacts);
       }
       if (allDisposers.length > 0) {

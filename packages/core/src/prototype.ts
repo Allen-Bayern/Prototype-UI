@@ -70,6 +70,14 @@ export type AsHookEventKeys<Events extends AsHookEventMap> = Readonly<{
   [K in keyof Events & string]: K;
 }>;
 
+export type AsHookChildResult = Readonly<{
+  name: string;
+  order: number;
+  privileged: boolean;
+  mode?: AsHookMode;
+  result: unknown;
+}>;
+
 export type AsHookArtifacts<
   Props extends PropsBaseType = PropsBaseType,
   ContractInput = {},
@@ -77,6 +85,7 @@ export type AsHookArtifacts<
   stateHandles?: AsHookBorrowedStates<Props, AsHookStatesOf<ContractInput>>;
   eventKeys?: AsHookEventKeys<AsHookEventsOf<ContractInput>>;
   methods?: Readonly<Record<string, unknown>>;
+  asHooks?: readonly AsHookChildResult[];
 }>;
 
 export type AsHookResult<Props extends PropsBaseType = PropsBaseType, ContractInput = {}> = {
@@ -88,6 +97,8 @@ export type AsHookResult<Props extends PropsBaseType = PropsBaseType, ContractIn
   ) => AsHookBorrowedStates<Props, AsHookStatesOf<ContractInput>>[K] | undefined;
   methods?: Readonly<Record<string, unknown>>;
   getMethod?: <K extends string>(key: K) => unknown;
+  asHooks?: readonly AsHookChildResult[];
+  getAsHook?: (name: string) => AsHookChildResult | undefined;
   artifacts?: AsHookArtifacts<Props, ContractInput>;
   disposers?: AsHookDisposers;
   context?: unknown;
@@ -131,9 +142,9 @@ export type AsHookRuntime = {
     order: number;
     state: AsHookInstanceState;
   };
-  beginCapture(name: string): void;
+  beginCapture(name: string, meta: { order: number; privileged: boolean; mode?: AsHookMode }): void;
   recordCaptured(kind: 'props' | 'state' | 'context' | 'event' | 'feedback', entry: unknown): void;
-  recordResult(key: string, value: unknown): void;
+  recordAsHookResult(entry: AsHookChildResult): void;
   registerStateName(name: string, stateId?: unknown): void;
   endCapture(render?: RenderFn): AsHookResult<any, any>;
   abortCapture(): void;
@@ -280,11 +291,24 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     };
 
     if (reg.action === 'skip') {
-      return reg.state.result ?? {};
+      const result = reg.state.result ?? {};
+      rt.recordAsHookResult({
+        name: proto.name,
+        order: reg.order,
+        privileged: false,
+        mode: mode ?? 'once',
+        result,
+      });
+      return result;
     }
 
     if (reg.action === 'setup') {
-      rt.beginCapture(proto.name);
+      rt.beginCapture(proto.name, {
+        order: reg.order,
+        privileged: false,
+        mode: mode ?? 'once',
+      });
+      let captureOpen = true;
       try {
         const render = normalizeAsHookRender(
           kind === 'hook'
@@ -292,6 +316,7 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
             : (proto as AsHookPrototype<P, E, C>).setup(def)
         );
         const result = rt.endCapture(render);
+        captureOpen = false;
         let finalResult = result;
         if (result && typeof result === 'object' && 'state' in result) {
           const nextState = rt.projectState((result as any).state);
@@ -300,6 +325,13 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
           }
         }
         reg.state.result = finalResult;
+        rt.recordAsHookResult({
+          name: proto.name,
+          order: reg.order,
+          privileged: false,
+          mode: mode ?? 'once',
+          result: finalResult,
+        });
         const hookProto = proto as HookPrototype<P, E, C, O>;
         if (
           kind === 'hook' &&
@@ -310,7 +342,9 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
         }
         return reg.state.result ?? {};
       } catch (e) {
-        rt.abortCapture();
+        if (captureOpen) {
+          rt.abortCapture();
+        }
         throw e;
       }
     }
@@ -319,7 +353,15 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     if (kind === 'hook' && typeof hookProto.configure === 'function') {
       hookProto.configure(api, options as O, tools);
     }
-    return reg.state.result ?? {};
+    const result = reg.state.result ?? {};
+    rt.recordAsHookResult({
+      name: proto.name,
+      order: reg.order,
+      privileged: false,
+      mode: mode ?? 'once',
+      result,
+    });
+    return result;
   }) as AsHookCaller<P, E, C> | HookCaller<P, E, C, O>;
 
   Object.defineProperty(caller, 'kind', {

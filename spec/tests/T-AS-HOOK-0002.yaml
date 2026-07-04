@@ -14,10 +14,11 @@ cases:
       - C-AS-HOOK-0005-D
     expectation: caller-owned-captured-effects
   - id: T-AS-HOOK-0002-CASE-RESULT-ARTIFACTS
-    title: AsHookResult exposes handles, artifacts, methods, event keys, and render fragments
+    title: AsHookResult exposes handles, artifacts, methods, event keys, child asHook entries, and render fragments
     covers:
       - C-AS-HOOK-0006-A
       - C-AS-HOOK-0006-E
+      - C-AS-HOOK-0006-F
     expectation: as-hook-result-artifacts
   - id: T-AS-HOOK-0002-CASE-SETUP-DISPOSERS
     title: Captured setup-effect disposers are exposed but remain setup-only
@@ -38,9 +39,10 @@ cases:
       - C-AS-HOOK-0007-G
     expectation: borrowed-state-projection
   - id: T-AS-HOOK-0002-CASE-NESTED-RESULT
-    title: Nested asHook state handles are preserved under nested results and not flattened into outer stateHandles
+    title: Nested asHook state handles are preserved under child asHook entries and not flattened into outer stateHandles
     covers:
       - C-AS-HOOK-0006-A
+      - C-AS-HOOK-0006-F
       - C-AS-HOOK-0007-H
     expectation: nested-as-hook-result-not-flattened
 implementations:
@@ -70,6 +72,7 @@ verifies:
         - C-AS-HOOK-0006-C
         - C-AS-HOOK-0006-D
         - C-AS-HOOK-0006-E
+        - C-AS-HOOK-0006-F
     - id: C-AS-HOOK-0007
       anchors:
         - C-AS-HOOK-0007-A

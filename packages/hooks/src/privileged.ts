@@ -39,12 +39,28 @@ export function definePrivilegedAsHook<P extends PropsBaseType, Result>(
     };
 
     if (registration.action === 'skip') {
-      if (definition.reuse) return definition.reuse(ctx);
-      return registration.state.result as Result;
+      const result = definition.reuse
+        ? definition.reuse(ctx)
+        : (registration.state.result as Result);
+      active.rt.recordAsHookResult({
+        name: definition.name,
+        order: registration.order,
+        privileged: true,
+        mode: definition.mode ?? 'once',
+        result,
+      });
+      return result;
     }
 
     const result = definition.setup(ctx);
     registration.state.result = result as any;
+    active.rt.recordAsHookResult({
+      name: definition.name,
+      order: registration.order,
+      privileged: true,
+      mode: definition.mode ?? 'once',
+      result,
+    });
     return result;
   };
 }

@@ -5,7 +5,8 @@ import { defineAsHook, definePrototype, tw } from '@proto.ui/core';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
 import type { PropsBaseType } from '@proto.ui/types';
-import { EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
+import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
+import { asFocusable } from '@proto.ui/hooks';
 
 /**
  * Runtime Contract (v0): asHook
@@ -20,6 +21,8 @@ describe('runtime contract: asHook (v0)', () => {
     let raw = { ...(initialRaw ?? {}) };
     const commits: any[] = [];
     const scheduled: Array<() => void> = [];
+    const rootTarget = new EventTarget();
+    const globalTarget = new EventTarget();
     const host: RuntimeHost<P> = {
       prototypeName: name,
       getRawProps: () => raw as any,
@@ -30,7 +33,12 @@ describe('runtime contract: asHook (v0)', () => {
       schedule(task) {
         scheduled.push(task);
       },
-      onRuntimeReady() {},
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => rootTarget],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+      },
       onUnmountBegin() {},
     };
 
@@ -497,8 +505,7 @@ describe('runtime contract: asHook (v0)', () => {
     >({
       name: 'asNestedOuter',
       setup(def) {
-        const nested = asInner();
-        def.asHook.result('nested', nested);
+        asInner();
         def.state.bool('open', false);
       },
     });
@@ -516,7 +523,18 @@ describe('runtime contract: asHook (v0)', () => {
 
     expect(typeof result?.stateHandles?.open?.watch).toBe('function');
     expect(result?.stateHandles?.value).toBeUndefined();
-    expect(typeof result?.nested?.stateHandles?.value?.watch).toBe('function');
+    expect(result?.asHooks).toHaveLength(1);
+    expect(result?.artifacts?.asHooks).toBe(result?.asHooks);
+    expect(result?.asHooks?.[0]).toMatchObject({
+      name: 'asNestedInner',
+      order: expect.any(Number),
+      privileged: false,
+      mode: 'once',
+    });
+    expect(result?.getAsHook?.('asNestedInner')).toBe(result?.asHooks?.[0]);
+    expect(typeof (result?.asHooks?.[0]?.result as any)?.stateHandles?.value?.watch).toBe(
+      'function'
+    );
   });
 
   it('AS-HOOK-0521: same state name is allowed across nested asHook setup frames', () => {
@@ -532,8 +550,7 @@ describe('runtime contract: asHook (v0)', () => {
     const asOuter = defineAsHook<PropsBaseType, Record<string, never>, { value: State<boolean> }>({
       name: 'asNestedSameNameOuter',
       setup(def) {
-        const nested = asInner();
-        def.asHook.result('nested', nested);
+        asInner();
         def.state.bool('value', true);
       },
     });
@@ -550,8 +567,41 @@ describe('runtime contract: asHook (v0)', () => {
     executeWithHost(P as any, host as any);
 
     expect(result?.stateHandles?.value?.get()).toBe(true);
-    expect(result?.nested?.stateHandles?.value?.get()).toBe(false);
-    expect(result?.stateHandles?.value).not.toBe(result?.nested?.stateHandles?.value);
+    const nested = result?.getAsHook?.('asNestedSameNameInner')?.result as any;
+    expect(nested?.stateHandles?.value?.get()).toBe(false);
+    expect(result?.stateHandles?.value).not.toBe(nested?.stateHandles?.value);
+  });
+
+  it('AS-HOOK-0522: privileged child asHook calls are collected without a def API', () => {
+    let result: any;
+
+    const asOuter = defineAsHook({
+      name: 'asPrivilegedChildCollector',
+      setup(def) {
+        asFocusable();
+        def.state.bool('open', false);
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0522',
+      setup() {
+        result = asOuter();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    executeWithHost(P as any, host as any);
+
+    expect(result?.asHooks).toHaveLength(1);
+    expect(result?.asHooks?.[0]).toMatchObject({
+      name: 'asFocusable',
+      order: expect.any(Number),
+      privileged: true,
+      mode: 'once',
+    });
+    expect(typeof (result?.asHooks?.[0]?.result as any)?.focused?.watch).toBe('function');
   });
 
   it('AS-HOOK-0550: setup return must follow prototype contract (render function or void)', () => {

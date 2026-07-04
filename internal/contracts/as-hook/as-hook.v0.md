@@ -123,6 +123,7 @@ It must be an object and may contain:
 - `event`
 - `feedback`
 - `render`
+- `asHooks`
 - custom fields
 
 Only `state` is required to be projected as Borrowed view.
@@ -140,6 +141,13 @@ Only `state` is required to be projected as Borrowed view.
 - if `render` exists, the caller may compose it into its render
 - asHook does not directly trigger render commit
 - current v0 coverage for consuming asHook render fragments is intentionally narrow; richer render-fragment composition remains a known fracture for future value-style prototypes
+
+### 4.4 Child asHook Entries
+
+- runtime records child asHook calls made directly inside the current asHook setup frame
+- child entries are exposed through `asHooks` and may also be mirrored in `artifacts.asHooks`
+- child state handles stay inside the child entry result; they are not flattened into the outer `stateHandles`
+- prototype authors do not declare child entries through a `def` API
 
 ---
 

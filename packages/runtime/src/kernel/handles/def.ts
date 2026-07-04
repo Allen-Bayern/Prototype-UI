@@ -304,14 +304,6 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
       },
     },
 
-    asHook: {
-      result(key, value) {
-        ensureSetup('def.asHook.result');
-        const rt = getAsHookRuntime(def as object);
-        rt?.recordResult(key, value);
-      },
-    },
-
     context: {
       provide(key, defaultValue) {
         ensureSetup('def.context.provide');

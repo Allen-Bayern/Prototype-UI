@@ -3,14 +3,14 @@ type: contract
 title: asHook state handles project to borrowed views
 status: draft
 since: 0.1.0
-summary: State handles introduced by an asHook must be exposed to the caller as borrowed views keyed by state declaration names, and nested asHook results must not be flattened into the outer result.
+summary: State handles introduced by an asHook must be exposed to the caller as borrowed views keyed by state declaration names, and nested asHook state handles must stay inside child asHook entries rather than being flattened into the outer result.
 statement:
   zh-CN: >-
-    asHook 内部创建或引入的 state 不应以调用者完全 owned state 的身份暴露。调用者通过 asHook result 获得这些 state 时，必须得到 borrowed view：调用者可以读取、设置默认值、设置运行时值并 watch，但该 state 的来源仍然是 asHook 引入的可共享逻辑，而不是调用者直接声明的 owned state。该投影义务覆盖当前 asHook setup frame 直接引入的全部 state handles，而不只覆盖通过 `expose.state` 进入 App Maker surface 的 state。named state handle 的 key 必须来自 state declaration 的稳定 state name；`expose.state` 的 expose key 不得参与或覆盖该 identity。嵌套 asHook 的 state handles 不得被 runtime 自动摊平进外层 asHook result。
+    asHook 内部创建或引入的 state 不应以调用者完全 owned state 的身份暴露。调用者通过 asHook result 获得这些 state 时，必须得到 borrowed view：调用者可以读取、设置默认值、设置运行时值并 watch，但该 state 的来源仍然是 asHook 引入的可共享逻辑，而不是调用者直接声明的 owned state。该投影义务覆盖当前 asHook setup frame 直接引入的全部 state handles，而不只覆盖通过 `expose.state` 进入 App Maker surface 的 state。named state handle 的 key 必须来自 state declaration 的稳定 state name；`expose.state` 的 expose key 不得参与或覆盖该 identity。嵌套 asHook 的 state handles 必须保留在 child asHook entry 的 result 中，不得被 runtime 自动摊平进外层 asHook result。
 
 
   en: >-
-    State created or introduced inside an asHook should not be exposed to the caller as fully owned state. When the caller receives these states through the asHook result, they must be borrowed views: the caller may read, set defaults, set runtime values, and watch, but the state source remains reusable logic introduced by the asHook rather than owned state directly declared by the caller. This projection obligation covers every state handle directly introduced in the current asHook setup frame, not only states that enter the App Maker surface through `expose.state`. Named state handle keys must come from the stable state name declared by the state declaration; the expose key passed to `expose.state` must not participate in or override that identity. Nested asHook state handles must not be automatically flattened by runtime into the outer asHook result.
+    State created or introduced inside an asHook should not be exposed to the caller as fully owned state. When the caller receives these states through the asHook result, they must be borrowed views: the caller may read, set defaults, set runtime values, and watch, but the state source remains reusable logic introduced by the asHook rather than owned state directly declared by the caller. This projection obligation covers every state handle directly introduced in the current asHook setup frame, not only states that enter the App Maker surface through `expose.state`. Named state handle keys must come from the stable state name declared by the state declaration; the expose key passed to `expose.state` must not participate in or override that identity. Nested asHook state handles must remain in the child asHook entry result and must not be automatically flattened by runtime into the outer asHook result.
 
 
 criteria:
@@ -44,8 +44,8 @@ criteria:
       en: The expose key passed to `expose.state` must not be used as the source of, or override source for, an asHook state handle name.
   - id: C-AS-HOOK-0007-H
     text:
-      zh-CN: 嵌套 asHook 的 state handles 不得被 runtime 自动摊平进外层 asHook result 的 `stateHandles`。
-      en: Nested asHook state handles must not be automatically flattened by runtime into the outer asHook result's `stateHandles`.
+      zh-CN: 嵌套 asHook 的 state handles 必须保留在 child asHook entry 的 result 中，不得被 runtime 自动摊平进外层 asHook result 的 `stateHandles`。
+      en: Nested asHook state handles must remain in the child asHook entry result and must not be automatically flattened by runtime into the outer asHook result's `stateHandles`.
 sources:
   - path: internal/contracts/as-hook/as-hook.v0.md
     sections:
@@ -79,6 +79,9 @@ revisions:
   - version: 0.1.2
     change: revised
     summary: Resolved expose-name separation and nested asHook non-flattening as contract requirements.
+  - version: 0.1.3
+    change: clarified
+    summary: Clarified that nested state handles are preserved through automatic child asHook entries.
 tags:
   - as-hook
   - state
