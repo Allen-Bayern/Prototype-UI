@@ -10,6 +10,7 @@ export type ExposeStateWebBinding = {
   semantic?: string;
   kind: StateSpec['kind'];
   attr?: string;
+  officialAttr?: string;
   cssVar?: string;
 };
 

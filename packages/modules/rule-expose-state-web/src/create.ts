@@ -127,6 +127,16 @@ function buildVariant(
   const semanticVariant = buildSemanticVariant(binding.semantic, condition, allowNativeVariant);
   if (semanticVariant) return semanticVariant;
 
+  if (binding.officialAttr && condition.literal === true) {
+    if (
+      allowNativeVariant &&
+      !allowNativeVariant({ semantic: binding.semantic, variant: binding.officialAttr })
+    ) {
+      return null;
+    }
+    return binding.officialAttr;
+  }
+
   const attr = binding.attr;
   if (!attr) return null;
   const key = stripDataPrefix(attr);

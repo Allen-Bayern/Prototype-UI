@@ -27,7 +27,7 @@ const BUTTON_BASE_TOKENS = [
 ].join(' ');
 
 // Variant rules stay composable and only encode the stable visual surface.
-// Pseudo selectors such as hover/focus-visible/aria-invalid/dark are left to
+// Pseudo selectors such as hover/focus-visible/dark are left to
 // dedicated rule extensions because the current feedback token contract does
 // not accept selector-style utilities directly.
 const VARIANT_TOKENS: Record<ShadcnButtonVariant, string> = {
@@ -72,8 +72,6 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       throw new Error('[shadcn-button] asButton must project Button state handles.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
-    const expanded = def.state.fromAccessibility('expanded');
-    const invalid = def.state.fromAccessibility('invalid');
 
     // Base skeleton shared by every shadcn-style button.
     def.feedback.style.use(tw(BUTTON_BASE_TOKENS));
@@ -140,23 +138,6 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       intent: (i) => i.feedback.style.use(tw('bg-destructive/20')),
     });
 
-    // Accessibility semantics stay in the official shared state lane. This
-    // keeps button-compatible semantics like `expanded` / `invalid` reusable
-    // by higher-level triggers instead of reintroducing ad-hoc aria props here.
-    def.rule({
-      when: (w) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('outline')),
-      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
-    });
-    def.rule({
-      when: (w) => w.all(w.state(expanded).eq(true), w.prop('variant').eq('secondary')),
-      intent: (i) => i.feedback.style.use(tw('bg-secondary text-secondary-foreground')),
-    });
-
-    def.rule({
-      when: (w) => w.state(invalid).eq(true),
-      intent: (i) => i.feedback.style.use(tw('border-destructive ring-3 ring-destructive/20')),
-    });
-
     // Dark mode stays in meta so the prototype remains host-agnostic while web
     // adapters still have a clean place to optimize to `dark:*`.
     def.rule({
@@ -194,11 +175,6 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
         ),
       intent: (i) => i.feedback.style.use(tw('ring-destructive/40')),
     });
-    def.rule({
-      when: (w) => w.all(w.meta('colorScheme').eq('dark'), w.state(invalid).eq(true)),
-      intent: (i) => i.feedback.style.use(tw('border-destructive/50 ring-destructive/40')),
-    });
-
     // Disabled remains a standalone rule because it semantically cuts across
     // every variant and size, and we now source it from the shared button
     // behavior instead of duplicating prop semantics locally.

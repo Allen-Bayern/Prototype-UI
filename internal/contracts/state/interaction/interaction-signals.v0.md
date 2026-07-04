@@ -5,6 +5,8 @@
 > This contract specifies **interaction signals** in Proto UI v0: their semantic positioning, the defined signal set, lifecycle rules, and observability constraints.
 >
 > Interaction signals represent **system-level interaction facts**, rather than author-defined state or event callbacks.
+>
+> Deprecation note: `def.state.fromInteraction(...)` / `def.state.fromAccessibility(...)` are deprecated compatibility accessors. Cataloged protocol prototypes should maintain their own truth sources or consume protocol asHook state handles; this document remains useful for the lower-level interaction-signal model.
 
 ---
 

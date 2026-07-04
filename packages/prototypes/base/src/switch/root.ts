@@ -25,12 +25,12 @@ function setupSwitchRoot(def: DefHandle<SwitchRootProps, SwitchRootExposes>): vo
   });
 
   // P-BASE-SWITCH-CHECKED-EXPOSE, P-BASE-SWITCH-DISABLED-EXPOSE
-  const checked = def.state.fromAccessibility('checked');
-  const disabled = def.state.fromInteraction('disabled');
+  const checked = def.state.bool('checked', false);
+  const disabled = def.state.bool('disabled', false);
   // P-BASE-SWITCH-POINTER-HOVER
-  const hovered = def.state.fromInteraction('hovered');
+  const hovered = def.state.bool('hovered', false);
   // P-BASE-SWITCH-PRESS-LIFECYCLE
-  const pressed = def.state.fromInteraction('pressed');
+  const pressed = def.state.bool('pressed', false);
   // P-BASE-SWITCH-FOCUSABLE, P-BASE-SWITCH-DISABLED-REJECT-FOCUS
   const focusable = asFocusable<SwitchRootProps>();
   focusable.configure({ disabled: false });
@@ -77,9 +77,17 @@ function setupSwitchRoot(def: DefHandle<SwitchRootProps, SwitchRootExposes>): vo
     });
   };
 
+  const clearTransientInteraction = (reason: string) => {
+    hovered.set(false, reason);
+    pressed.set(false, reason);
+  };
+
   const syncDisabled = (run: any, nextDisabled: boolean) => {
     disabled.set(nextDisabled, 'reason: switch root sync disabled');
     focusable.setDisabled(nextDisabled);
+    if (nextDisabled) {
+      clearTransientInteraction('reason: switch root disabled => reset transient interaction');
+    }
     publishContext(run);
   };
 
@@ -112,16 +120,6 @@ function setupSwitchRoot(def: DefHandle<SwitchRootProps, SwitchRootExposes>): vo
     syncDisabled(run, !!next.disabled);
   });
 
-  checked.watch((run, event) => {
-    if (event.type === 'disconnect') return;
-    publishContext(run);
-  });
-
-  disabled.watch((run, event) => {
-    if (event.type === 'disconnect') return;
-    publishContext(run);
-  });
-
   // P-BASE-SWITCH-KEYBOARD-SPACE-ACTIVATION, P-BASE-SWITCH-KEYBOARD-ENTER-OPTIONAL
   // P-BASE-SWITCH-KEYBOARD-SPACE-PREVENT-DEFAULT
   def.event.onGlobal('key.down', (_run, ev) => {
@@ -132,9 +130,33 @@ function setupSwitchRoot(def: DefHandle<SwitchRootProps, SwitchRootExposes>): vo
     detail?.preventDefault?.();
   });
 
+  // P-BASE-SWITCH-POINTER-HOVER
+  def.event.on('pointer.enter', () => {
+    if (disabled.get()) return;
+    hovered.set(true, 'reason: switch root pointer.enter => hovered');
+  });
+  def.event.on('pointer.leave', () => {
+    hovered.set(false, 'reason: switch root pointer.leave => hovered');
+    pressed.set(false, 'reason: switch root pointer.leave => pressed');
+  });
+  def.event.on('pointer.cancel', () => {
+    hovered.set(false, 'reason: switch root pointer.cancel => hovered');
+    pressed.set(false, 'reason: switch root pointer.cancel => pressed');
+  });
+
+  // P-BASE-SWITCH-PRESS-LIFECYCLE
+  def.event.on('pointer.down', () => {
+    if (disabled.get()) return;
+    pressed.set(true, 'reason: switch root pointer.down => pressed');
+  });
+  def.event.on('pointer.up', () => {
+    pressed.set(false, 'reason: switch root pointer.up => pressed');
+  });
+
   // P-BASE-SWITCH-ACTIVATION-FLIPS-CHECKED, P-BASE-SWITCH-DISABLED-SUPPRESS-ACTIVATION
   // P-BASE-SWITCH-UNCONTROLLED-UPDATES-CHECKED, P-BASE-SWITCH-CONTROLLED-EMITS-NEXT
   def.event.on('press.commit', (run) => {
+    pressed.set(false, 'reason: switch root press.commit => pressed');
     if (disabled.get()) return;
 
     const nextChecked = !checked.get();

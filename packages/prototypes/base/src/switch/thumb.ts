@@ -8,9 +8,9 @@ function setupSwitchThumb(def: DefHandle<SwitchThumbProps, SwitchThumbExposes>):
   // P-BASE-SWITCH-THUMB-INDICATOR
   def.anatomy.claim(SWITCH_FAMILY, { role: 'thumb' });
   // P-BASE-SWITCH-THUMB-DERIVED-CHECKED
-  const checked = def.state.fromAccessibility('checked');
+  const checked = def.state.bool('checked', false);
   // P-BASE-SWITCH-THUMB-DERIVED-DISABLED
-  const disabled = def.state.fromInteraction('disabled');
+  const disabled = def.state.bool('disabled', false);
 
   def.expose.state('checked', checked);
 

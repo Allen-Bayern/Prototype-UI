@@ -68,6 +68,7 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
       semantic: string;
       kind: StateSpec['kind'];
       attr?: string;
+      officialAttr?: string;
       cssVar?: string;
     }
   >();
@@ -136,13 +137,15 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
       const semantic = (value as any).__stateSemantic || key;
       const stateId = String((value as any).__stateId ?? '');
       const mapping = nameMap(semantic);
+      const officialAttr =
+        mapOfficialAriaAttr(semantic) ?? mapOfficialAriaAttr(`@accessibility/${key}`);
 
       const binding: Binding = {
         key,
         stateId,
         kind: spec.kind,
         attr: this.allowAttrForKind(spec.kind, mode) ? mapping.dataAttr : undefined,
-        officialAttr: mapOfficialAriaAttr(semantic) ?? undefined,
+        officialAttr: officialAttr ?? undefined,
         cssVar: mapping.cssVar,
       };
 
@@ -153,6 +156,7 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
           semantic,
           kind: spec.kind,
           attr: binding.attr,
+          officialAttr: binding.officialAttr,
           cssVar: binding.cssVar,
         });
       }

@@ -1,16 +1,17 @@
 id: C-STATE-INTERACTION-0002
 type: contract
 title: Interaction state declaration introduces runtime-managed interaction wiring
-status: draft
+status: deprecated
 since: 0.1.0
-summary: Declaring interaction state may implicitly introduce event subscriptions and host interaction wiring managed by Proto UI runtime modules and adapters.
+deprecatedSince: 0.1.0
+summary: Declaring interaction state may implicitly introduce event subscriptions and host interaction wiring managed by Proto UI runtime modules and adapters, but `fromInteraction` declarations are deprecated compatibility APIs.
 statement:
   zh-CN: >-
-    Interaction state 是 State 与 Event 复合后最终归入 State 的子领域。声明 interaction state 表示原型作者请求某类交互事实的 state-shaped 语义入口；该声明可以隐式引入 event 订阅、adapter interaction mapping 与必要的 host capability 协作，但这些 wiring 必须由 Proto UI runtime package、module 体系、adapter 与 host cap 共同管理，而不是暴露为原型作者手写的 event subscription。
+    Interaction state 是 State 与 Event 复合后最终归入 State 的子领域。声明 interaction state 表示原型作者请求某类交互事实的 state-shaped 语义入口；该声明可以隐式引入 event 订阅、adapter interaction mapping 与必要的 host capability 协作，但这些 wiring 必须由 Proto UI runtime package、module 体系、adapter 与 host cap 共同管理，而不是暴露为原型作者手写的 event subscription。该契约现在描述 deprecated compatibility behavior；已编目的 protocol prototype 应改为自己维护 truth source，或通过对应 privileged domain / protocol asHook 暴露 state handles。
 
 
   en: >-
-    Interaction state is a State subdomain produced by composing State with Event and ultimately surfaced through State. Declaring interaction state means the prototype author requests a state-shaped semantic entry point for an interaction fact; that declaration may implicitly introduce event subscriptions, adapter interaction mapping, and required host-capability collaboration, but this wiring must be managed by the Proto UI runtime package, module system, adapters, and host caps rather than exposed as prototype-author-written event subscriptions.
+    Interaction state is a State subdomain produced by composing State with Event and ultimately surfaced through State. Declaring interaction state means the prototype author requests a state-shaped semantic entry point for an interaction fact; that declaration may implicitly introduce event subscriptions, adapter interaction mapping, and required host-capability collaboration, but this wiring must be managed by the Proto UI runtime package, module system, adapters, and host caps rather than exposed as prototype-author-written event subscriptions. This contract now describes deprecated compatibility behavior; cataloged protocol prototypes should maintain their own truth sources or expose state handles through the corresponding privileged domain / protocol asHook.
 
 
 criteria:
@@ -85,6 +86,9 @@ dependsOn:
     - C-EVENT-0003
     - C-STATE-0005
     - C-STATE-0012
+relates:
+  decisions:
+    - D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001
 revisions:
   - version: 0.1.0
     change: introduced
@@ -92,6 +96,9 @@ revisions:
   - version: 0.1.1
     change: narrowed
     summary: Removed focus-owned focused/focusVisible semantics from state-interaction wiring ownership.
+  - version: 0.1.1
+    change: deprecated
+    summary: Deprecated fromInteraction declarations as a recommended protocol-state source.
 tags:
   - state
   - interaction

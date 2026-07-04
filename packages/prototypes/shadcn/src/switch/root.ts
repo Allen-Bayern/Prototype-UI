@@ -30,12 +30,7 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     if (!switchState) {
       throw new Error('[shadcn-switch-root] asSwitchRoot must project Switch root state handles.');
     }
-    const { focusVisible } = switchState;
-
-    const checked = def.state.fromAccessibility('checked');
-    const disabled = def.state.fromInteraction('disabled');
-    const hovered = def.state.fromInteraction('hovered');
-    const pressed = def.state.fromInteraction('pressed');
+    const { checked, disabled, hovered, focusVisible, pressed } = switchState;
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
     def.rule({
