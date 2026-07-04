@@ -13,7 +13,7 @@ const ROOT_BASE_TOKENS = [
   'border',
   'border-transparent',
   'pl-0.5',
-  'pr-[22px]',
+  'pr-[20px]',
   'shadow-xs',
   'transition-all',
   'duration-200',
@@ -30,14 +30,18 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     if (!switchState) {
       throw new Error('[shadcn-switch-root] asSwitchRoot must project Switch root state handles.');
     }
-    const { checked, disabled, hovered, focusVisible, pressed } = switchState;
+    const { focusVisible } = switchState;
 
+    const checked = def.state.fromAccessibility('checked');
+    const disabled = def.state.fromInteraction('disabled');
+    const hovered = def.state.fromInteraction('hovered');
+    const pressed = def.state.fromInteraction('pressed');
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
     def.rule({
       when: (w) => w.state(checked).eq(true),
       intent: (i) =>
-        i.feedback.style.use(tw('pl-[22px] pr-0.5 bg-primary text-primary-foreground')),
+        i.feedback.style.use(tw('pl-[20px] pr-0.5 bg-primary text-primary-foreground')),
     });
 
     def.rule({
@@ -56,9 +60,9 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     });
 
     def.rule({
-      // Keep this as a runtime state rule. Native `focus-visible:*` token projection
-      // can miss custom-element focus even when Proto UI focusVisible is true.
-      when: (w) => w.any(w.state(focusVisible).eq(true)),
+      // Use the Switch-root focusVisible handle so web style projection can emit
+      // data-[focus-visible] tokens for custom-element focus.
+      when: (w) => w.state(focusVisible).eq(true),
       intent: (i) =>
         i.feedback.style.use(tw('ring-3 ring-ring/50 ring-offset-2 ring-offset-background')),
     });

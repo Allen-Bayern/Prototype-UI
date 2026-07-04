@@ -26,11 +26,8 @@ describe('prototypes/shadcn: switch', () => {
     expect(thumb.getExposes().isChecked()).toBe(true);
     expect(root.getAttribute('aria-checked')).toBe('true');
     expect(styleContains(root, 'aria-checked:bg-primary')).toBe(true);
-    expect(styleContains(root, 'aria-checked:pl-[22px]')).toBe(true);
-    expect(styleContains(thumb, 'h-5')).toBe(true);
-    expect(styleContains(thumb, 'w-5')).toBe(true);
-    expect(styleContains(thumb, 'min-w-5')).toBe(true);
-    expect(styleContains(thumb, 'shrink-0')).toBe(true);
+    expect(styleContains(root, 'aria-checked:pl-[20px]')).toBe(true);
+    expect(styleContains(thumb, 'size-5')).toBe(true);
     expect(styleContains(thumb, 'translate-x-0')).toBe(true);
 
     root.remove();
@@ -53,9 +50,9 @@ describe('prototypes/shadcn: switch', () => {
     await Promise.resolve();
 
     expect(root.getExposes().focusVisible.get()).toBe(true);
-    expect(styleContains(root, 'ring-3')).toBe(true);
-    expect(styleContains(root, 'ring-ring/50')).toBe(true);
-    expect(styleContains(root, 'ring-offset-2')).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-3')).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-ring/50')).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-offset-2')).toBe(true);
 
     root.remove();
     await Promise.resolve();
