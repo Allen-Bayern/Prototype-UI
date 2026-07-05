@@ -112,6 +112,7 @@ describe('@proto.ui/cli', () => {
     expect(tokensCss).toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);
+    expect(tokensCss).toContain(`data-[hidden]:hidden"])[data-hidden]`);
     expect(tokensCss).not.toContain(`aria-checked:bg-muted"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
   }, 30_000);
