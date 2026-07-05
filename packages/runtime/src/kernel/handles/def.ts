@@ -347,6 +347,12 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
     },
 
     a11y: {
+      id(target) {
+        ensureSetup('def.a11y.id');
+        if (!a11y) throw new Error(`[A11y] module unavailable.`);
+        a11y.id(target);
+        recordCaptured(def, 'context', { op: 'a11y.id', target });
+      },
       role(role) {
         ensureSetup('def.a11y.role');
         if (!a11y) throw new Error(`[A11y] module unavailable.`);
@@ -382,6 +388,12 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
         if (!a11y) throw new Error(`[A11y] module unavailable.`);
         a11y.action(key, spec);
         recordCaptured(def, 'event', { op: 'a11y.action', key, spec });
+      },
+      relation(key, spec) {
+        ensureSetup('def.a11y.relation');
+        if (!a11y) throw new Error(`[A11y] module unavailable.`);
+        a11y.relation(key, spec);
+        recordCaptured(def, 'context', { op: 'a11y.relation', key, spec });
       },
       tree(patch) {
         ensureSetup('def.a11y.tree');

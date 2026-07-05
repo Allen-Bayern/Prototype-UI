@@ -3,14 +3,14 @@ type: contract
 title: Accessibility exposes projectable semantic objects
 status: draft
 since: 0.1.0
-summary: The a11y domain records projectable semantic object facts such as role, name, description, state, action, relation, and semantic tree behavior.
+summary: The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior.
 statement:
   zh-CN: >-
-    Accessibility 是一个可由宿主投影的 semantic object domain。原型通过 a11y API 声明当前交互对象的 role、name、description、state、action、relation 与 semantic tree behavior；runtime 将这些声明保存为稳定 IR，adapter 负责把 IR 投影到宿主的无障碍表达。a11y IR 可以引用 state/focus/event/anatomy 等其它域事实，但 a11y 不重新拥有这些域。
+    Accessibility 是一个可由宿主投影的 semantic object domain。原型通过 a11y API 声明当前交互对象的 identity、role、name、description、state、action、relation 与 semantic tree behavior；runtime 将这些声明保存为稳定 IR，adapter 负责把 IR 投影到宿主的无障碍表达。a11y IR 可以引用 state/focus/event/anatomy 等其它域事实，但 a11y 不重新拥有这些域。
 
 
   en: >-
-    Accessibility is a host-projectable semantic object domain. A prototype declares role, name, description, state, action, relation, and semantic tree behavior for the current interaction object through a11y APIs; the runtime stores these declarations as stable IR, and adapters project the IR to host accessibility output. A11y IR may reference facts from state, focus, event, anatomy, and other domains, but a11y does not re-own those domains.
+    Accessibility is a host-projectable semantic object domain. A prototype declares identity, role, name, description, state, action, relation, and semantic tree behavior for the current interaction object through a11y APIs; the runtime stores these declarations as stable IR, and adapters project the IR to host accessibility output. A11y IR may reference facts from state, focus, event, anatomy, and other domains, but a11y does not re-own those domains.
 
 
 criteria:
@@ -20,8 +20,8 @@ criteria:
       en: The a11y domain must output semantic object IR that adapters can project.
   - id: C-A11Y-0001-B
     text:
-      zh-CN: semantic object 至少应能表达 role、name、description、state 与 action。
-      en: A semantic object should at least be able to express role, name, description, state, and action.
+      zh-CN: semantic object 至少应能表达 identity、role、name、description、state、action 与 relation。
+      en: A semantic object should at least be able to express identity, role, name, description, state, action, and relation.
   - id: C-A11Y-0001-C
     text:
       zh-CN: role 表达交互对象是什么，不得直接等同于某个宿主 attribute 名称。
@@ -40,8 +40,12 @@ criteria:
       en: A11y action may reference expose events or other interaction routes; the action itself does not redefine the event route.
   - id: C-A11Y-0001-G
     text:
-      zh-CN: adapter 可以按宿主能力选择原生 role/name/state/action 投影、降级投影或仅保留诊断 IR。
-      en: Adapters may choose native role/name/state/action projection, degraded projection, or diagnostic-only IR based on host capabilities.
+      zh-CN: adapter 可以按宿主能力选择原生 identity/role/name/state/action/relation 投影、降级投影或仅保留诊断 IR。
+      en: Adapters may choose native identity/role/name/state/action/relation projection, degraded projection, or diagnostic-only IR based on host capabilities.
+  - id: C-A11Y-0001-H
+    text:
+      zh-CN: a11y relation 可以引用字符串目标或 state handle；其语义表示对象关系，宿主 adapter 负责投影为宿主可表达的关系机制。
+      en: A11y relation may reference a string target or state handle; it represents an object relationship, and host adapters are responsible for projecting it to host-expressible relationship mechanisms.
 sources:
   - path: internal/records/2026-06-30-a11y-module-planning-for-button.zh-CN.md
   - path: packages/modules/a11y/src/types.ts

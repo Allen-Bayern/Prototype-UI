@@ -1,0 +1,60 @@
+id: T-BASE-TABS-LIST-0001
+type: test
+title: Base Tabs List protocol contract tests
+status: draft
+since: 0.1.0
+summary: Contract test coverage for the Base Tabs List part, including optional collection ownership, roving focus, orientation, disabled item skipping, and manual versus automatic activation behavior.
+cases:
+  - id: T-BASE-TABS-LIST-0001-CASE-ROVING-AUTOMATIC
+    title: Tabs List roves focus across triggers and automatic mode selects the focused trigger
+    covers:
+      - P-BASE-TABS-LIST-ROLE-COLLECTION
+      - P-BASE-TABS-LIST-CLAIM-ROLE
+      - P-BASE-TABS-LIST-SAME-DOMAIN
+      - P-BASE-TABS-LIST-CONTEXT-CONSUME
+      - P-BASE-TABS-LIST-FOCUS-ROVING
+      - P-BASE-TABS-LIST-FOCUS-METHODS
+      - P-BASE-TABS-LIST-SKIP-DISABLED
+      - P-BASE-TABS-LIST-ORIENTATION-KEYS
+      - P-BASE-TABS-LIST-A11Y-ROLE
+      - P-BASE-TABS-LIST-A11Y-ORIENTATION
+    expectation: tabs-list-roves-focus-and-automatic-mode-selects-focused-trigger
+  - id: T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
+    title: manual activation mode roves focus without changing selected value until trigger activation
+    covers:
+      - P-BASE-TABS-LIST-FOCUS-ROVING
+      - P-BASE-TABS-LIST-HOME-END
+      - P-BASE-TABS-LIST-PROP-LOOP
+      - P-BASE-TABS-TRIGGER-MANUAL-FOCUS-STABLE
+    expectation: tabs-list-manual-mode-keeps-selection-stable-while-roving-focus
+implementations:
+  - id: prototypes-base-tabs-list-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-LIST-0001-CASE-ROVING-AUTOMATIC
+      - T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
+    exercises:
+      - P-BASE-TABS-LIST
+verifies:
+  prototypes:
+    - id: P-BASE-TABS-LIST
+      anchors:
+        - P-BASE-TABS-LIST-FOCUS-ROVING
+        - P-BASE-TABS-LIST-FOCUS-METHODS
+        - P-BASE-TABS-LIST-A11Y-ORIENTATION
+exercises:
+  prototypes:
+    - P-BASE-TABS-LIST
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Introduced Base Tabs List protocol test entity aligned to P-BASE-TABS-LIST criteria.
+tags:
+  - prototype
+  - base
+  - tabs
+  - list
+  - test

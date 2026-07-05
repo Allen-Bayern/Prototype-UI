@@ -5,6 +5,7 @@ import { TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsListAsHookContract, TabsListExposes, TabsListProps } from './types';
 
 function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
+  // P-BASE-TABS-LIST-CLAIM-ROLE, P-BASE-TABS-LIST-SAME-DOMAIN
   def.anatomy.claim(TABS_FAMILY, { role: 'list' });
   let activeValue = '';
   let selectedValue = '';
@@ -17,6 +18,13 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
     orientation: 'horizontal',
     loop: false,
   });
+
+  const orientation = def.state.string('orientation', 'horizontal', {
+    options: ['horizontal', 'vertical'],
+  });
+  // P-BASE-TABS-LIST-A11Y-ROLE, P-BASE-TABS-LIST-A11Y-ORIENTATION
+  def.a11y.role('tablist');
+  def.a11y.state('orientation', orientation);
 
   const focusRoving = asFocusRoving<TabsListProps>();
   focusRoving.configure({
@@ -41,12 +49,14 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
     activeValue = next.activeValue ?? '';
     selectedValue = next.value ?? '';
+    orientation.set(next.orientation ?? 'horizontal', 'reason: tabs list context orientation sync');
   });
 
   def.lifecycle.onMounted((run) => {
     const ctx = run.context.read(TABS_CONTEXT);
     activeValue = ctx.activeValue ?? '';
     selectedValue = ctx.value ?? '';
+    orientation.set(ctx.orientation ?? 'horizontal', 'reason: tabs list mounted orientation sync');
   });
 
   def.lifecycle.onUnmounted(() => {

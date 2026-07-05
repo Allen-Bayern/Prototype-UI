@@ -1,0 +1,55 @@
+id: T-BASE-TABS-CONTENT-0001
+type: test
+title: Base Tabs Content protocol contract tests
+status: draft
+since: 0.1.0
+summary: Contract test coverage for the Base Tabs Content part, including value-matched current state, hidden-without-unmount behavior, and Web tabpanel a11y projection.
+cases:
+  - id: T-BASE-TABS-CONTENT-0001-CASE-HIDDEN
+    title: Tabs Content derives current state by value matching and hides inactive panels without unmounting them
+    covers:
+      - P-BASE-TABS-CONTENT-ROLE-PANEL
+      - P-BASE-TABS-CONTENT-AUTHORING-ENTRIES
+      - P-BASE-TABS-CONTENT-PROTOCOL-DEPENDENCY
+      - P-BASE-TABS-CONTENT-CLAIM-ROLE
+      - P-BASE-TABS-CONTENT-SAME-DOMAIN
+      - P-BASE-TABS-CONTENT-PROP-VALUE
+      - P-BASE-TABS-CONTENT-CONTEXT-CONSUME
+      - P-BASE-TABS-CONTENT-CURRENT-DERIVED
+      - P-BASE-TABS-CONTENT-CURRENT-EXPOSE
+      - P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
+      - P-BASE-TABS-CONTENT-NOT-UNMOUNTED-BY-DEFAULT
+      - P-BASE-TABS-CONTENT-A11Y-ROLE
+      - P-BASE-TABS-CONTENT-A11Y-LABELLEDBY-TARGET
+      - P-BASE-TABS-CONTENT-A11Y-HIDDEN
+    expectation: tabs-content-current-and-hidden-state-follow-selected-value
+implementations:
+  - id: prototypes-base-tabs-content-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-CONTENT-0001-CASE-HIDDEN
+    exercises:
+      - P-BASE-TABS-CONTENT
+verifies:
+  prototypes:
+    - id: P-BASE-TABS-CONTENT
+      anchors:
+        - P-BASE-TABS-CONTENT-CURRENT-DERIVED
+        - P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
+        - P-BASE-TABS-CONTENT-A11Y-LABELLEDBY-TARGET
+exercises:
+  prototypes:
+    - P-BASE-TABS-CONTENT
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Introduced Base Tabs Content protocol test entity aligned to P-BASE-TABS-CONTENT criteria.
+tags:
+  - prototype
+  - base
+  - tabs
+  - content
+  - test

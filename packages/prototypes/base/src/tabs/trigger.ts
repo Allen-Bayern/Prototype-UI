@@ -1,7 +1,6 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusable, useCollectionItem } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { TABS_CONTEXT, TABS_FAMILY } from './shared';
+import { asFocusable, asTrigger, useCollectionItem } from '@proto.ui/hooks';
+import { createTabsPartId, TABS_CONTEXT, TABS_FAMILY, type TabsContextValue } from './shared';
 import type { TabsTriggerAsHookContract, TabsTriggerExposes, TabsTriggerProps } from './types';
 
 function syncSelectedFromContext(
@@ -13,10 +12,23 @@ function syncSelectedFromContext(
 }
 
 function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>): void {
-  asButton();
+  // P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY
+  // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION
+  asTrigger();
+  // P-BASE-TABS-TRIGGER-FOCUSABLE
   const focusable = asFocusable<TabsTriggerProps>();
+  focusable.configure({ disabled: false });
   const focused = focusable.focused;
-  const selected = def.state.fromAccessibility('selected');
+  const focusVisible = focusable.focusVisible;
+  // P-BASE-TABS-TRIGGER-SELECTED-DERIVED, P-BASE-TABS-TRIGGER-SELECTED-EXPOSE
+  const selected = def.state.bool('selected', false);
+  const disabled = def.state.bool('disabled', false);
+  const hovered = def.state.bool('hovered', false);
+  const pressed = def.state.bool('pressed', false);
+  const triggerId = def.state.string('triggerId', '');
+  const contentId = def.state.string('contentId', '');
+
+  // P-BASE-TABS-TRIGGER-CLAIM-ROLE, P-BASE-TABS-TRIGGER-SAME-DOMAIN
   useCollectionItem({
     family: TABS_FAMILY,
     role: 'trigger',
@@ -38,24 +50,93 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     disabled: false,
   });
 
-  const disabled = def.state.fromInteraction('disabled');
   let ownValue = '';
+  let rootId = '';
+
+  def.expose.state('disabled', disabled);
+  def.expose.state('hovered', hovered);
+  def.expose.state('focused', focused);
+  def.expose.state('focusVisible', focusVisible);
+  def.expose.state('pressed', pressed);
   def.expose.state('selected', selected);
+  def.expose.method('focusSelf', (options) => {
+    if (disabled.get()) return;
+    focusable.focusSelf(options);
+  });
+  def.expose.event('click', { payload: 'void' });
+
+  // P-BASE-TABS-TRIGGER-A11Y-ROLE, P-BASE-TABS-TRIGGER-A11Y-SELECTED
+  // P-BASE-TABS-TRIGGER-A11Y-CONTROLS-TARGET
+  def.a11y.id(triggerId);
+  def.a11y.role('tab');
+  def.a11y.nameFromContent();
+  def.a11y.state('selected', selected);
+  def.a11y.state('disabled', disabled);
+  def.a11y.relation('controls', { target: contentId });
+  def.a11y.action('activate', { event: 'click' });
+
+  const syncIds = () => {
+    triggerId.set(createTabsPartId(rootId, 'trigger', ownValue), 'reason: tabs trigger id sync');
+    contentId.set(
+      createTabsPartId(rootId, 'content', ownValue),
+      'reason: tabs trigger relation sync'
+    );
+  };
+
+  const syncDisabled = (nextDisabled: boolean) => {
+    disabled.set(nextDisabled, 'reason: tabs trigger sync disabled');
+    focusable.setDisabled(nextDisabled);
+    if (nextDisabled) {
+      hovered.set(false, 'reason: tabs trigger disabled => hovered');
+      pressed.set(false, 'reason: tabs trigger disabled => pressed');
+    }
+  };
+
+  const requestSelection = (run: any, ctx: TabsContextValue) => {
+    const nextValue = run.props.get().value ?? '';
+    run.context.update(TABS_CONTEXT, {
+      ...ctx,
+      activeValue: nextValue,
+    });
+    if (ctx.value === nextValue) return false;
+    run.context.update(TABS_CONTEXT, {
+      ...ctx,
+      value: ctx.controlled ? ctx.value : nextValue,
+      activeValue: nextValue,
+      requestedValue: nextValue,
+      requestVersion: ctx.requestVersion + 1,
+    });
+    return true;
+  };
 
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
+    rootId = next.rootId;
+    syncIds();
     syncSelectedFromContext(next.value, ownValue, selected);
+  });
+
+  def.lifecycle.onCreated((run) => {
+    syncDisabled(!!run.props.get().disabled);
   });
 
   def.lifecycle.onMounted((run) => {
     ownValue = run.props.get().value ?? '';
     const ctx = run.context.read(TABS_CONTEXT);
+    rootId = ctx.rootId;
+    syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
   });
 
   def.props.watch(['value'], (run, next) => {
     ownValue = next.value ?? '';
     const ctx = run.context.read(TABS_CONTEXT);
+    rootId = ctx.rootId;
+    syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
+  });
+
+  def.props.watch(['disabled'], (_run, next) => {
+    syncDisabled(!!next.disabled);
   });
 
   const updateActiveValue = (run: any) => {
@@ -67,12 +148,11 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   def.event.on('press.commit', (run) => {
+    pressed.set(false, 'reason: tabs trigger press.commit => pressed');
     if (disabled.get()) return;
-    const nextValue = run.props.get().value ?? '';
     const ctx = run.context.read(TABS_CONTEXT);
-    updateActiveValue(run);
-    if (ctx.controlled) return;
-    run.context.update(TABS_CONTEXT, (prev) => ({ ...prev, value: nextValue }));
+    run.expose.emit('click');
+    requestSelection(run, ctx);
   });
 
   focused.watch((run, event) => {
@@ -81,10 +161,37 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     const nextValue = run.props.get().value ?? '';
     const ctx = run.context.read(TABS_CONTEXT);
     updateActiveValue(run);
-    if (ctx.controlled) return;
     if (ctx.activationMode !== 'automatic') return;
     if (ctx.value === nextValue) return;
-    run.context.update(TABS_CONTEXT, (prev) => ({ ...prev, value: nextValue }));
+    requestSelection(run, ctx);
+  });
+
+  def.event.onGlobal('key.down', (_run, ev) => {
+    const detail = ev?.detail;
+    if (disabled.get()) return;
+    if (!focused.get()) return;
+    if (detail?.key !== ' ') return;
+    detail?.preventDefault?.();
+  });
+
+  def.event.on('pointer.enter', () => {
+    if (disabled.get()) return;
+    hovered.set(true, 'reason: tabs trigger pointer.enter => hovered');
+  });
+  def.event.on('pointer.leave', () => {
+    hovered.set(false, 'reason: tabs trigger pointer.leave => hovered');
+    pressed.set(false, 'reason: tabs trigger pointer.leave => pressed');
+  });
+  def.event.on('pointer.cancel', () => {
+    hovered.set(false, 'reason: tabs trigger pointer.cancel => hovered');
+    pressed.set(false, 'reason: tabs trigger pointer.cancel => pressed');
+  });
+  def.event.on('pointer.down', () => {
+    if (disabled.get()) return;
+    pressed.set(true, 'reason: tabs trigger pointer.down => pressed');
+  });
+  def.event.on('pointer.up', () => {
+    pressed.set(false, 'reason: tabs trigger pointer.up => pressed');
   });
 
   def.event.onGlobal('key.down', (run, ev) => {

@@ -7,8 +7,15 @@ const ARIA_STATE_ATTRS: Record<string, string> = {
   disabled: 'aria-disabled',
   expanded: 'aria-expanded',
   invalid: 'aria-invalid',
+  orientation: 'aria-orientation',
   pressed: 'aria-pressed',
   selected: 'aria-selected',
+};
+
+const ARIA_RELATION_ATTRS: Record<string, string> = {
+  controls: 'aria-controls',
+  describedBy: 'aria-describedby',
+  labelledBy: 'aria-labelledby',
 };
 
 export function createWebA11yProjector(el: HTMLElement): A11yProjector {
@@ -18,6 +25,10 @@ export function createWebA11yProjector(el: HTMLElement): A11yProjector {
 }
 
 export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObjectSnapshot): void {
+  if (typeof snapshot.id !== 'undefined') {
+    setOptionalAttr(el, 'id', snapshot.id ?? undefined);
+  }
+
   if (typeof snapshot.role !== 'undefined') {
     setOptionalAttr(el, 'role', snapshot.role);
   }
@@ -41,6 +52,17 @@ export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
   for (const [key, attr] of Object.entries(ARIA_STATE_ATTRS)) {
     if (Object.prototype.hasOwnProperty.call(snapshot.states, key)) {
       setNullableBooleanAttr(el, attr, snapshot.states[key]);
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(snapshot.states, 'hidden')) {
+    setNullableBooleanAttr(el, 'aria-hidden', snapshot.states.hidden);
+    setBooleanPresenceAttr(el, 'hidden', snapshot.states.hidden);
+  }
+
+  for (const [key, attr] of Object.entries(ARIA_RELATION_ATTRS)) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.relations, key)) {
+      setOptionalAttr(el, attr, snapshot.relations[key] ?? undefined);
     }
   }
 
@@ -77,4 +99,12 @@ function setNullableBooleanAttr(el: HTMLElement, attr: string, value: unknown): 
     return;
   }
   el.setAttribute(attr, String(value));
+}
+
+function setBooleanPresenceAttr(el: HTMLElement, attr: string, value: unknown): void {
+  if (value === true) {
+    el.setAttribute(attr, '');
+    return;
+  }
+  el.removeAttribute(attr);
 }

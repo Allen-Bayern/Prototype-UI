@@ -1,6 +1,6 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { useCollection } from '@proto.ui/hooks';
-import { TABS_CONTEXT, TABS_FAMILY } from './shared';
+import { createTabsRootId, TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsRootAsHookContract, TabsRootExposes, TabsRootProps } from './types';
 
 function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
@@ -20,22 +20,46 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   });
 
   def.context.provide(TABS_CONTEXT, {
+    rootId: '',
     value: '',
     activeValue: '',
     orientation: 'horizontal',
     activationMode: 'automatic',
     controlled: false,
+    requestedValue: '',
+    requestVersion: 0,
   });
   const value = def.state.string('value', '');
+  const rootId = createTabsRootId();
   let currentOrientation: 'horizontal' | 'vertical' = 'horizontal';
   let currentActivationMode: 'automatic' | 'manual' = 'automatic';
   let controlled = false;
   let activeValue = '';
+  let lastRequestVersion = 0;
 
   def.expose.state('value', value);
+  def.expose.event('valueChange', { payload: 'json' });
 
-  def.context.subscribe(TABS_CONTEXT, (_run, next) => {
+  def.context.subscribe(TABS_CONTEXT, (run, next) => {
     activeValue = next.activeValue ?? '';
+    if (next.requestVersion !== lastRequestVersion) {
+      lastRequestVersion = next.requestVersion;
+      const requestedValue = next.requestedValue ?? '';
+      if (!controlled) {
+        value.set(requestedValue, 'reason: tabs value request => uncontrolled value sync');
+      }
+      run.expose.emit('valueChange', { value: requestedValue });
+      run.context.update(TABS_CONTEXT, {
+        ...next,
+        rootId,
+        value: value.get(),
+        activeValue: requestedValue,
+        orientation: currentOrientation,
+        activationMode: currentActivationMode,
+        controlled,
+      });
+      return;
+    }
     if (controlled) return;
     value.set(next.value, 'reason: context.subscribe => uncontrolled tabs value sync');
   });
@@ -50,11 +74,14 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     value.set(initialValue, 'reason: lifecycle.onCreated => initialize tabs value');
     activeValue = initialValue;
     run.context.update(TABS_CONTEXT, {
+      rootId,
       value: value.get(),
       activeValue,
       orientation: currentOrientation,
       activationMode: currentActivationMode,
       controlled,
+      requestedValue: '',
+      requestVersion: lastRequestVersion,
     });
   });
 
@@ -66,11 +93,14 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     currentOrientation = next.orientation ?? 'horizontal';
     currentActivationMode = next.activationMode ?? 'automatic';
     run.context.update(TABS_CONTEXT, {
+      rootId,
       value: value.get(),
       activeValue,
       orientation: currentOrientation,
       activationMode: currentActivationMode,
       controlled,
+      requestedValue: '',
+      requestVersion: lastRequestVersion,
     });
   });
 }
