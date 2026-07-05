@@ -79,6 +79,7 @@ describe('@proto.ui/cli', () => {
     const themeCss = await fs.readFile(path.join(cwd, 'src/styles/shadcn-theme.css'), 'utf8');
 
     expect(tokensCss).toContain(`[data-pui-style~="bg-primary"]`);
+    expect(tokensCss).toContain(`data-[active]:bg-muted"])[data-active]`);
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).not.toContain(`aria-checked:bg-primary"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('@source');
@@ -107,6 +108,7 @@ describe('@proto.ui/cli', () => {
     const tokensCss = await fs.readFile(outFile, 'utf8');
     expect(tokensCss).toContain(`[data-pui-style~="bg-primary"]`);
     expect(tokensCss).toContain(`[data-pui-style~="rounded-md"]`);
+    expect(tokensCss).toContain(`data-[active]:bg-muted"])[data-active]`);
     expect(tokensCss).toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);

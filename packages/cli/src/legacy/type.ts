@@ -27,6 +27,8 @@ export const SHADCN_STYLE_TOKENS = [
   'active:shadow-xs',
   'active:text-foreground',
   'active:translate-y-px',
+  'data-[active]:bg-muted',
+  'data-[active]:text-foreground',
   'data-[checked]:bg-accent',
   'data-[checked]:bg-muted',
   'data-[checked]:bg-primary',

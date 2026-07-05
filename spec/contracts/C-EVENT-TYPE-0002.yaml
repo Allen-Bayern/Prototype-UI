@@ -42,6 +42,17 @@ criteria:
     text:
       zh-CN: Adapter 负责解释宿主输入并产生 core event；core event 不得被定义为 DOM `click`、`keydown`、`keyup` 或任一具体宿主事件的别名。
       en: Adapters are responsible for interpreting host input and producing core events; core events must not be defined as aliases for DOM `click`, `keydown`, `keyup`, or any concrete host event.
+openQuestions:
+  - id: C-EVENT-TYPE-0002-Q-ACTIVATION-NAMING
+    question:
+      zh-CN: '`press.*` core event family 是否应在未来版本中迁移为 `activation.*`，以降低被误解为具体 press gesture 的风险？'
+      en: Should the `press.*` core event family migrate to `activation.*` in a future version to reduce the risk of being misread as a concrete press gesture?
+    context:
+      zh-CN: 当前契约已经把 `press.*` 定义为 activation intent lifecycle，而不是 pointer、keyboard 或触摸等具体 gesture。`activation.*` 更贴近现有语义，但更名会牵动 event type、adapter router、prototype implementation、fixtures 与 P/T/C 实体；它也不能解决 Toggle、Tabs、Select 等原型层的状态命名冲突。
+      en: The current contract already defines `press.*` as the activation intent lifecycle rather than a concrete pointer, keyboard, touch, or other gesture. `activation.*` would align more closely with the existing semantics, but the rename would affect event types, adapter routers, prototype implementations, fixtures, and P/T/C entities; it also would not solve prototype-level state naming collisions across Toggle, Tabs, Select, and similar protocols.
+    blocks:
+      - event core type naming migration
+      - v0 event compatibility policy
 sources:
   - path: internal/contracts/event/event-type.v0.md
     sections:

@@ -1,34 +1,46 @@
-import { ExposeEvent, ExposeMethod, ExposeState, State } from '@proto.ui/core';
-import type {
-  ToggleAsHookContract,
-  ToggleExposes,
-  ToggleProps,
-  ToggleStateHandles,
-} from '../toggle/types';
+import { ExposeEvent, ExposeMethod, ExposeState, FocusRequestOptions, State } from '@proto.ui/core';
 
 export type CheckboxCheckedChangeDetail = {
   checked: boolean;
   indeterminate: boolean;
 };
 
-export interface CheckboxRootProps extends ToggleProps {
+export interface CheckboxRootProps {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  disabled?: boolean;
   indeterminate?: boolean;
   defaultIndeterminate?: boolean;
 }
 
-export type CheckboxRootExposes = Omit<ToggleExposes, 'checkedChange'> & {
+export type CheckboxRootExposes = {
+  disabled: ExposeState<boolean>;
+  hovered: ExposeState<boolean>;
+  focused: ExposeState<boolean>;
+  focusVisible: ExposeState<boolean>;
+  pressed: ExposeState<boolean>;
+  checked: ExposeState<boolean>;
+  focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
+  click: ExposeEvent<void>;
   indeterminate: ExposeState<boolean>;
   checkedChange: ExposeEvent<CheckboxCheckedChangeDetail>;
   indeterminateChange: ExposeEvent<{ indeterminate: boolean }>;
 };
 
-export type CheckboxRootStateHandles = ToggleStateHandles & {
+export type CheckboxRootStateHandles = {
+  disabled: State<boolean>;
+  hovered: State<boolean>;
+  focused: State<boolean>;
+  focusVisible: State<boolean>;
+  pressed: State<boolean>;
+  checked: State<boolean>;
   indeterminate: State<boolean>;
 };
 
-export type CheckboxRootAsHookContract = Omit<ToggleAsHookContract, 'event'> & {
-  state: ToggleStateHandles & { indeterminate: State<boolean> };
+export type CheckboxRootAsHookContract = {
+  state: CheckboxRootStateHandles;
   event: {
+    click: void;
     checkedChange: CheckboxCheckedChangeDetail;
     indeterminateChange: { indeterminate: boolean };
   };

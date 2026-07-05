@@ -1,8 +1,8 @@
-import { ExposeEvent, ExposeState, State } from '@proto.ui/core';
+import { ExposeEvent, ExposeMethod, ExposeState, FocusRequestOptions, State } from '@proto.ui/core';
 
 export interface ToggleProps {
-  checked?: boolean;
-  defaultChecked?: boolean;
+  active?: boolean;
+  defaultActive?: boolean;
   disabled?: boolean;
 }
 
@@ -12,9 +12,9 @@ export type ToggleExposes = {
   focused: ExposeState<boolean>;
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
-  checked: ExposeState<boolean>;
-  click: ExposeEvent<void>;
-  checkedChange: ExposeEvent<{ checked: boolean }>;
+  active: ExposeState<boolean>;
+  focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
+  activeChange: ExposeEvent<{ active: boolean }>;
 };
 
 export type ToggleStateHandles = {
@@ -23,13 +23,12 @@ export type ToggleStateHandles = {
   focused: State<boolean>;
   focusVisible: State<boolean>;
   pressed: State<boolean>;
-  checked: State<boolean>;
+  active: State<boolean>;
 };
 
 export type ToggleAsHookContract = {
   state: ToggleStateHandles;
   event: {
-    click: void;
-    checkedChange: { checked: boolean };
+    activeChange: { active: boolean };
   };
 };

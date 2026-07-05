@@ -773,6 +773,17 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asToggle') {
+    return new Map([
+      ['active', 'data-[active]'],
+      ['disabled', 'data-[disabled]'],
+      ['hovered', 'data-[hovered]'],
+      ['focused', 'data-[focused]'],
+      ['focusVisible', 'data-[focus-visible]'],
+      ['pressed', 'data-[pressed]'],
+    ]);
+  }
+
   return null;
 }
 
