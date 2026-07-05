@@ -21,7 +21,6 @@ export type CheckboxRootExposes = {
   pressed: ExposeState<boolean>;
   checked: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
-  click: ExposeEvent<void>;
   indeterminate: ExposeState<boolean>;
   checkedChange: ExposeEvent<CheckboxCheckedChangeDetail>;
   indeterminateChange: ExposeEvent<{ indeterminate: boolean }>;
@@ -40,7 +39,6 @@ export type CheckboxRootStateHandles = {
 export type CheckboxRootAsHookContract = {
   state: CheckboxRootStateHandles;
   event: {
-    click: void;
     checkedChange: CheckboxCheckedChangeDetail;
     indeterminateChange: { indeterminate: boolean };
   };

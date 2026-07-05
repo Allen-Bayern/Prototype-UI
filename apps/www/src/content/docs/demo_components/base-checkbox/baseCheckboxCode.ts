@@ -12,7 +12,6 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
     </wc-base-checkbox-indicator>
     <div class="flex flex-col gap-0.5">
 Unchecked
-      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
     </div>
   </wc-base-checkbox-root>
   <wc-base-checkbox-root default-checked>
@@ -22,7 +21,6 @@ Unchecked
     </wc-base-checkbox-indicator>
     <div class="flex flex-col gap-0.5">
 Checked
-      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
     </div>
   </wc-base-checkbox-root>
   <wc-base-checkbox-root default-indeterminate>
@@ -32,7 +30,6 @@ Checked
     </wc-base-checkbox-indicator>
     <div class="flex flex-col gap-0.5">
 Indeterminate
-      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
     </div>
   </wc-base-checkbox-root>
   <wc-base-checkbox-root disabled>
@@ -42,7 +39,6 @@ Indeterminate
     </wc-base-checkbox-indicator>
     <div class="flex flex-col gap-0.5">
 Disabled
-      <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
     </div>
   </wc-base-checkbox-root>
 </div>
@@ -62,7 +58,6 @@ export function DemoBaseCheckboxDemo() {
         </BaseCheckboxIndicator>
         <div className="flex flex-col gap-0.5">
           Unchecked
-          <div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
         </div>
       </BaseCheckboxRoot>
       <BaseCheckboxRoot defaultChecked>
@@ -70,9 +65,7 @@ export function DemoBaseCheckboxDemo() {
           <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
           <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
         </BaseCheckboxIndicator>
-        <div className="flex flex-col gap-0.5">
-          Checked<div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
-        </div>
+        <div className="flex flex-col gap-0.5">Checked</div>
       </BaseCheckboxRoot>
       <BaseCheckboxRoot defaultIndeterminate>
         <BaseCheckboxIndicator>
@@ -81,7 +74,6 @@ export function DemoBaseCheckboxDemo() {
         </BaseCheckboxIndicator>
         <div className="flex flex-col gap-0.5">
           Indeterminate
-          <div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
         </div>
       </BaseCheckboxRoot>
       <BaseCheckboxRoot disabled>
@@ -89,9 +81,7 @@ export function DemoBaseCheckboxDemo() {
           <div className="h-2.5 w-2.5 rounded-sm bg-current opacity-0 group-data-[checked]:opacity-100"></div>
           <div className="absolute h-0.5 w-2.5 rounded bg-current opacity-0 group-data-[indeterminate]:opacity-100"></div>
         </BaseCheckboxIndicator>
-        <div className="flex flex-col gap-0.5">
-          Disabled<div className="text-xs text-slate-500">checked: false, indeterminate: false</div>
-        </div>
+        <div className="flex flex-col gap-0.5">Disabled</div>
       </BaseCheckboxRoot>
     </div>
   );
@@ -117,7 +107,6 @@ import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
       </BaseCheckboxIndicator>
       <div class="flex flex-col gap-0.5">
         Unchecked
-        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
       </div>
     </BaseCheckboxRoot>
     <BaseCheckboxRoot defaultChecked>
@@ -131,7 +120,6 @@ import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
       </BaseCheckboxIndicator>
       <div class="flex flex-col gap-0.5">
         Checked
-        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
       </div>
     </BaseCheckboxRoot>
     <BaseCheckboxRoot defaultIndeterminate>
@@ -145,7 +133,6 @@ import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
       </BaseCheckboxIndicator>
       <div class="flex flex-col gap-0.5">
         Indeterminate
-        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
       </div>
     </BaseCheckboxRoot>
     <BaseCheckboxRoot disabled>
@@ -159,7 +146,6 @@ import { BaseCheckboxIndicator, BaseCheckboxRoot } from '@prototype-libs/base';
       </BaseCheckboxIndicator>
       <div class="flex flex-col gap-0.5">
         Disabled
-        <div class="text-xs text-slate-500">checked: false, indeterminate: false</div>
       </div>
     </BaseCheckboxRoot>
   </div>

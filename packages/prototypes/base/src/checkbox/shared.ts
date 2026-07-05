@@ -9,7 +9,7 @@ export type CheckboxContextValue = {
 export const CHECKBOX_FAMILY = createAnatomyFamily('base-checkbox', {
   roles: {
     root: { cardinality: { min: 1, max: 1 } },
-    indicator: { cardinality: { min: 1, max: 100 } },
+    indicator: { cardinality: { min: 0, max: '*' } },
   },
   relations: [{ kind: 'contains', parent: 'root', child: 'indicator' }],
 });
