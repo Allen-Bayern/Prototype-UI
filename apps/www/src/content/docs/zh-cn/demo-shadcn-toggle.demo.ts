@@ -19,7 +19,7 @@ export default {
       {
         kind: 'proto',
         prototypeId: 'shadcn-toggle',
-        props: { variant: 'outline', defaultChecked: true },
+        props: { variant: 'outline', defaultActive: true },
         children: [
           {
             kind: 'proto',
@@ -45,7 +45,7 @@ export default {
       {
         kind: 'proto',
         prototypeId: 'shadcn-toggle',
-        props: { disabled: true, defaultChecked: true },
+        props: { disabled: true, defaultActive: true },
         children: [
           {
             kind: 'proto',

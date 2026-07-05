@@ -510,10 +510,9 @@ openQuestions:
       zh-CN: Toggle 作为 button-like control 是否应同时暴露 Button-style `click` outward signal，还是第一层只暴露 `activeChange`？
       en: Should Toggle, as a button-like control, also expose a Button-style `click` outward signal, or should the first layer expose only `activeChange`?
     context:
-      zh-CN: 当前实现因消费 `asButton()` 会同时 emit `click` 与 `checkedChange`，但草案将 Toggle 的核心 outward signal 定为 `activeChange`，以避免混淆 host click、Button `click` 与 Toggle state-change signal。
-      en: The current implementation emits both `click` and `checkedChange` because it consumes `asButton()`, but this draft defines Toggle's core outward signal as `activeChange` to avoid conflating host click, Button `click`, and Toggle state-change signal.
+      zh-CN: 当前第一轮实现只 emit `activeChange`，不 emit Button-style `click`。该断口保留 host click、Button `click` 与 Toggle state-change signal 是否需要桥接的后续决策空间。
+      en: The current first implementation emits only `activeChange` and does not emit a Button-style `click`. This gap preserves room for a later decision about whether host click, Button `click`, and Toggle state-change signals need a bridge.
     blocks:
-      - toggle implementation alignment
       - toggle outward signal surface
   - id: P-BASE-TOGGLE-Q-TOGGLE-GROUP
     question:
@@ -535,9 +534,10 @@ sources:
   - path: packages/prototypes/base/src/toggle/types.ts
   - path: packages/prototypes/base/test/toggle.test.ts
     sections:
-      - base-toggle initializes from defaultChecked and flips checked on press.commit
-      - asToggle mirrors controlled checked prop and emits next checked without mutating local state
-      - disabled toggle keeps checked stable and suppresses click/checkedChange
+      - base-toggle initializes from defaultActive and flips active on press.commit
+      - asToggle mirrors controlled active prop and emits next active without mutating local state
+      - disabled toggle keeps active stable and suppresses activeChange
+  - path: spec/tests/T-BASE-TOGGLE-0001.yaml
   - path: packages/prototypes/shadcn/src/toggle/index.ts
   - path: packages/prototypes/shadcn/test/toggle.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/button/
@@ -580,6 +580,9 @@ relates:
   knowledge:
     - K-COMPONENT-INTERACTION-0001
     - K-DESIGN-TRADEOFF-0001
+verifies:
+  tests:
+    - T-BASE-TOGGLE-0001
 revisions:
   - version: 0.1.0
     change: introduced

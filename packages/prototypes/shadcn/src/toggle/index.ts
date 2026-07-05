@@ -34,23 +34,22 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
     def.props.define({
       variant: { type: 'enum', empty: 'fallback', options: ['default', 'outline'] },
       size: { type: 'enum', empty: 'fallback', options: ['default', 'sm', 'lg'] },
-      checked: { type: 'boolean', empty: 'fallback' },
-      defaultChecked: { type: 'boolean', empty: 'fallback' },
+      active: { type: 'boolean', empty: 'fallback' },
+      defaultActive: { type: 'boolean', empty: 'fallback' },
       disabled: { type: 'boolean', empty: 'fallback' },
     });
     def.props.setDefaults({
       variant: 'default',
       size: 'default',
-      defaultChecked: false,
+      defaultActive: false,
       disabled: false,
     });
 
-    asToggle();
-
-    const checked = def.state.fromAccessibility('checked');
-    const disabled = def.state.fromInteraction('disabled');
-    const hovered = def.state.fromInteraction('hovered');
-    const focusVisible = def.state.fromInteraction('focusVisible');
+    const toggleState = asToggle().stateHandles;
+    if (!toggleState) {
+      throw new Error('[shadcn-toggle] asToggle must project Toggle state handles.');
+    }
+    const { active, disabled, hovered, focusVisible } = toggleState;
 
     def.feedback.style.use(tw(TOGGLE_BASE_TOKENS));
 
@@ -71,12 +70,12 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
     });
 
     def.rule({
-      when: (w) => w.state(checked).eq(true),
+      when: (w) => w.state(active).eq(true),
       intent: (i) => i.feedback.style.use(tw('bg-muted')),
     });
 
     def.rule({
-      when: (w) => w.all(w.state(hovered).eq(true), w.state(checked).eq(false)),
+      when: (w) => w.all(w.state(hovered).eq(true), w.state(active).eq(false)),
       intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
     });
 
