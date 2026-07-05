@@ -1,11 +1,5 @@
-import {
-  defineAsHook,
-  definePrototype,
-  type AnatomyPartView,
-  type DefHandle,
-  type RunHandle,
-} from '@proto.ui/core';
-import { CHECKBOX_CONTEXT, CHECKBOX_FAMILY } from './shared';
+import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { CHECKBOX_CONTEXT, CHECKBOX_FAMILY, type CheckboxContextValue } from './shared';
 import type {
   CheckboxIndicatorAsHookContract,
   CheckboxIndicatorExposes,
@@ -15,58 +9,63 @@ import type {
 function setupCheckboxIndicator(
   def: DefHandle<CheckboxIndicatorProps, CheckboxIndicatorExposes>
 ): void {
+  // P-BASE-CHECKBOX-INDICATOR-ROLE-INDICATOR, P-BASE-CHECKBOX-INDICATOR-PROTOCOL-DEPENDENCY
+  // P-BASE-CHECKBOX-INDICATOR-CLAIM-ROLE, P-BASE-CHECKBOX-INDICATOR-SAME-DOMAIN
   def.anatomy.claim(CHECKBOX_FAMILY, { role: 'indicator' });
-  const checked = def.state.fromAccessibility('checked');
+  // P-BASE-CHECKBOX-INDICATOR-DERIVED-CHECKED
+  const checked = def.state.bool('checked', false);
+  // P-BASE-CHECKBOX-INDICATOR-DERIVED-INDETERMINATE
   const indeterminate = def.state.bool('indeterminate', false);
+  // P-BASE-CHECKBOX-INDICATOR-DERIVED-DISABLED
+  const disabled = def.state.bool('disabled', false);
 
-  def.context.subscribe(CHECKBOX_CONTEXT, (_run, next) => {
+  const syncContext = (next: CheckboxContextValue) => {
     checked.set(!!next.checked, 'reason: checkbox indicator context checked sync');
     indeterminate.set(
       !!next.indeterminate,
       'reason: checkbox indicator context indeterminate sync'
     );
-  });
-
-  let rootPart: AnatomyPartView | null = null;
+    disabled.set(!!next.disabled, 'reason: checkbox indicator context disabled sync');
+  };
 
   def.expose.state('checked', checked);
   def.expose.state('indeterminate', indeterminate);
 
   def.expose.method('isChecked', () => {
-    const rootChecked = rootPart?.getExpose('checked') as { get?: () => boolean } | null;
-    if (!rootChecked || typeof rootChecked.get !== 'function') return null;
-    return rootChecked.get();
+    return checked.get();
   });
 
   def.expose.method('isIndeterminate', () => {
-    const rootIndeterminate = rootPart?.getExpose('indeterminate') as {
-      get?: () => boolean;
-    } | null;
-    if (!rootIndeterminate || typeof rootIndeterminate.get !== 'function') return null;
-    return rootIndeterminate.get();
+    return indeterminate.get();
   });
 
-  const syncRoot = (run: RunHandle<CheckboxIndicatorProps>) => {
-    rootPart = run.anatomy.partsOf(CHECKBOX_FAMILY, 'root')[0] ?? null;
-    const ctx = run.context.read(CHECKBOX_CONTEXT);
-
-    checked.set(!!ctx.checked, 'reason: checkbox indicator sync => checked');
-    indeterminate.set(!!ctx.indeterminate, 'reason: checkbox indicator sync => indeterminate');
-  };
+  // P-BASE-CHECKBOX-INDICATOR-CONTEXT-SUBSCRIBE, P-BASE-CHECKBOX-INDICATOR-CONTEXT-REQUIRED
+  // P-BASE-CHECKBOX-INDICATOR-DERIVED-CHECKED, P-BASE-CHECKBOX-INDICATOR-DERIVED-INDETERMINATE
+  def.context.subscribe(CHECKBOX_CONTEXT, (_run, next) => {
+    syncContext(next);
+  });
 
   def.lifecycle.onMounted((run) => {
-    syncRoot(run);
+    syncContext(run.context.read(CHECKBOX_CONTEXT));
   });
 
   def.lifecycle.onUpdated((run) => {
-    syncRoot(run);
-  });
-
-  def.lifecycle.onUnmounted(() => {
-    rootPart = null;
+    syncContext(run.context.read(CHECKBOX_CONTEXT));
   });
 }
 
+/*
+ * P-BASE-CHECKBOX / P-BASE-CHECKBOX-INDICATOR criteria outside Checkbox-indicator-internal prototype syntax:
+ * - P-BASE-CHECKBOX-INDICATOR-NO-VALUE-OWNER: absence of checked props and checkedChange is the implementation.
+ * - P-BASE-CHECKBOX-INDICATOR-NO-INDETERMINATE-OWNER: indeterminate is only derived from Checkbox context.
+ * - P-BASE-CHECKBOX-INDICATOR-NO-EVENT-TARGET: absence of def.event usage is the implementation.
+ * - P-BASE-CHECKBOX-INDICATOR-NO-FOCUS-TARGET: absence of asFocusable/focusSelf is the implementation.
+ * - P-BASE-CHECKBOX-INDICATOR-PRESENTATIONAL-A11Y: absence of def.a11y control syntax is the implementation.
+ * - P-BASE-CHECKBOX-INDICATOR-NO-FORM-INTEGRATION: no form-associated props are accepted.
+ * - P-BASE-CHECKBOX-INDICATOR-NO-VISUAL-VARIANT-CORE: visual parameters are owned by downstream styled prototypes.
+ */
+
+// P-BASE-CHECKBOX-INDICATOR-AUTHORING-ENTRIES
 export const asCheckboxIndicator = defineAsHook<
   CheckboxIndicatorProps,
   CheckboxIndicatorExposes,

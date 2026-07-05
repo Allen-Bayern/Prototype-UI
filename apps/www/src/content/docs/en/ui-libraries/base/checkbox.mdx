@@ -40,16 +40,3 @@ When an enabled indeterminate checkbox is pressed:
 4. If `indeterminate` is controlled, the external owner must handle `indeterminateChange` and pass `indeterminate={false}` back in.
 
 Disabled checkboxes do not change checked or indeterminate state on press.
-
-## Controlled table selection
-
-Sync header select-all and row checkboxes via controlled `checkedChange` (similar to Radix / shadcn table multi-select).
-
-<div>
-  <PrototypePreviewer
-    demoId="demo-base-checkbox_table"
-    initialRuntime="wc"
-    runtimes={['wc']}
-    hasCode={false}
-  />
-</div>
