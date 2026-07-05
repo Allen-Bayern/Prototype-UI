@@ -118,10 +118,21 @@ function normalizeCardinality(
   if (typeof min !== 'number' || Number.isNaN(min) || min < 0) {
     throw anatomyError(ANATOMY_ERROR.FAMILY_INVALID, `[Anatomy] invalid cardinality.min`);
   }
-  if (typeof max !== 'number' || Number.isNaN(max) || max < min) {
+  if (max !== '*' && (typeof max !== 'number' || Number.isNaN(max) || max < min)) {
     throw anatomyError(ANATOMY_ERROR.FAMILY_INVALID, `[Anatomy] invalid cardinality.max`);
   }
   return { min, max };
+}
+
+function compareCardinalityMax(a: number | '*', b: number | '*'): number {
+  if (a === b) return 0;
+  if (a === '*') return 1;
+  if (b === '*') return -1;
+  return a - b;
+}
+
+function exceedsCardinalityMax(count: number, max: number | '*'): boolean {
+  return max !== '*' && count > max;
 }
 
 function normalizeRequires(
@@ -159,11 +170,13 @@ function normalizeFamily(decl: AnatomyFamilyDecl): NormalizedFamily {
       const nextCardinality = cloneCardinality(baseRole.cardinality);
       if (patch?.cardinality) {
         if (typeof patch.cardinality.min === 'number') nextCardinality.min = patch.cardinality.min;
-        if (typeof patch.cardinality.max === 'number') nextCardinality.max = patch.cardinality.max;
+        if (typeof patch.cardinality.max === 'number' || patch.cardinality.max === '*') {
+          nextCardinality.max = patch.cardinality.max;
+        }
       }
       if (
         nextCardinality.min < baseRole.cardinality.min ||
-        nextCardinality.max > baseRole.cardinality.max
+        compareCardinalityMax(nextCardinality.max, baseRole.cardinality.max) > 0
       ) {
         throw anatomyError(
           ANATOMY_ERROR.FAMILY_INVALID,
@@ -732,7 +745,7 @@ export class AnatomyModuleImpl extends ModuleBase {
           role,
         });
       }
-      if (count > roleState.cardinality.max) {
+      if (exceedsCardinalityMax(count, roleState.cardinality.max)) {
         diagnostics.push({
           level: 'error',
           scope: 'family',
@@ -793,7 +806,7 @@ export class AnatomyModuleImpl extends ModuleBase {
           profile: profileName,
         });
       }
-      if (count > roleState.cardinality.max) {
+      if (exceedsCardinalityMax(count, roleState.cardinality.max)) {
         diagnostics.push({
           level: 'warning',
           scope: 'profile',

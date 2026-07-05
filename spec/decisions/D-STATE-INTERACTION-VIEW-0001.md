@@ -1,8 +1,10 @@
-# Interaction semantic state remains borrowed in v0
+# Interaction semantic state borrowed accessors are deprecated
 
 ## Decision
 
-`def.state.fromInteraction(...)` and `def.state.fromAccessibility(...)` return `borrowed` state views in v0.
+`def.state.fromInteraction(...)` and `def.state.fromAccessibility(...)` returned `borrowed` state views in early v0, but this accessor model is now deprecated.
+
+The replacement direction is protocol-owned state handles exposed through asHook results. Styled prototypes and downstream composed prototypes should consume `asButton().stateHandles`, `asSwitchRoot().stateHandles`, or the relevant protocol asHook result instead of reacquiring the same facts through `def.state.*` semantic accessors.
 
 ## Rationale
 
@@ -10,10 +12,10 @@ Observed projection is philosophically cleaner for system-level interaction and 
 
 v0 does not yet have enough confidence that adapters and modules can always maintain those facts correctly for every host and every component shape. Prototype authors still need the ability to assert official semantic states such as `hovered`, `pressed`, `focused`, `disabled`, `checked`, or `selected` when they have stronger local knowledge.
 
-Keeping these official semantic states borrowed lets authors use the shared official state surface instead of falling back to private ad hoc state. That keeps rule, expose, and adapter optimization aligned with the official semantics.
+That was the original reason to keep these semantic states borrowed. However, asHook result projection now gives protocol hooks a stable way to return named state handles, so the semantic accessor path is no longer the right composition surface. More importantly, concrete facts such as `checked`, `expanded`, and `invalid` need protocol-specific truth sources; the accessibility projection should consume those facts rather than own them by default.
 
 ## Debt
 
-Long term, official interaction and accessibility state should move toward system-owned `observed` projection if Proto UI can guarantee that the adapter/module layer reflects real interaction state with enough fidelity.
+The deprecated implementation may remain during 0.1 to avoid forcing uncataloged prototypes through a broad migration. Because v0 minor versions do not promise compatibility, the API surface can be removed directly in the 0.2 or 0.3 line.
 
-The migration should not happen until it avoids pushing authors away from official semantic state.
+Long term, official interaction and accessibility state should move toward protocol-owned or system-owned projection with explicit truth-source ownership. The migration should not push authors toward private ad hoc state; it should route them through protocol asHook state handles or domain-specific privileged hooks.

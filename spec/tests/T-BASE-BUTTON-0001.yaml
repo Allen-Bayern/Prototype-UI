@@ -29,6 +29,7 @@ cases:
       - P-BASE-BUTTON-CLICK-SIGNAL
       - P-BASE-BUTTON-CLICK-PROTOCOL-NAME
       - P-BASE-BUTTON-TRIGGER-SEMANTICS
+      - P-BASE-BUTTON-NESTED-TRIGGER-ROUTE
     expectation: press-commit-emits-click-only-while-enabled
   - id: T-BASE-BUTTON-0001-CASE-KEYBOARD-SPACE
     title: focused Space activation requests prevention of host default side effects
@@ -69,11 +70,13 @@ implementations:
       - T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
       - T-BASE-BUTTON-0001-CASE-CLICK-SIGNAL
       - T-BASE-BUTTON-0001-CASE-KEYBOARD-SPACE
+      - T-BASE-BUTTON-0001-CASE-AUTHORING-ENTRIES
+      - T-BASE-BUTTON-0001-CASE-DEFERRED-SURFACES
     exercises:
       - P-BASE-BUTTON
     notes:
-      - Covers current executable Button behavior through the asButton authoring entry.
-      - Does not yet cover a11y, form, command, or visual deferred surfaces.
+      - Covers current executable Button behavior through the asButton authoring entry and compares it with the direct base-button prototype.
+      - Deferred form, command, and visual surfaces are covered as absence checks rather than positive host integration behavior.
 sources:
   - path: packages/prototypes/base/test/as-button.test.ts
   - path: packages/prototypes/base/src/button/button.ts

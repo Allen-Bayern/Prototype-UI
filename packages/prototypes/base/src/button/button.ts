@@ -17,6 +17,12 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
     disabled: false,
   });
 
+  /*
+   * TODO(D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001): Button still writes the
+   * deprecated interaction slots because uncataloged button-like prototypes
+   * call asButton() and then read fromInteraction('disabled' | 'hovered' | 'pressed').
+   * Migrate those protocols before removing this compatibility path.
+   */
   // P-BASE-BUTTON-DISABLED-EXPOSE
   const disabled = def.state.fromInteraction('disabled');
   def.expose.state('disabled', disabled);
@@ -47,10 +53,18 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
   const pressed = def.state.fromInteraction('pressed');
   def.expose.state('pressed', pressed);
 
+  const clearTransientInteraction = (reason: string) => {
+    hovered.set(false, reason);
+    pressed.set(false, reason);
+  };
+
   // P-BASE-BUTTON-PROP-DISABLED-CONTROLLED, P-BASE-BUTTON-DISABLED-CLEAR-TRANSIENT
   const syncDisabled = (nextDisabled: boolean) => {
     disabled.set(nextDisabled, 'reason: sync disabled');
     focusable.setDisabled(nextDisabled);
+    if (nextDisabled) {
+      clearTransientInteraction('reason: button disabled => reset transient interaction');
+    }
   };
   def.lifecycle.onCreated((run) => {
     syncDisabled(run.props.get().disabled);
@@ -79,8 +93,32 @@ function setupButton(def: DefHandle<ButtonProps, ButtonExposes>): void {
     detail?.preventDefault?.();
   });
 
+  // P-BASE-BUTTON-POINTER-HOVER
+  def.event.on('pointer.enter', () => {
+    if (disabled.get()) return;
+    hovered.set(true, 'reason: button pointer.enter => hovered');
+  });
+  def.event.on('pointer.leave', () => {
+    hovered.set(false, 'reason: button pointer.leave => hovered');
+    pressed.set(false, 'reason: button pointer.leave => pressed');
+  });
+  def.event.on('pointer.cancel', () => {
+    hovered.set(false, 'reason: button pointer.cancel => hovered');
+    pressed.set(false, 'reason: button pointer.cancel => pressed');
+  });
+
+  // P-BASE-BUTTON-PRESS-LIFECYCLE
+  def.event.on('pointer.down', () => {
+    if (disabled.get()) return;
+    pressed.set(true, 'reason: button pointer.down => pressed');
+  });
+  def.event.on('pointer.up', () => {
+    pressed.set(false, 'reason: button pointer.up => pressed');
+  });
+
   // P-BASE-BUTTON-ROLE-COMMAND, P-BASE-BUTTON-DISABLED-SUPPRESS-ACTIVATION
   def.event.on('press.commit', (run) => {
+    pressed.set(false, 'reason: button press.commit => pressed');
     if (disabled.get()) return;
     run.expose.emit('click');
   });

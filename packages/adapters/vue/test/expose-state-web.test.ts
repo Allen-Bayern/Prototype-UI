@@ -144,7 +144,7 @@ describe('adapter-vue: expose-state-web', () => {
     expect(names.includes('data--interaction-hovered')).toBe(false);
     expect(names.some((name) => /^data-.*hovered$/.test(name))).toBe(true);
     expect(getAttr(mounted.root, 'data-checked')).toBe('');
-    expect(getAttr(mounted.root, 'aria-checked')).toBe('true');
+    expect(getAttr(mounted.root, 'aria-checked')).toBe(null);
 
     mounted.unmount();
   });

@@ -3,14 +3,14 @@ type: contract
 title: State definition is setup-only
 status: draft
 since: 0.1.0
-summary: The author-facing state definition API is `def.state.*`, and it may only define state slots during setup.
+summary: The author-facing state definition API is `def.state.*`, and it may only define named state slots during setup.
 statement:
   zh-CN: >-
-    State 的原型作者侧定义 API 是 `def.state.*`，其唯一核心形式是在 setup 期间定义一个状态。定义语法产出一个 state slot 的受控视图，而不是把裸 state 实例或数据源直接交给原型作者。
+    State 的原型作者侧定义 API 是 `def.state.*`，其唯一核心形式是在 setup 期间定义一个具备稳定 state name 的状态。定义语法产出一个 state slot 的受控视图，而不是把裸 state 实例或数据源直接交给原型作者。同一 setup frame 内不得定义多个同名 state。
 
 
   en: >-
-    The prototype-author-facing State definition API is `def.state.*`, whose only core form is defining a state during setup. Definition syntax produces a controlled view of a state slot rather than handing the raw state instance or data source directly to the prototype author.
+    The prototype-author-facing State definition API is `def.state.*`, whose only core form is defining a state with a stable state name during setup. Definition syntax produces a controlled view of a state slot rather than handing the raw state instance or data source directly to the prototype author. The same setup frame must not define multiple states with the same name.
 
 
 criteria:
@@ -30,6 +30,14 @@ criteria:
     text:
       zh-CN: 通过当前原型直接创建且完全受当前原型控制的 state 定义必须返回 owned view。
       en: A state defined directly by and fully controlled by the current prototype must return an owned view.
+  - id: C-STATE-0002-E
+    text:
+      zh-CN: 每个 state definition 必须提供稳定的非空字符串 state name。
+      en: Every state definition must provide a stable non-empty string state name.
+  - id: C-STATE-0002-F
+    text:
+      zh-CN: 同一 setup frame 内不得定义多个同名 state；重名必须被诊断为错误。
+      en: The same setup frame must not define multiple states with the same name; duplicate names must be diagnosed as errors.
 sources:
   - path: internal/contracts/state/state-v0.md
     sections:
@@ -49,6 +57,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured setup-only state definition and view-producing semantics.
+  - version: 0.1.1
+    change: revised
+    summary: Added stable state name and setup-frame duplicate-name requirements.
 tags:
   - state
   - setup

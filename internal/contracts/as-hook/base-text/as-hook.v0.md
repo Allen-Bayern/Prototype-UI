@@ -92,6 +92,12 @@ asHook 在 v0 中提供：
 
 `AsHookResult` 是 **asHook 调用器** 的返回值（不是 authored prototype 的 `setup` 返回值）。
 
+这里区分两个返回通道：
+
+- authored asHook 的 `setup` 仍然保持与 `definePrototype` 相同的返回通道：`RenderFn | void`
+- `AsHookResult` 是 runtime 在执行该 setup 之后，对这个 setup frame 中的语法贡献进行分析后合成的结果
+- 这个合成结果可以包含分门别类的 setup 贡献，例如 state handles、artifacts、可取消 setup effect 及其 disposers，以及 setup 返回的 render function
+
 其结构必须是一个对象，形态对齐 def 句柄风格：
 
 - `props`：模块结果（通常为 disposers）
@@ -100,6 +106,7 @@ asHook 在 v0 中提供：
 - `event`：模块结果（disposers）
 - `feedback`：模块结果（disposers）
 - `render`：可选 render 片段（若 authored prototype 的 `setup` 返回 render，则复制到此字段）
+- `asHooks`：当前 asHook setup frame 直接调用的 child asHook entries
 - 允许出现 **自定义字段**（用于扩展）
 
 > 仅 `state` 强制为 Borrowed 视图；其转换由 state module 提供的 SPI 完成。
@@ -116,6 +123,14 @@ asHook 在 v0 中提供：
 
 - 若 `AsHookResult` 中存在 `render`，该 render 可被调用者用于组装其 render。
 - asHook 不直接触发渲染提交。
+- 当前 v0 对 asHook render 片段消费的覆盖仍然较窄；更完整的 render-fragment 组合能力是后续 value 类原型前需要继续补齐的断口。
+
+### 4.4 child asHook entries
+
+- runtime 自动记录当前 asHook setup frame 直接调用的 child asHook。
+- child entries 通过 `asHooks` 暴露，也可以同步镜像到 `artifacts.asHooks`。
+- child state handles 保留在 child entry result 中，不会摊平进外层 `stateHandles`。
+- prototype author 不通过 `def` API 声明 child entries。
 
 ---
 

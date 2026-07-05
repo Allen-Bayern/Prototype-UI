@@ -3,25 +3,25 @@ type: contract
 title: asHook result exposes setup-only disposers and analyzable artifacts
 status: draft
 since: 0.1.0
-summary: AsHookResult may expose captured handles, artifacts, and disposers, but any disposer for setup-introduced effects remains setup-only.
+summary: AsHookResult is the caller result synthesized from captured setup effects, and may expose handles, artifacts, child asHook entries, render fragments, and setup-only disposers.
 statement:
   zh-CN: >-
-    `AsHookResult` 是 asHook caller 的返回值，用于把 asHook 引入的 handles、artifacts、render fragment 与可撤销 setup effects 暴露给调用者。对于 setup 期间引入的副作用，asHook 有义务尽可能提供对应 disposer；但这些 disposer 仍遵守 setup-only removal 边界，只能在 setup 期间调用，不得成为 runtime cleanup、callback disposer 或 lifecycle disposer。无法撤销或无需撤销的贡献，例如单纯创建 state slot，可以不提供真正删除语义。
+    `AsHookResult` 是 asHook caller 的返回值，不是 authored asHook `setup` 的返回值。runtime 必须通过分析该 asHook setup frame 中声明的 setup syntax、captured handles、artifacts、当前 frame 直接调用的 child asHook entries、setup 返回的 render fragment 与可撤销 setup effects 来合成 `AsHookResult`。对于 setup 期间引入的副作用，asHook 有义务尽可能提供对应 disposer；但这些 disposer 仍遵守 setup-only removal 边界，只能在 setup 期间调用，不得成为 runtime cleanup、callback disposer 或 lifecycle disposer。无法撤销或无需撤销的贡献，例如单纯创建 state slot，可以不提供真正删除语义。
 
 
   en: >-
-    `AsHookResult` is the return value of an asHook caller and exposes handles, artifacts, render fragments, and reversible setup effects introduced by the asHook to the caller. For side effects introduced during setup, asHook should provide corresponding disposers whenever possible; however, these disposers still follow the setup-only removal boundary and may only be called during setup, not as runtime cleanup, callback disposers, or lifecycle disposers. Contributions that cannot or need not be removed, such as creating a state slot, do not need true deletion semantics.
+    `AsHookResult` is the return value of an asHook caller, not the return value of the authored asHook `setup`. The runtime must synthesize `AsHookResult` by analyzing setup syntax, captured handles, artifacts, child asHook entries directly called in the current frame, the render fragment returned by setup, and reversible setup effects declared in that asHook setup frame. For side effects introduced during setup, asHook should provide corresponding disposers whenever possible; however, these disposers still follow the setup-only removal boundary and may only be called during setup, not as runtime cleanup, callback disposers, or lifecycle disposers. Contributions that cannot or need not be removed, such as creating a state slot, do not need true deletion semantics.
 
 
 criteria:
   - id: C-AS-HOOK-0006-A
     text:
       zh-CN: >-
-        `AsHookResult` 可以暴露 asHook 引入的 handles、artifacts、render fragment 与 disposers。
+        `AsHookResult` 必须是 asHook caller 合成出来的对象，可以暴露 asHook setup frame 引入的 handles、artifacts、child asHook entries、render fragment 与 disposers。
 
 
       en: >-
-        `AsHookResult` may expose handles, artifacts, render fragments, and disposers introduced by an asHook.
+        `AsHookResult` must be the synthesized object returned by the asHook caller and may expose handles, artifacts, child asHook entries, render fragments, and disposers introduced by the asHook setup frame.
 
 
   - id: C-AS-HOOK-0006-B
@@ -40,6 +40,10 @@ criteria:
     text:
       zh-CN: 无法撤销或无需撤销的 setup contribution 可以暴露 handle 或 artifact，而不要求真正删除语义。
       en: Setup contributions that cannot or need not be removed may expose handles or artifacts without requiring true deletion semantics.
+  - id: C-AS-HOOK-0006-F
+    text:
+      zh-CN: runtime 必须自动记录当前 asHook setup frame 直接调用的 child asHook entries；该能力不得要求 prototype author 使用 `def` API 显式声明。
+      en: Runtime must automatically record child asHook entries directly called in the current asHook setup frame; this capability must not require prototype authors to declare them through a `def` API.
 sources:
   - path: internal/contracts/as-hook/as-hook.v0.md
     sections:
@@ -49,6 +53,7 @@ sources:
     sections:
       - AsHookResult
       - AsHookDisposers
+      - AsHookChildResult
   - path: packages/runtime/src/kernel/as-hook.ts
     sections:
       - collectDisposers
@@ -56,6 +61,7 @@ sources:
 dependsOn:
   contracts:
     - C-AS-HOOK-0002
+    - C-AS-HOOK-0003
     - C-AS-HOOK-0005
     - C-CORE-SYNTAX-0007
 relates:
@@ -65,6 +71,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured AsHookResult artifacts and setup-only disposer boundaries.
+  - version: 0.1.1
+    change: revised
+    summary: Added automatic child asHook result collection to AsHookResult.
 tags:
   - as-hook
   - result

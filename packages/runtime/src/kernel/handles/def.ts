@@ -54,6 +54,11 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
     const rt = getAsHookRuntime(def as object);
     rt?.recordCaptured(kind, entry);
   };
+  const registerStateHandle = (def: DefHandle<P, E>, handle: unknown) => {
+    const rt = getAsHookRuntime(def as object);
+    const name = (handle as any)?.__stateName;
+    rt?.registerStateName(name, (handle as any)?.__stateId);
+  };
 
   const facades = modules.getFacades();
   const feedback = facades['feedback'] as FeedbackFacade;
@@ -245,6 +250,7 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
       bool(semantic, defaultValue) {
         ensureSetup('def.state.bool');
         const handle = state.bool(semantic, defaultValue);
+        registerStateHandle(def, handle);
         recordCaptured(def, 'state', handle);
         return handle;
       },
@@ -253,36 +259,46 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
         if (!stateInteraction) {
           throw new Error(`[StateInteraction] module unavailable for state: ${String(name)}`);
         }
-        return stateInteraction.get(name as any) as any;
+        const handle = stateInteraction.get(name as any) as any;
+        registerStateHandle(def, handle);
+        recordCaptured(def, 'state', handle);
+        return handle;
       },
       fromAccessibility(name) {
         ensureSetup('def.state.fromAccessibility');
         if (!stateAccessibility) {
           throw new Error(`[StateAccessibility] module unavailable for state: ${String(name)}`);
         }
-        return stateAccessibility.get(name as any) as any;
+        const handle = stateAccessibility.get(name as any) as any;
+        registerStateHandle(def, handle);
+        recordCaptured(def, 'state', handle);
+        return handle;
       },
       enum(semantic, defaultValue, spec) {
         ensureSetup('def.state.enum');
         const handle = state.enum(semantic, defaultValue, spec);
+        registerStateHandle(def, handle);
         recordCaptured(def, 'state', handle);
         return handle;
       },
       string(semantic, defaultValue, spec) {
         ensureSetup('def.state.string');
         const handle = state.string(semantic, defaultValue, spec);
+        registerStateHandle(def, handle);
         recordCaptured(def, 'state', handle);
         return handle;
       },
       numberRange(semantic, defaultValue, spec) {
         ensureSetup('def.state.numberRange');
         const handle = state.numberRange(semantic, defaultValue, spec);
+        registerStateHandle(def, handle);
         recordCaptured(def, 'state', handle);
         return handle;
       },
       numberDiscrete(semantic, defaultValue, spec) {
         ensureSetup('def.state.numberDiscrete');
         const handle = state.numberDiscrete(semantic, defaultValue, spec);
+        registerStateHandle(def, handle);
         recordCaptured(def, 'state', handle);
         return handle;
       },

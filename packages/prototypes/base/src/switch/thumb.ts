@@ -1,67 +1,54 @@
-import {
-  defineAsHook,
-  definePrototype,
-  type AnatomyPartView,
-  type DefHandle,
-  type RunHandle,
-} from '@proto.ui/core';
-import { SWITCH_FAMILY } from './shared';
+import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { SWITCH_CONTEXT, SWITCH_FAMILY, type SwitchContextValue } from './shared';
 import type { SwitchThumbAsHookContract, SwitchThumbExposes, SwitchThumbProps } from './types';
 
 function setupSwitchThumb(def: DefHandle<SwitchThumbProps, SwitchThumbExposes>): void {
+  // P-BASE-SWITCH-THUMB-ROLE-INDICATOR, P-BASE-SWITCH-THUMB-PROTOCOL-DEPENDENCY
+  // P-BASE-SWITCH-THUMB-CLAIM-ROLE, P-BASE-SWITCH-THUMB-SAME-DOMAIN
+  // P-BASE-SWITCH-THUMB-INDICATOR
   def.anatomy.claim(SWITCH_FAMILY, { role: 'thumb' });
-  const checked = def.state.fromAccessibility('checked');
-
-  let rootPart: AnatomyPartView | null = null;
-  let rootCheckedOff: (() => void) | null = null;
+  // P-BASE-SWITCH-THUMB-DERIVED-CHECKED
+  const checked = def.state.bool('checked', false);
+  // P-BASE-SWITCH-THUMB-DERIVED-DISABLED
+  const disabled = def.state.bool('disabled', false);
 
   def.expose.state('checked', checked);
 
   def.expose.method('isChecked', () => {
-    const rootChecked = rootPart?.getExpose('checked') as { get?: () => boolean } | null;
-    if (!rootChecked || typeof rootChecked.get !== 'function') return null;
-    return rootChecked.get();
+    return checked.get();
   });
 
-  const syncRoot = (run: RunHandle<SwitchThumbProps>) => {
-    rootCheckedOff?.();
-    rootCheckedOff = null;
-    rootPart = run.anatomy.partsOf(SWITCH_FAMILY, 'root')[0] ?? null;
-    const rootChecked = rootPart?.getExpose('checked') as {
-      get?: () => boolean;
-      subscribe?: (cb: (e: { next: boolean }) => void) => () => void;
-      unsubscribe?: (off: () => void) => void;
-    } | null;
-    checked.set(!!rootChecked?.get?.(), 'reason: switch thumb sync => checked');
-    if (rootChecked && typeof rootChecked.subscribe === 'function') {
-      const off = rootChecked.subscribe((e) => {
-        checked.set(!!e.next, 'reason: switch thumb root checked subscription');
-      });
-      rootCheckedOff = () => {
-        if (typeof rootChecked.unsubscribe === 'function') {
-          rootChecked.unsubscribe(off);
-          return;
-        }
-        off();
-      };
-    }
+  const syncContext = (next: SwitchContextValue) => {
+    checked.set(!!next.checked, 'reason: switch thumb context checked sync');
+    disabled.set(!!next.disabled, 'reason: switch thumb context disabled sync');
   };
 
+  // P-BASE-SWITCH-THUMB-CONTEXT-SUBSCRIBE, P-BASE-SWITCH-THUMB-CONTEXT-REQUIRED
+  // P-BASE-SWITCH-THUMB-DERIVED-CHECKED, P-BASE-SWITCH-THUMB-DERIVED-DISABLED
+  def.context.subscribe(SWITCH_CONTEXT, (_run, next) => {
+    syncContext(next);
+  });
+
   def.lifecycle.onMounted((run) => {
-    syncRoot(run);
+    syncContext(run.context.read(SWITCH_CONTEXT));
   });
 
   def.lifecycle.onUpdated((run) => {
-    syncRoot(run);
-  });
-
-  def.lifecycle.onUnmounted(() => {
-    rootCheckedOff?.();
-    rootCheckedOff = null;
-    rootPart = null;
+    syncContext(run.context.read(SWITCH_CONTEXT));
   });
 }
 
+/*
+ * P-BASE-SWITCH / P-BASE-SWITCH-THUMB criteria outside Switch-thumb-internal prototype syntax:
+ * - P-BASE-SWITCH-THUMB-NO-VALUE-OWNER: absence of props and checkedChange is the implementation.
+ * - P-BASE-SWITCH-THUMB-NO-EVENT-TARGET, P-BASE-SWITCH-THUMB-NOT-TARGET: absence of def.event usage is the implementation.
+ * - P-BASE-SWITCH-THUMB-NO-FOCUS-TARGET: absence of asFocusable/focusSelf is the implementation.
+ * - P-BASE-SWITCH-THUMB-PRESENTATIONAL-A11Y: absence of def.a11y control syntax is the implementation.
+ * - P-BASE-SWITCH-THUMB-NO-FORM-INTEGRATION: no form-associated props are accepted.
+ * - P-BASE-SWITCH-THUMB-NO-VISUAL-VARIANT-CORE: visual parameters are owned by downstream styled prototypes.
+ */
+
+// P-BASE-SWITCH-THUMB-AUTHORING-ENTRIES
 export const asSwitchThumb = defineAsHook<
   SwitchThumbProps,
   SwitchThumbExposes,

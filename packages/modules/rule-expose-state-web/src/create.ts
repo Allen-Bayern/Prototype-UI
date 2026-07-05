@@ -87,21 +87,6 @@ function buildSemanticVariant(
     case '@interaction/focusVisible':
       variant = 'focus-visible';
       break;
-    case '@accessibility/expanded':
-      variant = 'aria-expanded';
-      break;
-    case '@accessibility/invalid':
-      variant = 'aria-invalid';
-      break;
-    case '@accessibility/selected':
-      variant = 'aria-selected';
-      break;
-    case '@accessibility/checked':
-      variant = 'aria-checked';
-      break;
-    case '@accessibility/current':
-      variant = 'aria-current';
-      break;
     default:
       variant = null;
   }

@@ -6,7 +6,7 @@ export type AnatomyFamily = {
 
 export type AnatomyCardinality = {
   min: number;
-  max: number;
+  max: number | '*';
 };
 
 export type AnatomyRequirement = {

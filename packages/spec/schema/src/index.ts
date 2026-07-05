@@ -26,6 +26,7 @@ export const SPEC_ENTITY_STATUSES = ['draft', 'active', 'deprecated', 'removed']
 export const SPEC_RELATION_KINDS = [
   'relates',
   'dependsOn',
+  'references',
   'refines',
   'satisfies',
   'verifies',
@@ -137,11 +138,143 @@ export const specSourceRefSchema = z.object({
   sections: z.array(z.string()).optional(),
 });
 
+export const specAnatomyCardinalityMaxSchema = z.union([
+  z.number().int().nonnegative(),
+  z.literal('*'),
+]);
+
+export const specAnatomyCardinalitySchema = z.object({
+  min: z.number().int().nonnegative(),
+  max: specAnatomyCardinalityMaxSchema,
+});
+
+export const specAnatomyRequirementSchema = z.object({
+  kind: z.literal('hook'),
+  name: z.string().min(1),
+});
+
+export const specAnatomyRoleSchema = z.object({
+  cardinality: specAnatomyCardinalitySchema,
+  requires: z.array(specAnatomyRequirementSchema).default([]),
+  summary: specLocalizedTextSchema.optional(),
+});
+
+export const specAnatomyRelationSchema = z.object({
+  kind: z.literal('contains'),
+  parent: z.string().min(1),
+  child: z.string().min(1),
+});
+
+export const specAnatomyProfileRoleSchema = z.object({
+  cardinality: specAnatomyCardinalitySchema.partial().optional(),
+  requires: z.array(specAnatomyRequirementSchema).optional(),
+  summary: specLocalizedTextSchema.optional(),
+});
+
+export const specAnatomyProfileSchema = z.object({
+  roles: z.record(z.string().min(1), specAnatomyProfileRoleSchema).default({}),
+  relations: z.array(specAnatomyRelationSchema).default([]),
+});
+
+export const specAnatomySchema = z
+  .object({
+    family: z.string().min(1),
+    roles: z.record(z.string().min(1), specAnatomyRoleSchema),
+    relations: z.array(specAnatomyRelationSchema).default([]),
+    profiles: z.record(z.string().min(1), specAnatomyProfileSchema).default({}),
+  })
+  .superRefine((anatomy, context) => {
+    if (!anatomy.roles.root) {
+      context.addIssue({
+        code: 'custom',
+        path: ['roles'],
+        message: 'Anatomy family must declare a root role.',
+      });
+    }
+
+    for (const [roleName, role] of Object.entries(anatomy.roles)) {
+      validateAnatomyCardinality(context, ['roles', roleName, 'cardinality'], role.cardinality);
+    }
+
+    for (const [index, relation] of anatomy.relations.entries()) {
+      validateAnatomyRelationRoles(context, ['relations', index], anatomy.roles, relation);
+    }
+
+    for (const [profileName, profile] of Object.entries(anatomy.profiles)) {
+      for (const [roleName, role] of Object.entries(profile.roles)) {
+        if (!anatomy.roles[roleName]) {
+          context.addIssue({
+            code: 'custom',
+            path: ['profiles', profileName, 'roles', roleName],
+            message: `Anatomy profile ${profileName} references unknown role ${roleName}.`,
+          });
+        }
+
+        if (role.cardinality) {
+          validateAnatomyCardinality(
+            context,
+            ['profiles', profileName, 'roles', roleName, 'cardinality'],
+            role.cardinality
+          );
+        }
+      }
+
+      for (const [index, relation] of profile.relations.entries()) {
+        validateAnatomyRelationRoles(
+          context,
+          ['profiles', profileName, 'relations', index],
+          anatomy.roles,
+          relation
+        );
+      }
+    }
+  });
+
+function validateAnatomyCardinality(
+  context: z.RefinementCtx,
+  path: Array<string | number>,
+  cardinality: { min?: number; max?: number | '*' }
+): void {
+  if (cardinality.min === undefined || cardinality.max === undefined) return;
+  if (cardinality.max === '*') return;
+  if (cardinality.max >= cardinality.min) return;
+
+  context.addIssue({
+    code: 'custom',
+    path,
+    message: `Anatomy cardinality max ${cardinality.max} must be greater than or equal to min ${cardinality.min}.`,
+  });
+}
+
+function validateAnatomyRelationRoles(
+  context: z.RefinementCtx,
+  path: Array<string | number>,
+  roles: Record<string, unknown>,
+  relation: { parent: string; child: string }
+): void {
+  if (!roles[relation.parent]) {
+    context.addIssue({
+      code: 'custom',
+      path: [...path, 'parent'],
+      message: `Anatomy relation parent role does not exist: ${relation.parent}.`,
+    });
+  }
+
+  if (!roles[relation.child]) {
+    context.addIssue({
+      code: 'custom',
+      path: [...path, 'child'],
+      message: `Anatomy relation child role does not exist: ${relation.child}.`,
+    });
+  }
+}
+
 export const specCriterionSchema = z.object({
   id: z.string().min(1),
   text: specLocalizedTextSchema,
   rationale: specLocalizedTextSchema.optional(),
   dependsOn: specRelationsSchema,
+  references: specRelationsSchema,
 });
 
 export const specOpenQuestionSchema = z.object({
@@ -184,6 +317,7 @@ export const specEntitySchema = z
     replacedBy: z.string().optional(),
     summary: z.string().optional(),
     statement: specLocalizedTextSchema.optional(),
+    anatomy: specAnatomySchema.optional(),
     criteria: z.array(specCriterionSchema).default([]),
     openQuestions: z.array(specOpenQuestionSchema).default([]),
     cases: z.array(specTestCaseSchema).default([]),
@@ -192,6 +326,7 @@ export const specEntitySchema = z
     sources: z.array(specSourceRefSchema).default([]),
     relates: specRelationsSchema,
     dependsOn: specRelationsSchema,
+    references: specRelationsSchema,
     refines: specRelationsSchema,
     satisfies: specRelationsSchema,
     requires: specRelationsSchema,
@@ -325,6 +460,7 @@ export type SpecRelationTarget = z.infer<typeof specRelationTargetSchema>;
 export type SpecRelations = z.infer<typeof specRelationsSchema>;
 export type SpecRevision = z.infer<typeof specRevisionSchema>;
 export type SpecSourceRef = z.infer<typeof specSourceRefSchema>;
+export type SpecAnatomy = z.infer<typeof specAnatomySchema>;
 export type SpecCriterion = z.infer<typeof specCriterionSchema>;
 export type SpecOpenQuestion = z.infer<typeof specOpenQuestionSchema>;
 export type SpecTestCase = z.infer<typeof specTestCaseSchema>;

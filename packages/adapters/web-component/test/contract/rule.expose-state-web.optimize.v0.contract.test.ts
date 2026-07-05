@@ -154,11 +154,11 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
     await Promise.resolve();
 
     expect(el.getAttribute('data-pui-style')).toBe(
-      'hover:opacity-50 active:ring-2 aria-invalid:border-destructive'
+      'hover:opacity-50 active:ring-2 data-[invalid]:border-destructive'
     );
     expect(el.classList.contains('hover:opacity-50'), el.className).toBe(false);
     expect(el.classList.contains('active:ring-2'), el.className).toBe(false);
-    expect(el.classList.contains('aria-invalid:border-destructive'), el.className).toBe(false);
+    expect(el.classList.contains('data-[invalid]:border-destructive'), el.className).toBe(false);
 
     document.body.removeChild(el);
   });

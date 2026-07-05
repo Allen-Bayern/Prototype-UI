@@ -9,6 +9,7 @@ type Subscriber<V> = (e: StateEvent<V>) => void;
 
 type StateRecord<V> = {
   id: StateId;
+  name: string;
   semantic: string;
   spec: StateSpec;
   value: V;
@@ -24,11 +25,15 @@ export class StateKernel {
   private pending: Array<() => void> = [];
 
   /** Define a state and return an owned handle. */
-  define<V>(semantic: string, spec: StateSpec, defaultValue: V): OwnedStateHandle<V> {
+  define<V>(name: string, spec: StateSpec, defaultValue: V): OwnedStateHandle<V> {
+    if (typeof name !== 'string' || name.length === 0) {
+      throw new Error(`[State] state name must be a non-empty string.`);
+    }
     const id = this.nextId++;
     const rec: StateRecord<V> = {
       id,
-      semantic,
+      name,
+      semantic: name,
       spec,
       value: defaultValue,
       subscribers: new Set(),
@@ -49,7 +54,8 @@ export class StateKernel {
 
     // attach metadata for internal ops/debug (non-typed)
     (h as any).__stateId = id;
-    (h as any).__stateSemantic = semantic;
+    (h as any).__stateName = name;
+    (h as any).__stateSemantic = name;
     (h as any).__stateKind = spec.kind;
     (h as any).__stateSpec = spec;
 

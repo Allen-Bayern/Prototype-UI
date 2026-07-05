@@ -14,10 +14,11 @@ cases:
       - C-AS-HOOK-0005-D
     expectation: caller-owned-captured-effects
   - id: T-AS-HOOK-0002-CASE-RESULT-ARTIFACTS
-    title: AsHookResult exposes handles, artifacts, methods, event keys, and render fragments
+    title: AsHookResult exposes handles, artifacts, methods, event keys, child asHook entries, and render fragments
     covers:
       - C-AS-HOOK-0006-A
       - C-AS-HOOK-0006-E
+      - C-AS-HOOK-0006-F
     expectation: as-hook-result-artifacts
   - id: T-AS-HOOK-0002-CASE-SETUP-DISPOSERS
     title: Captured setup-effect disposers are exposed but remain setup-only
@@ -33,7 +34,17 @@ cases:
       - C-AS-HOOK-0007-B
       - C-AS-HOOK-0007-C
       - C-AS-HOOK-0007-D
+      - C-AS-HOOK-0007-E
+      - C-AS-HOOK-0007-F
+      - C-AS-HOOK-0007-G
     expectation: borrowed-state-projection
+  - id: T-AS-HOOK-0002-CASE-NESTED-RESULT
+    title: Nested asHook state handles are preserved under child asHook entries and not flattened into outer stateHandles
+    covers:
+      - C-AS-HOOK-0006-A
+      - C-AS-HOOK-0006-F
+      - C-AS-HOOK-0007-H
+    expectation: nested-as-hook-result-not-flattened
 implementations:
   - id: runtime-as-hook-result-contract
     kind: runtime-test
@@ -45,6 +56,7 @@ implementations:
       - T-AS-HOOK-0002-CASE-RESULT-ARTIFACTS
       - T-AS-HOOK-0002-CASE-SETUP-DISPOSERS
       - T-AS-HOOK-0002-CASE-BORROWED-STATE
+      - T-AS-HOOK-0002-CASE-NESTED-RESULT
 verifies:
   contracts:
     - id: C-AS-HOOK-0005
@@ -60,12 +72,17 @@ verifies:
         - C-AS-HOOK-0006-C
         - C-AS-HOOK-0006-D
         - C-AS-HOOK-0006-E
+        - C-AS-HOOK-0006-F
     - id: C-AS-HOOK-0007
       anchors:
         - C-AS-HOOK-0007-A
         - C-AS-HOOK-0007-B
         - C-AS-HOOK-0007-C
         - C-AS-HOOK-0007-D
+        - C-AS-HOOK-0007-E
+        - C-AS-HOOK-0007-F
+        - C-AS-HOOK-0007-G
+        - C-AS-HOOK-0007-H
 exercises:
   decisions:
     - id: D-AS-HOOK-CAPTURE-BUCKET-0001
@@ -76,6 +93,10 @@ exercises:
       role: phase-boundary
       coverageImpact: exercises-test-surface
       note: Runtime tests enforce setup-only disposer behavior.
+    - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001
+      role: test-surface
+      coverageImpact: exercises-test-surface
+      note: Runtime tests enforce state-name projection, expose-name separation, and nested result non-flattening.
 revisions:
   - version: 0.1.0
     change: introduced

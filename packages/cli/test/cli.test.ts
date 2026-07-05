@@ -79,6 +79,8 @@ describe('@proto.ui/cli', () => {
     const themeCss = await fs.readFile(path.join(cwd, 'src/styles/shadcn-theme.css'), 'utf8');
 
     expect(tokensCss).toContain(`[data-pui-style~="bg-primary"]`);
+    expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
+    expect(tokensCss).not.toContain(`aria-checked:bg-primary"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('@source');
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
     expect(styleCss).toContain(`@import './shadcn-theme.css';`);
@@ -105,8 +107,10 @@ describe('@proto.ui/cli', () => {
     const tokensCss = await fs.readFile(outFile, 'utf8');
     expect(tokensCss).toContain(`[data-pui-style~="bg-primary"]`);
     expect(tokensCss).toContain(`[data-pui-style~="rounded-md"]`);
-    expect(tokensCss).toContain(`aria-checked:bg-muted"])[aria-checked='true']`);
-    expect(tokensCss).not.toContain(`aria-checked:bg-muted"])[aria-checked]`);
+    expect(tokensCss).toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
+    expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
+    expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);
+    expect(tokensCss).not.toContain(`aria-checked:bg-muted"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
   }, 30_000);
 

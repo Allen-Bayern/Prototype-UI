@@ -142,6 +142,58 @@ describe('AnatomyModuleImpl', () => {
     );
   });
 
+  it('does not report max diagnostics for unbounded role cardinality', () => {
+    const family = createAnatomyFamily('diag-unbounded-cardinality', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        indicator: { cardinality: { min: 0, max: '*' } },
+      },
+    });
+    const root = {};
+    const indicatorA = {};
+    const indicatorB = {};
+    const parentMap = new Map<any, any>([
+      [root, null],
+      [indicatorA, root],
+      [indicatorB, root],
+    ]);
+
+    const rootImpl = new AnatomyModuleImpl(
+      makeCaps({
+        instance: root,
+        getParent: (instance) => parentMap.get(instance) ?? null,
+        getPrototype: () => makeProto([]),
+      }),
+      'root',
+      makeExposePort()
+    );
+    const indicatorImplA = new AnatomyModuleImpl(
+      makeCaps({
+        instance: indicatorA,
+        getParent: (instance) => parentMap.get(instance) ?? null,
+        getPrototype: () => makeProto([]),
+      }),
+      'indicator-a',
+      makeExposePort()
+    );
+    const indicatorImplB = new AnatomyModuleImpl(
+      makeCaps({
+        instance: indicatorB,
+        getParent: (instance) => parentMap.get(instance) ?? null,
+        getPrototype: () => makeProto([]),
+      }),
+      'indicator-b',
+      makeExposePort()
+    );
+
+    rootImpl.claim(family, { role: 'root' });
+    indicatorImplA.claim(family, { role: 'indicator' });
+    indicatorImplB.claim(family, { role: 'indicator' });
+
+    const diags = rootImpl.port.getDiagnostics();
+    expect(diags.some((it) => it.code === 'ANATOMY_FAMILY_MAX')).toBe(false);
+  });
+
   it('reports missing family hook and relation failures', () => {
     const family = createAnatomyFamily('diag-relation', {
       roles: {

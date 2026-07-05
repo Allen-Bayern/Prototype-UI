@@ -571,8 +571,29 @@ function hasStatements(node) {
 }
 
 function registerDeclaration(decl, scope) {
-  if (!ts.isIdentifier(decl.name) || !decl.initializer) return;
-  scope.bindings.set(decl.name.text, resolveBinding(decl.initializer, scope));
+  if (!decl.initializer) return;
+
+  if (ts.isIdentifier(decl.name)) {
+    scope.bindings.set(decl.name.text, resolveBinding(decl.initializer, scope));
+    return;
+  }
+
+  if (ts.isObjectBindingPattern(decl.name)) {
+    const value = resolveBinding(decl.initializer, scope);
+    if (!value.semanticMap) return;
+
+    for (const element of decl.name.elements) {
+      if (!ts.isIdentifier(element.name)) continue;
+      const propertyName = element.propertyName
+        ? getPropertyName(element.propertyName)
+        : element.name.text;
+      if (!propertyName) continue;
+
+      const semantic = value.semanticMap.get(propertyName);
+      if (!semantic) continue;
+      scope.bindings.set(element.name.text, asSemanticValue(semantic));
+    }
+  }
 }
 
 function resolveExpression(node, scope) {
@@ -600,6 +621,11 @@ function resolveExpression(node, scope) {
 
   if (ts.isIdentifier(node)) {
     return lookup(node.text, scope);
+  }
+
+  if (ts.isPropertyAccessExpression(node) && node.name.text === 'stateHandles') {
+    const stateHandles = resolveKnownAsHookStateHandles(node.expression);
+    if (stateHandles) return asSemanticMapValue(stateHandles);
   }
 
   if (
@@ -713,13 +739,41 @@ function resolveSemanticBinding(node) {
 
   return (
     {
-      expanded: 'aria-expanded',
-      invalid: 'aria-invalid',
-      selected: 'aria-selected',
-      checked: 'aria-checked',
-      current: 'aria-current',
+      expanded: 'data-[expanded]',
+      invalid: 'data-[invalid]',
+      selected: 'data-[selected]',
+      checked: 'data-[checked]',
+      current: 'data-[current]',
     }[name] ?? null
   );
+}
+
+function resolveKnownAsHookStateHandles(node) {
+  if (!ts.isCallExpression(node) || !ts.isIdentifier(node.expression)) return null;
+
+  const hookName = node.expression.text;
+  if (hookName === 'asButton') {
+    return new Map([
+      ['disabled', 'data-[disabled]'],
+      ['hovered', 'hover'],
+      ['focused', 'data-[focused]'],
+      ['focusVisible', 'data-[focus-visible]'],
+      ['pressed', 'active'],
+    ]);
+  }
+
+  if (hookName === 'asSwitchRoot') {
+    return new Map([
+      ['checked', 'data-[checked]'],
+      ['disabled', 'data-[disabled]'],
+      ['hovered', 'data-[hovered]'],
+      ['focused', 'data-[focused]'],
+      ['focusVisible', 'data-[focus-visible]'],
+      ['pressed', 'data-[pressed]'],
+    ]);
+  }
+
+  return null;
 }
 
 function collectRuleVariantTokens(node, scope, tokens) {
@@ -887,7 +941,7 @@ function splitTokens(value) {
 }
 
 function emptyValue() {
-  return { strings: [], single: null, map: null, semantic: null };
+  return { strings: [], single: null, map: null, semanticMap: null, semantic: null };
 }
 
 function asStringValue(strings) {
@@ -895,6 +949,7 @@ function asStringValue(strings) {
     strings,
     single: strings.length === 1 ? strings[0] : null,
     map: null,
+    semanticMap: null,
     semantic: null,
   };
 }
@@ -906,6 +961,27 @@ function asMapValue(map) {
     strings,
     single: null,
     map,
+    semanticMap: null,
+    semantic: null,
+  };
+}
+
+function asSemanticValue(semantic) {
+  return {
+    strings: [],
+    single: null,
+    map: null,
+    semanticMap: null,
+    semantic,
+  };
+}
+
+function asSemanticMapValue(semanticMap) {
+  return {
+    strings: [],
+    single: null,
+    map: null,
+    semanticMap,
     semantic: null,
   };
 }

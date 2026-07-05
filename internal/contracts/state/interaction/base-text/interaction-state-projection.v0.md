@@ -5,6 +5,8 @@
 > 本契约规定 Proto UI v0 中 **interaction signal 向 state 的投影机制**：即如何将系统级 interaction signal 以 state-shaped 形式引入组件原型，以及该投影所形成的 state 视图的能力与边界。
 >
 > 该投影机制旨在**提升交互语义的可消费性**，而不改变 interaction signal 的系统所有权属性。
+>
+> Deprecation note：现有 `def.state.fromInteraction(...)` / `def.state.fromAccessibility(...)` borrowed accessor 已进入 deprecated compatibility layer。本文描述的 observed projection 更接近长期方向；当前已编目的 protocol prototype 应优先通过自身 state truth source 与 asHook state handles 组合。
 
 ---
 

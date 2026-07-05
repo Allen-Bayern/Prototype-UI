@@ -5,6 +5,8 @@
 > 本契约规定 Proto UI v0 中的 **interaction signals（交互信号）**：它们的语义定位、信号集合、生命周期规则，以及可观察性约束。
 >
 > interaction signals 表达的是**系统级交互事实**，而非组件作者定义的状态或事件回调。
+>
+> Deprecation note：`def.state.fromInteraction(...)` / `def.state.fromAccessibility(...)` 已进入 deprecated compatibility accessor 状态。已编目的 protocol prototype 应维护自己的 truth source，或消费 protocol asHook 返回的 state handles；本文仍用于描述更底层的 interaction-signal 模型。
 
 ---
 

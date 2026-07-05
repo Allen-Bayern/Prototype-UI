@@ -19,8 +19,10 @@ class StateInteractionModuleImpl {
     if (existing) return existing;
 
     const owned = this.stateFacade.bool(`@interaction/${name}`, false);
+    (owned as any).__stateName = name;
     const borrowed = this.statePort.createBorrowedHandle<boolean>(owned);
     (borrowed as any).__stateId = (owned as any).__stateId;
+    (borrowed as any).__stateName = name;
     (borrowed as any).__stateSemantic = (owned as any).__stateSemantic;
     (borrowed as any).__stateKind = (owned as any).__stateKind;
     (borrowed as any).__stateSpec = (owned as any).__stateSpec;

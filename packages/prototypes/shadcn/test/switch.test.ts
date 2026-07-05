@@ -25,9 +25,34 @@ describe('prototypes/shadcn: switch', () => {
     expect(root.getExposes().checked.get()).toBe(true);
     expect(thumb.getExposes().isChecked()).toBe(true);
     expect(root.getAttribute('aria-checked')).toBe('true');
-    expect(styleContains(root, 'aria-checked:bg-primary')).toBe(true);
-    expect(styleContains(root, 'aria-checked:pl-[22px]')).toBe(true);
+    expect(styleContains(root, 'data-[checked]:bg-primary')).toBe(true);
+    expect(styleContains(root, 'data-[checked]:pl-[20px]')).toBe(true);
+    expect(styleContains(thumb, 'size-5')).toBe(true);
     expect(styleContains(thumb, 'translate-x-0')).toBe(true);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('applies focus-visible ring styles when keyboard focus reaches the root', async () => {
+    const root = document.createElement('shadcn-switch-root') as any;
+    const thumb = document.createElement('shadcn-switch-thumb') as any;
+    root.appendChild(thumb);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(styleContains(root, 'ring-3')).toBe(false);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+    root.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+    await Promise.resolve();
+
+    expect(root.getExposes().focusVisible.get()).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-3')).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-ring/50')).toBe(true);
+    expect(styleContains(root, 'data-[focus-visible]:ring-offset-2')).toBe(true);
 
     root.remove();
     await Promise.resolve();

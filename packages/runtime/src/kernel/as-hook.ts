@@ -1,6 +1,7 @@
 // packages/runtime/src/kernel/as-hook.ts
 import type {
   AsHookInstanceState,
+  AsHookChildResult,
   AsHookMode,
   AsHookRuntime,
   AsHookResult,
@@ -29,10 +30,15 @@ type DefRuntimeState = {
 
 type AsHookMeta = { privileged: boolean; mode?: AsHookMode };
 type EffectKind = 'props' | 'state' | 'context' | 'event' | 'feedback';
+type StateNameEntry = { stateId?: unknown };
 type EffectFrame = {
   name: string;
+  order: number;
+  privileged: boolean;
+  mode?: AsHookMode;
   effects: Record<EffectKind, unknown[]>;
-  parent?: EffectFrame;
+  asHooks: AsHookChildResult[];
+  stateNames: Map<string, StateNameEntry>;
 };
 
 type StateHandleLike = {
@@ -40,6 +46,7 @@ type StateHandleLike = {
   setDefault?: (v: unknown) => void;
   set?: (v: unknown, reason?: unknown) => void;
   __stateId?: unknown;
+  __stateName?: unknown;
   __stateSemantic?: unknown;
   __stateKind?: unknown;
   __stateSpec?: unknown;
@@ -52,34 +59,21 @@ function isStateHandleLike(x: any): x is StateHandleLike {
 function collectNamedStateHandles(entries: unknown[]): Record<string, StateHandleLike> | undefined {
   const named = new Map<string, StateHandleLike>();
   const seenIds = new Set<unknown>();
-  const namesById = new Map<unknown, string[]>();
 
   for (const entry of entries) {
-    const exposeKey =
-      (entry as any)?.op === 'expose.state' && typeof (entry as any)?.key === 'string'
-        ? ((entry as any).key as string)
-        : undefined;
-    const handle = exposeKey ? (entry as any).handle : entry;
+    const handle =
+      (entry as any)?.op === 'expose.state' || (entry as any)?.op === 'a11y.state'
+        ? (entry as any).handle
+        : entry;
     if (!isStateHandleLike(handle)) continue;
 
-    const semantic = exposeKey ?? handle.__stateSemantic;
-    if (typeof semantic !== 'string' || !semantic) continue;
+    const name = handle.__stateName;
+    if (typeof name !== 'string' || !name) continue;
 
-    const id = handle.__stateId ?? semantic;
-    if (exposeKey) {
-      for (const previousName of namesById.get(id) ?? []) {
-        named.delete(previousName);
-      }
-      namesById.set(id, [semantic]);
-      seenIds.add(id);
-      named.set(semantic, handle);
-      continue;
-    }
-
+    const id = handle.__stateId ?? name;
     if (seenIds.has(id)) continue;
     seenIds.add(id);
-    namesById.set(id, [semantic]);
-    named.set(semantic, handle);
+    named.set(name, handle);
   }
 
   if (named.size === 0) return undefined;
@@ -175,6 +169,7 @@ function createBorrowedHandle<P extends PropsBaseType, V>(
   };
 
   (borrowed as any).__stateId = (handle as any).__stateId;
+  (borrowed as any).__stateName = (handle as any).__stateName;
   (borrowed as any).__stateSemantic = (handle as any).__stateSemantic;
   (borrowed as any).__stateKind = (handle as any).__stateKind;
   (borrowed as any).__stateSpec = (handle as any).__stateSpec;
@@ -227,12 +222,20 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
     { order: number; state: AsHookInstanceState; mode: AsHookMode }
   >();
   const frameStack: EffectFrame[] = [];
+  const rootStateNames = new Map<string, StateNameEntry>();
   let instanceOrder = 0;
   const projectState = opt?.projectState ?? ((state: any) => state);
 
-  const createFrame = (name: string, parent?: EffectFrame): EffectFrame => ({
+  const createFrame = (
+    name: string,
+    meta: { order: number; privileged: boolean; mode?: AsHookMode }
+  ): EffectFrame => ({
     name,
-    parent,
+    order: meta.order,
+    privileged: meta.privileged,
+    mode: meta.mode,
+    asHooks: [],
+    stateNames: new Map(),
     effects: {
       props: [],
       state: [],
@@ -253,6 +256,33 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
     if (phase !== 'setup') {
       illegalPhase(op, st.prototypeName, phase, `Use 'asHook' in setup only.`);
     }
+  };
+
+  const validateStateName = (name: string): void => {
+    if (typeof name !== 'string' || name.length === 0) {
+      throw new Error(`[State] state name must be a non-empty string.`);
+    }
+  };
+
+  const registerStateNameIn = (
+    names: Map<string, StateNameEntry>,
+    name: string,
+    stateId?: unknown
+  ): void => {
+    validateStateName(name);
+    const existing = names.get(name);
+    if (!existing) {
+      names.set(name, { stateId });
+      return;
+    }
+    if (
+      typeof existing.stateId !== 'undefined' &&
+      typeof stateId !== 'undefined' &&
+      Object.is(existing.stateId, stateId)
+    ) {
+      return;
+    }
+    throw new Error(`[State] duplicate state name in setup frame: ${name}`);
   };
 
   const runtime: AsHookRuntime = {
@@ -300,24 +330,31 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
 
       return { action: 'configure' as const, order: existing.order, state: existing.state };
     },
-    beginCapture: (name: string) => {
-      const parent = frameStack.length > 0 ? frameStack[frameStack.length - 1] : undefined;
-      frameStack.push(createFrame(name, parent));
+    beginCapture: (
+      name: string,
+      meta: { order: number; privileged: boolean; mode?: AsHookMode }
+    ) => {
+      frameStack.push(createFrame(name, meta));
     },
     recordCaptured: (kind: EffectKind, entry: unknown) => {
       if (frameStack.length === 0) return;
       const frame = frameStack[frameStack.length - 1];
       frame.effects[kind].push(entry);
     },
+    recordAsHookResult: (entry: AsHookChildResult) => {
+      ensureSetup('asHook.result');
+      const frame = frameStack[frameStack.length - 1];
+      if (!frame) return;
+      frame.asHooks.push(Object.freeze({ ...entry }));
+    },
+    registerStateName: (name: string, stateId?: unknown) => {
+      ensureSetup('def.state');
+      const frame = frameStack[frameStack.length - 1];
+      registerStateNameIn(frame ? frame.stateNames : rootStateNames, name, stateId);
+    },
     endCapture: (render?: RenderFn): AsHookResult<any, any> => {
       const frame = frameStack.pop();
       if (!frame) return render ? { render } : {};
-
-      if (frame.parent) {
-        for (const kind of Object.keys(frame.effects) as EffectKind[]) {
-          frame.parent.effects[kind].push(...frame.effects[kind]);
-        }
-      }
 
       const result: AsHookResult = {};
       const props = compact(frame.effects.props);
@@ -375,11 +412,17 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
         result.methods = methods;
         result.getMethod = (key: string) => methods[key];
       }
-      if (projectedStateHandles || eventKeys || methods) {
+      if (frame.asHooks.length > 0) {
+        const asHooks = Object.freeze(frame.asHooks.slice());
+        result.asHooks = asHooks;
+        result.getAsHook = (name: string) => asHooks.find((entry) => entry.name === name);
+      }
+      if (projectedStateHandles || eventKeys || methods || frame.asHooks.length > 0) {
         const artifacts: Record<string, unknown> = {};
         if (projectedStateHandles) artifacts.stateHandles = result.stateHandles;
         if (eventKeys) artifacts.eventKeys = Object.freeze(eventKeys);
         if (methods) artifacts.methods = methods;
+        if (frame.asHooks.length > 0) artifacts.asHooks = result.asHooks;
         result.artifacts = Object.freeze(artifacts);
       }
       if (allDisposers.length > 0) {

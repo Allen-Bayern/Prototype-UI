@@ -171,6 +171,7 @@ export class StateModuleImpl {
     };
 
     (wrapped as any).__stateId = (raw as any).__stateId;
+    (wrapped as any).__stateName = (raw as any).__stateName ?? semantic;
     (wrapped as any).__stateSemantic = (raw as any).__stateSemantic ?? semantic;
     (wrapped as any).__stateKind = (raw as any).__stateKind;
     (wrapped as any).__stateSpec = (raw as any).__stateSpec;
@@ -220,6 +221,7 @@ export class StateModuleImpl {
       };
 
       (observed as any).__stateId = (handle as any).__stateId;
+      (observed as any).__stateName = (handle as any).__stateName;
       (observed as any).__stateSemantic = (handle as any).__stateSemantic;
       (observed as any).__stateKind = (handle as any).__stateKind;
       (observed as any).__stateSpec = (handle as any).__stateSpec;
@@ -229,26 +231,32 @@ export class StateModuleImpl {
 
     createBorrowedHandle: (handle) => {
       this.ensureAlive(`state.port.createBorrowedHandle`);
-      return {
+      const borrowed = {
         get: () => {
           this.ensureAlive(`state.port.createBorrowedHandle.get`);
           return handle.get();
         },
-        setDefault: (v) => {
+        setDefault: (v: unknown) => {
           this.ensureAlive(`state.port.createBorrowedHandle.setDefault`);
           return handle.setDefault(v as any);
         },
-        set: (v, reason) => {
+        set: (v: unknown, reason?: unknown) => {
           this.ensureAlive(`state.port.createBorrowedHandle.set`);
           const ctx = this.getCallbackCtx();
           return this.withCtx(ctx, () => handle.set(v as any, reason as any));
         },
-        watch: (cb) => {
+        watch: (cb: InternalStateWatchCallback<any>) => {
           this.ensureAlive(`state.port.createBorrowedHandle.watch`);
           this.sys.ensureSetup(`state.port.createBorrowedHandle.watch`);
           return this.addWatcher(handle, cb);
         },
       };
+      (borrowed as any).__stateId = (handle as any).__stateId;
+      (borrowed as any).__stateName = (handle as any).__stateName;
+      (borrowed as any).__stateSemantic = (handle as any).__stateSemantic;
+      (borrowed as any).__stateKind = (handle as any).__stateKind;
+      (borrowed as any).__stateSpec = (handle as any).__stateSpec;
+      return borrowed;
     },
   };
 
