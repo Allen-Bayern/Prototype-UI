@@ -58,6 +58,37 @@ describe('prototypes/shadcn: tabs', () => {
     await Promise.resolve();
   });
 
+  it('applies focus-visible ring styles while keeping trigger shadow tokens', async () => {
+    const root = document.createElement('shadcn-tabs-root') as any;
+    const list = document.createElement('shadcn-tabs-list') as any;
+    const trigger = document.createElement('shadcn-tabs-trigger') as any;
+
+    setElementProps(root, { defaultValue: 'a' });
+    setElementProps(trigger, { value: 'a' });
+
+    list.appendChild(trigger);
+    root.appendChild(list);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(styleContains(trigger, 'ring-3')).toBe(false);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+    trigger.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+    await Promise.resolve();
+
+    expect(trigger.getExposes().focusVisible.get()).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:ring-3')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:ring-ring/50')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:ring-offset-2')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:shadow-xs')).toBe(true);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
   it('does not leave a trigger pressed after pointer activity outside the tabs trigger', async () => {
     const root = document.createElement('shadcn-tabs-root') as any;
     const list = document.createElement('shadcn-tabs-list') as any;

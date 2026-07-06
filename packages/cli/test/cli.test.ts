@@ -113,6 +113,15 @@ describe('@proto.ui/cli', () => {
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);
     expect(tokensCss).toContain(`data-[hidden]:hidden"])[data-hidden]`);
+    expect(tokensCss).toContain(
+      `data-[focus-visible]:ring-3"])[data-focus-visible] {\n    --pui-ring-width: 3px;`
+    );
+    expect(tokensCss).toContain(
+      `data-[focus-visible]:shadow-xs"])[data-focus-visible] {\n    --pui-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);`
+    );
+    expect(tokensCss).toContain(
+      'box-shadow: var(--pui-ring-offset-shadow, 0 0 #0000), var(--pui-ring-shadow, 0 0 #0000), var(--pui-shadow, 0 0 #0000);'
+    );
     expect(tokensCss).not.toContain(`aria-checked:bg-muted"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
   }, 30_000);
