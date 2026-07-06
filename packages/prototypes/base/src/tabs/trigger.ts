@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusable, asTrigger, useCollectionItem } from '@proto.ui/hooks';
+import { asCollectionItem, asFocusable, asTrigger } from '@proto.ui/hooks';
 import { createTabsPartId, TABS_CONTEXT, TABS_FAMILY, type TabsContextValue } from './shared';
 import type { TabsTriggerAsHookContract, TabsTriggerExposes, TabsTriggerProps } from './types';
 
@@ -74,7 +74,8 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   const contentId = def.state.string('contentId', '');
 
   // P-BASE-TABS-TRIGGER-CLAIM-ROLE, P-BASE-TABS-TRIGGER-SAME-DOMAIN
-  useCollectionItem({
+  const collectionItem = asCollectionItem();
+  collectionItem.configure({
     family: TABS_FAMILY,
     role: 'trigger',
     getMeta: (run) => {

@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle, type RunHandle } from '@proto.ui/core';
-import { useCollection } from '@proto.ui/hooks';
+import { asCollection } from '@proto.ui/hooks';
 import { createTabsRootId, TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsRootAsHookContract, TabsRootExposes, TabsRootProps } from './types';
 
@@ -42,7 +42,8 @@ function hasEnabledTriggerValue(run: RunHandle<TabsRootProps>, target: string): 
 function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   // P-BASE-TABS-ANATOMY-FAMILY, P-BASE-TABS-ROOT-SEMANTIC-OWNER
   def.anatomy.claim(TABS_FAMILY, { role: 'root' });
-  useCollection({ family: TABS_FAMILY, itemRole: 'trigger' });
+  const collection = asCollection();
+  collection.configure({ family: TABS_FAMILY, itemRole: 'trigger' });
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },

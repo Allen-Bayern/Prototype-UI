@@ -18,6 +18,7 @@ import { StateModuleDef } from '@proto.ui/module-state';
 import { StateInteractionModuleDef } from '@proto.ui/module-state-interaction';
 import { StateAccessibilityModuleDef } from '@proto.ui/module-state-accessibility';
 import { A11yModuleDef } from '@proto.ui/module-a11y';
+import { CollectionModuleDef } from '@proto.ui/module-collection';
 import { ContextModuleDef } from '@proto.ui/module-context';
 import type { ContextPort } from '@proto.ui/module-context';
 import { AsTriggerModuleDef } from '@proto.ui/module-as-trigger';
@@ -80,6 +81,7 @@ export function createRuntimeInstance<P extends PropsBaseType>(
     StateInteractionModuleDef,
     StateAccessibilityModuleDef,
     A11yModuleDef,
+    CollectionModuleDef,
     ContextModuleDef,
     FocusModuleDef,
     BoundaryModuleDef,

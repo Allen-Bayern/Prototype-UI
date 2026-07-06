@@ -1,12 +1,13 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { useCollection } from '@proto.ui/hooks';
+import { asCollection } from '@proto.ui/hooks';
 import { useOpenState } from '../tools';
 import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
 import type { DropdownRootAsHookContract, DropdownRootExposes, DropdownRootProps } from './types';
 
 function setupDropdownRoot(def: DefHandle<DropdownRootProps, DropdownRootExposes>): void {
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'root' });
-  useCollection({ family: DROPDOWN_FAMILY });
+  const collection = asCollection();
+  collection.configure({ family: DROPDOWN_FAMILY });
 
   def.props.define({
     open: { type: 'boolean', empty: 'fallback' },

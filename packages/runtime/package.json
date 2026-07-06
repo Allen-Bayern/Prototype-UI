@@ -21,6 +21,7 @@
     "@proto.ui/module-state-interaction": "workspace:*",
     "@proto.ui/module-state-accessibility": "workspace:*",
     "@proto.ui/module-a11y": "workspace:*",
+    "@proto.ui/module-collection": "workspace:*",
     "@proto.ui/module-context": "workspace:*",
     "@proto.ui/module-anatomy": "workspace:*",
     "@proto.ui/module-as-trigger": "workspace:*",

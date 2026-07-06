@@ -16,12 +16,15 @@ export type CollectionOptions = {
   family: AnatomyFamily;
   itemRole?: string;
   rootRole?: string | false;
+  ownerRole?: string | false;
   itemMetaExposeKey?: string;
   countStateKey?: string;
   exposeCountStateKey?: string;
   exposeItemsMethodKey?: string;
   exposeCountMethodKey?: string;
 };
+
+export type CollectionConfigPatch = CollectionOptions;
 
 export type CollectionExposes = {
   count: ExposeState<number>;
@@ -31,6 +34,9 @@ export type CollectionExposes = {
 
 export type CollectionHandles = {
   count: State<number>;
+  configure(patch: CollectionConfigPatch): void;
+  getItems(): readonly CollectionItemSnapshot[];
+  getCount(): number;
 };
 
 export type CollectionItemMeta = Record<string, unknown>;
@@ -50,6 +56,8 @@ export type CollectionItemOptions<P extends PropsBaseType = any> = {
   exposeSnapshotMethodKey?: string;
   getMeta?: (run: RunHandle<P>) => CollectionItemMeta;
 };
+
+export type CollectionItemConfigPatch<P extends PropsBaseType = any> = CollectionItemOptions<P>;
 
 export type CollectionItemSnapshotExposed = Readonly<
   CollectionItemMeta & {
@@ -73,4 +81,6 @@ export type CollectionItemHandles = {
   collectionTotal: State<number>;
   collectionFirst: State<boolean>;
   collectionLast: State<boolean>;
+  configure(patch: CollectionItemConfigPatch): void;
+  getSnapshot(): CollectionItemSnapshotExposed;
 };
