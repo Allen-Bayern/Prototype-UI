@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { definePrototype } from '@proto.ui/core';
-import { asFocusScope } from '@proto.ui/hooks';
+import { asFocusEntry, asFocusScope } from '@proto.ui/hooks';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 import { asButton } from '../../../prototypes/base/src/button';
 
@@ -48,5 +48,63 @@ describe('adapter-web-component focus wiring', () => {
 
     expect(el.tabIndex).toBe(-1);
     expect(document.activeElement).not.toBe(el);
+  });
+
+  it('makes focus entry host focusable only when descendant-first needs self fallback', async () => {
+    const P = definePrototype({
+      name: 'x-focus-entry-panel',
+      setup() {
+        const entry = asFocusEntry();
+        entry.configure({ strategy: 'descendant-first', fallback: 'self' });
+        return (r) => [r.slot()];
+      },
+    });
+
+    AdaptToWebComponent(P as any);
+
+    const empty = document.createElement('x-focus-entry-panel') as any;
+    document.body.appendChild(empty);
+    await Promise.resolve();
+
+    expect(empty.tabIndex).toBe(0);
+
+    const withButton = document.createElement('x-focus-entry-panel') as any;
+    const button = document.createElement('button');
+    withButton.appendChild(button);
+    document.body.appendChild(withButton);
+    await Promise.resolve();
+
+    expect(withButton.tabIndex).toBe(-1);
+
+    empty.remove();
+    withButton.remove();
+  });
+
+  it('delegates programmatic focus entry to the first tabbable descendant', async () => {
+    let capturedEntry!: ReturnType<typeof asFocusEntry>;
+    const P = definePrototype({
+      name: 'x-focus-entry-delegate',
+      setup() {
+        capturedEntry = asFocusEntry();
+        capturedEntry.configure({ strategy: 'descendant-first', fallback: 'self' });
+        return (r) => [r.slot()];
+      },
+    });
+
+    AdaptToWebComponent(P as any);
+
+    const el = document.createElement('x-focus-entry-delegate') as any;
+    const disabled = document.createElement('button');
+    const enabled = document.createElement('button');
+    disabled.disabled = true;
+    el.append(disabled, enabled);
+    document.body.appendChild(el);
+    await Promise.resolve();
+
+    capturedEntry.focus();
+
+    expect(document.activeElement).toBe(enabled);
+
+    el.remove();
   });
 });

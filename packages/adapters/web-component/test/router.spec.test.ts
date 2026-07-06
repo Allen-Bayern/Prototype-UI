@@ -152,4 +152,35 @@ describe('WC router: createWebProtoEventRouter', () => {
     portalHost.remove();
     rootEl.remove();
   });
+
+  it('does not route global pointer events to the active root when the pointer target is outside', async () => {
+    const rootEl = document.createElement('button') as unknown as HTMLElement &
+      Record<symbol, unknown>;
+    const outside = document.createElement('button');
+    const triggerOwner = Symbol.for('@proto.ui/as-trigger/confirm-owner');
+
+    rootEl[triggerOwner] = true;
+    document.body.appendChild(rootEl);
+    document.body.appendChild(outside);
+    rootEl.focus();
+
+    const router = createWebProtoEventRouter({
+      rootEl,
+      globalEl: window,
+      isEnabled: () => true,
+    });
+
+    let pointerDownCalls = 0;
+    router.rootTarget.addEventListener('pointer.down', () => {
+      pointerDownCalls += 1;
+    });
+
+    outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+
+    expect(pointerDownCalls).toBe(0);
+
+    router.dispose();
+    outside.remove();
+    rootEl.remove();
+  });
 });

@@ -3,10 +3,10 @@ type: test
 title: A11y semantic object contract tests
 status: draft
 since: 0.1.0
-summary: Contract tests for a11y semantic object IR, Button consumption, and Web adapter projection.
+summary: Contract tests for a11y semantic object IR, Button consumption, identity/relation projection, and Web adapter projection.
 cases:
   - id: T-A11Y-0001-CASE-IR
-    title: A prototype can declare role, name, state, and action into a stable a11y IR
+    title: A prototype can declare identity, role, name, state, action, and relation into a stable a11y IR
     covers:
       - C-A11Y-0001-A
       - C-A11Y-0001-B
@@ -14,6 +14,8 @@ cases:
       - C-A11Y-0001-D
       - C-A11Y-0001-E
       - C-A11Y-0001-F
+      - C-A11Y-0001-H
+      - C-A11Y-0001-I
     expectation: semantic-object-ir
   - id: T-A11Y-0001-CASE-BUTTON
     title: Base Button declares button role, content-derived name policy, disabled state, and activate action
@@ -25,9 +27,11 @@ cases:
       - C-A11Y-0001-F
     expectation: base-button-a11y-consumption
   - id: T-A11Y-0001-CASE-WEB-PROJECTION
-    title: Web adapter projects supported a11y IR to host attributes
+    title: Web adapter projects supported a11y IR identity and relation facts to host attributes
     covers:
       - C-A11Y-0001-G
+      - C-A11Y-0001-H
+      - C-A11Y-0001-I
       - HC-A11Y-0001-A
       - HC-A11Y-0001-B
     expectation: web-a11y-projection
@@ -64,6 +68,8 @@ verifies:
         - C-A11Y-0001-E
         - C-A11Y-0001-F
         - C-A11Y-0001-G
+        - C-A11Y-0001-H
+        - C-A11Y-0001-I
   hostCaps:
     - id: HC-A11Y-0001
       anchors:
@@ -73,6 +79,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first a11y semantic object test mapping.
+  - version: 0.1.1
+    change: refined
+    summary: Added coverage for dynamic a11y name projection from state-backed text facts.
 tags:
   - a11y
   - accessibility

@@ -6,7 +6,7 @@ import {
   type FocusScopeHandle,
   type FocusableHandle,
 } from '@proto.ui/core';
-import { asFocusable, asFocusScope } from '@proto.ui/hooks';
+import { asFocusable, asFocusEntry, asFocusScope } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
 import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
@@ -15,6 +15,7 @@ import {
   FOCUS_PARENT_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
+  FOCUS_SET_FOCUSABLE_CAP,
   type FocusPort,
 } from '@proto.ui/module-focus';
 import type { PropsBaseType } from '@proto.ui/types';
@@ -232,6 +233,68 @@ describe('runtime contract: focus (v0)', () => {
     expect(String(thrown)).toMatch(/setup/i);
   });
 
+  it('FOCUS-0800: repeated asFocusEntry calls reuse one handle and configure through that handle', () => {
+    let entryA!: ReturnType<typeof asFocusEntry<PropsBaseType>>;
+    let entryB!: ReturnType<typeof asFocusEntry<PropsBaseType>>;
+
+    const P = definePrototype({
+      name: 'x-focus-0800',
+      setup() {
+        entryA = asFocusEntry<PropsBaseType>();
+        entryA.configure({ strategy: 'self' });
+        entryB = asFocusEntry<PropsBaseType>();
+        entryB.configure({ strategy: 'descendant-first', fallback: 'self', disabled: true });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(entryA).toBe(entryB);
+    expect(port?.getEntryConfig()).toMatchObject({
+      strategy: 'descendant-first',
+      fallback: 'self',
+      disabled: true,
+    });
+    expect(port?.getWarnings()).toEqual(
+      expect.arrayContaining([expect.stringContaining('entry.strategy overridden')])
+    );
+    expect((P as any).__asHooks).toEqual([
+      { name: 'asFocusEntry', order: 0, privileged: true, mode: 'once' },
+    ]);
+  });
+
+  it('FOCUS-0810: asFocusEntry configure is setup-only while setDisabled stays runtime-safe', () => {
+    let entry!: ReturnType<typeof asFocusEntry<PropsBaseType>>;
+    let thrown: unknown;
+
+    const P = definePrototype({
+      name: 'x-focus-0810',
+      setup(def) {
+        entry = asFocusEntry<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          entry.setDisabled(false);
+          try {
+            entry.configure({ fallback: 'none' });
+          } catch (error) {
+            thrown = error;
+          }
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(thrown).toBeTruthy();
+    expect(String(thrown)).toMatch(/setup/i);
+    expect(port?.getEntryConfig().disabled).toBe(false);
+  });
+
   it('FOCUS-0400: focus commands update minimal facts snapshot', () => {
     let focusable!: FocusableHandle<PropsBaseType>;
 
@@ -400,6 +463,69 @@ describe('runtime contract: focus (v0)', () => {
       active: false,
       hasFocused: false,
     });
+  });
+
+  it('FOCUS-0520: navParticipation=none leaves explicit focus requests enabled', () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    const target = new FocusTarget('target', new Map([['target', 0]]));
+    const focusableUpdates: boolean[] = [];
+    const focused: string[] = [];
+
+    const P = definePrototype({
+      name: 'x-focus-0520',
+      setup(def) {
+        focusable = asFocusable<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          focusable.setNavParticipation('none');
+          focusable.focus({ reason: 'keyboard' });
+        });
+        return (r) => r.el('button', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => target],
+          [EVENT_GLOBAL_TARGET_CAP, () => target],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_ROOT_TARGET_CAP, () => target as any],
+          [
+            FOCUS_SET_FOCUSABLE_CAP,
+            (_target: HTMLElement, enabled: boolean) => {
+              focusableUpdates.push(enabled);
+            },
+          ],
+          [
+            FOCUS_REQUEST_FOCUS_CAP,
+            (nextTarget: FocusTarget) => {
+              focused.push(nextTarget.id);
+            },
+          ],
+        ]);
+      },
+    };
+
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focusableUpdates).toContain(false);
+    expect(focused).toEqual(['target']);
+    expect(port?.getFacts()).toMatchObject({
+      focused: true,
+      focusVisible: true,
+      focusable: true,
+    });
+    expect(port?.getFocusableConfig().navParticipation).toBe('none');
   });
 
   it('FOCUS-0600: autoFocus requests focus after first render commit', () => {

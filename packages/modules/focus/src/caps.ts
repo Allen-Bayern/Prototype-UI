@@ -1,5 +1,5 @@
 import { cap } from '@proto.ui/core';
-import type { FocusRequestOptions } from '@proto.ui/core';
+import type { FocusEntryConfig, FocusRequestOptions } from '@proto.ui/core';
 
 export type FocusInstanceToken = unknown;
 export type FocusParentGetter = (instance: FocusInstanceToken) => FocusInstanceToken | null;
@@ -13,6 +13,17 @@ export type FocusSetFocusable = (target: HTMLElement, enabled: boolean) => void;
 export type FocusRequestFocus = (target: HTMLElement, options?: FocusRequestOptions) => void;
 
 export type FocusBlur = (target: HTMLElement) => void;
+
+export type FocusResolveEntryTarget = (
+  container: HTMLElement,
+  config: FocusEntryConfig
+) => HTMLElement | null;
+
+export type FocusSetEntryFocusable = (
+  container: HTMLElement,
+  config: FocusEntryConfig,
+  enabled: boolean
+) => void;
 
 export type FocusRunInCallback = (fn: () => void) => void;
 
@@ -29,5 +40,13 @@ export const FOCUS_SET_FOCUSABLE_CAP = cap<FocusSetFocusable>('@proto.ui/focus/s
 export const FOCUS_REQUEST_FOCUS_CAP = cap<FocusRequestFocus>('@proto.ui/focus/requestFocus');
 
 export const FOCUS_BLUR_CAP = cap<FocusBlur>('@proto.ui/focus/blur');
+
+export const FOCUS_RESOLVE_ENTRY_TARGET_CAP = cap<FocusResolveEntryTarget>(
+  '@proto.ui/focus/resolveEntryTarget'
+);
+
+export const FOCUS_SET_ENTRY_FOCUSABLE_CAP = cap<FocusSetEntryFocusable>(
+  '@proto.ui/focus/setEntryFocusable'
+);
 
 export const FOCUS_RUN_IN_CALLBACK_CAP = cap<FocusRunInCallback>('@proto.ui/focus/runInCallback');

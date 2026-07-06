@@ -110,7 +110,7 @@ export function createWebProtoEventRouter(opt: {
     return null;
   }
 
-  function resolveOwningTrigger(native: Event) {
+  function resolveOwningTrigger(native: Event, options?: { includeActiveFallback?: boolean }) {
     if (typeof native.composedPath === 'function') {
       for (const entry of native.composedPath()) {
         const owner = getNearestTriggerOwner(entry);
@@ -119,11 +119,15 @@ export function createWebProtoEventRouter(opt: {
     }
     const targetOwner = getNearestTriggerOwner(native.target);
     if (targetOwner) return targetOwner;
+    if (options?.includeActiveFallback === false) return null;
     const active = typeof document !== 'undefined' ? document.activeElement : null;
     return getNearestTriggerOwner(active);
   }
 
-  function resolveOwningProtoInstance(native: Event) {
+  function resolveOwningProtoInstance(
+    native: Event,
+    options?: { includeActiveFallback?: boolean }
+  ) {
     if (typeof native.composedPath === 'function') {
       for (const entry of native.composedPath()) {
         const owner = getNearestProtoInstance(entry);
@@ -132,22 +136,26 @@ export function createWebProtoEventRouter(opt: {
     }
     const targetOwner = getNearestProtoInstance(native.target);
     if (targetOwner) return targetOwner;
+    if (options?.includeActiveFallback === false) return null;
     const active = typeof document !== 'undefined' ? document.activeElement : null;
     return getNearestProtoInstance(active);
   }
 
-  function shouldRouteToCurrentRoot(native: Event) {
-    const triggerOwner = resolveOwningTrigger(native);
+  function shouldRouteToCurrentRoot(native: Event, options?: { includeActiveFallback?: boolean }) {
+    const triggerOwner = resolveOwningTrigger(native, options);
     if (triggerOwner) return triggerOwner === rootEl;
 
-    const owner = resolveOwningProtoInstance(native);
+    const owner = resolveOwningProtoInstance(native, options);
     if (owner) return owner === rootEl;
     return isWithinRoot(native.target);
   }
 
-  function shouldRouteGlobalRootEvent(native: Event) {
+  function shouldRouteGlobalRootEvent(
+    native: Event,
+    options?: { includeActiveFallback?: boolean }
+  ) {
     if (isWithinRoot(native.target)) return false;
-    return shouldRouteToCurrentRoot(native);
+    return shouldRouteToCurrentRoot(native, options);
   }
 
   type KeyboardEventWithSymbols = KeyboardEvent & Record<symbol, Set<EventTarget> | undefined>;
@@ -235,7 +243,7 @@ export function createWebProtoEventRouter(opt: {
   unsubs.push(
     listen(globalEl, 'pointerdown', (e) => {
       if (!opt.isEnabled()) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       suppressFollowupDirectClick = false;
       emit(protoRootBus, 'pointer.down', e);
     })
@@ -244,7 +252,7 @@ export function createWebProtoEventRouter(opt: {
   unsubs.push(
     listen(globalEl, 'pointermove', (e) => {
       if (!opt.isEnabled()) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       emit(protoRootBus, 'pointer.move', e);
     })
   );
@@ -252,7 +260,7 @@ export function createWebProtoEventRouter(opt: {
   unsubs.push(
     listen(globalEl, 'pointerup', (e) => {
       if (!opt.isEnabled()) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       emit(protoRootBus, 'pointer.up', e);
     })
   );
@@ -260,7 +268,7 @@ export function createWebProtoEventRouter(opt: {
   unsubs.push(
     listen(globalEl, 'pointercancel', (e) => {
       if (!opt.isEnabled()) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       emit(protoRootBus, 'pointer.cancel', e);
     })
   );
@@ -317,7 +325,7 @@ export function createWebProtoEventRouter(opt: {
     listen(globalEl, 'click', (e) => {
       if (!opt.isEnabled()) return;
       if (!(e instanceof MouseEvent)) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       if (shouldSuppressFollowupClick(e)) return;
       suppressFollowupDirectClick = false;
       emit(protoRootBus, 'press.commit', e);
@@ -335,7 +343,7 @@ export function createWebProtoEventRouter(opt: {
   unsubs.push(
     listen(globalEl, 'contextmenu', (e) => {
       if (!opt.isEnabled()) return;
-      if (!shouldRouteGlobalRootEvent(e)) return;
+      if (!shouldRouteGlobalRootEvent(e, { includeActiveFallback: false })) return;
       emit(protoRootBus, 'context.menu', e);
     })
   );

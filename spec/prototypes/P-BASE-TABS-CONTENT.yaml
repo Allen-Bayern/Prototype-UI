@@ -1,0 +1,186 @@
+id: P-BASE-TABS-CONTENT
+type: prototype
+title: Base Tabs Content is a value-matched tabpanel part
+status: draft
+since: 0.1.0
+summary: Base Tabs Content is the repeatable tabpanel part that provides a protocol value, derives current state from Tabs context, and is hidden when inactive without being unmounted by the Tabs core protocol.
+statement:
+  zh-CN: >-
+    Base Tabs Content 是 Base Tabs anatomy family 中可重复的 content/tabpanel part。Content 必须提供用于 Tabs selection matching 的 protocol `value`，消费 Tabs context，并在自身 value 与 context selected value 相等时派生 current state。Current content 应显示；非 current content 必须隐藏但不得因此由 Tabs core protocol 自动 unmount。`base-tabs-content` direct prototype 与 `asTabsContent` authored asHook 是同一 Tabs content protocol 的两个 authoring entries。
+
+
+  en: >-
+    Base Tabs Content is the repeatable content/tabpanel part in the Base Tabs anatomy family. Content must provide a protocol `value` used for Tabs selection matching, consume Tabs context, and derive current state when its own value equals the context selected value. Current content should be visible; non-current content must be hidden but must not be automatically unmounted by the Tabs core protocol. The `base-tabs-content` direct prototype and the `asTabsContent` authored asHook are two authoring entries of the same Tabs content protocol.
+
+
+criteria:
+  - id: P-BASE-TABS-CONTENT-ROLE-PANEL
+    text:
+      zh-CN: Tabs Content 是 selected value 对应的 tabpanel content part，不拥有 selected value 或 activation 语义。
+      en: Tabs Content is the tabpanel content part corresponding to selected value and does not own selected value or activation semantics.
+    dependsOn:
+      prototypes:
+        - P-BASE-TABS
+  - id: P-BASE-TABS-CONTENT-AUTHORING-ENTRIES
+    text:
+      zh-CN: '`base-tabs-content` direct prototype 与 `asTabsContent` authored asHook 是同一 Tabs content protocol 的两个 authoring entries。'
+      en: 'The `base-tabs-content` direct prototype and the `asTabsContent` authored asHook are two authoring entries of the same Tabs content protocol.'
+    dependsOn:
+      contracts:
+        - C-CORE-SYNTAX-0003
+        - C-AS-HOOK-0001
+      decisions:
+        - D-PROTOTYPE-ENTITY-NAMING-0001
+  - id: P-BASE-TABS-CONTENT-PROTOCOL-DEPENDENCY
+    text:
+      zh-CN: Tabs Content 的语义成立依赖 `P-BASE-TABS` 定义的 Tabs anatomy family 与 Tabs context；它不得脱离 Tabs root 自行定义 current panel 语义。
+      en: Tabs Content semantics depend on the Tabs anatomy family and Tabs context defined by `P-BASE-TABS`; it must not define current panel semantics independently from Tabs root.
+    dependsOn:
+      prototypes:
+        - P-BASE-TABS
+  - id: P-BASE-TABS-CONTENT-CLAIM-ROLE
+    text:
+      zh-CN: Tabs Content 必须 claim `base-tabs` anatomy family 的 `content` role。
+      en: Tabs Content must claim the `content` role in the `base-tabs` anatomy family.
+    dependsOn:
+      contracts:
+        - C-ANATOMY-0004
+        - C-ANATOMY-0005
+  - id: P-BASE-TABS-CONTENT-SAME-DOMAIN
+    text:
+      zh-CN: Tabs Content 必须解析到同一 Tabs domain 中的 Tabs root；跨 Tabs domain 的 context 不得被消费。
+      en: Tabs Content must resolve to the Tabs root in the same Tabs domain; context from another Tabs domain must not be consumed.
+    dependsOn:
+      contracts:
+        - C-ANATOMY-0005
+        - C-CONTEXT-0002
+  - id: P-BASE-TABS-CONTENT-PROP-VALUE
+    text:
+      zh-CN: 'Tabs Content 必须接受 `value?: string` props input；可靠参与 Tabs selection matching 需要提供有效 value。'
+      en: 'Tabs Content must accept a `value?: string` props input; reliably participating in Tabs selection matching requires a valid value.'
+    dependsOn:
+      contracts:
+        - C-PROPS-0001
+  - id: P-BASE-TABS-CONTENT-CONTEXT-CONSUME
+    text:
+      zh-CN: Tabs Content 必须读取或订阅 Tabs context，以获得 selected value。
+      en: Tabs Content must read or subscribe to Tabs context to obtain selected value.
+    dependsOn:
+      contracts:
+        - C-CONTEXT-0006
+        - C-CONTEXT-0007
+  - id: P-BASE-TABS-CONTENT-CURRENT-DERIVED
+    text:
+      zh-CN: Tabs Content 的 `current` state 必须由自身 protocol value 与 Tabs context selected value 的相等关系派生。
+      en: Tabs Content `current` state must be derived from equality between its own protocol value and Tabs context selected value.
+    dependsOn:
+      contracts:
+        - C-STATE-0001
+        - C-CONTEXT-0007
+  - id: P-BASE-TABS-CONTENT-CURRENT-EXPOSE
+    text:
+      zh-CN: Tabs Content 必须 expose `current` state；`current=true` 表示该 content 对应当前 selected Tabs value。
+      en: Tabs Content must expose `current` state; `current=true` means the content corresponds to the current selected Tabs value.
+    dependsOn:
+      contracts:
+        - C-EXPOSE-STATE-0001
+        - C-STATE-0001
+  - id: P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
+    text:
+      zh-CN: 非 current Tabs Content 必须隐藏；具体 hidden 机制由宿主能力或 prototype implementation 投射，契约不绑定 CSS。
+      en: Non-current Tabs Content must be hidden; the concrete hidden mechanism is projected by host capabilities or prototype implementation, and the contract is not bound to CSS.
+    dependsOn:
+      contracts:
+        - C-A11Y-0001
+  - id: P-BASE-TABS-CONTENT-NOT-UNMOUNTED-BY-DEFAULT
+    text:
+      zh-CN: 非 current Tabs Content 不得因为 Tabs core protocol 的默认 hidden 行为而自动 unmount。
+      en: Non-current Tabs Content must not be automatically unmounted by the default hidden behavior of the Tabs core protocol.
+    dependsOn:
+      prototypes:
+        - P-BASE-TABS
+  - id: P-BASE-TABS-CONTENT-PRESENCE-DEFERRED
+    text:
+      zh-CN: Tabs Content 的 keepMounted、lazyMount、forceMount、presence transition 与 inactive panel unmount 策略暂缓。
+      en: Tabs Content keepMounted, lazyMount, forceMount, presence transition, and inactive panel unmount policies are deferred.
+    references:
+      prototypes:
+        - id: P-BASE-TABS
+          anchors:
+            - P-BASE-TABS-PRESENCE-DEFERRED
+  - id: P-BASE-TABS-CONTENT-A11Y-ROLE
+    text:
+      zh-CN: 在具备 accessibility projection 的宿主中，Tabs Content 必须投射 tabpanel 语义。
+      en: In hosts with accessibility projection, Tabs Content must project tabpanel semantics.
+    dependsOn:
+      contracts:
+        - C-A11Y-0001
+  - id: P-BASE-TABS-CONTENT-A11Y-LABELLEDBY-TARGET
+    text:
+      zh-CN: Tabs Content 必须声明它被具有相同 protocol value 的 Tabs Trigger label；Web 宿主应将该关系投射为 `aria-labelledby`。
+      en: Tabs Content must declare that it is labelled by the Tabs Trigger with the same protocol value; Web hosts should project that relationship as `aria-labelledby`.
+    dependsOn:
+      decisions:
+        - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
+    note:
+      zh-CN: 第一阶段通过 a11y relation target 投射为 Web `aria-labelledby`；后续仍可演进 adapter 生成目标 identity 的方式。
+      en: The first phase projects the a11y relation target to Web `aria-labelledby`; later work may still evolve how adapters generate target identity.
+  - id: P-BASE-TABS-CONTENT-A11Y-HIDDEN
+    text:
+      zh-CN: 在具备 accessibility projection 的宿主中，非 current Tabs Content 的 hidden 状态必须被投射到 accessibility semantic tree。
+      en: In hosts with accessibility projection, hidden state for non-current Tabs Content must be projected to the accessibility semantic tree.
+    dependsOn:
+      contracts:
+        - C-A11Y-0001
+  - id: P-BASE-TABS-CONTENT-TABINDEX-DEFERRED
+    text:
+      zh-CN: 已废弃的第一轮断口：tabpanel 是否自动进入 Tab 顺序不再暂缓；由 `P-BASE-TABS-CONTENT-FOCUS-ENTRY` 接管。
+      en: 'Deprecated first-pass gap: whether tabpanel automatically enters the Tab sequence is no longer deferred; `P-BASE-TABS-CONTENT-FOCUS-ENTRY` now owns this requirement.'
+    dependsOn:
+      contracts:
+        - C-AS-FOCUSABLE-0001
+    status: deprecated
+  - id: P-BASE-TABS-CONTENT-FOCUS-ENTRY
+    text:
+      zh-CN: Current Tabs Content 必须声明 focus entry region，并采用 descendant-first 与 fallback self 策略；inactive Content 必须禁用该 entry。
+      en: Current Tabs Content must declare a focus entry region using descendant-first with fallback self policy; inactive Content must disable that entry.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUS-ENTRY-0001
+      decisions:
+        - D-FOCUS-ENTRY-DELEGATION-0001
+    note:
+      zh-CN: 该准则表达跨宿主行为，不绑定 Web `tabIndex`、CSS 或具体 DOM 查询实现。
+      en: This criterion expresses cross-host behavior and is not bound to Web `tabIndex`, CSS, or a concrete DOM query implementation.
+sources:
+  - path: spec/prototypes/P-BASE-TABS.yaml
+  - path: packages/prototypes/base/src/tabs/content.ts
+  - path: packages/prototypes/base/src/tabs/types.ts
+  - path: packages/prototypes/base/test/tabs.test.ts
+  - path: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
+    label: WAI-ARIA Authoring Practices Guide - Tabs Pattern
+dependsOn:
+  prototypes:
+    - P-BASE-TABS
+  contracts:
+    - C-ANATOMY-0004
+    - C-CONTEXT-0006
+    - C-STATE-0001
+    - C-A11Y-0001
+    - C-AS-FOCUS-ENTRY-0001
+  decisions:
+    - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
+    - D-FOCUS-ENTRY-DELEGATION-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Added the first Base Tabs Content protocol catalog.
+  - version: 0.1.1
+    change: refined
+    summary: Replaced deferred tabpanel focus entry gap with descendant-first focus entry requirement.
+tags:
+  - prototype
+  - base
+  - tabs
+  - content
+  - tabpanel

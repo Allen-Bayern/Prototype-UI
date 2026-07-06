@@ -89,13 +89,16 @@ const staticUtilities: Record<string, string[]> = {
   'inset-0': ['inset: 0px;'],
   'opacity-50': ['opacity: 0.5;'],
   'ring-inset': ['--pui-ring-inset: inset;'],
-  'ring-0': ['--pui-ring-width: 0px;', ringShadow()],
-  'ring-2': ['--pui-ring-width: 2px;', ringShadow()],
-  'ring-3': ['--pui-ring-width: 3px;', ringShadow()],
+  'ring-0': ['--pui-ring-width: 0px;', ...ringShadow()],
+  'ring-2': ['--pui-ring-width: 2px;', ...ringShadow()],
+  'ring-3': ['--pui-ring-width: 3px;', ...ringShadow()],
   'ring-offset-2': ['--pui-ring-offset-width: 2px;'],
   'ring-offset-background': ['--pui-ring-offset-color: var(--pui-background);'],
-  'shadow-xs': ['box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);'],
-  'shadow-lg': ['box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);'],
+  'shadow-xs': ['--pui-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);', ...composedShadow()],
+  'shadow-lg': [
+    '--pui-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);',
+    ...composedShadow(),
+  ],
   'backdrop-blur-xs': ['backdrop-filter: blur(4px);'],
   'z-40': ['z-index: 40;'],
   'z-50': ['z-index: 50;'],
@@ -252,7 +255,7 @@ function renderColorUtility(utility: string): string[] | null {
   if (kind === 'bg') return [`background-color: ${color};`];
   if (kind === 'text') return [`color: ${color};`];
   if (kind === 'border') return [`border-color: ${color};`];
-  if (kind === 'ring') return [`--pui-ring-color: ${color};`, ringShadow()];
+  if (kind === 'ring') return [`--pui-ring-color: ${color};`, ...ringShadow()];
   if (kind === 'ring-offset') return [`--pui-ring-offset-color: ${color};`];
   return null;
 }
@@ -370,10 +373,18 @@ function colorValue(name: string, opacity?: string): string {
   return `color-mix(in oklab, ${base} ${Number(opacity)}%, transparent)`;
 }
 
-function ringShadow() {
+function ringShadow(): string[] {
   return [
-    'box-shadow: var(--pui-ring-inset, ) 0 0 0 var(--pui-ring-width, 0px) var(--pui-ring-color, var(--pui-ring));',
-  ].join('');
+    '--pui-ring-offset-shadow: 0 0 0 var(--pui-ring-offset-width, 0px) var(--pui-ring-offset-color, #fff);',
+    '--pui-ring-shadow: var(--pui-ring-inset,) 0 0 0 calc(var(--pui-ring-width, 0px) + var(--pui-ring-offset-width, 0px)) var(--pui-ring-color, var(--pui-ring));',
+    ...composedShadow(),
+  ];
+}
+
+function composedShadow(): string[] {
+  return [
+    'box-shadow: var(--pui-ring-offset-shadow, 0 0 #0000), var(--pui-ring-shadow, 0 0 #0000), var(--pui-shadow, 0 0 #0000);',
+  ];
 }
 
 function transformValue() {

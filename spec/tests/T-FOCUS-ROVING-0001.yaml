@@ -3,7 +3,7 @@ type: test
 title: Focus roving runtime contract tests
 status: draft
 since: 0.1.0
-summary: Runtime contract tests for asFocusRoving singleton behavior, scope getRoving integration, and logical-parent roving membership without groupKey.
+summary: Runtime contract tests for asFocusRoving singleton behavior, scope getRoving integration, logical-parent roving membership without groupKey, and the boundary between roving movement and sequential Tab navigation.
 cases:
   - id: T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
     title: Repeated asFocusRoving calls reuse one handle and configure through the returned handle
@@ -24,6 +24,12 @@ cases:
       - C-FOCUS-0002-B
       - C-AS-FOCUS-ROVING-0001-C
     expectation: logical-parent-roving-membership
+  - id: T-FOCUS-ROVING-0001-CASE-TAB-SEQUENTIAL
+    title: Tab leaves the roving set instead of acting like next/previous roving movement
+    covers:
+      - C-AS-FOCUS-ROVING-0001-F
+      - C-AS-FOCUS-ROVING-0001-G
+    expectation: tab-is-sequential-navigation-not-roving-movement
 implementations:
   - id: runtime-focus-roving-contract
     kind: runtime-test
@@ -34,6 +40,13 @@ implementations:
       - T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
       - T-FOCUS-ROVING-0001-CASE-SCOPE-GET-ROVING
       - T-FOCUS-ROVING-0001-CASE-LOGICAL-MEMBERSHIP
+  - id: prototypes-base-tabs-roving-tab-boundary
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-ROVING-0001-CASE-TAB-SEQUENTIAL
 verifies:
   contracts:
     - id: C-FOCUS-0002
@@ -48,10 +61,15 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-A
         - C-AS-FOCUS-ROVING-0001-B
         - C-AS-FOCUS-ROVING-0001-C
+        - C-AS-FOCUS-ROVING-0001-F
+        - C-AS-FOCUS-ROVING-0001-G
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Mapped focus-roving runtime tests to logical-topology and asFocusRoving contracts.
+  - version: 0.1.1
+    change: refined
+    summary: Added coverage for Tab as sequential navigation rather than roving movement.
 tags:
   - focus
   - focus-roving

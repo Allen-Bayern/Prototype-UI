@@ -50,11 +50,16 @@ describe('runtime contract: a11y (v0)', () => {
         def.props.setDefaults({ disabled: false });
 
         const disabled = def.state.bool('button.disabled', false);
+        const id = def.state.string('button.id', 'button-a');
+        const controls = def.state.string('button.controls', 'panel-a');
+        def.a11y.id(id);
         def.a11y.role('button');
         def.a11y.name('Save');
         def.a11y.description('Stores changes');
         def.a11y.state('disabled', disabled);
         def.a11y.action('activate', { event: 'click' });
+        def.a11y.relation('controls', { target: controls });
+        def.a11y.relation('describedBy', { target: 'help-a' });
         def.a11y.tree({ mergeChildren: true });
 
         def.lifecycle.onCreated((run) => {
@@ -73,11 +78,13 @@ describe('runtime contract: a11y (v0)', () => {
     const port = caps.getPort<A11yPort>('a11y');
 
     expect(port?.getSnapshot()).toEqual({
+      id: 'button-a',
       role: 'button',
       name: { kind: 'text', value: 'Save' },
       description: { kind: 'text', value: 'Stores changes' },
       states: { disabled: false },
       actions: { activate: { event: 'click' } },
+      relations: { controls: 'panel-a', describedBy: 'help-a' },
       tree: { mergeChildren: true },
     });
 

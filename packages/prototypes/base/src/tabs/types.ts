@@ -1,4 +1,4 @@
-import { ExposeEvent, ExposeMethod, ExposeState, State } from '@proto.ui/core';
+import { ExposeEvent, ExposeMethod, ExposeState, FocusRequestOptions, State } from '@proto.ui/core';
 import type { TabsActivationMode, TabsOrientation } from './shared';
 
 export interface TabsRootProps {
@@ -10,6 +10,7 @@ export interface TabsRootProps {
 
 export type TabsRootExposes = {
   value: ExposeState<string>;
+  valueChange: ExposeEvent<{ value: string }>;
 };
 
 export type TabsRootStateHandles = {
@@ -18,12 +19,15 @@ export type TabsRootStateHandles = {
 
 export type TabsRootAsHookContract = {
   state: TabsRootStateHandles;
-  event: {};
+  event: {
+    valueChange: { value: string };
+  };
 };
 
 export interface TabsListProps {
   orientation?: TabsOrientation;
   loop?: boolean;
+  a11yLabel?: string;
 }
 
 export type TabsListExposes = {
@@ -46,7 +50,7 @@ export type TabsTriggerExposes = {
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
   selected: ExposeState<boolean>;
-  focusSelf: ExposeMethod<() => void>;
+  focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
   click: ExposeEvent<void>;
 };
 
@@ -72,12 +76,32 @@ export interface TabsContentProps {
 
 export type TabsContentExposes = {
   current: ExposeState<boolean>;
+  hidden: ExposeState<boolean>;
 };
 
 export type TabsContentStateHandles = {
   current: State<boolean>;
+  hidden: State<boolean>;
 };
 
 export type TabsContentAsHookContract = {
   state: TabsContentStateHandles;
+};
+
+export interface TabsIndicatorProps {}
+
+export type TabsIndicatorExposes = {
+  value: ExposeState<string>;
+  activeValue: ExposeState<string>;
+  orientation: ExposeState<string>;
+};
+
+export type TabsIndicatorStateHandles = {
+  value: State<string>;
+  activeValue: State<string>;
+  orientation: State<string>;
+};
+
+export type TabsIndicatorAsHookContract = {
+  state: TabsIndicatorStateHandles;
 };

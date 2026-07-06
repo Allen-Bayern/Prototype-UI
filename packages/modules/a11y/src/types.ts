@@ -2,6 +2,9 @@ import type {
   A11yActionKey,
   A11yActionSpec,
   A11yDefAPI,
+  A11yIdentityTarget,
+  A11yRelationKey,
+  A11yRelationSpec,
   A11yRole,
   A11ySemanticObjectSnapshot,
   A11yStateKey,
@@ -19,12 +22,19 @@ export type A11yStateBinding = {
   handle: State<unknown>;
 };
 
+export type A11yRelationBinding = {
+  key: A11yRelationKey;
+  spec: A11yRelationSpec;
+};
+
 export type A11ySemanticObjectIR = {
+  id?: A11yIdentityTarget;
   role?: A11yRole;
   name?: A11yTextAlternative;
   description?: A11yTextAlternative;
   states: Map<A11yStateKey, A11yStateBinding>;
   actions: Map<A11yActionKey, A11yActionSpec>;
+  relations: Map<A11yRelationKey, A11yRelationBinding>;
   tree?: A11yTreeBehavior;
 };
 

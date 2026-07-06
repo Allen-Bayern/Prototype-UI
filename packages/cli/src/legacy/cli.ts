@@ -784,6 +784,24 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asTabsTrigger') {
+    return new Map([
+      ['disabled', 'data-[disabled]'],
+      ['hovered', 'data-[hovered]'],
+      ['focused', 'data-[focused]'],
+      ['focusVisible', 'data-[focus-visible]'],
+      ['pressed', 'data-[pressed]'],
+      ['selected', 'data-[selected]'],
+    ]);
+  }
+
+  if (hookName === 'asTabsContent') {
+    return new Map([
+      ['current', 'data-[current]'],
+      ['hidden', 'data-[hidden]'],
+    ]);
+  }
+
   return null;
 }
 

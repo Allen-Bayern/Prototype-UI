@@ -23,12 +23,13 @@ const BASE_TOKENS = [
 const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExposes>({
   name: 'shadcn-tabs-trigger',
   setup(def) {
-    asTabsTrigger();
-    const disabled = def.state.fromInteraction('disabled');
-    const hovered = def.state.fromInteraction('hovered');
-    const focusVisible = def.state.fromInteraction('focusVisible');
-    const pressed = def.state.fromInteraction('pressed');
-    const selected = def.state.fromAccessibility('selected');
+    const triggerState = asTabsTrigger().stateHandles;
+    if (!triggerState) {
+      throw new Error(
+        '[shadcn-tabs-trigger] asTabsTrigger must project Tabs trigger state handles.'
+      );
+    }
+    const { disabled, hovered, focusVisible, pressed, selected } = triggerState;
 
     def.feedback.style.use(tw(BASE_TOKENS));
 

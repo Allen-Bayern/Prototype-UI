@@ -3,6 +3,8 @@ import type { ModuleFactoryArgs } from '@proto.ui/module-base';
 import type {
   A11yActionKey,
   A11yActionSpec,
+  A11yRelationKey,
+  A11yRelationSpec,
   A11yRole,
   A11ySemanticObjectSnapshot,
   A11yStateKey,
@@ -20,6 +22,7 @@ class A11yModuleImpl extends ModuleBase {
   private readonly ir: A11ySemanticObjectIR = {
     states: new Map(),
     actions: new Map(),
+    relations: new Map(),
   };
   private readonly stateWatchOffs: Unsubscribe[] = [];
   private stateWatchesInstalled = false;
@@ -32,6 +35,11 @@ class A11yModuleImpl extends ModuleBase {
   }
 
   readonly facade: A11yFacade = {
+    id: (target) => {
+      this.ensureSetup('def.a11y.id');
+      this.ir.id = target;
+      this.applyProjection();
+    },
     role: (role) => {
       this.ensureSetup('def.a11y.role');
       this.ir.role = role;
@@ -62,6 +70,11 @@ class A11yModuleImpl extends ModuleBase {
       this.ir.actions.set(key, { ...spec });
       this.applyProjection();
     },
+    relation: (key: A11yRelationKey, spec: A11yRelationSpec) => {
+      this.ensureSetup('def.a11y.relation');
+      this.ir.relations.set(key, { key, spec: { ...spec } });
+      this.applyProjection();
+    },
     tree: (patch: A11yTreeBehavior) => {
       this.ensureSetup('def.a11y.tree');
       this.ir.tree = { ...(this.ir.tree ?? {}), ...patch };
@@ -73,10 +86,12 @@ class A11yModuleImpl extends ModuleBase {
     getSnapshot: () => this.getSnapshot(),
     getIR: () => ({
       role: this.ir.role,
+      id: this.ir.id,
       name: cloneTextAlternative(this.ir.name),
       description: cloneTextAlternative(this.ir.description),
       states: new Map(this.ir.states),
       actions: new Map(this.ir.actions),
+      relations: new Map(this.ir.relations),
       tree: this.ir.tree ? { ...this.ir.tree } : undefined,
     }),
   };
@@ -118,6 +133,35 @@ class A11yModuleImpl extends ModuleBase {
       this.stateWatchOffs.push(off);
     }
 
+    if (isState(this.ir.id)) {
+      const off = this.statePort.watch(this.ir.id as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
+    if (this.ir.name?.kind === 'text' && isState(this.ir.name.value)) {
+      const off = this.statePort.watch(this.ir.name.value as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
+    if (this.ir.description?.kind === 'text' && isState(this.ir.description.value)) {
+      const off = this.statePort.watch(this.ir.description.value as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
+    for (const binding of this.ir.relations.values()) {
+      if (!isState(binding.spec.target)) continue;
+      const off = this.statePort.watch(binding.spec.target as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
     this.stateWatchesInstalled = true;
   }
 
@@ -127,12 +171,20 @@ class A11yModuleImpl extends ModuleBase {
       states[key] = binding.handle.get();
     }
 
+    const relations: Record<string, string | null | undefined> = {};
+    for (const [key, binding] of this.ir.relations) {
+      const target = binding.spec.target;
+      relations[key] = isState(target) ? target.get() : target;
+    }
+
     return {
+      id: isState(this.ir.id) ? (this.ir.id.get() as string | null | undefined) : this.ir.id,
       role: this.ir.role,
-      name: cloneTextAlternative(this.ir.name),
-      description: cloneTextAlternative(this.ir.description),
+      name: resolveTextAlternative(this.ir.name),
+      description: resolveTextAlternative(this.ir.description),
       states,
       actions: Object.fromEntries(this.ir.actions),
+      relations,
       tree: this.ir.tree ? { ...this.ir.tree } : undefined,
     };
   }
@@ -143,11 +195,30 @@ class A11yModuleImpl extends ModuleBase {
   }
 }
 
+function isState(value: unknown): value is State<unknown> {
+  return (
+    !!value && typeof value === 'object' && typeof (value as State<unknown>).get === 'function'
+  );
+}
+
 function cloneTextAlternative(
   value: A11yTextAlternative | undefined
 ): A11yTextAlternative | undefined {
   if (!value) return undefined;
   return value.kind === 'text' ? { kind: 'text', value: value.value } : { kind: 'content' };
+}
+
+function resolveTextAlternative(
+  value: A11yTextAlternative | undefined
+): A11yTextAlternative | undefined {
+  if (!value) return undefined;
+  if (value.kind === 'content') return { kind: 'content' };
+  return {
+    kind: 'text',
+    value: isState(value.value)
+      ? (value.value.get() as string | null | undefined) || ''
+      : value.value,
+  };
 }
 
 export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {

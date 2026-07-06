@@ -38,6 +38,13 @@ criteria:
     text:
       zh-CN: 焦点事实唯一性不得完全依赖宿主一定会投递 blur；adapter、commit gate 或宿主差异导致 blur 缺失时，focus center 仍必须维持内部事实一致性。
       en: Focus fact uniqueness must not rely entirely on the host always delivering blur; if adapter, commit gate, or host variance causes blur to be missed, the focus center must still preserve internal fact consistency.
+  - id: C-FOCUS-0001-G
+    text:
+      zh-CN: Focus domain 必须区分 focus target identity 与 focus entry region；entry region 可以将真实 focus target 委派给后代或 fallback 到自身，但不得因此伪造自身 target-level focus facts。
+      en: The focus domain must distinguish focus target identity from focus entry regions; an entry region may delegate the real focus target to a descendant or fall back to itself, but must not fake its own target-level focus facts because of that delegation.
+    dependsOn:
+      decisions:
+        - D-FOCUS-ENTRY-DELEGATION-0001
 sources:
   - path: internal/contracts/focus/base-text/focus-domain.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -60,6 +67,7 @@ dependsOn:
 relates:
   decisions:
     - D-FOCUS-STATE-INTERACTION-BOUNDARY-0001
+    - D-FOCUS-ENTRY-DELEGATION-0001
 revisions:
   - version: 0.1.0
     change: introduced
@@ -67,6 +75,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added focus fact uniqueness and stale fact cleanup requirements learned from cross-adapter dialog focus behavior.
+  - version: 0.1.2
+    change: refined
+    summary: Added focus entry region as distinct from focus target identity.
 tags:
   - focus
   - domain

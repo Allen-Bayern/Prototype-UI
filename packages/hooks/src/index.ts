@@ -1,4 +1,5 @@
 export * from './as-boundary';
+export * from './as-focus-entry';
 export * from './as-focus-roving';
 export * from './as-focusable';
 export * from './as-focus-scope';

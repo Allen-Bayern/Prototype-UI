@@ -1,5 +1,8 @@
 import type {
   FocusFacts,
+  FocusEntryConfig,
+  FocusEntryConfigPatch,
+  FocusEntryHandle,
   FocusRovingConfig,
   FocusRovingConfigPatch,
   FocusRovingHandle,
@@ -18,17 +21,22 @@ import type { PropsBaseType } from '@proto.ui/types';
 
 export type FocusFacade = {
   getFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P>;
+  getEntry<P extends PropsBaseType = PropsBaseType>(): FocusEntryHandle<P>;
   getRoving<P extends PropsBaseType = PropsBaseType>(): FocusRovingHandle<P>;
   getScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P>;
 };
 
 export type FocusPort = {
   configureFocusable(patch: FocusableConfigPatch): void;
+  configureEntry(patch: FocusEntryConfigPatch): void;
   configureRoving(patch: FocusRovingConfigPatch): void;
   configureGroup(patch: FocusRovingConfigPatch): void;
   configureScope(patch: FocusScopeConfigPatch): void;
   setDisabled(disabled: boolean): void;
+  setNavParticipation(navParticipation: 'auto' | 'none'): void;
+  setEntryDisabled(disabled: boolean): void;
   requestFocus(options?: FocusRequestOptions): void;
+  requestEntryFocus(options?: FocusRequestOptions): void;
   blur(): void;
   focusFirst(): void;
   focusLast(): void;
@@ -43,6 +51,7 @@ export type FocusPort = {
   getEffectiveGroupKey(): FocusRovingKey | undefined;
   getEffectiveScopeKey(): FocusScopeKey | undefined;
   getFocusableConfig(): FocusableConfig;
+  getEntryConfig(): FocusEntryConfig;
   getRovingConfig(): FocusRovingConfig;
   getGroupConfig(): FocusRovingConfig;
   getScopeConfig(): FocusScopeConfig;
