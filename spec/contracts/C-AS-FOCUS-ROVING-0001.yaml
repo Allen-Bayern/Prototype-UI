@@ -75,6 +75,9 @@ revisions:
   - version: 0.1.2
     change: refined
     summary: Clarified that Tab is sequential focus navigation, not roving next/previous movement, and that only the active/current item should participate in natural Tab order.
+  - version: 0.1.3
+    change: refined
+    summary: Clarified via implementation and tests that navParticipation controls natural Tab order but not roving candidate membership.
 tags:
   - focus
   - as-hook

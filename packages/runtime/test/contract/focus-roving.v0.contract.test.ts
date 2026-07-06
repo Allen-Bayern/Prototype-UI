@@ -290,6 +290,99 @@ describe('runtime contract: focus-roving (v0)', () => {
     ]);
   });
 
+  it('FOCUS-ROVING-0360: roving movement can focus members outside natural Tab participation', () => {
+    let roving!: FocusRovingHandle<PropsBaseType>;
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0360-owner',
+      setup() {
+        roving = asFocusRoving<PropsBaseType>();
+        roving.configure({ navigation: 'arrow', orientation: 'horizontal' });
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const AutoItem = definePrototype({
+      name: 'x-focus-roving-0360-auto-item',
+      setup() {
+        const focusable = asFocusable<PropsBaseType>();
+        focusable.configure({ navParticipation: 'auto' });
+        return (r) => r.el('button', 'item');
+      },
+    });
+    const TabExcludedItem = definePrototype({
+      name: 'x-focus-roving-0360-tab-excluded-item',
+      setup() {
+        const focusable = asFocusable<PropsBaseType>();
+        focusable.configure({ navParticipation: 'none' });
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['item-a', 1],
+      ['item-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      itemA: new FocusTarget('item-a', order),
+      itemB: new FocusTarget('item-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.itemA, targets.roving],
+      [targets.itemB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(Roving as any, createTreeHost(Roving.name, targets.roving, hostOptions) as any);
+    const itemA = executeWithHost(
+      AutoItem as any,
+      createTreeHost(AutoItem.name, targets.itemA, hostOptions) as any
+    );
+    executeWithHost(
+      TabExcludedItem as any,
+      createTreeHost(TabExcludedItem.name, targets.itemB, hostOptions) as any
+    );
+
+    itemA.caps.getPort<FocusPort>('focus')?.requestFocus({ reason: 'keyboard' });
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowRight',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b']);
+
+    targets.itemB.dispatchEvent(new Event('host:focus'));
+    roving.setOrientation('vertical');
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowRight',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b']);
+
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowUp',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b', 'item-a']);
+  });
+
   it('FOCUS-ROVING-0310: scope getRoving handle declares logical roving ownership', () => {
     const Scope = definePrototype({
       name: 'x-focus-roving-0310-scope',

@@ -362,6 +362,53 @@ describe('prototypes/base: tabs', () => {
     await Promise.resolve();
   });
 
+  it('vertical tabs use focus roving for arrow-key navigation without trigger-owned forwarding', async () => {
+    // T-BASE-TABS-LIST-0001-CASE-ROVING-ORIENTATION
+    const root = document.createElement('base-tabs-root') as any;
+    const list = document.createElement('base-tabs-list') as any;
+    const triggerA = document.createElement('base-tabs-trigger') as any;
+    const triggerB = document.createElement('base-tabs-trigger') as any;
+
+    setElementProps(root, {
+      defaultValue: 'a',
+      orientation: 'vertical',
+      activationMode: 'automatic',
+    });
+    setElementProps(triggerA, { value: 'a' });
+    setElementProps(triggerB, { value: 'b' });
+
+    list.appendChild(triggerA);
+    list.appendChild(triggerB);
+    root.appendChild(list);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    triggerA.focus();
+    const ignored = new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true });
+    window.dispatchEvent(ignored);
+    await Promise.resolve();
+
+    expect(ignored.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(triggerA);
+    expect(root.getExposes().value.get()).toBe('a');
+
+    const handled = new KeyboardEvent('keydown', { key: 'ArrowDown', cancelable: true });
+    window.dispatchEvent(handled);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(handled.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(triggerB);
+    expect(root.getExposes().value.get()).toBe('b');
+    expect(triggerA.tabIndex).toBe(-1);
+    expect(triggerB.tabIndex).toBe(0);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
   it('indicator consumes tabs context without interaction or focus surfaces', async () => {
     // T-BASE-TABS-INDICATOR-0001-CASE-CONTEXT-CONSUMPTION
     // T-BASE-TABS-INDICATOR-0001-CASE-NO-INTERACTION-SURFACES

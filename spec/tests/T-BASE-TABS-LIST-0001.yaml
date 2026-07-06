@@ -40,6 +40,13 @@ cases:
       - P-BASE-TABS-LIST-PROP-A11Y-LABEL
       - P-BASE-TABS-LIST-A11Y-LABEL
     expectation: tabs-list-projects-a11y-label-as-accessible-name
+  - id: T-BASE-TABS-LIST-0001-CASE-ROVING-ORIENTATION
+    title: Vertical Tabs List uses vertical arrow keys for focus roving
+    covers:
+      - P-BASE-TABS-LIST-FOCUS-ROVING
+      - P-BASE-TABS-LIST-ORIENTATION-KEYS
+      - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001-A
+    expectation: vertical-tabs-list-roves-with-vertical-arrow-keys
 implementations:
   - id: prototypes-base-tabs-list-contract
     kind: module-test
@@ -51,6 +58,7 @@ implementations:
       - T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
       - T-BASE-TABS-LIST-0001-CASE-TAB-SEQUENTIAL
       - T-BASE-TABS-LIST-0001-CASE-A11Y-LABEL
+      - T-BASE-TABS-LIST-0001-CASE-ROVING-ORIENTATION
     exercises:
       - P-BASE-TABS-LIST
   - id: adapter-react-tabs-list-contract
@@ -77,8 +85,13 @@ verifies:
       anchors:
         - P-BASE-TABS-LIST-FOCUS-ROVING
         - P-BASE-TABS-LIST-FOCUS-METHODS
+        - P-BASE-TABS-LIST-ORIENTATION-KEYS
         - P-BASE-TABS-LIST-A11Y-ORIENTATION
         - P-BASE-TABS-LIST-A11Y-LABEL
+  decisions:
+    - id: D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
+      anchors:
+        - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001-A
 exercises:
   prototypes:
     - P-BASE-TABS-LIST
@@ -92,6 +105,9 @@ revisions:
   - version: 0.1.2
     change: refined
     summary: Added Tabs List a11yLabel accessible-name coverage.
+  - version: 0.1.3
+    change: refined
+    summary: Added coverage that vertical Tabs List delegates arrow-key roving navigation to Focus Roving.
 tags:
   - prototype
   - base

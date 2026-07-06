@@ -197,6 +197,9 @@ class FocusModuleImpl extends ModuleBase {
       focusPrev: () => this.focusPrev(),
       focusSelected: () => this.focusSelected(),
       configure: (patch: FocusRovingConfigPatch) => this.configureRoving(patch),
+      setLoop: (loop: boolean) => this.setRovingLoop(loop),
+      setOrientation: (orientation: FocusRovingConfig['orientation']) =>
+        this.setRovingOrientation(orientation),
     };
   }
 
@@ -723,6 +726,22 @@ class FocusModuleImpl extends ModuleBase {
     this.syncCenter();
   }
 
+  setRovingLoop(loop: boolean): void {
+    this.rovingConfig = Object.freeze({
+      ...this.rovingConfig,
+      loop,
+    });
+    this.syncCenter();
+  }
+
+  setRovingOrientation(orientation: FocusRovingConfig['orientation']): void {
+    this.rovingConfig = Object.freeze({
+      ...this.rovingConfig,
+      orientation,
+    });
+    this.syncCenter();
+  }
+
   private requestFocusDirect(options?: FocusRequestOptions): void {
     if (!this.focusableDeclared || this.focusableConfig.disabled) return;
     const target = this.getRootTarget();
@@ -991,6 +1010,8 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         configureEntry: (patch) => impl.configureEntry(patch),
         configureRoving: (patch) => impl.configureRoving(patch),
         configureGroup: (patch) => impl.configureRoving(patch),
+        setRovingLoop: (loop) => impl.setRovingLoop(loop),
+        setRovingOrientation: (orientation) => impl.setRovingOrientation(orientation),
         configureScope: (patch) => impl.configureScope(patch),
         setDisabled: (disabled) => impl.setDisabled(disabled),
         setNavParticipation: (navParticipation) => impl.setNavParticipation(navParticipation),

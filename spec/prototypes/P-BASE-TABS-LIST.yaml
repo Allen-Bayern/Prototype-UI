@@ -69,6 +69,8 @@ criteria:
     dependsOn:
       contracts:
         - C-AS-FOCUS-ROVING-0001
+      decisions:
+        - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
   - id: P-BASE-TABS-LIST-FOCUS-METHODS
     text:
       zh-CN: Tabs List 必须 expose `focusFirst`、`focusLast`、`focusNext`、`focusPrev` 与 `focusSelected` 等 focus navigation 方法。
@@ -95,6 +97,8 @@ criteria:
         - C-AS-FOCUS-ROVING-0001
       prototypes:
         - P-BASE-TABS
+      decisions:
+        - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
   - id: P-BASE-TABS-LIST-HOME-END
     text:
       zh-CN: Tabs List 必须支持 Home/End 将 focus 移动到第一个/最后一个 eligible trigger。

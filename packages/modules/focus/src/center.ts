@@ -291,7 +291,6 @@ export class FocusCenter {
 
       const focusable = entry.getFocusableConfig();
       if (focusable.disabled) return false;
-      if (focusable.navParticipation === 'none') return false;
 
       if (focusable.groupKey) {
         if (!groupKey || focusable.groupKey !== groupKey) return false;
