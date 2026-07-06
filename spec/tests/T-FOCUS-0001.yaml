@@ -3,7 +3,7 @@ type: test
 title: Focus target and scope runtime contract tests
 status: draft
 since: 0.1.0
-summary: Runtime contract tests for asFocusable target facts, setup-only configuration, disabled focus requests, autofocus, and asFocusScope singleton/empty-container behavior.
+summary: Runtime contract tests for asFocusable target facts, asFocusEntry region policy, setup-only configuration, disabled focus requests, autofocus, and asFocusScope singleton/empty-container behavior.
 cases:
   - id: T-FOCUS-0001-CASE-FOCUSABLE-ONCE
     title: Repeated asFocusable calls reuse one handle and record privileged once trace
@@ -21,7 +21,28 @@ cases:
     covers:
       - C-AS-FOCUSABLE-0001-D
       - C-AS-FOCUS-SCOPE-0001-C
+      - C-AS-FOCUS-ENTRY-0001-C
     expectation: configure-after-setup-rejected
+  - id: T-FOCUS-0001-CASE-ENTRY-ONCE
+    title: Repeated asFocusEntry calls reuse one handle and configure through the returned handle
+    covers:
+      - C-AS-FOCUS-ENTRY-0001-A
+      - C-AS-FOCUS-ENTRY-0001-B
+      - C-AS-FOCUS-ENTRY-0001-D
+    expectation: focus-entry-singleton-config
+  - id: T-FOCUS-0001-CASE-ENTRY-DISABLE
+    title: Focus entry can be disabled and re-enabled at runtime without declaring target focus facts
+    covers:
+      - C-AS-FOCUS-ENTRY-0001-E
+      - C-AS-FOCUS-ENTRY-0001-F
+      - C-FOCUS-0001-G
+    expectation: focus-entry-runtime-disable-without-target-facts
+  - id: T-FOCUS-0001-CASE-ENTRY-HOST-DELEGATION
+    title: Focus entry delegates programmatic focus and sequential participation through host capability
+    covers:
+      - C-AS-FOCUS-ENTRY-0001-G
+      - C-FOCUS-0001-G
+    expectation: focus-entry-host-mediated-delegation
   - id: T-FOCUS-0001-CASE-FACT-HANDLES
     title: Focus facts are state-backed observed handles and rule-consumable
     covers:
@@ -39,6 +60,11 @@ cases:
     covers:
       - C-AS-FOCUSABLE-0001-E
     expectation: disabled-focus-request-rejected
+  - id: T-FOCUS-0001-CASE-NAV-PARTICIPATION
+    title: Runtime navParticipation can remove a focusable from sequential navigation without disabling explicit focus requests
+    covers:
+      - C-AS-FOCUSABLE-0001-F
+    expectation: nav-participation-none-does-not-disable-explicit-focus
   - id: T-FOCUS-0001-CASE-SCOPE-CONTAINER
     title: Scope emptyPolicy=container activates boundary without node focus
     covers:
@@ -55,10 +81,20 @@ implementations:
       - T-FOCUS-0001-CASE-FOCUSABLE-ONCE
       - T-FOCUS-0001-CASE-SCOPE-ONCE
       - T-FOCUS-0001-CASE-SETUP-ONLY
+      - T-FOCUS-0001-CASE-ENTRY-ONCE
+      - T-FOCUS-0001-CASE-ENTRY-DISABLE
       - T-FOCUS-0001-CASE-FACT-HANDLES
       - T-FOCUS-0001-CASE-UNIQUE-OWNER
       - T-FOCUS-0001-CASE-DISABLED
+      - T-FOCUS-0001-CASE-NAV-PARTICIPATION
       - T-FOCUS-0001-CASE-SCOPE-CONTAINER
+  - id: adapter-web-component-focus-entry
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/web-component/test/focus.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-0001-CASE-ENTRY-HOST-DELEGATION
   - id: adapter-react-focus-unique-owner
     kind: adapter-test
     status: passing
@@ -81,6 +117,7 @@ verifies:
         - C-FOCUS-0001-D
         - C-FOCUS-0001-E
         - C-FOCUS-0001-F
+        - C-FOCUS-0001-G
     - id: C-AS-FOCUSABLE-0001
       anchors:
         - C-AS-FOCUSABLE-0001-A
@@ -88,12 +125,22 @@ verifies:
         - C-AS-FOCUSABLE-0001-C
         - C-AS-FOCUSABLE-0001-D
         - C-AS-FOCUSABLE-0001-E
+        - C-AS-FOCUSABLE-0001-F
     - id: C-AS-FOCUS-SCOPE-0001
       anchors:
         - C-AS-FOCUS-SCOPE-0001-A
         - C-AS-FOCUS-SCOPE-0001-B
         - C-AS-FOCUS-SCOPE-0001-C
         - C-AS-FOCUS-SCOPE-0001-D
+    - id: C-AS-FOCUS-ENTRY-0001
+      anchors:
+        - C-AS-FOCUS-ENTRY-0001-A
+        - C-AS-FOCUS-ENTRY-0001-B
+        - C-AS-FOCUS-ENTRY-0001-C
+        - C-AS-FOCUS-ENTRY-0001-D
+        - C-AS-FOCUS-ENTRY-0001-E
+        - C-AS-FOCUS-ENTRY-0001-F
+        - C-AS-FOCUS-ENTRY-0001-G
 revisions:
   - version: 0.1.0
     change: introduced
@@ -101,8 +148,15 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added unique focus owner coverage and cross-adapter focus fact cleanup implementations.
+  - version: 0.1.2
+    change: refined
+    summary: Added asFocusEntry singleton/configuration, runtime disable, and Web host delegation coverage.
+  - version: 0.1.3
+    change: refined
+    summary: Added runtime navParticipation coverage for sequential focus navigation control.
 tags:
   - focus
   - as-focusable
+  - focus-entry
   - focus-scope
   - contract-test

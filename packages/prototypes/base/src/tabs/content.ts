@@ -1,4 +1,5 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
+import { asFocusEntry } from '@proto.ui/hooks';
 import { createTabsPartId, TABS_CONTEXT, TABS_FAMILY, type TabsContextValue } from './shared';
 import type { TabsContentAsHookContract, TabsContentExposes, TabsContentProps } from './types';
 
@@ -6,11 +7,13 @@ function syncCurrentFromContext(
   nextValue: string,
   ownValue: string,
   current: { set(value: boolean, reason?: string): void },
-  hidden: { set(value: boolean, reason?: string): void }
+  hidden: { set(value: boolean, reason?: string): void },
+  focusEntry: { setDisabled(disabled: boolean): void }
 ): void {
   const nextCurrent = ownValue === nextValue;
   current.set(nextCurrent, 'reason: tabs context sync => current');
   hidden.set(!nextCurrent, 'reason: tabs context sync => hidden');
+  focusEntry.setDisabled(!nextCurrent);
 }
 
 function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>): void {
@@ -21,6 +24,13 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   const hidden = def.state.bool('hidden', true);
   const contentId = def.state.string('contentId', '');
   const triggerId = def.state.string('triggerId', '');
+  // P-BASE-TABS-CONTENT-FOCUS-ENTRY
+  const focusEntry = asFocusEntry<TabsContentProps>();
+  focusEntry.configure({
+    strategy: 'descendant-first',
+    fallback: 'self',
+    disabled: true,
+  });
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
@@ -52,7 +62,7 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   const syncContext = (next: TabsContextValue) => {
     rootId = next.rootId;
     syncIds();
-    syncCurrentFromContext(next.value, ownValue, current, hidden);
+    syncCurrentFromContext(next.value, ownValue, current, hidden, focusEntry);
   };
 
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {

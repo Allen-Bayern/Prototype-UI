@@ -34,6 +34,17 @@ criteria:
     text:
       zh-CN: 内部 `FocusGroup*` 名称只能作为兼容 alias 或迁移断口存在，新的实现命名应优先使用 `FocusRoving*`。
       en: Internal `FocusGroup*` names may only exist as compatibility aliases or migration fractures; new implementation naming should prefer `FocusRoving*`.
+  - id: C-AS-FOCUS-ROVING-0001-F
+    text:
+      zh-CN: roving focus 的同级集合内移动必须与宿主顺序焦点导航区分；方向键、Home、End 或显式 roving request 可在集合内移动，Tab 不得被解释为同一 roving 集合内的 next/prev movement。
+      en: Sibling movement inside a roving focus set must be distinguished from host sequential focus navigation; arrow keys, Home, End, or explicit roving requests may move within the set, but Tab must not be interpreted as next/previous movement inside the same roving set.
+  - id: C-AS-FOCUS-ROVING-0001-G
+    text:
+      zh-CN: 在支持顺序焦点参与投射的宿主中，同一 roving set 应只让当前 active/current roving item 参与自然 Tab 顺序，其余 eligible item 仍可通过 roving request 被程序化聚焦。
+      en: In hosts that support sequential focus participation projection, a roving set should keep only the current active/current roving item in the natural Tab sequence while other eligible items remain programmatically focusable through roving requests.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUSABLE-0001
 sources:
   - path: internal/contracts/focus/base-text/focus-roving.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -61,6 +72,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Clarified that asFocusRoving is a no-arg caller and setup-time configuration goes through the returned roving handle.
+  - version: 0.1.2
+    change: refined
+    summary: Clarified that Tab is sequential focus navigation, not roving next/previous movement, and that only the active/current item should participate in natural Tab order.
 tags:
   - focus
   - as-hook

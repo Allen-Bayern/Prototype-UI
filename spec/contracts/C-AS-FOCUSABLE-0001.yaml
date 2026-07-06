@@ -34,6 +34,10 @@ criteria:
     text:
       zh-CN: disabled focusable 不得接受 focus request 并激活 focus facts。
       en: A disabled focusable must not accept focus requests that activate focus facts.
+  - id: C-AS-FOCUSABLE-0001-F
+    text:
+      zh-CN: '`asFocusable()` 必须允许运行时切换自然导航参与状态；`navParticipation: none` 应将 target 排除出宿主顺序焦点导航，但不得等同于 disabled，也不得阻止显式 focus request。'
+      en: '`asFocusable()` must allow runtime switching of natural navigation participation; `navParticipation: none` should remove the target from host sequential focus navigation, but must not be equivalent to disabled and must not block explicit focus requests.'
 sources:
   - path: internal/contracts/focus/base-text/as-focusable.v0.md
   - path: packages/hooks/src/as-focusable.ts
@@ -65,6 +69,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured asFocusable as the no-arg focus target privileged hook.
+  - version: 0.1.1
+    change: refined
+    summary: Added runtime natural navigation participation switching for roving focus item tab-order control.
 tags:
   - focus
   - as-hook

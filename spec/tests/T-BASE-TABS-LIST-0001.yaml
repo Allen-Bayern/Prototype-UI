@@ -3,7 +3,7 @@ type: test
 title: Base Tabs List protocol contract tests
 status: draft
 since: 0.1.0
-summary: Contract test coverage for the Base Tabs List part, including optional collection ownership, roving focus, orientation, disabled item skipping, and manual versus automatic activation behavior.
+summary: Contract test coverage for the Base Tabs List part, including optional collection ownership, roving focus, orientation, disabled item skipping, manual versus automatic activation behavior, and the Tab/arrow navigation boundary.
 cases:
   - id: T-BASE-TABS-LIST-0001-CASE-ROVING-AUTOMATIC
     title: Tabs List roves focus across triggers and automatic mode selects the focused trigger
@@ -27,6 +27,11 @@ cases:
       - P-BASE-TABS-LIST-PROP-LOOP
       - P-BASE-TABS-TRIGGER-MANUAL-FOCUS-STABLE
     expectation: tabs-list-manual-mode-keeps-selection-stable-while-roving-focus
+  - id: T-BASE-TABS-LIST-0001-CASE-TAB-SEQUENTIAL
+    title: Tabs List keeps only the active trigger in sequential Tab order while arrow keys move inside the trigger set
+    covers:
+      - P-BASE-TABS-LIST-FOCUS-ROVING
+    expectation: tabs-list-tab-leaves-roving-set
 implementations:
   - id: prototypes-base-tabs-list-contract
     kind: module-test
@@ -36,6 +41,7 @@ implementations:
     consumesCases:
       - T-BASE-TABS-LIST-0001-CASE-ROVING-AUTOMATIC
       - T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
+      - T-BASE-TABS-LIST-0001-CASE-TAB-SEQUENTIAL
     exercises:
       - P-BASE-TABS-LIST
 verifies:
@@ -52,6 +58,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced Base Tabs List protocol test entity aligned to P-BASE-TABS-LIST criteria.
+  - version: 0.1.1
+    change: refined
+    summary: Added coverage that Tabs roving focus distinguishes arrow movement from sequential Tab navigation.
 tags:
   - prototype
   - base

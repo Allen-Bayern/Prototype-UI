@@ -65,6 +65,23 @@ export type FocusableConfig = Readonly<{
   meta?: Readonly<Record<string, unknown>>;
 }>;
 
+export type FocusEntryStrategy = 'self' | 'descendant-first';
+export type FocusEntryFallback = 'self' | 'none';
+
+export type FocusEntryConfigPatch = Readonly<{
+  strategy?: FocusEntryStrategy;
+  fallback?: FocusEntryFallback;
+  disabled?: boolean;
+  meta?: Readonly<Record<string, unknown>>;
+}>;
+
+export type FocusEntryConfig = Readonly<{
+  strategy: FocusEntryStrategy;
+  fallback: FocusEntryFallback;
+  disabled: boolean;
+  meta?: Readonly<Record<string, unknown>>;
+}>;
+
 export type FocusScopeConfigPatch = Readonly<{
   key?: FocusScopeKey;
   trap?: boolean;
@@ -132,8 +149,15 @@ export interface FocusableHandle<P extends PropsBaseType = PropsBaseType> {
   blur(): void;
   isFocused(): boolean;
   setDisabled(disabled: boolean): void;
+  setNavParticipation(navParticipation: 'auto' | 'none'): void;
 
   configure(patch: FocusableConfigPatch): void;
+}
+
+export interface FocusEntryHandle<P extends PropsBaseType = PropsBaseType> {
+  focus(options?: FocusRequestOptions): void;
+  setDisabled(disabled: boolean): void;
+  configure(patch: FocusEntryConfigPatch): void;
 }
 
 export interface FocusScopeHandle<P extends PropsBaseType = PropsBaseType> {

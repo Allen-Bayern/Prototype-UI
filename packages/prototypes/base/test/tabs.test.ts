@@ -73,6 +73,8 @@ describe('prototypes/base: tabs', () => {
     expect(contentB.getExposes().hidden.get()).toBe(true);
     expect(contentA.hasAttribute('hidden')).toBe(false);
     expect(contentB.hasAttribute('hidden')).toBe(true);
+    expect(contentA.tabIndex).toBe(0);
+    expect(contentB.tabIndex).toBe(-1);
     expect(list.getAttribute('role')).toBe('tablist');
     expect(list.getAttribute('aria-orientation')).toBe('horizontal');
     expect(triggerA.getAttribute('role')).toBe('tab');
@@ -94,6 +96,34 @@ describe('prototypes/base: tabs', () => {
     expect(contentB.getExposes().hidden.get()).toBe(false);
     expect(contentA.hasAttribute('hidden')).toBe(true);
     expect(contentB.hasAttribute('hidden')).toBe(false);
+    expect(contentA.tabIndex).toBe(-1);
+    expect(contentB.tabIndex).toBe(0);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('current tab content delegates focus entry to tabbable descendants before self fallback', async () => {
+    // T-BASE-TABS-CONTENT-0001-CASE-FOCUS-ENTRY
+    const root = document.createElement('base-tabs-root') as any;
+    const contentA = document.createElement('base-tabs-content') as any;
+    const contentB = document.createElement('base-tabs-content') as any;
+    const innerButton = document.createElement('button');
+
+    setElementProps(root, { defaultValue: 'a' });
+    setElementProps(contentA, { value: 'a' });
+    setElementProps(contentB, { value: 'b' });
+
+    contentA.appendChild(innerButton);
+    root.append(contentA, contentB);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(contentA.getExposes().current.get()).toBe(true);
+    expect(contentA.tabIndex).toBe(-1);
+    expect(contentB.tabIndex).toBe(-1);
 
     root.remove();
     await Promise.resolve();
@@ -177,12 +207,28 @@ describe('prototypes/base: tabs', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    expect(triggerA.tabIndex).toBe(0);
+    expect(triggerB.tabIndex).toBe(-1);
+
     triggerA.focus();
+    const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    window.dispatchEvent(tabEvent);
+    await Promise.resolve();
+
+    expect(tabEvent.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(triggerA);
+    expect(triggerA.tabIndex).toBe(0);
+    expect(triggerB.tabIndex).toBe(-1);
+
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    await Promise.resolve();
+    await Promise.resolve();
 
     expect(document.activeElement).toBe(triggerB);
     expect(root.getExposes().value.get()).toBe('b');
     expect(triggerB.getExposes().selected.get()).toBe(true);
+    expect(triggerA.tabIndex).toBe(-1);
+    expect(triggerB.tabIndex).toBe(0);
 
     root.remove();
     await Promise.resolve();
@@ -223,6 +269,10 @@ describe('prototypes/base: tabs', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    expect(triggerA.tabIndex).toBe(0);
+    expect(triggerB.tabIndex).toBe(-1);
+    expect(triggerC.tabIndex).toBe(-1);
+
     triggerA.focus();
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     await Promise.resolve();
@@ -232,6 +282,17 @@ describe('prototypes/base: tabs', () => {
     expect(root.getExposes().value.get()).toBe('a');
     expect(triggerA.getExposes().selected.get()).toBe(true);
     expect(triggerB.getExposes().selected.get()).toBe(false);
+    expect(triggerA.tabIndex).toBe(-1);
+    expect(triggerB.tabIndex).toBe(0);
+    expect(triggerC.tabIndex).toBe(-1);
+
+    const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    window.dispatchEvent(tabEvent);
+    await Promise.resolve();
+
+    expect(tabEvent.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(triggerB);
+    expect(root.getExposes().value.get()).toBe('a');
 
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
     await Promise.resolve();
@@ -239,6 +300,9 @@ describe('prototypes/base: tabs', () => {
 
     expect(document.activeElement).toBe(triggerC);
     expect(root.getExposes().value.get()).toBe('a');
+    expect(triggerA.tabIndex).toBe(-1);
+    expect(triggerB.tabIndex).toBe(-1);
+    expect(triggerC.tabIndex).toBe(0);
 
     triggerC.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();

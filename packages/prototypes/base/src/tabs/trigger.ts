@@ -11,6 +11,17 @@ function syncSelectedFromContext(
   selected.set(ownValue === nextValue, 'reason: tabs context sync => selected');
 }
 
+function syncNavParticipationFromContext(
+  ctx: TabsContextValue,
+  ownValue: string,
+  disabled: { get(): boolean },
+  focusable: { setNavParticipation(value: 'auto' | 'none'): void }
+): void {
+  const activeValue = ctx.activeValue || ctx.value;
+  const participates = !!ownValue && ownValue === activeValue && !disabled.get();
+  focusable.setNavParticipation(participates ? 'auto' : 'none');
+}
+
 function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>): void {
   // P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY
   // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION
@@ -113,6 +124,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     rootId = next.rootId;
     syncIds();
     syncSelectedFromContext(next.value, ownValue, selected);
+    syncNavParticipationFromContext(next, ownValue, disabled, focusable);
   });
 
   def.lifecycle.onCreated((run) => {
@@ -125,6 +137,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     rootId = ctx.rootId;
     syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
+    syncNavParticipationFromContext(ctx, ownValue, disabled, focusable);
   });
 
   def.props.watch(['value'], (run, next) => {
@@ -133,10 +146,12 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     rootId = ctx.rootId;
     syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
+    syncNavParticipationFromContext(ctx, ownValue, disabled, focusable);
   });
 
-  def.props.watch(['disabled'], (_run, next) => {
+  def.props.watch(['disabled'], (run, next) => {
     syncDisabled(!!next.disabled);
+    syncNavParticipationFromContext(run.context.read(TABS_CONTEXT), ownValue, disabled, focusable);
   });
 
   const updateActiveValue = (run: any) => {

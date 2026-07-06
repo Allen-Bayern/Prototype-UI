@@ -1,5 +1,5 @@
 import { createCapsWiring } from '@proto.ui/adapter-base';
-import { HOST_ELEMENT_CAP, type EffectsPort } from '@proto.ui/core';
+import { HOST_ELEMENT_CAP, type EffectsPort, type FocusEntryConfig } from '@proto.ui/core';
 import {
   createDomOrderObserver,
   ANATOMY_GET_PROTO_CAP,
@@ -34,9 +34,11 @@ import {
   FOCUS_INSTANCE_TOKEN_CAP,
   FOCUS_IS_NATIVELY_FOCUSABLE_CAP,
   FOCUS_PARENT_CAP,
+  FOCUS_RESOLVE_ENTRY_TARGET_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
   FOCUS_RUN_IN_CALLBACK_CAP,
+  FOCUS_SET_ENTRY_FOCUSABLE_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
 } from '@proto.ui/module-focus';
 import {
@@ -114,6 +116,22 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
         FOCUS_SET_FOCUSABLE_CAP,
         (target: HTMLElement, enabled: boolean) => {
           target.tabIndex = enabled ? 0 : -1;
+        },
+      ],
+      [
+        FOCUS_RESOLVE_ENTRY_TARGET_CAP,
+        (target: HTMLElement, config: FocusEntryConfig) => resolveFocusEntryTarget(target, config),
+      ],
+      [
+        FOCUS_SET_ENTRY_FOCUSABLE_CAP,
+        (target: HTMLElement, config: FocusEntryConfig, enabled: boolean) => {
+          if (!enabled) {
+            target.tabIndex = -1;
+            return;
+          }
+
+          const resolved = resolveFocusEntryTarget(target, config);
+          target.tabIndex = resolved === target ? 0 : -1;
         },
       ],
       [
@@ -248,4 +266,49 @@ function isNativelyFocusable(el: HTMLElement): boolean {
     return el.hasAttribute('href');
   }
   return false;
+}
+
+function resolveFocusEntryTarget(
+  container: HTMLElement,
+  config: { strategy: 'self' | 'descendant-first'; fallback: 'self' | 'none' }
+): HTMLElement | null {
+  if (config.strategy === 'descendant-first') {
+    const descendant = findFirstTabbableDescendant(container);
+    if (descendant) return descendant;
+  }
+
+  if (config.fallback === 'self') return container;
+  return null;
+}
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'area[href]',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'summary',
+  'iframe',
+  'audio[controls]',
+  'video[controls]',
+  '[contenteditable]',
+  '[tabindex]',
+].join(',');
+
+function findFirstTabbableDescendant(container: HTMLElement): HTMLElement | null {
+  const candidates = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+  return candidates.find((candidate) => isTabbableDescendant(container, candidate)) ?? null;
+}
+
+function isTabbableDescendant(container: HTMLElement, el: HTMLElement): boolean {
+  if (el === container) return false;
+  if (!container.contains(el)) return false;
+  if (el.closest('[hidden],[inert],[aria-hidden="true"]')) return false;
+  if (el.hasAttribute('disabled')) return false;
+  const ariaDisabled = el.getAttribute('aria-disabled');
+  if (ariaDisabled === 'true') return false;
+  const tabIndexAttr = el.getAttribute('tabindex');
+  if (tabIndexAttr !== null && Number(tabIndexAttr) < 0) return false;
+  return isNativelyFocusable(el) || tabIndexAttr !== null || el.isContentEditable;
 }

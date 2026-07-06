@@ -1,5 +1,8 @@
 import {
   type FocusFacts,
+  type FocusEntryConfig,
+  FocusEntryConfigPatch,
+  FocusEntryHandle,
   type FocusRovingConfig,
   FocusRovingConfigPatch,
   FocusRovingHandle,
@@ -27,9 +30,11 @@ import {
   FOCUS_INSTANCE_TOKEN_CAP,
   FOCUS_IS_NATIVELY_FOCUSABLE_CAP,
   FOCUS_PARENT_CAP,
+  FOCUS_RESOLVE_ENTRY_TARGET_CAP,
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
   FOCUS_RUN_IN_CALLBACK_CAP,
+  FOCUS_SET_ENTRY_FOCUSABLE_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
 } from './caps';
 import { FOCUS_CENTER, type FocusCenterEntry, type FocusRequestBehavior } from './center';
@@ -38,6 +43,12 @@ const DEFAULT_FOCUSABLE_CONFIG: FocusableConfig = Object.freeze({
   autoFocus: false,
   disabled: false,
   navParticipation: 'auto',
+});
+
+const DEFAULT_ENTRY_CONFIG: FocusEntryConfig = Object.freeze({
+  strategy: 'self',
+  fallback: 'self',
+  disabled: false,
 });
 
 const DEFAULT_SCOPE_CONFIG: FocusScopeConfig = Object.freeze({
@@ -71,7 +82,7 @@ function mergeMeta(
 
 function pushOverrideWarning(
   warnings: string[],
-  owner: 'focusable' | 'scope',
+  owner: 'focusable' | 'entry' | 'scope',
   field: string,
   prev: unknown,
   next: unknown
@@ -83,6 +94,8 @@ function pushOverrideWarning(
 class FocusModuleImpl extends ModuleBase {
   private focusableConfig: FocusableConfig = DEFAULT_FOCUSABLE_CONFIG;
   private focusableDeclared = false;
+  private entryDeclared = false;
+  private entryConfig: FocusEntryConfig = DEFAULT_ENTRY_CONFIG;
   private scopeDeclared = false;
   private rovingDeclared = false;
   private rovingConfig: FocusRovingConfig = DEFAULT_ROVING_CONFIG;
@@ -107,6 +120,7 @@ class FocusModuleImpl extends ModuleBase {
   private readonly hasFocusedState: ObservedStateHandle<boolean, any>;
 
   private readonly focusableHandle: FocusableHandle<any>;
+  private readonly entryHandle: FocusEntryHandle<any>;
   private readonly scopeHandle: FocusScopeHandle<any>;
   private readonly rovingHandle: FocusRovingHandle<any>;
 
@@ -146,7 +160,15 @@ class FocusModuleImpl extends ModuleBase {
       blur: () => this.blur(),
       isFocused: () => this.focusedState.get(),
       setDisabled: (disabled: boolean) => this.setDisabled(disabled),
+      setNavParticipation: (navParticipation: 'auto' | 'none') =>
+        this.setNavParticipation(navParticipation),
       configure: (patch: FocusableConfigPatch) => this.configureFocusable(patch),
+    };
+
+    this.entryHandle = {
+      focus: (options?: FocusRequestOptions) => this.requestEntryFocus(options),
+      setDisabled: (disabled: boolean) => this.setEntryDisabled(disabled),
+      configure: (patch: FocusEntryConfigPatch) => this.configureEntry(patch),
     };
 
     this.scopeHandle = {
@@ -270,7 +292,10 @@ class FocusModuleImpl extends ModuleBase {
     const target = this.getRootTarget();
     if (!target) return;
 
-    const enabled = this.focusableDeclared && !this.focusableConfig.disabled;
+    const enabled =
+      this.focusableDeclared &&
+      !this.focusableConfig.disabled &&
+      this.focusableConfig.navParticipation !== 'none';
     const isNative = this.caps.has(FOCUS_IS_NATIVELY_FOCUSABLE_CAP)
       ? this.caps.get(FOCUS_IS_NATIVELY_FOCUSABLE_CAP)(target)
       : false;
@@ -285,6 +310,27 @@ class FocusModuleImpl extends ModuleBase {
     }
   }
 
+  private syncHostEntry() {
+    const target = this.getRootTarget();
+    if (!target || !this.entryDeclared) return;
+
+    const enabled = !this.entryConfig.disabled;
+    if (this.focusableDeclared && !this.focusableConfig.disabled) return;
+
+    if (this.caps.has(FOCUS_SET_ENTRY_FOCUSABLE_CAP)) {
+      this.caps.get(FOCUS_SET_ENTRY_FOCUSABLE_CAP)(target, this.entryConfig, enabled);
+      return;
+    }
+
+    if (this.caps.has(FOCUS_SET_FOCUSABLE_CAP)) {
+      if (enabled && this.entryConfig.fallback === 'self') {
+        this.caps.get(FOCUS_SET_FOCUSABLE_CAP)(target, true);
+      } else if (!this.focusableDeclared || this.focusableConfig.disabled) {
+        this.caps.get(FOCUS_SET_FOCUSABLE_CAP)(target, false);
+      }
+    }
+  }
+
   private declareFocusable(): void {
     if (!this.focusableDeclared) {
       this.focusableDeclared = true;
@@ -295,6 +341,11 @@ class FocusModuleImpl extends ModuleBase {
     this.wireHostFocusEvents();
     this.syncHostFocusable();
     this.syncCenter();
+  }
+
+  private declareEntry(): void {
+    this.entryDeclared = true;
+    this.syncHostEntry();
   }
 
   private declareScope(): void {
@@ -370,6 +421,11 @@ class FocusModuleImpl extends ModuleBase {
     return this.focusableHandle as FocusableHandle<P>;
   }
 
+  getEntry<P extends PropsBaseType = PropsBaseType>(): FocusEntryHandle<P> {
+    this.declareEntry();
+    return this.entryHandle as FocusEntryHandle<P>;
+  }
+
   getScope<P extends PropsBaseType = PropsBaseType>(): FocusScopeHandle<P> {
     this.declareScope();
     return this.scopeHandle as FocusScopeHandle<P>;
@@ -437,6 +493,45 @@ class FocusModuleImpl extends ModuleBase {
     this.setDisabled(this.focusableConfig.disabled, 'focus config updated');
     this.syncHostFocusable();
     this.syncCenter();
+  }
+
+  configureEntry(patch: FocusEntryConfigPatch): void {
+    this.ensureSetup('focus.configureEntry');
+    this.declareEntry();
+    if (typeof patch.strategy !== 'undefined') {
+      pushOverrideWarning(
+        this.warnings,
+        'entry',
+        'strategy',
+        this.entryConfig.strategy,
+        patch.strategy
+      );
+    }
+    if (typeof patch.fallback !== 'undefined') {
+      pushOverrideWarning(
+        this.warnings,
+        'entry',
+        'fallback',
+        this.entryConfig.fallback,
+        patch.fallback
+      );
+    }
+    if (typeof patch.disabled !== 'undefined') {
+      pushOverrideWarning(
+        this.warnings,
+        'entry',
+        'disabled',
+        this.entryConfig.disabled,
+        patch.disabled
+      );
+    }
+
+    this.entryConfig = Object.freeze({
+      ...this.entryConfig,
+      ...patch,
+      meta: mergeMeta(this.entryConfig.meta, patch.meta),
+    });
+    this.syncHostEntry();
   }
 
   configureScope(patch: FocusScopeConfigPatch): void {
@@ -604,6 +699,20 @@ class FocusModuleImpl extends ModuleBase {
     FOCUS_CENTER.requestFocus(entry, options, { syncFacts: true });
   }
 
+  requestEntryFocus(options?: FocusRequestOptions): void {
+    if (!this.entryDeclared || this.entryConfig.disabled) return;
+    const target = this.getRootTarget();
+    if (!target || !this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) return;
+
+    const resolved = this.caps.has(FOCUS_RESOLVE_ENTRY_TARGET_CAP)
+      ? this.caps.get(FOCUS_RESOLVE_ENTRY_TARGET_CAP)(target, this.entryConfig)
+      : this.entryConfig.fallback === 'self'
+        ? target
+        : null;
+    if (!resolved) return;
+    this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(resolved, options);
+  }
+
   private requestNativeFocusDirect(options?: FocusRequestOptions): void {
     if (!this.focusableDeclared || this.focusableConfig.disabled) return;
     const target = this.getRootTarget();
@@ -732,9 +841,27 @@ class FocusModuleImpl extends ModuleBase {
     this.syncCenter();
   }
 
+  setNavParticipation(navParticipation: 'auto' | 'none'): void {
+    this.focusableConfig = Object.freeze({
+      ...this.focusableConfig,
+      navParticipation,
+    });
+    this.syncHostFocusable();
+    this.syncCenter();
+  }
+
+  setEntryDisabled(disabled: boolean): void {
+    this.entryConfig = Object.freeze({
+      ...this.entryConfig,
+      disabled,
+    });
+    this.syncHostEntry();
+  }
+
   afterRenderCommit(): void {
     this.syncCenter();
     this.syncHostFocusable();
+    this.syncHostEntry();
     if (this.didAutoFocus) return;
     this.didAutoFocus = true;
     if (
@@ -756,6 +883,10 @@ class FocusModuleImpl extends ModuleBase {
 
   getFocusableConfig(): FocusableConfig {
     return this.focusableConfig;
+  }
+
+  getEntryConfig(): FocusEntryConfig {
+    return this.entryConfig;
   }
 
   getScopeConfig(): FocusScopeConfig {
@@ -805,11 +936,15 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
       const impl = new FocusModuleImpl(caps, init.prototypeName, eventPort, statePort, stateFacade);
       const port: FocusPort = {
         configureFocusable: (patch) => impl.configureFocusable(patch),
+        configureEntry: (patch) => impl.configureEntry(patch),
         configureRoving: (patch) => impl.configureRoving(patch),
         configureGroup: (patch) => impl.configureRoving(patch),
         configureScope: (patch) => impl.configureScope(patch),
         setDisabled: (disabled) => impl.setDisabled(disabled),
+        setNavParticipation: (navParticipation) => impl.setNavParticipation(navParticipation),
+        setEntryDisabled: (disabled) => impl.setEntryDisabled(disabled),
         requestFocus: (options) => impl.requestFocus(options),
+        requestEntryFocus: (options) => impl.requestEntryFocus(options),
         blur: () => impl.blur(),
         focusFirst: () => impl.focusFirst(),
         focusLast: () => impl.focusLast(),
@@ -824,6 +959,7 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         getEffectiveGroupKey: () => impl.getEffectiveRovingKey(),
         getEffectiveScopeKey: () => impl.getEffectiveScopeKey(),
         getFocusableConfig: () => impl.getFocusableConfig(),
+        getEntryConfig: () => impl.getEntryConfig(),
         getRovingConfig: () => impl.getRovingConfig(),
         getGroupConfig: () => impl.getRovingConfig(),
         getScopeConfig: () => impl.getScopeConfig(),
@@ -834,6 +970,7 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
       return {
         facade: {
           getFocusable: () => impl.getFocusable(),
+          getEntry: () => impl.getEntry(),
           getRoving: () => impl.getRoving(),
           getScope: () => impl.getScope(),
         },

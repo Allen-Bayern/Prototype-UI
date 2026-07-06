@@ -134,11 +134,24 @@ criteria:
         - C-A11Y-0001
   - id: P-BASE-TABS-CONTENT-TABINDEX-DEFERRED
     text:
-      zh-CN: Tabpanel 在缺少内部 focusable 内容时是否自动进入 Tab 顺序暂缓；第一轮不要求 Content 自动设置 focus target。
-      en: Whether tabpanel automatically enters the Tab sequence when it lacks internal focusable content is deferred; the first pass does not require Content to automatically set a focus target.
+      zh-CN: 已废弃的第一轮断口：tabpanel 是否自动进入 Tab 顺序不再暂缓；由 `P-BASE-TABS-CONTENT-FOCUS-ENTRY` 接管。
+      en: 'Deprecated first-pass gap: whether tabpanel automatically enters the Tab sequence is no longer deferred; `P-BASE-TABS-CONTENT-FOCUS-ENTRY` now owns this requirement.'
     dependsOn:
       contracts:
         - C-AS-FOCUSABLE-0001
+    status: deprecated
+  - id: P-BASE-TABS-CONTENT-FOCUS-ENTRY
+    text:
+      zh-CN: Current Tabs Content 必须声明 focus entry region，并采用 descendant-first 与 fallback self 策略；inactive Content 必须禁用该 entry。
+      en: Current Tabs Content must declare a focus entry region using descendant-first with fallback self policy; inactive Content must disable that entry.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUS-ENTRY-0001
+      decisions:
+        - D-FOCUS-ENTRY-DELEGATION-0001
+    note:
+      zh-CN: 该准则表达跨宿主行为，不绑定 Web `tabIndex`、CSS 或具体 DOM 查询实现。
+      en: This criterion expresses cross-host behavior and is not bound to Web `tabIndex`, CSS, or a concrete DOM query implementation.
 sources:
   - path: spec/prototypes/P-BASE-TABS.yaml
   - path: packages/prototypes/base/src/tabs/content.ts
@@ -154,12 +167,17 @@ dependsOn:
     - C-CONTEXT-0006
     - C-STATE-0001
     - C-A11Y-0001
+    - C-AS-FOCUS-ENTRY-0001
   decisions:
     - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
+    - D-FOCUS-ENTRY-DELEGATION-0001
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs Content protocol catalog.
+  - version: 0.1.1
+    change: refined
+    summary: Replaced deferred tabpanel focus entry gap with descendant-first focus entry requirement.
 tags:
   - prototype
   - base
