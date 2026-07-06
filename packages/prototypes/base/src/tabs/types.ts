@@ -27,6 +27,7 @@ export type TabsRootAsHookContract = {
 export interface TabsListProps {
   orientation?: TabsOrientation;
   loop?: boolean;
+  a11yLabel?: string;
 }
 
 export type TabsListExposes = {

@@ -22,6 +22,40 @@ function syncNavParticipationFromContext(
   focusable.setNavParticipation(participates ? 'auto' : 'none');
 }
 
+function readTriggerSnapshot(part: { getExpose(key: string): unknown | null }) {
+  const exposed = part.getExpose('__collectionItem');
+  const snapshot =
+    typeof exposed === 'function'
+      ? exposed()
+      : exposed && typeof exposed === 'object'
+        ? exposed
+        : {};
+  const disabledExpose = part.getExpose('disabled');
+  const disabled =
+    disabledExpose &&
+    typeof disabledExpose === 'object' &&
+    typeof (disabledExpose as { get?: unknown }).get === 'function'
+      ? (disabledExpose as { get(): unknown }).get()
+      : undefined;
+  return {
+    ...((snapshot && typeof snapshot === 'object' ? snapshot : {}) as Record<string, unknown>),
+    ...(typeof disabled === 'undefined' ? {} : { disabled }),
+  };
+}
+
+function resolveEnabledTriggerValue(run: any, candidate: string): string {
+  const values = run.anatomy.order
+    .partsOf(TABS_FAMILY, 'trigger')
+    .map(readTriggerSnapshot)
+    .filter(
+      (snapshot: Record<string, unknown>) => typeof snapshot.value === 'string' && snapshot.value
+    )
+    .filter((snapshot: Record<string, unknown>) => snapshot.disabled !== true)
+    .map((snapshot: Record<string, unknown>) => snapshot.value as string);
+  if (candidate && values.includes(candidate)) return candidate;
+  return values[0] ?? candidate ?? '';
+}
+
 function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>): void {
   // P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY
   // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION
@@ -138,6 +172,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
     syncNavParticipationFromContext(ctx, ownValue, disabled, focusable);
+    notifyRootToValidateSelection(run);
   });
 
   def.props.watch(['value'], (run, next) => {
@@ -147,11 +182,13 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     syncIds();
     syncSelectedFromContext(ctx.value, ownValue, selected);
     syncNavParticipationFromContext(ctx, ownValue, disabled, focusable);
+    notifyRootToValidateSelection(run);
   });
 
   def.props.watch(['disabled'], (run, next) => {
     syncDisabled(!!next.disabled);
     syncNavParticipationFromContext(run.context.read(TABS_CONTEXT), ownValue, disabled, focusable);
+    notifyRootToValidateSelection(run);
   });
 
   const updateActiveValue = (run: any) => {
@@ -160,6 +197,15 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
       if (prev.activeValue === nextValue) return prev;
       return { ...prev, activeValue: nextValue };
     });
+  };
+
+  const notifyRootToValidateSelection = (run: any) => {
+    run.context.update(TABS_CONTEXT, (prev: TabsContextValue) => ({
+      ...prev,
+      value: prev.controlled ? prev.value : resolveEnabledTriggerValue(run, prev.value ?? ''),
+      activeValue: resolveEnabledTriggerValue(run, prev.activeValue || prev.value || ''),
+      validationVersion: (prev.validationVersion ?? 0) + 1,
+    }));
   };
 
   def.event.on('press.commit', (run) => {

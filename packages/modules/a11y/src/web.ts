@@ -35,7 +35,7 @@ export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
 
   if (snapshot.name) {
     if (snapshot.name.kind === 'text') {
-      el.setAttribute('aria-label', snapshot.name.value);
+      setOptionalAttr(el, 'aria-label', readTextTarget(snapshot.name.value));
     } else {
       el.removeAttribute('aria-label');
     }
@@ -43,7 +43,7 @@ export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
 
   if (snapshot.description) {
     if (snapshot.description.kind === 'text') {
-      el.setAttribute('aria-description', snapshot.description.value);
+      setOptionalAttr(el, 'aria-description', readTextTarget(snapshot.description.value));
     } else {
       el.removeAttribute('aria-description');
     }
@@ -87,6 +87,19 @@ function setOptionalAttr(el: HTMLElement, attr: string, value: string | undefine
     return;
   }
   el.setAttribute(attr, value);
+}
+
+function readTextTarget(value: unknown): string | undefined {
+  if (typeof value === 'string') return value;
+  if (
+    value &&
+    typeof value === 'object' &&
+    typeof (value as { get?: unknown }).get === 'function'
+  ) {
+    const next = (value as { get(): unknown }).get();
+    return typeof next === 'string' ? next : undefined;
+  }
+  return undefined;
 }
 
 function setNullableBooleanAttr(el: HTMLElement, attr: string, value: unknown): void {

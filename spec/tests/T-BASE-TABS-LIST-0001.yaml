@@ -18,6 +18,8 @@ cases:
       - P-BASE-TABS-LIST-ORIENTATION-KEYS
       - P-BASE-TABS-LIST-A11Y-ROLE
       - P-BASE-TABS-LIST-A11Y-ORIENTATION
+      - P-BASE-TABS-LIST-PROP-A11Y-LABEL
+      - P-BASE-TABS-LIST-A11Y-LABEL
     expectation: tabs-list-roves-focus-and-automatic-mode-selects-focused-trigger
   - id: T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
     title: manual activation mode roves focus without changing selected value until trigger activation
@@ -32,6 +34,12 @@ cases:
     covers:
       - P-BASE-TABS-LIST-FOCUS-ROVING
     expectation: tabs-list-tab-leaves-roving-set
+  - id: T-BASE-TABS-LIST-0001-CASE-A11Y-LABEL
+    title: Tabs List projects a host-neutral a11yLabel as its accessible name
+    covers:
+      - P-BASE-TABS-LIST-PROP-A11Y-LABEL
+      - P-BASE-TABS-LIST-A11Y-LABEL
+    expectation: tabs-list-projects-a11y-label-as-accessible-name
 implementations:
   - id: prototypes-base-tabs-list-contract
     kind: module-test
@@ -42,6 +50,25 @@ implementations:
       - T-BASE-TABS-LIST-0001-CASE-ROVING-AUTOMATIC
       - T-BASE-TABS-LIST-0001-CASE-ROVING-MANUAL
       - T-BASE-TABS-LIST-0001-CASE-TAB-SEQUENTIAL
+      - T-BASE-TABS-LIST-0001-CASE-A11Y-LABEL
+    exercises:
+      - P-BASE-TABS-LIST
+  - id: adapter-react-tabs-list-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-LIST-0001-CASE-A11Y-LABEL
+    exercises:
+      - P-BASE-TABS-LIST
+  - id: adapter-vue-tabs-list-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-LIST-0001-CASE-A11Y-LABEL
     exercises:
       - P-BASE-TABS-LIST
 verifies:
@@ -51,6 +78,7 @@ verifies:
         - P-BASE-TABS-LIST-FOCUS-ROVING
         - P-BASE-TABS-LIST-FOCUS-METHODS
         - P-BASE-TABS-LIST-A11Y-ORIENTATION
+        - P-BASE-TABS-LIST-A11Y-LABEL
 exercises:
   prototypes:
     - P-BASE-TABS-LIST
@@ -61,6 +89,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added coverage that Tabs roving focus distinguishes arrow movement from sequential Tab navigation.
+  - version: 0.1.2
+    change: refined
+    summary: Added Tabs List a11yLabel accessible-name coverage.
 tags:
   - prototype
   - base

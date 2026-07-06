@@ -42,6 +42,14 @@ cases:
       - P-BASE-TABS-CONTROLLED-EMITS-NEXT
       - P-BASE-TABS-PROP-NO-EVENT-CALLBACK
     expectation: controlled-tabs-mirrors-value-prop
+  - id: T-BASE-TABS-0001-CASE-SELECTION-FALLBACK
+    title: uncontrolled Tabs falls back to the first enabled trigger when the selected value is missing or disabled
+    covers:
+      - P-BASE-TABS-SELECTION-FALLBACK
+      - P-BASE-TABS-VALID-VALUE-REQUIRED
+      - P-BASE-TABS-UNCONTROLLED-UPDATES-VALUE
+      - P-BASE-TABS-CONTEXT-SYNC
+    expectation: uncontrolled-tabs-falls-back-to-first-enabled-trigger
   - id: T-BASE-TABS-0001-CASE-A11Y-RELATIONS
     title: Tabs projects tablist, tab, tabpanel, selected, hidden, and trigger-content relations in Web
     covers:
@@ -59,12 +67,39 @@ implementations:
       - T-BASE-TABS-0001-CASE-ANATOMY-FAMILY
       - T-BASE-TABS-0001-CASE-UNCONTROLLED-VALUE-CHANGE
       - T-BASE-TABS-0001-CASE-CONTROLLED-VALUE
+      - T-BASE-TABS-0001-CASE-SELECTION-FALLBACK
       - T-BASE-TABS-0001-CASE-A11Y-RELATIONS
     exercises:
       - P-BASE-TABS
     notes:
       - Covers the current Web component execution path for Base Tabs root and anatomy parts.
-      - Presence, indicator layout measurement, dynamic selection fallback, and form integration remain deferred surfaces.
+      - Presence, indicator layout measurement, duplicate value fallback, and form integration remain deferred surfaces.
+  - id: adapter-react-tabs-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-0001-CASE-UNCONTROLLED-VALUE-CHANGE
+      - T-BASE-TABS-0001-CASE-A11Y-RELATIONS
+    exercises:
+      - P-BASE-TABS
+      - P-BASE-TABS-LIST
+      - P-BASE-TABS-TRIGGER
+      - P-BASE-TABS-CONTENT
+  - id: adapter-vue-tabs-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-0001-CASE-UNCONTROLLED-VALUE-CHANGE
+      - T-BASE-TABS-0001-CASE-A11Y-RELATIONS
+    exercises:
+      - P-BASE-TABS
+      - P-BASE-TABS-LIST
+      - P-BASE-TABS-TRIGGER
+      - P-BASE-TABS-CONTENT
 verifies:
   prototypes:
     - id: P-BASE-TABS
@@ -72,6 +107,7 @@ verifies:
         - P-BASE-TABS-ANATOMY-FAMILY
         - P-BASE-TABS-VALUE-CHANGE-SIGNAL
         - P-BASE-TABS-CONTEXT-VALUE
+        - P-BASE-TABS-SELECTION-FALLBACK
         - P-BASE-TABS-A11Y-RELATIONSHIP-TARGET
 exercises:
   prototypes:
@@ -80,6 +116,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced Base Tabs root and compound protocol test entity aligned to P-BASE-TABS criteria.
+  - version: 0.1.1
+    change: refined
+    summary: Added Base Tabs uncontrolled selection fallback coverage.
 tags:
   - prototype
   - base

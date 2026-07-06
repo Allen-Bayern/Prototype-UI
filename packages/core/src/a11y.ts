@@ -2,7 +2,8 @@ import type { State } from './state';
 
 export type A11yRole = string;
 
-export type A11yTextAlternative = { kind: 'content' } | { kind: 'text'; value: string };
+export type A11yTextTarget = string | State<string | null | undefined>;
+export type A11yTextAlternative = { kind: 'content' } | { kind: 'text'; value: A11yTextTarget };
 
 export type A11yStateKey = string;
 export type A11yActionKey = string;
@@ -43,9 +44,9 @@ export type A11ySemanticObjectSnapshot = {
 export type A11yDefAPI = {
   id(target: A11yIdentityTarget): void;
   role(role: A11yRole): void;
-  name(value: string): void;
+  name(value: A11yTextTarget): void;
   nameFromContent(): void;
-  description(value: string): void;
+  description(value: A11yTextTarget): void;
   state<V>(key: A11yStateKey, handle: State<V>): void;
   action(key: A11yActionKey, spec?: A11yActionSpec): void;
   relation(key: A11yRelationKey, spec: A11yRelationSpec): void;

@@ -12,6 +12,7 @@ export type TabsContextValue = {
   controlled: boolean;
   requestedValue: string;
   requestVersion: number;
+  validationVersion: number;
 };
 
 let nextTabsRootId = 0;

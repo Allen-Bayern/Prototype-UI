@@ -13,17 +13,21 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   def.props.define({
     orientation: { type: 'enum', empty: 'fallback', options: ['horizontal', 'vertical'] },
     loop: { type: 'boolean', empty: 'fallback' },
+    a11yLabel: { type: 'string', empty: 'fallback' },
   });
   def.props.setDefaults({
     orientation: 'horizontal',
     loop: false,
+    a11yLabel: '',
   });
 
   const orientation = def.state.string('orientation', 'horizontal', {
     options: ['horizontal', 'vertical'],
   });
+  const a11yLabel = def.state.string('a11yLabel', '');
   // P-BASE-TABS-LIST-A11Y-ROLE, P-BASE-TABS-LIST-A11Y-ORIENTATION
   def.a11y.role('tablist');
+  def.a11y.name(a11yLabel);
   def.a11y.state('orientation', orientation);
 
   const focusRoving = asFocusRoving<TabsListProps>();
@@ -57,6 +61,11 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
     activeValue = ctx.activeValue ?? '';
     selectedValue = ctx.value ?? '';
     orientation.set(ctx.orientation ?? 'horizontal', 'reason: tabs list mounted orientation sync');
+    a11yLabel.set(run.props.get().a11yLabel ?? '', 'reason: tabs list mounted a11y label sync');
+  });
+
+  def.props.watch(['a11yLabel'], (_run, next) => {
+    a11yLabel.set(next.a11yLabel ?? '', 'reason: tabs list props a11y label sync');
   });
 
   def.lifecycle.onUnmounted(() => {

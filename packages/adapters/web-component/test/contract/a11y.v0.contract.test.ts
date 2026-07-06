@@ -6,21 +6,23 @@ import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-comp
 describe('contract: adapter-web-component / a11y projection (v0)', () => {
   it('A11Y-WC-0100: projects supported semantic object IR to host attributes', () => {
     // T-A11Y-0001-CASE-WEB-PROJECTION
-    const P: Prototype<{ disabled?: boolean }> = definePrototype({
+    const P: Prototype<{ disabled?: boolean; label?: string }> = definePrototype({
       name: 'x-a11y-wc-projection',
       setup(def) {
         def.props.define({
           disabled: { type: 'boolean', empty: 'fallback' },
+          label: { type: 'string', empty: 'fallback' },
         });
-        def.props.setDefaults({ disabled: false });
+        def.props.setDefaults({ disabled: false, label: 'Save' });
 
         const disabled = def.state.bool('button.disabled', false);
         const id = def.state.string('button.id', 'button-a');
+        const name = def.state.string('button.name', 'Save');
         const hidden = def.state.bool('button.hidden', false);
         const controls = def.state.string('button.controls', 'panel-a');
         def.a11y.id(id);
         def.a11y.role('button');
-        def.a11y.name('Save');
+        def.a11y.name(name);
         def.a11y.description('Stores changes');
         def.a11y.state('disabled', disabled);
         def.a11y.state('hidden', hidden);
@@ -32,6 +34,9 @@ describe('contract: adapter-web-component / a11y projection (v0)', () => {
           disabled.set(next.disabled);
           hidden.set(next.disabled);
           controls.set(next.disabled ? 'panel-b' : 'panel-a');
+        });
+        def.props.watch(['label'], (_run, next) => {
+          name.set(next.label ?? '');
         });
 
         return (r) => r.el('button', 'Save');
@@ -66,5 +71,11 @@ describe('contract: adapter-web-component / a11y projection (v0)', () => {
     expect(el.getAttribute('aria-hidden')).toBe('true');
     expect(el.hasAttribute('hidden')).toBe(true);
     expect(el.getAttribute('aria-controls')).toBe('panel-b');
+
+    setElementProps(el, { label: 'Store changes' });
+    expect(el.getAttribute('aria-label')).toBe('Store changes');
+
+    setElementProps(el, { label: '' });
+    expect(el.hasAttribute('aria-label')).toBe(false);
   });
 });

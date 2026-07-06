@@ -125,11 +125,21 @@ criteria:
     dependsOn:
       contracts:
         - C-A11Y-0001
-  - id: P-BASE-TABS-LIST-LABEL-DEFERRED
+  - id: P-BASE-TABS-LIST-PROP-A11Y-LABEL
     text:
-      zh-CN: Tabs List 的 explicit accessible label API 暂缓；第一轮不要求 `label`、`aria-label` 或 `labelledBy` props。
-      en: Explicit accessible label API for Tabs List is deferred; the first pass does not require `label`, `aria-label`, or `labelledBy` props.
+      zh-CN: 'Tabs List 可以接受宿主中立的 `a11yLabel?: string` props input 表达 explicit accessible label；原型 API 不暴露 `aria-label` 或 `aria-labelledby`。'
+      en: 'Tabs List may accept a host-neutral `a11yLabel?: string` props input for an explicit accessible label; the prototype API does not expose `aria-label` or `aria-labelledby`.'
     dependsOn:
+      contracts:
+        - C-PROPS-0001
+        - C-A11Y-0001
+  - id: P-BASE-TABS-LIST-A11Y-LABEL
+    text:
+      zh-CN: 在具备 accessibility projection 的宿主中，非空 `a11yLabel` 必须投射为 Tabs List 的 accessible name。
+      en: In hosts with accessibility projection, a non-empty `a11yLabel` must be projected as the Tabs List accessible name.
+    dependsOn:
+      contracts:
+        - C-A11Y-0001
       decisions:
         - D-A11Y-SEMANTIC-DOMAIN-0001
 sources:
@@ -149,6 +159,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs List protocol catalog.
+  - version: 0.1.1
+    change: refined
+    summary: Added host-neutral a11yLabel as the Tabs List accessible name input.
 tags:
   - prototype
   - base

@@ -140,6 +140,20 @@ class A11yModuleImpl extends ModuleBase {
       this.stateWatchOffs.push(off);
     }
 
+    if (this.ir.name?.kind === 'text' && isState(this.ir.name.value)) {
+      const off = this.statePort.watch(this.ir.name.value as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
+    if (this.ir.description?.kind === 'text' && isState(this.ir.description.value)) {
+      const off = this.statePort.watch(this.ir.description.value as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
     for (const binding of this.ir.relations.values()) {
       if (!isState(binding.spec.target)) continue;
       const off = this.statePort.watch(binding.spec.target as any, () => {
@@ -166,8 +180,8 @@ class A11yModuleImpl extends ModuleBase {
     return {
       id: isState(this.ir.id) ? (this.ir.id.get() as string | null | undefined) : this.ir.id,
       role: this.ir.role,
-      name: cloneTextAlternative(this.ir.name),
-      description: cloneTextAlternative(this.ir.description),
+      name: resolveTextAlternative(this.ir.name),
+      description: resolveTextAlternative(this.ir.description),
       states,
       actions: Object.fromEntries(this.ir.actions),
       relations,
@@ -192,6 +206,19 @@ function cloneTextAlternative(
 ): A11yTextAlternative | undefined {
   if (!value) return undefined;
   return value.kind === 'text' ? { kind: 'text', value: value.value } : { kind: 'content' };
+}
+
+function resolveTextAlternative(
+  value: A11yTextAlternative | undefined
+): A11yTextAlternative | undefined {
+  if (!value) return undefined;
+  if (value.kind === 'content') return { kind: 'content' };
+  return {
+    kind: 'text',
+    value: isState(value.value)
+      ? (value.value.get() as string | null | undefined) || ''
+      : value.value,
+  };
 }
 
 export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {

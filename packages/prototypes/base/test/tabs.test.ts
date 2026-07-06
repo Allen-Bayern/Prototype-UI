@@ -49,6 +49,7 @@ describe('prototypes/base: tabs', () => {
     });
 
     setElementProps(root, { defaultValue: 'a' });
+    setElementProps(list, { a11yLabel: 'Account sections' });
     setElementProps(triggerA, { value: 'a' });
     setElementProps(triggerB, { value: 'b' });
     setElementProps(contentA, { value: 'a' });
@@ -76,6 +77,7 @@ describe('prototypes/base: tabs', () => {
     expect(contentA.tabIndex).toBe(0);
     expect(contentB.tabIndex).toBe(-1);
     expect(list.getAttribute('role')).toBe('tablist');
+    expect(list.getAttribute('aria-label')).toBe('Account sections');
     expect(list.getAttribute('aria-orientation')).toBe('horizontal');
     expect(triggerA.getAttribute('role')).toBe('tab');
     expect(triggerA.getAttribute('aria-selected')).toBe('true');
@@ -98,6 +100,50 @@ describe('prototypes/base: tabs', () => {
     expect(contentB.hasAttribute('hidden')).toBe(false);
     expect(contentA.tabIndex).toBe(-1);
     expect(contentB.tabIndex).toBe(0);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('uncontrolled tabs falls back to the first enabled trigger when selection is invalid', async () => {
+    // T-BASE-TABS-0001-CASE-SELECTION-FALLBACK
+    const root = document.createElement('base-tabs-root') as any;
+    const triggerA = document.createElement('base-tabs-trigger') as any;
+    const triggerB = document.createElement('base-tabs-trigger') as any;
+    const triggerC = document.createElement('base-tabs-trigger') as any;
+    const contentB = document.createElement('base-tabs-content') as any;
+    const contentC = document.createElement('base-tabs-content') as any;
+
+    setElementProps(root, { defaultValue: 'missing' });
+    setElementProps(triggerA, { value: 'a', disabled: true });
+    setElementProps(triggerB, { value: 'b' });
+    setElementProps(triggerC, { value: 'c' });
+    setElementProps(contentB, { value: 'b' });
+    setElementProps(contentC, { value: 'c' });
+
+    root.append(triggerA, triggerB, triggerC, contentB, contentC);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(root.getExposes().value.get()).toBe('b');
+    expect(triggerA.getExposes().selected.get()).toBe(false);
+    expect(triggerB.getExposes().selected.get()).toBe(true);
+    expect(triggerC.getExposes().selected.get()).toBe(false);
+    expect(contentB.getExposes().current.get()).toBe(true);
+
+    setElementProps(triggerB, { value: 'b', disabled: true });
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(root.getExposes().value.get()).toBe('c');
+    expect(triggerB.getExposes().selected.get()).toBe(false);
+    expect(triggerC.getExposes().selected.get()).toBe(true);
+    expect(contentB.getExposes().current.get()).toBe(false);
+    expect(contentC.getExposes().current.get()).toBe(true);
 
     root.remove();
     await Promise.resolve();

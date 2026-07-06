@@ -6,11 +6,11 @@ since: 0.1.0
 summary: Base Tabs is the root-owned compound single-selection protocol for a tablist, tab triggers, tab panels, and optional indicators. The root owns the selected value, provides Tabs context, coordinates controlled and uncontrolled value changes, and defines the Tabs anatomy family.
 statement:
   zh-CN: >-
-    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 将 `value`、`activeValue`、`orientation`、`activationMode` 与 controlled 状态提供给 list、trigger、content 与 indicator parts。Trigger 与 Content 通过各自 props 提供的 protocol `value` 和 context `value` 进行匹配：匹配的 trigger 处于 selected 状态，匹配的 content 处于 current/visible 状态。Base Tabs 不在第一轮承诺 indicator layout measurement、tabpanel unmount/presence 策略、动态缺失 selected value fallback 或完整 part-to-part a11y relationship 投射实现。
+    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 将 `value`、`activeValue`、`orientation`、`activationMode` 与 controlled 状态提供给 list、trigger、content 与 indicator parts。Trigger 与 Content 通过各自 props 提供的 protocol `value` 和 context `value` 进行匹配：匹配的 trigger 处于 selected 状态，匹配的 content 处于 current/visible 状态。非受控 Tabs 在 selected value 缺失或指向 disabled trigger 时，回落到第一个 enabled trigger。Base Tabs 不在第一轮承诺 indicator layout measurement、tabpanel unmount/presence 策略、动态删除 selected trigger、重复 value fallback 或完整 part-to-part a11y relationship 投射实现。
 
 
   en: >-
-    Base Tabs is a compound single-selection protocol. The root owns the single selected value within the same Tabs domain and provides `value`, `activeValue`, `orientation`, `activationMode`, and controlled state through Tabs context to list, trigger, content, and indicator parts. Trigger and Content match their own protocol `value` props against context `value`: the matching trigger is selected and the matching content is current/visible. The first Base Tabs pass does not promise indicator layout measurement, tabpanel unmount/presence policy, dynamic missing selected value fallback, or full part-to-part a11y relationship projection implementation.
+    Base Tabs is a compound single-selection protocol. The root owns the single selected value within the same Tabs domain and provides `value`, `activeValue`, `orientation`, `activationMode`, and controlled state through Tabs context to list, trigger, content, and indicator parts. Trigger and Content match their own protocol `value` props against context `value`: the matching trigger is selected and the matching content is current/visible. Uncontrolled Tabs fall back to the first enabled trigger when the selected value is missing or points to a disabled trigger. The first Base Tabs pass does not promise indicator layout measurement, tabpanel unmount/presence policy, dynamically removed selected-trigger fallback, duplicate value fallback, or full part-to-part a11y relationship projection implementation.
 
 
 anatomy:
@@ -352,10 +352,20 @@ criteria:
         - id: P-BASE-TABS-INDICATOR
           anchors:
             - P-BASE-TABS-INDICATOR-NO-LAYOUT-MEASUREMENT
-  - id: P-BASE-TABS-SELECTION-FALLBACK-DEFERRED
+  - id: P-BASE-TABS-SELECTION-FALLBACK
     text:
-      zh-CN: selected value 缺失、指向 disabled trigger、对应 trigger 被动态删除或出现重复 value 时的 fallback 策略暂缓。
-      en: Fallback policy is deferred when selected value is missing, points to a disabled trigger, has its trigger dynamically removed, or encounters duplicate values.
+      zh-CN: 非受控 Tabs 的 selected value 缺失或指向 disabled trigger 时，root 必须回落到第一个 enabled trigger；受控 Tabs 不得擅自改写外部 value。
+      en: When uncontrolled Tabs have a missing selected value or a selected value pointing to a disabled trigger, the root must fall back to the first enabled trigger; controlled Tabs must not rewrite the external value on their own.
+    dependsOn:
+      contracts:
+        - C-STATE-0001
+        - C-CONTEXT-0007
+      prototypes:
+        - P-BASE-TABS-TRIGGER
+  - id: P-BASE-TABS-DUPLICATE-VALUE-FALLBACK-DEFERRED
+    text:
+      zh-CN: 动态删除 selected trigger、重复 trigger value 的 selection 与 a11y relationship fallback 策略暂缓；第一轮 authoring pattern 不应依赖这些场景。
+      en: Selection and a11y relationship fallback policies for dynamically removed selected triggers and duplicate trigger values are deferred; first-pass authoring patterns should not rely on these cases.
 sources:
   - path: internal/contracts/prototype-base/tabs.v0.md
   - path: packages/prototypes/base/src/tabs/root.ts
@@ -384,6 +394,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs root/compound protocol catalog with anatomy, context, selection, a11y, indicator, and presence boundaries.
+  - version: 0.1.1
+    change: refined
+    summary: Added first-pass uncontrolled selection fallback for missing or disabled selected triggers.
 tags:
   - prototype
   - base

@@ -15,6 +15,7 @@ cases:
       - C-A11Y-0001-E
       - C-A11Y-0001-F
       - C-A11Y-0001-H
+      - C-A11Y-0001-I
     expectation: semantic-object-ir
   - id: T-A11Y-0001-CASE-BUTTON
     title: Base Button declares button role, content-derived name policy, disabled state, and activate action
@@ -30,6 +31,7 @@ cases:
     covers:
       - C-A11Y-0001-G
       - C-A11Y-0001-H
+      - C-A11Y-0001-I
       - HC-A11Y-0001-A
       - HC-A11Y-0001-B
     expectation: web-a11y-projection
@@ -67,6 +69,7 @@ verifies:
         - C-A11Y-0001-F
         - C-A11Y-0001-G
         - C-A11Y-0001-H
+        - C-A11Y-0001-I
   hostCaps:
     - id: HC-A11Y-0001
       anchors:
@@ -76,6 +79,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first a11y semantic object test mapping.
+  - version: 0.1.1
+    change: refined
+    summary: Added coverage for dynamic a11y name projection from state-backed text facts.
 tags:
   - a11y
   - accessibility
