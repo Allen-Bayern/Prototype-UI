@@ -86,6 +86,7 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-F
         - C-AS-FOCUS-ROVING-0001-G
         - C-AS-FOCUS-ROVING-0001-H
+  decisions:
     - id: D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
       anchors:
         - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001-D
@@ -93,6 +94,7 @@ verifies:
       anchors:
         - D-DEFAULT-ACTION-CONTROL-0001-C
         - D-DEFAULT-ACTION-CONTROL-0001-D
+  hostCaps:
     - id: HC-DEFAULT-ACTION-0001
       anchors:
         - HC-DEFAULT-ACTION-0001-A

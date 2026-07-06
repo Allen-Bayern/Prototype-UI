@@ -29,7 +29,7 @@ cases:
     expectation: explicit-item-membership
 implementations:
   - id: prototypes-base-collection-contract
-    kind: prototype-test
+    kind: module-test
     status: passing
     path: packages/prototypes/base/test/use-collection.test.ts
     required: true
@@ -52,6 +52,7 @@ verifies:
         - C-AS-COLLECTION-ITEM-0001-B
         - C-AS-COLLECTION-ITEM-0001-C
         - C-AS-COLLECTION-ITEM-0001-D
+  decisions:
     - id: D-COLLECTION-FOCUS-ROVING-RELATIONSHIP-0001
       anchors:
         - D-COLLECTION-FOCUS-ROVING-RELATIONSHIP-0001-A

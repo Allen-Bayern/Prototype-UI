@@ -145,6 +145,7 @@ verifies:
         - C-EVENT-0007-B
         - C-EVENT-0007-C
         - C-EVENT-0007-D
+  hostCaps:
     - id: HC-DEFAULT-ACTION-0001
       anchors:
         - HC-DEFAULT-ACTION-0001-A
