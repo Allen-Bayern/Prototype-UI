@@ -57,4 +57,49 @@ describe('prototypes/shadcn: tabs', () => {
     root.remove();
     await Promise.resolve();
   });
+
+  it('does not leave a trigger pressed after pointer activity outside the tabs trigger', async () => {
+    const root = document.createElement('shadcn-tabs-root') as any;
+    const list = document.createElement('shadcn-tabs-list') as any;
+    const triggerA = document.createElement('shadcn-tabs-trigger') as any;
+    const triggerB = document.createElement('shadcn-tabs-trigger') as any;
+    const outside = document.createElement('button');
+
+    setElementProps(root, {
+      defaultValue: 'a',
+      orientation: 'horizontal',
+      activationMode: 'manual',
+    });
+    setElementProps(triggerA, { value: 'a' });
+    setElementProps(triggerB, { value: 'b' });
+
+    list.appendChild(triggerA);
+    list.appendChild(triggerB);
+    root.appendChild(list);
+    document.body.append(root, outside);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    triggerA.focus();
+    outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    outside.focus();
+    outside.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+
+    expect(triggerA.getExposes().pressed.get()).toBe(false);
+    expect(triggerA.hasAttribute('data-pressed')).toBe(false);
+
+    triggerA.focus();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.activeElement).toBe(triggerB);
+    expect(triggerA.getExposes().pressed.get()).toBe(false);
+    expect(triggerB.getExposes().pressed.get()).toBe(false);
+
+    root.remove();
+    outside.remove();
+    await Promise.resolve();
+  });
 });
