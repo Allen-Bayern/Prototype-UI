@@ -189,6 +189,8 @@ export interface FocusRovingHandle<P extends PropsBaseType = PropsBaseType> {
   focusSelected(): void;
 
   configure(patch: FocusRovingConfigPatch): void;
+  setLoop(loop: boolean): void;
+  setOrientation(orientation: FocusRovingConfig['orientation']): void;
 }
 
 export type FocusGroupHandle<P extends PropsBaseType = PropsBaseType> = FocusRovingHandle<P>;

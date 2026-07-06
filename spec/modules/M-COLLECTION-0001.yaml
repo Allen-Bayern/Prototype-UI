@@ -1,0 +1,28 @@
+id: M-COLLECTION-0001
+type: module
+title: Collection module projects explicit ordered item sets
+status: draft
+since: 0.1.0
+summary: The collection module provides the internal port backing asCollection and asCollectionItem with ordered item snapshots, item position facts, metadata reads, and anatomy-order integration.
+satisfies:
+  contracts:
+    - C-AS-COLLECTION-0001
+    - C-AS-COLLECTION-ITEM-0001
+requires:
+  contracts:
+    - C-ANATOMY-ORDER-0001
+verifies:
+  tests:
+    - T-COLLECTION-0001
+sources:
+  - path: packages/modules/collection/src/create.ts
+  - path: packages/modules/collection/src/types.ts
+  - path: packages/hooks/src/as-collection.ts
+  - path: packages/hooks/src/as-collection-item.ts
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Drafted the collection module entity for no-arg privileged collection hooks.
+tags:
+  - collection
+  - module

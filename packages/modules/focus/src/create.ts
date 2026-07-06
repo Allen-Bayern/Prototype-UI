@@ -106,6 +106,7 @@ class FocusModuleImpl extends ModuleBase {
   private keyboardModality = false;
   private hostEventsWired = false;
   private scopeEventsWired = false;
+  private rovingEventsWired = false;
 
   private readonly focusedOwned: OwnedStateHandle<boolean>;
   private readonly focusVisibleOwned: OwnedStateHandle<boolean>;
@@ -196,6 +197,9 @@ class FocusModuleImpl extends ModuleBase {
       focusPrev: () => this.focusPrev(),
       focusSelected: () => this.focusSelected(),
       configure: (patch: FocusRovingConfigPatch) => this.configureRoving(patch),
+      setLoop: (loop: boolean) => this.setRovingLoop(loop),
+      setOrientation: (orientation: FocusRovingConfig['orientation']) =>
+        this.setRovingOrientation(orientation),
     };
   }
 
@@ -356,6 +360,7 @@ class FocusModuleImpl extends ModuleBase {
 
   private declareRoving(): void {
     this.rovingDeclared = true;
+    this.wireRovingKeyEvents();
     this.syncCenter();
   }
 
@@ -411,9 +416,59 @@ class FocusModuleImpl extends ModuleBase {
       const entry = this.createCenterEntry();
       if (!entry || !FOCUS_CENTER.isTopActiveScope(entry)) return;
 
-      detail?.preventDefault?.();
+      this.eventPort.requestDefaultActionPrevented(ev, {
+        reason: 'focus.scope.trap',
+        source: this.prototypeName,
+      });
       FOCUS_CENTER.focusInScope(entry, detail?.shiftKey ? 'prev' : 'next');
     });
+  }
+
+  private wireRovingKeyEvents(): void {
+    if (this.rovingEventsWired) return;
+    this.rovingEventsWired = true;
+
+    this.eventPort.onGlobal('key.down', (ev) => {
+      if (!this.rovingDeclared) return;
+      const op = this.resolveRovingKeyOperation(ev?.detail);
+      if (!op) return;
+
+      const entry = this.createCenterEntry();
+      if (!entry) return;
+
+      const handled = FOCUS_CENTER.focusInRoving(entry, op, { requireFocusedMember: true });
+      if (!handled) return;
+
+      this.eventPort.requestDefaultActionPrevented(ev, {
+        reason: 'focus.roving.keyboard',
+        source: this.prototypeName,
+      });
+    });
+  }
+
+  private resolveRovingKeyOperation(detail: any): 'first' | 'last' | 'next' | 'prev' | null {
+    if (this.rovingConfig.navigation !== 'arrow' && this.rovingConfig.navigation !== 'tab+arrow') {
+      return null;
+    }
+
+    const key = detail?.key;
+    if (key === 'Home') return 'first';
+    if (key === 'End') return 'last';
+
+    const orientation = this.rovingConfig.orientation;
+    if ((orientation === 'horizontal' || orientation === 'both') && key === 'ArrowRight') {
+      return 'next';
+    }
+    if ((orientation === 'horizontal' || orientation === 'both') && key === 'ArrowLeft') {
+      return 'prev';
+    }
+    if ((orientation === 'vertical' || orientation === 'both') && key === 'ArrowDown') {
+      return 'next';
+    }
+    if ((orientation === 'vertical' || orientation === 'both') && key === 'ArrowUp') {
+      return 'prev';
+    }
+    return null;
   }
 
   getFocusable<P extends PropsBaseType = PropsBaseType>(): FocusableHandle<P> {
@@ -667,6 +722,22 @@ class FocusModuleImpl extends ModuleBase {
       ...this.rovingConfig,
       ...patch,
       meta: mergeMeta(this.rovingConfig.meta, patch.meta),
+    });
+    this.syncCenter();
+  }
+
+  setRovingLoop(loop: boolean): void {
+    this.rovingConfig = Object.freeze({
+      ...this.rovingConfig,
+      loop,
+    });
+    this.syncCenter();
+  }
+
+  setRovingOrientation(orientation: FocusRovingConfig['orientation']): void {
+    this.rovingConfig = Object.freeze({
+      ...this.rovingConfig,
+      orientation,
     });
     this.syncCenter();
   }
@@ -939,6 +1010,8 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         configureEntry: (patch) => impl.configureEntry(patch),
         configureRoving: (patch) => impl.configureRoving(patch),
         configureGroup: (patch) => impl.configureRoving(patch),
+        setRovingLoop: (loop) => impl.setRovingLoop(loop),
+        setRovingOrientation: (orientation) => impl.setRovingOrientation(orientation),
         configureScope: (patch) => impl.configureScope(patch),
         setDisabled: (disabled) => impl.setDisabled(disabled),
         setNavParticipation: (navParticipation) => impl.setNavParticipation(navParticipation),

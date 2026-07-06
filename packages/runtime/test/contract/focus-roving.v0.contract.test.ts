@@ -10,7 +10,11 @@ import {
   FOCUS_ROOT_TARGET_CAP,
   type FocusPort,
 } from '@proto.ui/module-focus';
-import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
+import {
+  EVENT_CANCEL_DEFAULT_ACTION_CAP,
+  EVENT_GLOBAL_TARGET_CAP,
+  EVENT_ROOT_TARGET_CAP,
+} from '@proto.ui/module-event';
 import type { PropsBaseType } from '@proto.ui/types';
 
 const createHost = <P extends PropsBaseType>(name: string) => {
@@ -200,6 +204,183 @@ describe('runtime contract: focus-roving (v0)', () => {
     rovingExec.caps.getPort<FocusPort>('focus')?.focusFirst();
 
     expect(focused).toEqual(['item-a']);
+  });
+
+  it('FOCUS-ROVING-0350: arrow navigation requests default-action cancellation through event host cap', () => {
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0350-owner',
+      setup() {
+        const roving = asFocusRoving<PropsBaseType>();
+        roving.configure({ navigation: 'arrow', orientation: 'horizontal' });
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-roving-0350-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['item-a', 1],
+      ['item-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      itemA: new FocusTarget('item-a', order),
+      itemB: new FocusTarget('item-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.itemA, targets.roving],
+      [targets.itemB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const cancelled: unknown[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+    const attachCancelCap = (host: RuntimeHost<PropsBaseType>) => {
+      const baseReady = host.onRuntimeReady;
+      host.onRuntimeReady = (wiring) => {
+        baseReady?.(wiring);
+        wiring.attach('event', [
+          [
+            EVENT_CANCEL_DEFAULT_ACTION_CAP,
+            (request: { event?: unknown; reason?: string; source?: string }) => {
+              cancelled.push(request);
+            },
+          ],
+        ]);
+      };
+      return host;
+    };
+
+    executeWithHost(
+      Roving as any,
+      attachCancelCap(createTreeHost(Roving.name, targets.roving, hostOptions)) as any
+    );
+    const itemA = executeWithHost(
+      Item as any,
+      attachCancelCap(createTreeHost(Item.name, targets.itemA, hostOptions)) as any
+    );
+    executeWithHost(
+      Item as any,
+      attachCancelCap(createTreeHost(Item.name, targets.itemB, hostOptions)) as any
+    );
+
+    itemA.caps.getPort<FocusPort>('focus')?.requestFocus({ reason: 'keyboard' });
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowRight',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b']);
+    expect(cancelled).toMatchObject([
+      {
+        reason: 'focus.roving.keyboard',
+        source: Roving.name,
+      },
+    ]);
+  });
+
+  it('FOCUS-ROVING-0360: roving movement can focus members outside natural Tab participation', () => {
+    let roving!: FocusRovingHandle<PropsBaseType>;
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0360-owner',
+      setup() {
+        roving = asFocusRoving<PropsBaseType>();
+        roving.configure({ navigation: 'arrow', orientation: 'horizontal' });
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const AutoItem = definePrototype({
+      name: 'x-focus-roving-0360-auto-item',
+      setup() {
+        const focusable = asFocusable<PropsBaseType>();
+        focusable.configure({ navParticipation: 'auto' });
+        return (r) => r.el('button', 'item');
+      },
+    });
+    const TabExcludedItem = definePrototype({
+      name: 'x-focus-roving-0360-tab-excluded-item',
+      setup() {
+        const focusable = asFocusable<PropsBaseType>();
+        focusable.configure({ navParticipation: 'none' });
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['item-a', 1],
+      ['item-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      itemA: new FocusTarget('item-a', order),
+      itemB: new FocusTarget('item-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.itemA, targets.roving],
+      [targets.itemB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(Roving as any, createTreeHost(Roving.name, targets.roving, hostOptions) as any);
+    const itemA = executeWithHost(
+      AutoItem as any,
+      createTreeHost(AutoItem.name, targets.itemA, hostOptions) as any
+    );
+    executeWithHost(
+      TabExcludedItem as any,
+      createTreeHost(TabExcludedItem.name, targets.itemB, hostOptions) as any
+    );
+
+    itemA.caps.getPort<FocusPort>('focus')?.requestFocus({ reason: 'keyboard' });
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowRight',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b']);
+
+    targets.itemB.dispatchEvent(new Event('host:focus'));
+    roving.setOrientation('vertical');
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowRight',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b']);
+
+    globalTarget.dispatchEvent(
+      new CustomEvent('key.down', {
+        detail: {
+          key: 'ArrowUp',
+          nativeEvent: { type: 'keydown' },
+        },
+      })
+    );
+
+    expect(focused).toEqual(['item-a', 'item-b', 'item-a']);
   });
 
   it('FOCUS-ROVING-0310: scope getRoving handle declares logical roving ownership', () => {

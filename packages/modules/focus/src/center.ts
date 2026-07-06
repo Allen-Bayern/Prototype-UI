@@ -291,7 +291,6 @@ export class FocusCenter {
 
       const focusable = entry.getFocusableConfig();
       if (focusable.disabled) return false;
-      if (focusable.navParticipation === 'none') return false;
 
       if (focusable.groupKey) {
         if (!groupKey || focusable.groupKey !== groupKey) return false;
@@ -315,12 +314,15 @@ export class FocusCenter {
 
   focusInRoving(
     provider: FocusCenterEntry,
-    op: 'first' | 'last' | 'next' | 'prev' | 'selected'
-  ): void {
+    op: 'first' | 'last' | 'next' | 'prev' | 'selected',
+    options?: { requireFocusedMember?: boolean }
+  ): boolean {
     const members = this.getRovingMembers(provider);
-    if (members.length === 0) return;
+    if (members.length === 0) return false;
 
     const currentIndex = members.findIndex((entry) => entry.getFacts().focused);
+    if (options?.requireFocusedMember && currentIndex < 0) return false;
+
     const loop = provider.getRovingConfig().loop;
 
     let target: FocusCenterEntry | null = null;
@@ -339,7 +341,8 @@ export class FocusCenter {
       target = op === 'prev' ? (members[members.length - 1] ?? null) : (members[0] ?? null);
     }
 
-    if (target) this.requestFocus(target, { reason: 'keyboard' }, { syncFacts: false });
+    if (!target) return false;
+    return this.requestFocus(target, { reason: 'keyboard' }, { syncFacts: false });
   }
 }
 

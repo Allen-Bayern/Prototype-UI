@@ -59,6 +59,12 @@ cases:
       - C-EVENT-0007-C
       - C-EVENT-0007-D
     expectation: cleanup-and-rebind
+  - id: T-EVENT-0001-CASE-DEFAULT-ACTION-CONTROL
+    title: Event port projects default-action cancellation through host capability
+    covers:
+      - HC-DEFAULT-ACTION-0001-A
+      - HC-DEFAULT-ACTION-0001-B
+    expectation: default-action-cancel-request
 implementations:
   - id: event-registration-fixture
     kind: fixture
@@ -73,6 +79,7 @@ implementations:
       - T-EVENT-0001-CASE-NO-DEDUP
       - T-EVENT-0001-CASE-TOKEN-REMOVAL
       - T-EVENT-0001-CASE-CLEANUP-REBIND
+      - T-EVENT-0001-CASE-DEFAULT-ACTION-CONTROL
   - id: module-event-registration-contract
     kind: module-test
     status: passing
@@ -86,6 +93,7 @@ implementations:
       - T-EVENT-0001-CASE-NO-DEDUP
       - T-EVENT-0001-CASE-TOKEN-REMOVAL
       - T-EVENT-0001-CASE-CLEANUP-REBIND
+      - T-EVENT-0001-CASE-DEFAULT-ACTION-CONTROL
   - id: adapter-web-component-event-router-cleanup-contract
     kind: adapter-test
     status: passing
@@ -137,6 +145,11 @@ verifies:
         - C-EVENT-0007-B
         - C-EVENT-0007-C
         - C-EVENT-0007-D
+  hostCaps:
+    - id: HC-DEFAULT-ACTION-0001
+      anchors:
+        - HC-DEFAULT-ACTION-0001-A
+        - HC-DEFAULT-ACTION-0001-B
 exercises:
   contracts:
     - id: C-EVENT-0001

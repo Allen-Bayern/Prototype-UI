@@ -5,7 +5,8 @@ export type EventRegistrationExpectation =
   | 'empty-registration-noop'
   | 'no-registration-dedup'
   | 'token-precise-removal'
-  | 'cleanup-and-rebind';
+  | 'cleanup-and-rebind'
+  | 'default-action-cancel-request';
 
 export type EventRegistrationCase = {
   id: string;
@@ -87,6 +88,15 @@ export const EVENT_REGISTRATION_CASES = [
     eventType: 'host:click',
     scope: 'root',
     expectation: 'cleanup-and-rebind',
+  },
+  {
+    id: 'event-default-action-control',
+    title: 'event port projects default-action cancellation through host capability',
+    specCase: 'T-EVENT-0001-CASE-DEFAULT-ACTION-CONTROL',
+    covers: ['HC-DEFAULT-ACTION-0001-A', 'HC-DEFAULT-ACTION-0001-B'],
+    eventType: 'key.down',
+    scope: 'global',
+    expectation: 'default-action-cancel-request',
   },
 ] as const satisfies readonly EventRegistrationCase[];
 

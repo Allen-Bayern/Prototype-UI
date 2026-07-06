@@ -57,6 +57,13 @@ export type EventPort = ModulePort & {
   getDiagnostics?(): readonly EventDiag[];
 
   /**
+   * Request cancellation of the host default action associated with the current
+   * interaction event. This is module-facing and host-mediated; prototype
+   * authors should not depend on Web `preventDefault()` directly.
+   */
+  requestDefaultActionPrevented(ev: any, options?: { reason?: string; source?: string }): void;
+
+  /**
    * Setup-only: redirect all "root" bindings to a specified target-like.
    * Does NOT affect global registrations.
    */

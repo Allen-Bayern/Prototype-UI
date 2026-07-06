@@ -72,6 +72,8 @@ type FocusRovingHandle = {
   focusSelected(): void;
 
   configure(patch: FocusRovingConfigPatch): void;
+  setLoop(loop: boolean): void;
+  setOrientation(orientation: FocusRovingConfig['orientation']): void;
 };
 ```
 

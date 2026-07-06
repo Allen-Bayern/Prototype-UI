@@ -32,7 +32,7 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
 
   const focusRoving = asFocusRoving<TabsListProps>();
   focusRoving.configure({
-    navigation: 'none',
+    navigation: 'arrow',
     orientation: 'horizontal',
     entry: 'manual',
   });
@@ -53,18 +53,24 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
     activeValue = next.activeValue ?? '';
     selectedValue = next.value ?? '';
-    orientation.set(next.orientation ?? 'horizontal', 'reason: tabs list context orientation sync');
+    const nextOrientation = next.orientation ?? 'horizontal';
+    orientation.set(nextOrientation, 'reason: tabs list context orientation sync');
+    focusRoving.setOrientation(nextOrientation);
   });
 
   def.lifecycle.onMounted((run) => {
     const ctx = run.context.read(TABS_CONTEXT);
     activeValue = ctx.activeValue ?? '';
     selectedValue = ctx.value ?? '';
-    orientation.set(ctx.orientation ?? 'horizontal', 'reason: tabs list mounted orientation sync');
+    const nextOrientation = ctx.orientation ?? 'horizontal';
+    orientation.set(nextOrientation, 'reason: tabs list mounted orientation sync');
+    focusRoving.setOrientation(nextOrientation);
+    focusRoving.setLoop(!!run.props.get().loop);
     a11yLabel.set(run.props.get().a11yLabel ?? '', 'reason: tabs list mounted a11y label sync');
   });
 
-  def.props.watch(['a11yLabel'], (_run, next) => {
+  def.props.watch(['loop', 'a11yLabel'], (_run, next) => {
+    focusRoving.setLoop(!!next.loop);
     a11yLabel.set(next.a11yLabel ?? '', 'reason: tabs list props a11y label sync');
   });
 

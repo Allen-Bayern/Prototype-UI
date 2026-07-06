@@ -407,6 +407,9 @@ importers:
       '@proto.ui/module-anatomy':
         specifier: workspace:*
         version: link:../modules/anatomy
+      '@proto.ui/module-collection':
+        specifier: workspace:*
+        version: link:../modules/collection
       '@proto.ui/module-presence':
         specifier: workspace:*
         version: link:../modules/presence
@@ -461,6 +464,21 @@ importers:
       '@proto.ui/core':
         specifier: workspace:*
         version: link:../../core
+      '@proto.ui/module-base':
+        specifier: workspace:*
+        version: link:../base
+      '@proto.ui/types':
+        specifier: workspace:*
+        version: link:../../types
+
+  packages/modules/collection:
+    dependencies:
+      '@proto.ui/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@proto.ui/module-anatomy':
+        specifier: workspace:*
+        version: link:../anatomy
       '@proto.ui/module-base':
         specifier: workspace:*
         version: link:../base
@@ -806,6 +824,9 @@ importers:
       '@proto.ui/module-boundary':
         specifier: workspace:*
         version: link:../modules/boundary
+      '@proto.ui/module-collection':
+        specifier: workspace:*
+        version: link:../modules/collection
       '@proto.ui/module-context':
         specifier: workspace:*
         version: link:../modules/context

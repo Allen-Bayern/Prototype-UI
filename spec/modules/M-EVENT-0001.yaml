@@ -1,0 +1,35 @@
+id: M-EVENT-0001
+type: module
+title: Event module owns protocol event dispatch and default-action control requests
+status: draft
+since: 0.1.0
+summary: The event module owns protocol event registration/dispatch and provides the internal port used by foundation modules to request host-mediated default-action cancellation.
+satisfies:
+  contracts:
+    - C-EVENT-0001
+    - C-EVENT-0002
+    - C-EVENT-0003
+    - C-EVENT-0004
+    - C-EVENT-0005
+    - C-EVENT-0006
+    - C-EVENT-0007
+    - C-EVENT-TYPE-0002
+requires:
+  hostCaps:
+    - HC-DEFAULT-ACTION-0001
+verifies:
+  tests:
+    - T-EVENT-0001
+sources:
+  - path: packages/modules/event/src/create.ts
+  - path: packages/modules/event/src/types.ts
+  - path: packages/modules/event/src/caps.ts
+  - path: packages/modules/event/src/impl.ts
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Drafted the event module entity and recorded default-action control as an internal event port capability.
+tags:
+  - event
+  - module
+  - default-action

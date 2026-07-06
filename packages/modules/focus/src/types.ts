@@ -31,6 +31,8 @@ export type FocusPort = {
   configureEntry(patch: FocusEntryConfigPatch): void;
   configureRoving(patch: FocusRovingConfigPatch): void;
   configureGroup(patch: FocusRovingConfigPatch): void;
+  setRovingLoop(loop: boolean): void;
+  setRovingOrientation(orientation: FocusRovingConfig['orientation']): void;
   configureScope(patch: FocusScopeConfigPatch): void;
   setDisabled(disabled: boolean): void;
   setNavParticipation(navParticipation: 'auto' | 'none'): void;

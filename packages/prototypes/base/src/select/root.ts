@@ -1,12 +1,13 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { useCollection } from '@proto.ui/hooks';
+import { asCollection } from '@proto.ui/hooks';
 import { useOpenState } from '../tools';
 import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type { SelectRootAsHookContract, SelectRootExposes, SelectRootProps } from './types';
 
 function setupSelectRoot(def: DefHandle<SelectRootProps, SelectRootExposes>): void {
   def.anatomy.claim(SELECT_FAMILY, { role: 'root' });
-  useCollection({ family: SELECT_FAMILY });
+  const collection = asCollection();
+  collection.configure({ family: SELECT_FAMILY });
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },

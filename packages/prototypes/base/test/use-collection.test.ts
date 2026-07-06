@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createAnatomyFamily, definePrototype, type Prototype } from '@proto.ui/core';
-import { useCollection, useCollectionItem } from '@proto.ui/hooks';
+import { asCollection, asCollectionItem, useCollection, useCollectionItem } from '@proto.ui/hooks';
 import { executeWithHost, type RuntimeHost } from '@proto.ui/runtime';
 import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
 import {
@@ -79,8 +79,8 @@ function createHost(args: {
   };
 }
 
-describe('prototypes/base: useCollection', () => {
-  it('provides live ordered collection snapshots and item indexes', () => {
+describe('prototypes/base: asCollection', () => {
+  it('provides live ordered collection snapshots and item indexes through no-arg hooks', () => {
     const family = createAnatomyFamily('x-collection-family', {
       roles: {
         root: { cardinality: { min: 1, max: 1 } },
@@ -104,7 +104,8 @@ describe('prototypes/base: useCollection', () => {
     const Root = definePrototype({
       name: 'x-collection-root',
       setup(def) {
-        useCollection({ family, rootRole: 'root' });
+        const collection = asCollection();
+        collection.configure({ family, rootRole: 'root' });
         return (r) => r.el('div', r.slot());
       },
     });
@@ -118,7 +119,8 @@ describe('prototypes/base: useCollection', () => {
         def.props.setDefaults({
           id: '',
         });
-        useCollectionItem({
+        const item = asCollectionItem();
+        item.configure({
           family,
           getMeta: (run) => ({ id: run.props.get().id ?? '' }),
         });

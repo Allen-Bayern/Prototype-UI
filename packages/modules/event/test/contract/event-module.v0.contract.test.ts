@@ -190,6 +190,33 @@ describe('event-module: contract v0 (module semantics)', () => {
     expect(calls).toEqual(['module', `author:${(authorToken as any).id}`]);
   });
 
+  it('EV-MOD-V0-1360: default-action cancellation requests are projected through host cap', () => {
+    const sys = createSysCaps();
+    const calls: unknown[] = [];
+    const caps = makeCaps({
+      sys,
+      cancelDefaultAction: (request) => {
+        calls.push(request);
+      },
+    });
+    const impl = new EventModuleImpl(caps as any, 'test-proto');
+    const nativeEvent = { type: 'keydown' };
+
+    sys.__setExecPhase('callback');
+    impl.requestDefaultActionPrevented(
+      { detail: { nativeEvent } },
+      { reason: 'test.reason', source: 'test-source' }
+    );
+
+    expect(calls).toEqual([
+      {
+        event: nativeEvent,
+        reason: 'test.reason',
+        source: 'test-source',
+      },
+    ]);
+  });
+
   it('EV-MOD-V0-1400: off() MUST detach immediately if currently bound', () => {
     const sys = createSysCaps();
     const root = createMockTarget('root');

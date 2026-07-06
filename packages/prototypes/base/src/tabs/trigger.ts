@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusable, asTrigger, useCollectionItem } from '@proto.ui/hooks';
+import { asCollectionItem, asFocusable, asTrigger } from '@proto.ui/hooks';
 import { createTabsPartId, TABS_CONTEXT, TABS_FAMILY, type TabsContextValue } from './shared';
 import type { TabsTriggerAsHookContract, TabsTriggerExposes, TabsTriggerProps } from './types';
 
@@ -74,7 +74,8 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   const contentId = def.state.string('contentId', '');
 
   // P-BASE-TABS-TRIGGER-CLAIM-ROLE, P-BASE-TABS-TRIGGER-SAME-DOMAIN
-  useCollectionItem({
+  const collectionItem = asCollectionItem();
+  collectionItem.configure({
     family: TABS_FAMILY,
     role: 'trigger',
     getMeta: (run) => {
@@ -253,56 +254,6 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
   def.event.on('pointer.up', () => {
     pressed.set(false, 'reason: tabs trigger pointer.up => pressed');
-  });
-
-  def.event.onGlobal('key.down', (run, ev) => {
-    if (disabled.get()) return;
-    if (!focused.get()) return;
-    // Keep one roving move per keyboard event without depending on propagation phase semantics.
-    if ((ev?.detail as any)?.__tabsRovingHandled) return;
-
-    const key = ev?.detail?.key;
-    const orientation = run.context.read(TABS_CONTEXT).orientation;
-    const list = run.anatomy.partsOf(TABS_FAMILY, 'list')[0] ?? null;
-    const focusFirst = list?.getExpose('focusFirst') as (() => void) | null;
-    const focusLast = list?.getExpose('focusLast') as (() => void) | null;
-    const focusNext = list?.getExpose('focusNext') as (() => void) | null;
-    const focusPrev = list?.getExpose('focusPrev') as (() => void) | null;
-    if (key === 'Home') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusFirst?.();
-      return;
-    }
-    if (key === 'End') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusLast?.();
-      return;
-    }
-    if (orientation === 'horizontal' && key === 'ArrowRight') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusNext?.();
-      return;
-    }
-    if (orientation === 'horizontal' && key === 'ArrowLeft') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusPrev?.();
-      return;
-    }
-    if (orientation === 'vertical' && key === 'ArrowDown') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusNext?.();
-      return;
-    }
-    if (orientation === 'vertical' && key === 'ArrowUp') {
-      (ev!.detail as any).__tabsRovingHandled = true;
-      ev?.detail?.preventDefault?.();
-      focusPrev?.();
-    }
   });
 }
 

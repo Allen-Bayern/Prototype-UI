@@ -13,6 +13,10 @@ type FocusRovingEntry = {
   focusSelf: ((options?: { reason?: FocusReason }) => void) | null;
 };
 
+/**
+ * @deprecated Compatibility helper for legacy anatomy/expose-driven roving.
+ * Use `asFocusRoving()` and focus module-owned navigation for new code.
+ */
 export type FocusRovingOptions<P extends PropsBaseType = any> = {
   family: AnatomyFamily;
   itemRole?: string;
@@ -31,6 +35,9 @@ export type FocusRovingOptions<P extends PropsBaseType = any> = {
   exposeFocusCurrentMethodKey?: string;
 };
 
+/**
+ * @deprecated Compatibility expose shape for `useFocusRoving`.
+ */
 export type FocusRovingExposes = {
   focusFirst: ExposeMethod<() => boolean>;
   focusLast: ExposeMethod<() => boolean>;
@@ -51,6 +58,10 @@ function readSnapshot(part: { getExpose(key: string): unknown | null }, key: str
   return next && typeof next === 'object' ? (next as FocusRovingItemSnapshot) : {};
 }
 
+/**
+ * @deprecated Compatibility helper for Select/Dropdown migration only.
+ * New roving focus behavior should be owned by `asFocusRoving()` / focus module.
+ */
 export const useFocusRoving = defineHook<any, FocusRovingExposes, {}, FocusRovingOptions<any>>({
   name: 'useFocusRoving',
   setup(def, options, api) {

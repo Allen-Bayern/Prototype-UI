@@ -45,6 +45,13 @@ criteria:
     dependsOn:
       contracts:
         - C-AS-FOCUSABLE-0001
+  - id: C-AS-FOCUS-ROVING-0001-H
+    text:
+      zh-CN: roving handle 必须提供运行期策略同步窄口，至少包含 `setOrientation(...)` 与 `setLoop(...)`，以便 context 或 props 驱动的组件在 setup 后更新导航解释；这些窄口不得重新定义 roving owner 或 membership。
+      en: The roving handle must provide narrow runtime strategy synchronization methods, at least `setOrientation(...)` and `setLoop(...)`, so context- or props-driven components can update navigation interpretation after setup; these methods must not redefine the roving owner or membership.
+    dependsOn:
+      decisions:
+        - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
 sources:
   - path: internal/contracts/focus/base-text/focus-roving.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -55,6 +62,7 @@ sources:
   - path: packages/modules/focus/src/center.ts
     sections:
       - FocusCenter.getRovingMembers
+  - path: packages/modules/focus/src/create.ts
   - path: packages/runtime/test/contract/focus-roving.v0.contract.test.ts
 dependsOn:
   contracts:
@@ -75,6 +83,12 @@ revisions:
   - version: 0.1.2
     change: refined
     summary: Clarified that Tab is sequential focus navigation, not roving next/previous movement, and that only the active/current item should participate in natural Tab order.
+  - version: 0.1.3
+    change: refined
+    summary: Clarified via implementation and tests that navParticipation controls natural Tab order but not roving candidate membership.
+  - version: 0.1.4
+    change: refined
+    summary: Added runtime strategy synchronization methods for orientation and loop updates after setup.
 tags:
   - focus
   - as-hook
