@@ -44,6 +44,11 @@ cases:
       - C-AS-FOCUS-ROVING-0001-G
       - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001-D
     expectation: roving-candidates-are-independent-from-natural-tab-participation
+  - id: T-FOCUS-ROVING-0001-CASE-RUNTIME-STRATEGY
+    title: Roving runtime strategy updates can change orientation after setup
+    covers:
+      - C-AS-FOCUS-ROVING-0001-H
+    expectation: roving-runtime-strategy-updates-change-key-interpretation
 implementations:
   - id: runtime-focus-roving-contract
     kind: runtime-test
@@ -56,6 +61,7 @@ implementations:
       - T-FOCUS-ROVING-0001-CASE-LOGICAL-MEMBERSHIP
       - T-FOCUS-ROVING-0001-CASE-DEFAULT-ACTION-CONTROL
       - T-FOCUS-ROVING-0001-CASE-NAV-PARTICIPATION
+      - T-FOCUS-ROVING-0001-CASE-RUNTIME-STRATEGY
   - id: prototypes-base-tabs-roving-tab-boundary
     kind: module-test
     status: passing
@@ -79,6 +85,7 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-C
         - C-AS-FOCUS-ROVING-0001-F
         - C-AS-FOCUS-ROVING-0001-G
+        - C-AS-FOCUS-ROVING-0001-H
     - id: D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
       anchors:
         - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001-D
@@ -102,6 +109,9 @@ revisions:
   - version: 0.1.3
     change: refined
     summary: Added coverage that navParticipation does not remove enabled focusables from roving candidates.
+  - version: 0.1.4
+    change: refined
+    summary: Added coverage for runtime roving strategy updates after setup.
 tags:
   - focus
   - focus-roving
