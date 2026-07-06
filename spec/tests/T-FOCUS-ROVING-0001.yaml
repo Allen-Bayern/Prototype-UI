@@ -30,6 +30,14 @@ cases:
       - C-AS-FOCUS-ROVING-0001-F
       - C-AS-FOCUS-ROVING-0001-G
     expectation: tab-is-sequential-navigation-not-roving-movement
+  - id: T-FOCUS-ROVING-0001-CASE-DEFAULT-ACTION-CONTROL
+    title: Roving arrow-key movement requests default-action cancellation through event host capability
+    covers:
+      - C-AS-FOCUS-ROVING-0001-F
+      - D-DEFAULT-ACTION-CONTROL-0001-C
+      - D-DEFAULT-ACTION-CONTROL-0001-D
+      - HC-DEFAULT-ACTION-0001-A
+    expectation: roving-keyboard-default-action-cancel-request
 implementations:
   - id: runtime-focus-roving-contract
     kind: runtime-test
@@ -40,6 +48,7 @@ implementations:
       - T-FOCUS-ROVING-0001-CASE-ROVING-ONCE
       - T-FOCUS-ROVING-0001-CASE-SCOPE-GET-ROVING
       - T-FOCUS-ROVING-0001-CASE-LOGICAL-MEMBERSHIP
+      - T-FOCUS-ROVING-0001-CASE-DEFAULT-ACTION-CONTROL
   - id: prototypes-base-tabs-roving-tab-boundary
     kind: module-test
     status: passing
@@ -63,6 +72,13 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-C
         - C-AS-FOCUS-ROVING-0001-F
         - C-AS-FOCUS-ROVING-0001-G
+    - id: D-DEFAULT-ACTION-CONTROL-0001
+      anchors:
+        - D-DEFAULT-ACTION-CONTROL-0001-C
+        - D-DEFAULT-ACTION-CONTROL-0001-D
+    - id: HC-DEFAULT-ACTION-0001
+      anchors:
+        - HC-DEFAULT-ACTION-0001-A
 revisions:
   - version: 0.1.0
     change: introduced
@@ -70,6 +86,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added coverage for Tab as sequential navigation rather than roving movement.
+  - version: 0.1.2
+    change: refined
+    summary: Added coverage for roving keyboard movement requesting default-action cancellation.
 tags:
   - focus
   - focus-roving

@@ -393,6 +393,8 @@ function createProtoEventPayload(type: string, native: any) {
     altKey: typeof native?.altKey === 'boolean' ? native.altKey : undefined,
     ctrlKey: typeof native?.ctrlKey === 'boolean' ? native.ctrlKey : undefined,
     metaKey: typeof native?.metaKey === 'boolean' ? native.metaKey : undefined,
+    requestDefaultPrevented:
+      typeof native?.preventDefault === 'function' ? () => native.preventDefault() : undefined,
     preventDefault:
       typeof native?.preventDefault === 'function' ? () => native.preventDefault() : undefined,
     stopPropagation:

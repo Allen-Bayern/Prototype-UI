@@ -1,6 +1,11 @@
 // packages/modules/event/test/utils/fake-caps.ts
 import { SYS_CAP } from '@proto.ui/module-base';
-import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP, EVENT_EMIT_CAP } from '../../src/caps';
+import {
+  EVENT_CANCEL_DEFAULT_ACTION_CAP,
+  EVENT_GLOBAL_TARGET_CAP,
+  EVENT_ROOT_TARGET_CAP,
+  EVENT_EMIT_CAP,
+} from '../../src/caps';
 
 type ExecPhase = 'setup' | 'render' | 'callback' | 'unknown';
 type ProtoPhase = 'setup' | 'mounted' | 'updated' | 'unmounted';
@@ -73,6 +78,9 @@ export function makeCaps(args: {
   getRootTarget?: (() => EventTarget | null) | undefined;
   getGlobalTarget?: (() => EventTarget | null) | undefined;
   emit?: ((key: string, payload?: any, options?: Record<string, unknown>) => void) | undefined;
+  cancelDefaultAction?:
+    | ((request: { event?: unknown; reason?: string; source?: string }) => void)
+    | undefined;
 }) {
   let epoch = 0;
   const subs = new Set<(epoch: number) => void>();
@@ -93,6 +101,9 @@ export function makeCaps(args: {
   }
   if (args.emit !== undefined) {
     store.set(EVENT_EMIT_CAP.id, args.emit);
+  }
+  if (args.cancelDefaultAction !== undefined) {
+    store.set(EVENT_CANCEL_DEFAULT_ACTION_CAP.id, args.cancelDefaultAction);
   }
 
   const api = {

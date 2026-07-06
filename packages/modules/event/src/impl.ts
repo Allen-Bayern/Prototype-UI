@@ -7,7 +7,12 @@ import { ModuleBase } from '@proto.ui/module-base';
 import type { EventDispatch, EventInternalCallback } from './types';
 import { EventKernel } from './kernel';
 import type { EventListenerToken, EventTypeV0, ExposeEventSpec } from '@proto.ui/types';
-import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP, EVENT_EMIT_CAP } from './caps';
+import {
+  EVENT_CANCEL_DEFAULT_ACTION_CAP,
+  EVENT_GLOBAL_TARGET_CAP,
+  EVENT_ROOT_TARGET_CAP,
+  EVENT_EMIT_CAP,
+} from './caps';
 
 const CORE_EVENT_TYPES = [
   'press.start',
@@ -301,6 +306,33 @@ export class EventModuleImpl extends ModuleBase {
 
   getDiagnostics() {
     return this.kernel.snapshot();
+  }
+
+  requestDefaultActionPrevented(ev: any, options?: { reason?: string; source?: string }) {
+    const detail = ev?.detail ?? ev;
+    if (typeof detail?.requestDefaultPrevented === 'function') {
+      detail.requestDefaultPrevented(options);
+      return;
+    }
+
+    const nativeEvent = detail?.nativeEvent ?? ev?.nativeEvent ?? ev;
+    if (this.caps.has(EVENT_CANCEL_DEFAULT_ACTION_CAP)) {
+      const cancel = this.caps.get(EVENT_CANCEL_DEFAULT_ACTION_CAP);
+      cancel?.({
+        event: nativeEvent,
+        reason: options?.reason,
+        source: options?.source,
+      });
+      return;
+    }
+
+    if (typeof detail?.preventDefault === 'function') {
+      detail.preventDefault();
+      return;
+    }
+    if (typeof nativeEvent?.preventDefault === 'function') {
+      nativeEvent.preventDefault();
+    }
   }
 
   dispatchInternal(id: string, ev: any) {

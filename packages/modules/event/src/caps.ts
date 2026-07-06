@@ -10,3 +10,15 @@ export const EVENT_GLOBAL_TARGET_CAP = cap<EventTargetGetter>('@proto.ui/event/g
 export type EventEmitSink = (key: string, payload?: any, options?: Record<string, unknown>) => void;
 
 export const EVENT_EMIT_CAP = cap<EventEmitSink>('@proto.ui/event/emit');
+
+export type EventDefaultActionCancelRequest = Readonly<{
+  event?: unknown;
+  reason?: string;
+  source?: string;
+}>;
+
+export type EventDefaultActionCancel = (request: EventDefaultActionCancelRequest) => void;
+
+export const EVENT_CANCEL_DEFAULT_ACTION_CAP = cap<EventDefaultActionCancel>(
+  '@proto.ui/event/cancelDefaultAction'
+);

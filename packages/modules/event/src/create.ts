@@ -34,6 +34,8 @@ export function createEventModule(ctx: ModuleFactoryArgs): EventModule {
           bind: (dispatch) => impl.bind(dispatch),
           unbind: () => impl.unbind(),
           getDiagnostics: () => impl.getDiagnostics(),
+          requestDefaultActionPrevented: (ev, options) =>
+            impl.requestDefaultActionPrevented(ev, options),
           redirectRoot: (target) => impl.redirectRoot(target),
           dispatchInternal: (id, ev) => impl.dispatchInternal(id, ev),
         },
