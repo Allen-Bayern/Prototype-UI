@@ -98,6 +98,16 @@ data-[hovered]:not-[data-active]:text-foreground
 
 这仍然不是作者侧 token 能力。原型作者提供的 `tw(...)` token 仍不允许携带 `:`，该 selector token 只由内部 rule 优化器生成，并由 CLI CSS renderer 识别。
 
+一次回归显示，不能把单独的 negative bool rule 也静态化。浮层 content 通常有：
+
+```ts
+open === false -> hidden
+```
+
+如果该 rule 被转换为 `not-[data-open]:hidden`，但 CSS preset 或宿主样式没有相应规则，runtime fallback 又被移除，就会导致浮层常驻显示。因此本轮将 negative bool selector 限定为联合条件 refinement：例如 `hovered && !active` 可以静态化，单独 `!open` 保持 runtime rule path。
+
 本轮没有扩展 prop equality selector 编译能力，因为我们不打算为此把 props 普遍映射到 DOM attribute。
 
 另一个顺手清理是：`base-button` / `asButton` 已不再通过 deprecated `def.state.fromInteraction()` 创建 `disabled`、`hovered`、`pressed`，而是和 Toggle 一样由协议自身持有 `def.state.bool(...)` truth source，再通过 asHook state handles 提供给 styled prototype。
+
+迁移 `asButton` 之后，button-like 浮层部件不能再重新读取 deprecated `fromInteraction(...)` 槽位；它们需要消费 `asButton().stateHandles`。本轮同步修正了 dropdown item/trigger、dialog trigger/close、hover-card trigger 相关路径。

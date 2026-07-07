@@ -115,6 +115,7 @@ describe('@proto.ui/cli', () => {
     expect(tokensCss).toContain(
       `data-[hovered]:not-[data-active]:bg-muted"])[data-hovered]:not([data-active])`
     );
+    expect(tokensCss).not.toContain(`not-[data-open]:hidden`);
     expect(tokensCss).toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);

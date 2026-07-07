@@ -130,6 +130,10 @@ function buildVariant(
   return null;
 }
 
+function isNegativeDataVariant(variant: string): boolean {
+  return /^not-\[data-[a-zA-Z0-9-]+\]$/.test(variant);
+}
+
 class RuleExposeStateWebImpl extends ModuleBase {
   private readonly rulePort: RulePort<any>;
   private readonly exposeStateWeb: ExposeStateWebPort;
@@ -230,6 +234,7 @@ class RuleExposeStateWebImpl extends ModuleBase {
       }
 
       if (!ok || variants.length === 0) continue;
+      if (variants.every(isNegativeDataVariant)) continue;
 
       const prefix = variants.join(':');
       const tokens = c.tokens.map((t) => `${prefix}:${t}`);

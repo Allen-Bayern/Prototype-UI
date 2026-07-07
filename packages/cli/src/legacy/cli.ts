@@ -837,7 +837,9 @@ function analyzeWhenVariants(node, scope) {
   const out = new Set();
 
   visit(node);
-  return Array.from(out).sort(compareVariants);
+  const variants = Array.from(out);
+  if (variants.length > 0 && variants.every(isNegativeDataVariant)) return [];
+  return variants.sort(compareVariants);
 
   function visit(current) {
     if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
@@ -910,6 +912,10 @@ function resolveStateEqVariant(semantic, expected) {
 function negateDataVariant(variant) {
   const match = variant.match(/^data-\[([a-zA-Z0-9-]+)\]$/);
   return match ? `not-[data-${match[1]}]` : null;
+}
+
+function isNegativeDataVariant(variant) {
+  return /^not-\[data-[a-zA-Z0-9-]+\]$/.test(variant);
 }
 
 function collectTwTokens(node, scope) {

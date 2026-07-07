@@ -82,6 +82,36 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
     document.body.removeChild(el);
   });
 
+  it('does not optimize a standalone false bool state condition', async () => {
+    const proto: Prototype = {
+      name: 'x-rule-esw-standalone-negative-bool',
+      setup(def: DefHandle<any>) {
+        const open = def.state.bool('open', false);
+        def.expose('open', open);
+
+        def.rule({
+          when: (w) => w.state(open).eq(false),
+          intent: (i) => i.feedback.style.use(tw('hidden')),
+        });
+
+        return (r: any) => [r.el('div', {}, ['ok'])];
+      },
+    } as any;
+
+    const El = AdaptToWebComponent(proto);
+    const el = new El();
+    document.body.appendChild(el);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(el.getAttribute('data-pui-style')).toBe('hidden');
+    expect(el.hasAttribute('data-open')).toBe(false);
+    expect(el.classList.contains('not-[data-open]:hidden'), el.className).toBe(false);
+
+    document.body.removeChild(el);
+  });
+
   it('does not optimize when state is continuous number (number.range)', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-range',
