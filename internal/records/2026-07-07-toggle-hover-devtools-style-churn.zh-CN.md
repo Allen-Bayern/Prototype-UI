@@ -87,8 +87,17 @@ hovered === true && variant === 'default';
 hovered === true && active === false;
 ```
 
-当前 `buildVariant()` 只支持 bool state 的 true 条件。`active === false` 这类 negative bool 条件尚无已契约化 selector 表达，因此 Toggle hover rule 也不会被转换为静态 selector token。
+此前 `buildVariant()` 只支持 bool state 的 true 条件。`active === false` 这类 negative bool 条件尚未被转换，因此 Toggle hover rule 不会被转换为静态 selector token。
 
-本轮没有扩展 selector 编译能力，因为这需要先定义 prop equality 与 negative bool 在 Web token 层的稳定表达。
+后续本轮补充了最小内部支持：bool false 条件由 `rule-expose-state-web` 编译为 Tailwind 风格的 `not-[data-*]` variant，例如：
+
+```txt
+data-[hovered]:not-[data-active]:bg-muted
+data-[hovered]:not-[data-active]:text-foreground
+```
+
+这仍然不是作者侧 token 能力。原型作者提供的 `tw(...)` token 仍不允许携带 `:`，该 selector token 只由内部 rule 优化器生成，并由 CLI CSS renderer 识别。
+
+本轮没有扩展 prop equality selector 编译能力，因为我们不打算为此把 props 普遍映射到 DOM attribute。
 
 另一个顺手清理是：`base-button` / `asButton` 已不再通过 deprecated `def.state.fromInteraction()` 创建 `disabled`、`hovered`、`pressed`，而是和 Toggle 一样由协议自身持有 `def.state.bool(...)` truth source，再通过 asHook state handles 提供给 styled prototype。

@@ -117,8 +117,9 @@ function buildVariant(
   const key = stripDataPrefix(attr);
 
   if (binding.kind === 'bool') {
-    if (condition.literal !== true) return null;
-    return `data-[${key}]`;
+    if (condition.literal === true) return `data-[${key}]`;
+    if (condition.literal === false) return `not-[data-${key}]`;
+    return null;
   }
 
   if (condition.literal === null) return null;

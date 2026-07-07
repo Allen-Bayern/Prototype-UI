@@ -868,9 +868,11 @@ function analyzeWhenVariants(node, scope) {
           const subjectMethod = subject.expression.name.text;
           if (subjectMethod === 'state') {
             const firstArg = subject.arguments[0];
+            const expected = current.arguments[0];
             if (firstArg && ts.isIdentifier(firstArg)) {
               const binding = lookup(firstArg.text, scope);
-              if (binding.semantic) out.add(binding.semantic);
+              const variant = resolveStateEqVariant(binding.semantic, expected);
+              if (variant) out.add(variant);
             }
             return;
           }
@@ -895,6 +897,19 @@ function analyzeWhenVariants(node, scope) {
 
     ts.forEachChild(current, visit);
   }
+}
+
+function resolveStateEqVariant(semantic, expected) {
+  if (!semantic) return null;
+  if (!expected) return null;
+  if (expected.kind === ts.SyntaxKind.TrueKeyword) return semantic;
+  if (expected.kind === ts.SyntaxKind.FalseKeyword) return negateDataVariant(semantic);
+  return null;
+}
+
+function negateDataVariant(variant) {
+  const match = variant.match(/^data-\[([a-zA-Z0-9-]+)\]$/);
+  return match ? `not-[data-${match[1]}]` : null;
 }
 
 function collectTwTokens(node, scope) {
