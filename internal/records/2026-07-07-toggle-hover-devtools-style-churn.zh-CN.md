@@ -70,3 +70,25 @@ data-[disabled]:opacity-50
 本轮先优化 rule runtime style replacement：旧 rule style contribution 与新 rule style contribution 在 feedback recorder 内合并替换，最后只 flush 一次，避免 `unuse -> flush -> use -> flush`。
 
 该优化不改变公开 `def.feedback` / `run.feedback` API，只扩展内部 `FeedbackPort` 给 rule driver 使用。
+
+## 后续检查：hover rule 未静态化原因
+
+`shadcn-button` 的 hover rule 形态类似：
+
+```ts
+hovered === true && variant === 'default';
+```
+
+当前 `rule-expose-state-web` 只收集依赖 state/meta 的 rule。只要 rule 依赖 `prop('variant')`，`isStateMetaDeps()` 就会拒绝该 rule，因此 Button 的 hover variant rule 不会被转换为静态 selector token。
+
+`shadcn-toggle` 的 hover rule 形态类似：
+
+```ts
+hovered === true && active === false;
+```
+
+当前 `buildVariant()` 只支持 bool state 的 true 条件。`active === false` 这类 negative bool 条件尚无已契约化 selector 表达，因此 Toggle hover rule 也不会被转换为静态 selector token。
+
+本轮没有扩展 selector 编译能力，因为这需要先定义 prop equality 与 negative bool 在 Web token 层的稳定表达。
+
+另一个顺手清理是：`base-button` / `asButton` 已不再通过 deprecated `def.state.fromInteraction()` 创建 `disabled`、`hovered`、`pressed`，而是和 Toggle 一样由协议自身持有 `def.state.bool(...)` truth source，再通过 asHook state handles 提供给 styled prototype。
