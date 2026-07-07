@@ -77,6 +77,57 @@ export function createRuntimeSession<P extends PropsBaseType>(
   let unmountPending: Promise<void> | undefined;
   let unmountVersion = 0;
   let disposePending: Promise<void> | undefined;
+  const pendingDelayTasks = new Set<{ cancel(): void }>();
+
+  const cancelPendingDelayTasks = () => {
+    for (const task of [...pendingDelayTasks]) task.cancel();
+    pendingDelayTasks.clear();
+  };
+
+  callbackScope.setDelayContext({
+    prototypeName: host.prototypeName,
+    scheduleDelay(durationMs, callback) {
+      if (instancePhase !== 'alive') {
+        throw new Error(
+          `[Delay] cannot schedule delayed work in instance phase=${instancePhase}: ${host.prototypeName}`
+        );
+      }
+      if (!host.scheduleDelay) {
+        throw new Error(
+          `[Delay] host scheduler is not available for ${host.prototypeName}. Provide RuntimeHost.scheduleDelay.`
+        );
+      }
+
+      let active = true;
+      let hostTask: { cancel(): void } | undefined;
+      const task = {
+        cancel() {
+          if (!active) return;
+          active = false;
+          pendingDelayTasks.delete(task);
+          hostTask?.cancel();
+        },
+      };
+
+      const invoke = () => {
+        if (!active) return;
+        active = false;
+        pendingDelayTasks.delete(task);
+        if (instancePhase !== 'alive') return;
+        callbackScope.run(run, callback);
+      };
+
+      pendingDelayTasks.add(task);
+      try {
+        hostTask = host.scheduleDelay(durationMs, invoke);
+      } catch (error) {
+        active = false;
+        pendingDelayTasks.delete(task);
+        throw error;
+      }
+      return task;
+    },
+  });
 
   const setInstancePhase = (phase: InstancePhase) => {
     instancePhase = phase;
@@ -320,6 +371,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
     mountPending?.resolve();
     mountPending = undefined;
     setMountPhase('unmounting', epoch);
+    cancelPendingDelayTasks();
 
     unmountPending = (async () => {
       // A repeatable detach honors presence/transition approval. Terminal
@@ -345,6 +397,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
       }
 
       setMountPhase('detached', epoch);
+      cancelPendingDelayTasks();
       emit({ type: 'unmount.done', epoch });
       unmountPending = undefined;
       if (callbackError) throw callbackError;
@@ -360,6 +413,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
     if (disposePending) return disposePending;
 
     setInstancePhase('disposing');
+    cancelPendingDelayTasks();
     kernel.viewIntent.lockTerminal();
     emit({ type: 'instance.dispose.begin' });
 
@@ -382,6 +436,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
       // repeatable unmount as disposal in a later layer-specific change.
       moduleHub.setProtoPhase('unmounted');
       moduleHub.getPort<PresencePort>('presence')?.setLifecycleDriver(null);
+      cancelPendingDelayTasks();
       inst.dispose();
       setInstancePhase('disposed');
       emit({ type: 'instance.dispose.done' });
