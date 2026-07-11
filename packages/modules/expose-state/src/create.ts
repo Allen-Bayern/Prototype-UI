@@ -21,6 +21,7 @@ export function createExposeStateModule(ctx: ModuleFactoryArgs): ExposeStateModu
         facade: {},
         port: impl.port,
         hooks: {
+          onInstancePhase: (p) => impl.onInstancePhase(p),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
           dispose: () => impl.dispose(),
@@ -32,6 +33,7 @@ export function createExposeStateModule(ctx: ModuleFactoryArgs): ExposeStateModu
 
 export const ExposeStateModuleDef = defineModule({
   name: 'expose-state',
+  resourceOwnership: 'instance',
   deps: ['expose', 'state'],
   create: createExposeStateModule,
 });

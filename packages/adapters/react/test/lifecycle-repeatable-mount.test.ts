@@ -85,6 +85,7 @@ describe('adapter-react: repeatable Proto mount epochs', () => {
       globalThis.cancelAnimationFrame = originalCancelRaf;
     }
 
+    await Promise.resolve();
     expect(calls.disposed).toBe(1);
   });
 });

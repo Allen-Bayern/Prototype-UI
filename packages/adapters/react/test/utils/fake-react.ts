@@ -3,6 +3,8 @@ import { createReactAdapter, type ReactRuntime } from '../../src/adapt';
 type EffectRecord = {
   deps?: any[];
   cleanup?: (() => void) | void;
+  kind?: 'layout' | 'effect';
+  create?: () => void | (() => void);
 };
 
 type HookInstance = {
@@ -107,6 +109,15 @@ export function createFakeReactRuntime() {
       update(nextProps: any = inst.props) {
         inst.props = nextProps;
         runInstance(inst);
+      },
+      replayLayoutEffects() {
+        const effects = inst.hooks.filter(
+          (hook): hook is EffectRecord =>
+            hook?.kind === 'layout' && typeof hook.create === 'function'
+        );
+        for (const effect of effects) effect.cleanup?.();
+        for (const effect of effects) effect.cleanup = effect.create?.() ?? undefined;
+        if (inst.dirty) runInstance(inst);
       },
       unmount() {
         for (const hook of inst.hooks) {
@@ -225,6 +236,8 @@ function registerEffect(kind: 'layout' | 'effect', cb: () => void | (() => void)
   const nextRecord: EffectRecord = {
     deps,
     cleanup: prev?.cleanup,
+    kind,
+    create: cb,
   };
   inst.hooks[index] = nextRecord;
   if (!changed) return;

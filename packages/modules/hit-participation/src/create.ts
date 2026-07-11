@@ -43,5 +43,6 @@ export function createHitParticipationModule(ctx: ModuleFactoryArgs) {
 
 export const HitParticipationModuleDef = defineModule({
   name: 'hit-participation',
+  resourceOwnership: 'mixed',
   create: createHitParticipationModule,
 });

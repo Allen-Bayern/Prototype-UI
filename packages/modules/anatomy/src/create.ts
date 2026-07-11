@@ -58,6 +58,7 @@ export function createAnatomyModule(ctx: ModuleFactoryArgs): AnatomyModule {
         },
         port: impl.port as AnatomyPort,
         hooks: {
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           dispose: () => impl.dispose(),
         },
@@ -68,6 +69,7 @@ export function createAnatomyModule(ctx: ModuleFactoryArgs): AnatomyModule {
 
 export const AnatomyModuleDef = defineModule({
   name: 'anatomy',
+  resourceOwnership: 'mixed',
   deps: ['expose'],
   create: createAnatomyModule,
 });

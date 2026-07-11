@@ -6,10 +6,10 @@ import type {
   RuntimeLifecycleEvent,
 } from '@proto.ui/runtime';
 import {
-  createHostWiring,
   createEventGate,
-  createWebProtoEventRouter,
   createSoftUnmountScheduler,
+  createViewEpochOwner,
+  createWebProtoEventRouter,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -42,6 +42,8 @@ export type VueRuntime = VueRenderRuntime & {
   watch: (source: any, cb: (...args: any[]) => void | Promise<void>, options?: any) => unknown;
   onMounted: (cb: () => void) => void;
   onBeforeUnmount: (cb: () => void) => void;
+  onActivated?: (cb: () => void) => void;
+  onDeactivated?: (cb: () => void) => void;
   nextTick: (fn?: () => void) => Promise<void>;
 };
 
@@ -160,9 +162,8 @@ export function createVueAdapter(runtime: VueRuntime) {
         let baselineInnerRafId: number | null = null;
         let baselineSignal: CommitSignal | null = null;
         let hostSession: ReturnType<typeof createVueHostSession<Props>> | null = null;
-        let wiring: ReturnType<typeof createHostWiring> | null = null;
+        const owner = createViewEpochOwner<Props>({ prototypeName: proto.name });
         let boundRoot: HTMLElement | null = null;
-        let disposeView: (() => void) | null = null;
 
         const softUnmount = createSoftUnmountScheduler(
           () => rootRef.value,
@@ -290,7 +291,7 @@ export function createVueAdapter(runtime: VueRuntime) {
             isEnabled: () => eventGate.isEnabled?.() ?? true,
           });
           let viewDisposed = false;
-          disposeView = () => {
+          const disposeView = () => {
             if (viewDisposed) return;
             viewDisposed = true;
             eventGate.disable();
@@ -346,39 +347,37 @@ export function createVueAdapter(runtime: VueRuntime) {
             overlayLayerScheduler,
           });
 
-          if (wiring) {
-            wiring.rebind(modules);
-            void hostSession?.mount();
-            return;
-          }
-
-          wiring = createHostWiring({ prototypeName: proto.name, modules });
-
-          hostSession = createVueHostSession({
-            proto,
-            schedule,
-            rawPropsSource,
-            wiring,
-            eventGate: {
-              disable: () => eventGateRef.value?.disable(),
-              dispose: () => disposeView?.(),
-            },
-            router: {
-              dispose: () => disposeView?.(),
-            },
-            onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
-            onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
-            onCommit: (children, signal) => {
-              pendingCommit = true;
-              pendingSignal = signal;
-              renderChildren.value = children;
-              commitVersion.value += 1;
-            },
-            onAfterUnmount: () => {
-              controllerRef.value = null;
-              exposesRef.value = {};
-              hostTokens.value = [];
-            },
+          hostSession = owner.attachView({
+            modules,
+            disposeView,
+            createSession: (wiring) =>
+              createVueHostSession({
+                proto,
+                schedule,
+                rawPropsSource,
+                wiring,
+                eventGate: {
+                  disable: () => eventGateRef.value?.disable(),
+                  dispose: () => owner.disposeView(),
+                },
+                router: {
+                  dispose: () => owner.disposeView(),
+                },
+                onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+                onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
+                onCommit: (children, signal) => {
+                  pendingCommit = true;
+                  pendingSignal = signal;
+                  renderChildren.value = children;
+                  commitVersion.value += 1;
+                },
+                onAfterUnmount: () => {
+                  hostSession = null;
+                  controllerRef.value = null;
+                  exposesRef.value = {};
+                  hostTokens.value = [];
+                },
+              }),
           });
 
           controllerRef.value = hostSession.controller as RuntimeController;
@@ -391,6 +390,16 @@ export function createVueAdapter(runtime: VueRuntime) {
         };
 
         runtime.onMounted(initSession);
+        runtime.onDeactivated?.(() => {
+          softUnmount.cancel();
+          cancelBaselineFrames();
+          resolveBaselineSignal();
+          void owner.detachView();
+          lastInitRoot = null;
+        });
+        runtime.onActivated?.(() => {
+          runtime.nextTick().then(initSession);
+        });
 
         runtime.watch(
           () => shouldExist.value,
@@ -406,8 +415,7 @@ export function createVueAdapter(runtime: VueRuntime) {
               resolveBaselineSignal();
               hasBeenUnmounted = true;
               eventGateRef.value?.disable?.();
-              void hostSession?.unmount();
-              disposeView?.();
+              void owner.detachView();
               hostTokens.value = [];
             }
           },
@@ -434,13 +442,7 @@ export function createVueAdapter(runtime: VueRuntime) {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
-          if (hostSession) {
-            hostSession.dispose();
-            hostSession = null;
-            controllerRef.value = null;
-          }
-          disposeView?.();
-          wiring = null;
+          void owner.dispose();
           lastInitRoot = null;
         });
 

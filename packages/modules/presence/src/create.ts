@@ -32,6 +32,7 @@ export function createPresenceModule(
 
 export const PresenceModuleDef = defineModule({
   name: 'presence',
+  resourceOwnership: 'mixed',
   deps: [],
   create: createPresenceModule,
 });

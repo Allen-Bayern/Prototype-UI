@@ -6,7 +6,7 @@ import { createReactAdapter, type ReactAdapterHandle } from '../../src/adapt';
 import { createFakeReactRuntime } from '../utils/fake-react';
 
 describe('contract: adapter-react / lifecycle checkpoints (v0)', () => {
-  it('maps React host commits into canonical lifecycle checkpoints', () => {
+  it('maps React host commits into canonical lifecycle checkpoints', async () => {
     const trace: RuntimeCheckpoint[] = [];
     const callbacks: string[] = [];
 
@@ -58,6 +58,7 @@ describe('contract: adapter-react / lifecycle checkpoints (v0)', () => {
 
     trace.length = 0;
     mounted.unmount();
+    await Promise.resolve();
 
     expect(trace).toEqual(['CP9_UNMOUNT_BEGIN', 'CP10_DISPOSE_COMPLETE']);
     expect(callbacks).toEqual(['created', 'mounted', 'updated', 'unmounted']);

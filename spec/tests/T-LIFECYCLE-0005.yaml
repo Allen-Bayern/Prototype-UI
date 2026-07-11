@@ -26,11 +26,22 @@ cases:
     covers:
       - C-LIFECYCLE-0006-C
     expectation: stale-host-binding-is-unavailable-after-detach
+  - id: T-LIFECYCLE-0005-CASE-STALE-COMPLETION
+    title: Late commit completion from an invalidated epoch has no runtime or module effects
+    covers:
+      - C-LIFECYCLE-0006-C
+    expectation: stale-epoch-completion-is-inert
+  - id: T-LIFECYCLE-0005-CASE-MODULE-RESOURCE-SYMMETRY
+    title: Mixed modules suspend host resources and realize their latest logical state on remount
+    covers:
+      - C-LIFECYCLE-0006-B
+      - C-LIFECYCLE-0006-D
+    expectation: mixed-module-resources-suspend-and-resume-symmetrically
 implementations:
   - id: adapter-react-lifecycle-ownership
     kind: adapter-test
-    status: planned
-    path: packages/adapters/react/test/contract/lifecycle-ownership.v1.contract.test.ts
+    status: passing
+    path: packages/adapters/react/test/lifecycle-repeatable-mount.test.ts
     required: true
     consumesCases:
       - T-LIFECYCLE-0005-CASE-OWNER-ONE-INSTANCE
@@ -39,14 +50,37 @@ implementations:
       - T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
   - id: adapter-vue-lifecycle-ownership
     kind: adapter-test
-    status: planned
-    path: packages/adapters/vue/test/contract/lifecycle-ownership.v1.contract.test.ts
+    status: passing
+    path: packages/adapters/vue/test/lifecycle-keep-alive.test.ts
     required: true
     consumesCases:
       - T-LIFECYCLE-0005-CASE-OWNER-ONE-INSTANCE
       - T-LIFECYCLE-0005-CASE-INTERNAL-CONDITIONAL-VIEW
       - T-LIFECYCLE-0005-CASE-TERMINAL-OWNER-TEARDOWN
       - T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
+  - id: adapter-react-strict-replay
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/lifecycle-strict-replay.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0005-CASE-INTERNAL-CONDITIONAL-VIEW
+      - T-LIFECYCLE-0005-CASE-TERMINAL-OWNER-TEARDOWN
+  - id: runtime-lifecycle-transition-matrix
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/lifecycle.session.transitions.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
+      - T-LIFECYCLE-0005-CASE-STALE-COMPLETION
+  - id: runtime-module-resource-ownership
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/lifecycle.module-resources.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0005-CASE-MODULE-RESOURCE-SYMMETRY
 verifies:
   contracts:
     - id: C-LIFECYCLE-0006
@@ -55,6 +89,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added lifecycle owner and repeatable host-binding conformance cases.
+  - version: 0.1.1
+    change: implemented
+    summary: Added React StrictMode, Vue KeepAlive, stale completion, and mixed-module resource ownership coverage.
 tags:
   - lifecycle
   - ownership

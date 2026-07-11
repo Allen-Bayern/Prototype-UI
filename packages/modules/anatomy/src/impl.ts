@@ -6,6 +6,7 @@ import type {
   AnatomyQueryOptions,
   AnatomyPartView,
   Prototype,
+  MountPhase,
   ProtoPhase,
   Unsubscribe,
   CapsVaultView,
@@ -516,6 +517,27 @@ export class AnatomyModuleImpl extends ModuleBase {
     if (phase === 'unmounted') this.dispose();
   }
 
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'unmounting' || phase === 'detached') {
+      for (const family of Array.from(this.observedOrderRoots.keys())) {
+        this.teardownOrderObserver(family);
+      }
+      return;
+    }
+    if (phase === 'mounted') {
+      for (const family of this.orderListeners.keys()) this.ensureOrderObserver(family);
+    }
+  }
+
+  protected override onCapsEpoch(_epoch: number): void {
+    if (this.mountPhase !== 'mounted') return;
+    for (const family of Array.from(this.observedOrderRoots.keys())) {
+      this.teardownOrderObserver(family);
+    }
+    for (const family of this.orderListeners.keys()) this.ensureOrderObserver(family);
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -589,6 +611,7 @@ export class AnatomyModuleImpl extends ModuleBase {
   }
 
   private ensureOrderObserver(family: AnatomyFamily): void {
+    if (this.mountPhase !== 'mounted') return;
     if (this.observedOrderRoots.has(family)) return;
     if (!this.caps.has(ANATOMY_ORDER_OBSERVER_CAP)) return;
 

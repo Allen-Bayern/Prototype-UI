@@ -126,6 +126,7 @@ export function createStateInteractionModule(ctx: ModuleFactoryArgs): StateInter
 
 export const StateInteractionModuleDef = defineModule({
   name: 'state-interaction',
+  resourceOwnership: 'instance',
   deps: ['state', 'event'],
   create: createStateInteractionModule,
 });

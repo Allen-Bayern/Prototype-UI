@@ -48,6 +48,7 @@ export function createPropsModule<P extends PropsBaseType>(ctx: ModuleFactoryArg
 
 export const PropsModuleDef = defineModule({
   name: 'props',
+  resourceOwnership: 'instance',
   deps: [],
   create: createPropsModule,
 });

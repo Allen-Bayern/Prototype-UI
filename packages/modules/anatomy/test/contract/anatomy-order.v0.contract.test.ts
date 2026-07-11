@@ -84,6 +84,7 @@ describe('anatomy-module: order contract v0', () => {
     rootImpl.port.subscribeOrder(family, () => {
       calls++;
     });
+    rootImpl.onMountPhase('mounted', 1);
 
     expect(rootImpl.port.order.version(family)).toBe(0);
 
@@ -154,6 +155,7 @@ describe('anatomy-module: order contract v0', () => {
     rootImpl.port.subscribeOrder(family, (ctx) => {
       seen = ctx;
     });
+    rootImpl.onMountPhase('mounted', 1);
 
     itemImpl.claim(family, { role: 'item' });
     (notifyObserver as (() => void) | null)?.();

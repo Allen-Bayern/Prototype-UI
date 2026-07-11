@@ -1,4 +1,4 @@
-import type { ProtoPhase, StyleHandle } from '@proto.ui/core';
+import type { MountPhase, ProtoPhase, StyleHandle } from '@proto.ui/core';
 import { illegalPhase } from '@proto.ui/core';
 import { FeedbackStyleRecorder } from '@proto.ui/core';
 
@@ -136,12 +136,17 @@ export function createFeedbackModule(ctx: ModuleFactoryArgs): FeedbackModule {
           if (phase === 'mounted') this.flushIfPossible();
         }
 
+        override onMountPhase(phase: MountPhase, epoch: number): void {
+          super.onMountPhase(phase, epoch);
+        }
+
         protected override onCapsEpoch(_epoch: number): void {
           this.flushIfPossible();
         }
 
         flushIfPossible(): void {
           if (this.protoPhase === 'setup') return;
+          if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
           if (!this.dirty) return;
 
           if (!this.caps.has(EFFECTS_CAP)) {
@@ -238,6 +243,7 @@ export function createFeedbackModule(ctx: ModuleFactoryArgs): FeedbackModule {
           useStyleUnsafe: (...handles) => impl.useStyleUnsafe(handles),
         } satisfies FeedbackPort,
         hooks: {
+          onMountPhase: (p: MountPhase, epoch: number) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p: ProtoPhase) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
 
@@ -253,6 +259,7 @@ export function createFeedbackModule(ctx: ModuleFactoryArgs): FeedbackModule {
 
 export const FeedbackModuleDef = defineModule({
   name: 'feedback',
+  resourceOwnership: 'mixed',
   deps: [],
   create: createFeedbackModule,
 });

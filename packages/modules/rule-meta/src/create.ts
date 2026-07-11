@@ -45,6 +45,7 @@ export function createRuleMetaModule(ctx: ModuleFactoryArgs): RuleMetaModule {
 
 export const RuleMetaModuleDef = defineModule({
   name: 'rule-meta',
+  resourceOwnership: 'mixed',
   deps: ['rule'],
   create: createRuleMetaModule,
 });

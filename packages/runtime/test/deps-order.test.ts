@@ -20,6 +20,7 @@ function mkModule(
 ): ModuleDef {
   return {
     name,
+    resourceOwnership: 'instance',
     ...(opt ?? {}),
     create: () => {
       calls.push(name);

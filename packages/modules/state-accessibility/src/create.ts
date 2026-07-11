@@ -55,6 +55,7 @@ export function createStateAccessibilityModule(ctx: ModuleFactoryArgs): StateAcc
 
 export const StateAccessibilityModuleDef = defineModule({
   name: 'state-accessibility',
+  resourceOwnership: 'instance',
   deps: ['state'],
   create: createStateAccessibilityModule,
 });

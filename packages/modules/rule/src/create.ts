@@ -56,6 +56,7 @@ export function createRuleModule<Props extends PropsBaseType>(
 
 export const RuleModuleDef = defineModule({
   name: 'rule',
+  resourceOwnership: 'mixed',
   deps: [],
   optionalDeps: ['props', 'state', 'context', 'feedback'],
   create: createRuleModule,

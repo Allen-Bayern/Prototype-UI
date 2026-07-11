@@ -42,5 +42,6 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
 
 export const BoundaryModuleDef = defineModule({
   name: 'boundary',
+  resourceOwnership: 'mixed',
   create: createBoundaryModule,
 });

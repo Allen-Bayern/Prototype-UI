@@ -47,6 +47,7 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
 
 export const OverlayModuleDef = defineModule({
   name: 'overlay',
+  resourceOwnership: 'mixed',
   deps: ['boundary'],
   create: createOverlayModule,
 });

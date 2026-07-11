@@ -26,6 +26,7 @@ export function createTestSysModule(ctx: ModuleFactoryArgs): TestSysModule {
 
 export const TestSysModuleDef = defineModule({
   name: 'test-sys',
+  resourceOwnership: 'instance',
   deps: [],
   create: createTestSysModule,
 });

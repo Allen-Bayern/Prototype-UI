@@ -6,10 +6,11 @@ import type {
   RuntimeLifecycleEvent,
 } from '@proto.ui/runtime';
 import {
-  createHostWiring,
+  createDeferredOwnerDisposal,
   createEventGate,
-  createWebProtoEventRouter,
   createSoftUnmountScheduler,
+  createViewEpochOwner,
+  createWebProtoEventRouter,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -149,9 +150,17 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const hostSessionRef = runtime.useRef<ReturnType<
         typeof createReactHostSession<Props>
       > | null>(null);
-      const wiringRef = runtime.useRef<ReturnType<typeof createHostWiring> | null>(null);
+      const ownerRef = runtime.useRef<ReturnType<typeof createViewEpochOwner<Props>> | null>(null);
+      if (!ownerRef.current) {
+        ownerRef.current = createViewEpochOwner<Props>({ prototypeName: proto.name });
+      }
+      const ownerDisposalRef = runtime.useRef<ReturnType<
+        typeof createDeferredOwnerDisposal
+      > | null>(null);
+      if (!ownerDisposalRef.current) {
+        ownerDisposalRef.current = createDeferredOwnerDisposal(() => ownerRef.current?.dispose());
+      }
       const boundRootRef = runtime.useRef<HTMLElement | null>(null);
-      const disposeViewRef = runtime.useRef<(() => void) | null>(null);
       const hasBeenUnmountedRef = runtime.useRef(false);
       const baselineOuterRafRef = runtime.useRef<number | null>(null);
       const baselineInnerRafRef = runtime.useRef<number | null>(null);
@@ -217,8 +226,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           resolveBaselineSignal();
           hasBeenUnmountedRef.current = true;
           eventGateRef.current?.disable?.();
-          void hostSessionRef.current?.unmount();
-          disposeViewRef.current?.();
+          void ownerRef.current?.detachView();
           setHostTokens([]);
           return;
         }
@@ -238,7 +246,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
         let viewDisposed = false;
-        disposeViewRef.current = () => {
+        const disposeView = () => {
           if (viewDisposed) return;
           viewDisposed = true;
           eventGate.disable();
@@ -295,43 +303,40 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           overlayLayerScheduler,
         });
 
-        if (wiringRef.current) {
-          wiringRef.current.rebind(modules);
-          void hostSessionRef.current?.mount();
-          return;
-        }
-
-        const wiring = createHostWiring({ prototypeName: proto.name, modules });
-        wiringRef.current = wiring;
-
-        const hostSession = createReactHostSession({
-          proto,
-          schedule,
-          rawPropsSource,
-          wiring,
-          eventGate: {
-            disable: () => eventGateRef.current?.disable(),
-            dispose: () => disposeViewRef.current?.(),
-          },
-          router: {
-            dispose: () => disposeViewRef.current?.(),
-          },
-          onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
-          onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
-          onCommit: (children, signal) => {
-            pendingCommitRef.current = true;
-            pendingSignalRef.current = signal;
-            setRenderChildren(children);
-            // React may bail out when children keeps the same reference.
-            // Use an explicit commit version so baseline/layout settlement still runs.
-            commitVersionRef.current += 1;
-            setCommitVersion(commitVersionRef.current);
-          },
-          onAfterUnmount: () => {
-            controllerRef.current = null;
-            exposesRef.current = {};
-            setHostTokens([]);
-          },
+        const hostSession = ownerRef.current!.attachView({
+          modules,
+          disposeView,
+          createSession: (wiring) =>
+            createReactHostSession({
+              proto,
+              schedule,
+              rawPropsSource,
+              wiring,
+              eventGate: {
+                disable: () => eventGateRef.current?.disable(),
+                dispose: () => ownerRef.current?.disposeView(),
+              },
+              router: {
+                dispose: () => ownerRef.current?.disposeView(),
+              },
+              onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+              onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
+              onCommit: (children, signal) => {
+                pendingCommitRef.current = true;
+                pendingSignalRef.current = signal;
+                setRenderChildren(children);
+                // React may bail out when children keeps the same reference.
+                // Use an explicit commit version so baseline/layout settlement still runs.
+                commitVersionRef.current += 1;
+                setCommitVersion(commitVersionRef.current);
+              },
+              onAfterUnmount: () => {
+                hostSessionRef.current = null;
+                controllerRef.current = null;
+                exposesRef.current = {};
+                setHostTokens([]);
+              },
+            }),
         });
 
         hostSessionRef.current = hostSession;
@@ -344,20 +349,17 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         }
       }, [shouldExist]);
 
-      // Hard unmount: when the React adapter component itself is removed from the parent tree,
-      // unconditionally dispose any remaining session so the prototype runtime is torn down.
+      // React StrictMode replays layout effects. Detach immediately so view
+      // resources follow the replay, but defer terminal owner disposal by one
+      // microtask so an immediate retain can preserve the Proto instance.
       runtime.useLayoutEffect(() => {
+        ownerDisposalRef.current?.retain();
         return () => {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
-          if (hostSessionRef.current) {
-            hostSessionRef.current.dispose();
-            hostSessionRef.current = null;
-            controllerRef.current = null;
-          }
-          disposeViewRef.current?.();
-          wiringRef.current = null;
+          void ownerRef.current?.detachView();
+          ownerDisposalRef.current?.release();
         };
       }, []);
 

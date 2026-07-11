@@ -92,6 +92,7 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
 
   private refresh(): void {
     if (this.disposed) return;
+    if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
 
     if (!this.caps.has(HOST_ELEMENT_CAP)) {
       this.active = false;

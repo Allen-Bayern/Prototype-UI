@@ -34,6 +34,7 @@ export function createExposeStateWebModule(ctx: ModuleFactoryArgs): ExposeStateW
 
 export const ExposeStateWebModuleDef = defineModule({
   name: 'expose-state-web',
+  resourceOwnership: 'mixed',
   deps: ['expose-state'],
   optionalDeps: ['expose'],
   create: createExposeStateWebModule,

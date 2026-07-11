@@ -192,7 +192,13 @@ export class HitParticipationModuleImpl extends ModuleBase {
   }
 
   private syncHostBridge(): void {
-    if (!this.hostBridge || this.suspended) return;
+    if (
+      !this.hostBridge ||
+      this.suspended ||
+      this.mountPhase === 'detached' ||
+      this.mountPhase === 'unmounting'
+    )
+      return;
     this.hostBridge.sync({
       config: this.config,
       regions: this.getEffectiveRegions(true),

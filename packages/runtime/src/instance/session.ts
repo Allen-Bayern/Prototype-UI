@@ -126,14 +126,24 @@ export function createRuntimeSession<P extends PropsBaseType>(
         if (commitDone) return;
         commitDone = true;
 
-        if (kind === 'mount') {
-          emit({ type: 'mount.commit.done', epoch });
-        } else {
-          emit({ type: 'update.commit.done', epoch, revision: updateRevision });
+        const activeCommit =
+          instancePhase === 'alive' &&
+          epoch === mountEpoch &&
+          (kind === 'mount'
+            ? mountPhase === 'mounting' || mountPhase === 'mounted'
+            : mountPhase === 'mounted');
+
+        if (activeCommit) {
+          if (kind === 'mount') {
+            emit({ type: 'mount.commit.done', epoch });
+          } else {
+            emit({ type: 'update.commit.done', epoch, revision: updateRevision });
+          }
+
+          bindEvents();
+          moduleHub.afterRenderCommit();
         }
 
-        bindEvents();
-        moduleHub.afterRenderCommit();
         onCommitted();
       },
     });

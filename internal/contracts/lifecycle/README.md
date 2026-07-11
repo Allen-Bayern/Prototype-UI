@@ -5,7 +5,9 @@
 > Status: Normative — implementation-aligned (v0)
 >
 > This document specifies the **component-visible lifecycle guarantees** of Proto UI v0.
->
+
+See also [`module-resource-ownership.md`](./module-resource-ownership.md) for the audited instance/view ownership matrix used by runtime modules.
+
 > It defines:
 >
 > - the canonical lifecycle timeline

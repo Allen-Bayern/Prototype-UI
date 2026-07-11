@@ -196,6 +196,7 @@ class A11yModuleImpl extends ModuleBase {
   }
 
   private applyProjection(): void {
+    if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
     if (!this.caps.has(A11Y_PROJECT_CAP)) return;
     this.caps.get(A11Y_PROJECT_CAP)(this.getSnapshot());
   }
@@ -256,6 +257,7 @@ export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {
 
 export const A11yModuleDef = defineModule({
   name: 'a11y',
+  resourceOwnership: 'mixed',
   deps: ['state'],
   create: createA11yModule,
 });

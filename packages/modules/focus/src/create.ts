@@ -1069,6 +1069,7 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
 
 export const FocusModuleDef = defineModule({
   name: 'focus',
+  resourceOwnership: 'mixed',
   deps: ['event', 'state'],
   create: createFocusModule,
 });

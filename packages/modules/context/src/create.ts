@@ -45,6 +45,7 @@ export function createContextModule(ctx: ModuleFactoryArgs): ContextModule {
 
 export const ContextModuleDef = defineModule({
   name: 'context',
+  resourceOwnership: 'instance',
   deps: [],
   create: createContextModule,
 });
