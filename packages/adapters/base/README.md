@@ -25,6 +25,8 @@ Adapter foundation package used to translate Proto UI contracts into concrete ho
 
 React and Vue carry logical parent identity through their component context, so a Proto owner remains in the logical instance tree even while its host DOM root is absent. React uses deferred owner disposal to distinguish StrictMode effect replay from terminal component removal. Vue maps KeepAlive activation/deactivation to the same attach/detach model.
 
+Web Component uses the connected custom element as its owner shell. Detaching a view releases its rendered children, event router, effects port, slot projector, and other view capabilities without removing the custom element or disposing its Proto instance.
+
 Detached initialization does not permit adapters to substitute fake DOM capabilities. Each adapter must separate owner/instance wiring (props, logical identity, context, exposes) from epoch-scoped view wiring before enabling initial lazy materialization.
 
 ## Install

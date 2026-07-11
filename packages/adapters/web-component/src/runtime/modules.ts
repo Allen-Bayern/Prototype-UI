@@ -65,6 +65,86 @@ type BodyWithOverflowSnapshot = HTMLElement & {
   __proto_ui_original_overflow?: string;
 };
 
+type WebComponentOwnerModulesArgs<Props extends PropsBaseType> = {
+  el: HTMLElement;
+  instanceToken: LogicalInstanceToken;
+  rawPropsSource: RawPropsSource<Props>;
+  getMeta: (key: string) => unknown;
+  setExposes: (record: Record<string, unknown>) => void;
+  runInCallbackScope: (fn: () => void) => void;
+  presenceBridge?: PresenceHostBridge;
+  overlayLayerScheduler?: OverlayLayerScheduler;
+};
+
+/** Owner/instance capabilities that remain valid without rendered children. */
+export function createWebComponentOwnerModules<Props extends PropsBaseType>(
+  args: WebComponentOwnerModulesArgs<Props>
+) {
+  const { el, instanceToken, rawPropsSource, getMeta, setExposes } = args;
+
+  return createCapsWiring()
+    .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
+    .use('event', [
+      [
+        EVENT_EMIT_CAP,
+        (key: string, payload?: unknown, options?: Record<string, unknown>) => {
+          el.dispatchEvent(
+            new CustomEvent(key, {
+              detail: payload,
+              bubbles: true,
+              cancelable: true,
+              ...options,
+            })
+          );
+        },
+      ],
+    ])
+    .use('focus', [
+      [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
+      [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [FOCUS_RUN_IN_CALLBACK_CAP, args.runInCallbackScope],
+    ])
+    .use('expose-state', [
+      [
+        EXPOSE_STATE_SET_EXPOSES_CAP,
+        (record: Record<string, unknown>) => {
+          setExposes(record ?? {});
+        },
+      ],
+    ])
+    .use('context', [
+      [CONTEXT_INSTANCE_TOKEN_CAP, instanceToken],
+      [CONTEXT_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+    ])
+    .use('anatomy', [
+      [ANATOMY_INSTANCE_TOKEN_CAP, instanceToken],
+      [ANATOMY_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [ANATOMY_GET_PROTO_CAP, (inst: unknown) => getLogicalPrototype(inst as LogicalInstanceToken)],
+      [ANATOMY_ROOT_TARGET_CAP, (inst: unknown) => getLogicalRoot(inst as LogicalInstanceToken)],
+    ])
+    .use('as-trigger', [
+      [AS_TRIGGER_INSTANCE_CAP, instanceToken],
+      [AS_TRIGGER_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [
+        AS_TRIGGER_GET_PROTO_CAP,
+        (inst: unknown) => getLogicalPrototype(inst as LogicalInstanceToken),
+      ],
+    ])
+    .use('rule-meta', [[RULE_META_GET_CAP, (key: string) => getMeta(key)]])
+    .use('rule-expose-state-web', [
+      [RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP, createExposeStateWebNativeVariantPolicy],
+    ])
+    .use('presence', [
+      [PRESENCE_HOST_BRIDGE_CAP, args.presenceBridge ?? { mount: () => {}, unmount: () => {} }],
+    ])
+    .use('overlay', () => [
+      ...(args.overlayLayerScheduler
+        ? [[OVERLAY_LAYER_SCHEDULER_CAP, args.overlayLayerScheduler] as const]
+        : []),
+    ])
+    .build();
+}
+
 export function createWebComponentModules<Props extends PropsBaseType>(args: {
   el: HTMLElement;
   instanceToken: LogicalInstanceToken;

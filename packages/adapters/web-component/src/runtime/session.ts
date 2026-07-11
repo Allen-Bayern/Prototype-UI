@@ -30,6 +30,7 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
   ensureSlotProjector: () => SlotProjector;
   clearSlotProjector: () => void;
   onAfterUnmount?: () => void;
+  initialMount?: 'eager' | 'manual';
 }): ReturnType<typeof createAdapterHost<Props>> & { host: HTMLElement } {
   const {
     proto,
@@ -48,6 +49,7 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
     ensureSlotProjector,
     clearSlotProjector,
     onAfterUnmount,
+    initialMount,
   } = args;
 
   let capsHub: any = null;
@@ -78,7 +80,6 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
       },
       onUnmountBegin: () => {
         eventGate.disable();
-        clearSlotProjector();
       },
       afterUnmount: () => {
         try {
@@ -92,7 +93,8 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
         clearSlotProjector();
         onAfterUnmount?.();
       },
-    }
+    },
+    { initialMount }
   );
 
   capsHub = hostSession.caps;
@@ -148,10 +150,6 @@ function commitWebComponentChildren(args: {
     projected: slotPool,
     enableMO: result.hasSlot,
   });
-
-  if (!result.hasSlot) {
-    clearSlotProjector();
-  }
 
   eventGate.enable();
 }

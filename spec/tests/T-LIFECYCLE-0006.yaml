@@ -1,9 +1,9 @@
 id: T-LIFECYCLE-0006
 type: test
 title: L1 ViewIntent materialization and reconciliation tests
-status: draft
+status: active
 since: 0.1.0
-summary: Planned conformance coverage for callback-only ViewIntent mutation, detached instance creation, latest-intent reconciliation, repeatable view epochs, and terminal owner authority.
+summary: Conformance coverage for callback-only ViewIntent mutation, detached instance creation, latest-intent reconciliation, repeatable view epochs, and terminal owner authority.
 cases:
   - id: T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
     title: Initial detached intent completes setup and created without creating a view
@@ -84,7 +84,7 @@ implementations:
       - T-LIFECYCLE-0006-CASE-LATEST-INTENT
   - id: adapter-web-component-view-intent
     kind: adapter-test
-    status: planned
+    status: passing
     path: packages/adapters/web-component/test/lifecycle-view-intent.test.ts
     required: true
     consumesCases:
@@ -107,6 +107,9 @@ revisions:
   - version: 0.1.3
     change: partially-implemented
     summary: React and Vue now reconcile latest ViewIntent through logical component owners and repeatable view epochs.
+  - version: 0.1.4
+    change: implemented
+    summary: Web Component now retains its custom-element owner while releasing and rematerializing internal view epochs; all required L1 implementations pass.
 tags:
   - lifecycle
   - view-intent

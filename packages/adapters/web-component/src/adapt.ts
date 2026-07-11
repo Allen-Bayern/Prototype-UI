@@ -8,6 +8,7 @@ import {
   createHostWiring,
   createEventGate,
   createWebProtoEventRouter,
+  createViewEpochOwner,
   type LogicalInstanceToken,
 } from '@proto.ui/adapter-base';
 import {
@@ -28,7 +29,7 @@ import {
   unbindProtoInstance,
 } from './platform/instance-tree';
 import { createWebEffectsPort } from './runtime/effects-port';
-import { createWebComponentModules } from './runtime/modules';
+import { createWebComponentModules, createWebComponentOwnerModules } from './runtime/modules';
 import { createWebComponentHostSession } from './runtime/session';
 import type {
   RuntimeCheckpoint,
@@ -156,27 +157,10 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
       this._runtimeGeneration += 1;
       this._mountedOnce = true;
 
-      const eventGate = createEventGate();
-
       const thisEl = this;
       const thisRoot = this._root;
       thisEl.setAttribute('data-pui-root', '');
       this._hostDisplay = installDefaultHostDisplay(thisEl);
-
-      const router = createWebProtoEventRouter({
-        rootEl: thisEl,
-        globalEl: window,
-        isEnabled: () => eventGate.isEnabled?.() ?? true,
-      });
-
-      const applier = createOwnedTwTokenApplier(thisEl, {
-        onChange: () => {
-          this._hostDisplay?.sync();
-        },
-      });
-      this._applier = applier;
-
-      const effectsPort = createWebEffectsPort(applier);
 
       const rawPropsSource: RawPropsSource<Props> = {
         debugName: `${tagName}#raw-props`,
@@ -212,65 +196,186 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
       };
 
       let runFocusCallbackScope: ((fn: () => void) => void) | null = null;
-      const modules = createWebComponentModules({
+      const runInCallbackScope = (fn: () => void) => {
+        if (runFocusCallbackScope) {
+          runFocusCallbackScope(fn);
+          return;
+        }
+        fn();
+      };
+      const setExposes = (record: Record<string, unknown>) => {
+        this._exposes = record;
+      };
+
+      const owner = createViewEpochOwner<Props>({ prototypeName: tagName });
+      let currentEventGate: ReturnType<typeof createEventGate> | null = null;
+      let currentRouter: ReturnType<typeof createWebProtoEventRouter> | null = null;
+
+      const clearSlotProjector = () => {
+        this._slotProjector?.disconnect();
+        this._slotProjector = null;
+      };
+
+      const releaseRenderedChildren = () => {
+        if (shadow) {
+          thisRoot.replaceChildren();
+          clearSlotProjector();
+          return;
+        }
+
+        const projector = this._slotProjector;
+        if (!projector) return;
+        const externalChildren = projector.collectSlotPoolBeforeCommit();
+        projector.disconnect();
+        this._slotProjector = null;
+        thisEl.replaceChildren(...externalChildren);
+      };
+
+      const createHostSession = (wiring: ReturnType<typeof createHostWiring>) =>
+        createWebComponentHostSession({
+          proto,
+          tagName,
+          shadow,
+          host: thisEl,
+          root: thisRoot,
+          schedule,
+          rawPropsSource,
+          wiring,
+          eventGate: {
+            enable: () => currentEventGate?.enable(),
+            disable: () => currentEventGate?.disable(),
+            dispose: () => owner.disposeView(),
+          },
+          router: {
+            dispose: () => owner.disposeView(),
+          },
+          onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+          onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
+          getSlotProjector: () => this._slotProjector,
+          ensureSlotProjector: () => {
+            if (!this._slotProjector) this._slotProjector = new SlotProjector(thisEl);
+            return this._slotProjector;
+          },
+          clearSlotProjector,
+          onAfterUnmount: () => {
+            this._exposes = {};
+            this._wrappedExposes = {};
+            this._lastWrappedRaw = null;
+            this._applier?.clear();
+            this._applier = null;
+            this._hostDisplay?.disconnect();
+            this._hostDisplay = null;
+            unbindController(this);
+            removeDebugHooks(this);
+          },
+          initialMount: 'manual',
+        });
+
+      const attachView = () => {
+        if (owner.hasView) return;
+
+        const eventGate = createEventGate();
+        const router = createWebProtoEventRouter({
+          rootEl: thisEl,
+          globalEl: window,
+          isEnabled: () => eventGate.isEnabled?.() ?? true,
+        });
+        const applier = createOwnedTwTokenApplier(thisEl, {
+          onChange: () => {
+            this._hostDisplay?.sync();
+          },
+        });
+        currentEventGate = eventGate;
+        currentRouter = router;
+        this._applier = applier;
+
+        let disposed = false;
+        const disposeView = () => {
+          if (disposed) return;
+          disposed = true;
+          eventGate.disable();
+          eventGate.dispose();
+          router.dispose();
+          applier.clear();
+          releaseRenderedChildren();
+          if (currentEventGate === eventGate) currentEventGate = null;
+          if (currentRouter === router) currentRouter = null;
+          if (this._applier === applier) this._applier = null;
+          this._hostDisplay?.sync();
+        };
+
+        owner.attachView({
+          modules: createWebComponentModules({
+            el: thisEl,
+            instanceToken: this._instanceToken,
+            router,
+            rawPropsSource,
+            effectsPort: createWebEffectsPort(applier),
+            getMeta,
+            exposeStateWebMode,
+            setExposes,
+            runInCallbackScope,
+            presenceBridge,
+            overlayLayerScheduler,
+          }),
+          disposeView,
+          createSession: createHostSession,
+        });
+      };
+
+      let latestIntentVersion = 0;
+      let reconciliation = Promise.resolve();
+      let initializingOwner = true;
+      let initialPresent = true;
+      const reconcileIntent = (snapshot: { present: boolean }) => {
+        if (initializingOwner) {
+          initialPresent = snapshot.present;
+          return;
+        }
+        const requestVersion = ++latestIntentVersion;
+        queueMicrotask(() => {
+          reconciliation = reconciliation
+            .then(async () => {
+              if (
+                requestVersion !== latestIntentVersion ||
+                !thisEl.isConnected ||
+                this._controller !== hostSession.controller
+              ) {
+                return;
+              }
+              if (snapshot.present) {
+                attachView();
+              } else if (owner.hasView) {
+                await owner.detachView();
+              }
+            })
+            .catch((error) => {
+              queueMicrotask(() => {
+                throw error;
+              });
+            });
+        });
+      };
+
+      const ownerModules = createWebComponentOwnerModules({
         el: thisEl,
         instanceToken: this._instanceToken,
-        router,
         rawPropsSource,
-        effectsPort,
         getMeta,
-        exposeStateWebMode,
-        setExposes: (record) => {
-          this._exposes = record;
-        },
-        runInCallbackScope: (fn) => {
-          if (runFocusCallbackScope) {
-            runFocusCallbackScope(fn);
-            return;
-          }
-          fn();
-        },
+        setExposes,
+        runInCallbackScope,
         presenceBridge,
         overlayLayerScheduler,
       });
-
-      const wiring = createHostWiring({ prototypeName: tagName, modules });
-
-      const hostSession = createWebComponentHostSession({
-        proto,
-        tagName,
-        shadow,
-        host: thisEl,
-        root: thisRoot,
-        schedule,
-        rawPropsSource,
-        wiring,
-        eventGate,
-        router,
-        onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
-        onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
-        getSlotProjector: () => this._slotProjector,
-        ensureSlotProjector: () => {
-          if (!this._slotProjector) this._slotProjector = new SlotProjector(thisEl);
-          return this._slotProjector;
-        },
-        clearSlotProjector: () => {
-          this._slotProjector?.disconnect();
-          this._slotProjector = null;
-        },
-        onAfterUnmount: () => {
-          this._exposes = {};
-          this._wrappedExposes = {};
-          this._lastWrappedRaw = null;
-          this._applier?.clear();
-          this._applier = null;
-          this._hostDisplay?.disconnect();
-          this._hostDisplay = null;
-          unbindController(this);
-          removeDebugHooks(this);
-        },
+      const hostSession = owner.initialize({
+        modules: ownerModules,
+        createSession: createHostSession,
+        onViewIntent: reconcileIntent,
       });
+      initializingOwner = false;
       runFocusCallbackScope = hostSession.invokeInCallbackScope;
+
+      if (initialPresent) attachView();
 
       const { controller, kernel } = hostSession;
       if (kernel && kernel.run) {
@@ -320,7 +425,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
       this._controller = controller;
       bindController(this, controller);
 
-      this._invokeUnmounted = () => hostSession.dispose();
+      this._invokeUnmounted = () => owner.dispose();
     }
 
     disconnectedCallback() {

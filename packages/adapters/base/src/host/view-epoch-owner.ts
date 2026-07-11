@@ -44,6 +44,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
 }): ViewEpochOwner<P> {
   let wiring: ReturnType<typeof createHostWiring> | null = null;
   let session: AdapterHostSession<P> | null = null;
+  let ownerModules: WiringSpec | null = null;
   let viewDisposer: ViewDisposer | null = null;
   let viewIntent: ViewIntentSnapshot | null = null;
   let unsubscribeIntent: (() => void) | null = null;
@@ -74,6 +75,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
       }
 
       wiring = createHostWiring({ prototypeName: args.prototypeName, modules: input.modules });
+      ownerModules = input.modules;
       session = input.createSession(wiring);
 
       const notify = (snapshot: ViewIntentSnapshot) => {
@@ -99,7 +101,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
         return session;
       }
 
-      wiring.rebind(input.modules);
+      wiring.replace(input.modules);
       if (!session) {
         throw new Error(`[AdapterHost] missing session for ${args.prototypeName}`);
       }
@@ -109,6 +111,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
     detachView() {
       const result = session?.unmount() ?? Promise.resolve();
       disposeView();
+      if (wiring && ownerModules) wiring.replace(ownerModules);
       return result;
     },
     disposeView,
@@ -120,6 +123,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
       const result = session?.dispose() ?? Promise.resolve();
       disposeView();
       wiring = null;
+      ownerModules = null;
       return result;
     },
   };

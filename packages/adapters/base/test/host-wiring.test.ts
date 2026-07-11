@@ -147,4 +147,31 @@ describe('adapter-base: host-wiring', () => {
     wiring.afterUnmount();
     expect(resets).toBe(1);
   });
+
+  it('replaces the complete attached capability set across ownership phases', () => {
+    const attached: unknown[] = [];
+    let resets = 0;
+    const wiring = createHostWiring({
+      prototypeName: 'x-replace-view',
+      modules: { focus: () => [['owner', true]] as any },
+    });
+
+    wiring.onRuntimeReady(
+      fakeWiring({
+        focus: {
+          attach(entries: unknown) {
+            attached.push(entries);
+          },
+          reset() {
+            resets += 1;
+          },
+        },
+      }) as any
+    );
+
+    wiring.replace({ focus: () => [['view', true]] as any });
+
+    expect(resets).toBe(1);
+    expect(attached).toEqual([[['owner', true]], [['view', true]]]);
+  });
 });
