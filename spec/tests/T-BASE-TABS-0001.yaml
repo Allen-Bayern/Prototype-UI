@@ -51,11 +51,11 @@ cases:
       - P-BASE-TABS-CONTEXT-SYNC
     expectation: uncontrolled-tabs-falls-back-to-first-enabled-trigger
   - id: T-BASE-TABS-0001-CASE-A11Y-RELATIONS
-    title: Tabs projects tablist, tab, tabpanel, selected, hidden, and trigger-content relations in Web
+    title: Tabs projects active view semantics and detaches inactive content while preserving owners
     covers:
       - P-BASE-TABS-A11Y-ROLE-TARGETS
       - P-BASE-TABS-A11Y-RELATIONSHIP-TARGET
-      - P-BASE-TABS-HIDDEN-NOT-UNMOUNT
+      - P-BASE-TABS-DEFAULT-L1-DETACH
     expectation: tabs-web-a11y-roles-and-relations
 implementations:
   - id: prototypes-base-tabs-contract
@@ -119,6 +119,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added Base Tabs uncontrolled selection fallback coverage.
+  - version: 0.1.2
+    change: refined
+    summary: Updated compound Tabs coverage for default inactive L1 detach.
 tags:
   - prototype
   - base

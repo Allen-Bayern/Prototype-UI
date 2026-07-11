@@ -6,11 +6,11 @@ since: 0.1.0
 summary: Base Tabs is the root-owned compound single-selection protocol for a tablist, tab triggers, tab panels, and optional indicators. The root owns the selected value, provides Tabs context, coordinates controlled and uncontrolled value changes, and defines the Tabs anatomy family.
 statement:
   zh-CN: >-
-    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 协调 parts。Trigger 与 Content 使用 protocol `value` 匹配 context value；非受控 Tabs 会回落到第一个 enabled trigger。Content 默认 hidden 而不 unmount，也支持显式 lazyMount、unmountOnExit 与 keepMounted view 策略。Indicator layout measurement、动态删除 selected trigger、重复 value fallback 与完整 part-to-part a11y relationship 仍不在本阶段承诺范围。
+    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 协调 parts。Trigger 与 Content 使用 protocol `value` 匹配 context value；非受控 Tabs 会回落到第一个 enabled trigger。Content 默认 lazy 且 inactive 时执行 L1 detach，`keepMounted=true` 可保留完整 view。Indicator layout measurement、动态删除 selected trigger、重复 value fallback 与完整 part-to-part a11y relationship 仍不在本阶段承诺范围。
 
 
   en: >-
-    Base Tabs is a compound single-selection protocol. The root owns the selected value in one Tabs domain and coordinates parts through Tabs context. Trigger and Content match protocol `value` against context value, and uncontrolled Tabs fall back to the first enabled trigger. Content defaults to hidden without unmount and also supports explicit lazyMount, unmountOnExit, and keepMounted view policies. Indicator layout measurement, dynamically removed selected-trigger fallback, duplicate value fallback, and full part-to-part a11y projection remain outside this phase.
+    Base Tabs is a compound single-selection protocol. The root owns the selected value in one Tabs domain and coordinates parts through Tabs context. Trigger and Content match protocol `value` against context value, and uncontrolled Tabs fall back to the first enabled trigger. Content is lazy by default and performs an L1 detach while inactive; `keepMounted=true` retains the complete view. Indicator layout measurement, dynamically removed selected-trigger fallback, duplicate value fallback, and full part-to-part a11y projection remain outside this phase.
 
 
 anatomy:
@@ -329,21 +329,20 @@ criteria:
     note:
       zh-CN: 第一阶段由 a11y identity/relation IR 与 Web adapter 投射支持；跨宿主自动 ID 生成与更复杂的动态 part 关系仍可继续演进。
       en: The first phase is supported by a11y identity/relation IR and Web adapter projection; cross-host automatic ID generation and more complex dynamic part relationships may continue to evolve.
-  - id: P-BASE-TABS-HIDDEN-NOT-UNMOUNT
+  - id: P-BASE-TABS-DEFAULT-L1-DETACH
     text:
-      zh-CN: 非 current content 必须隐藏但不得因此被 Tabs core protocol 自动 unmount；具体 hidden 方式由宿主能力或实现策略投射。
-      en: Non-current content must be hidden but must not be automatically unmounted by the Tabs core protocol; the concrete hidden mechanism is projected by host capabilities or implementation policy.
+      zh-CN: 非 current content 默认必须执行 L1 detach；宿主 owner 与 Proto instance 保持存活。
+      en: Non-current content must perform an L1 detach by default while its host owner and Proto instance remain alive.
     dependsOn:
       contracts:
-        - C-A11Y-0001
+        - C-LIFECYCLE-0008
   - id: P-BASE-TABS-PRESENCE-POLICY
     text:
-      zh-CN: Content 可以通过显式 lazyMount、unmountOnExit 与 keepMounted props 选择 view presence 策略；默认仍为 hidden 而不 unmount。
-      en: Content may select view presence through explicit lazyMount, unmountOnExit, and keepMounted props; the default remains hidden without unmount.
+      zh-CN: Content 只通过 `keepMounted` 选择完整 view retention；默认 false。
+      en: Content selects complete view retention only through `keepMounted`, which defaults to false.
     dependsOn:
       contracts:
-        - C-LIFECYCLE-0002
-        - C-LIFECYCLE-0007
+        - C-LIFECYCLE-0008
   - id: P-BASE-TABS-INDICATOR-MEASUREMENT-DEFERRED
     text:
       zh-CN: Indicator 的真实布局测量、trigger rect 读取、字体渲染稳定性与自动定位能力暂缓；第一轮 indicator 只作为 context consumer。
@@ -387,10 +386,12 @@ dependsOn:
     - C-EXPOSE-STATE-0001
     - C-EXPOSE-EVENT-0001
     - C-A11Y-0001
+    - C-LIFECYCLE-0008
   decisions:
     - D-BASE-PROTOTYPE-INDEPENDENCE-0001
     - D-A11Y-SEMANTIC-DOMAIN-0001
     - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
+    - D-BASE-TABS-L1-MATERIALIZATION-0001
 revisions:
   - version: 0.1.0
     change: introduced
@@ -398,6 +399,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added first-pass uncontrolled selection fallback for missing or disabled selected triggers.
+  - version: 0.1.2
+    change: breaking
+    summary: Made inactive Content use L1 detach by default and reduced view retention to keepMounted.
 tags:
   - prototype
   - base

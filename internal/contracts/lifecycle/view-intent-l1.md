@@ -94,4 +94,4 @@ Base Tabs Content will use L1 as follows:
 | inactive content, default                | `detached`                     |
 | inactive content with `keepMounted=true` | `mounted` and projected hidden |
 
-This makes initial inactive content lazy and detaches content on exit by default while preserving the Tabs Content Proto instance. Existing `lazyMount` and `unmountOnExit` props remain implementation-era surfaces until the Tabs migration step decides their removal or deprecation.
+This makes initial inactive content lazy and detaches content on exit by default while preserving the Tabs Content Proto instance. `keepMounted` is the only public retention option; the former `lazyMount` and `unmountOnExit` combination has been removed.

@@ -70,6 +70,10 @@ type WebComponentOwnerModulesArgs<Props extends PropsBaseType> = {
   instanceToken: LogicalInstanceToken;
   rawPropsSource: RawPropsSource<Props>;
   getMeta: (key: string) => unknown;
+  exposeStateWebMode?: {
+    allowContinuousAttr?: boolean;
+    allowStringVar?: boolean;
+  };
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
   presenceBridge?: PresenceHostBridge;
@@ -82,8 +86,11 @@ export function createWebComponentOwnerModules<Props extends PropsBaseType>(
 ) {
   const { el, instanceToken, rawPropsSource, getMeta, setExposes } = args;
 
+  // The custom element is the persistent owner shell, so semantic and
+  // expose-state projection remain valid while its internal view is absent.
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
+    .use('a11y', [[A11Y_PROJECT_CAP, createWebA11yProjector(el)]])
     .use('event', [
       [
         EVENT_EMIT_CAP,
@@ -111,6 +118,13 @@ export function createWebComponentOwnerModules<Props extends PropsBaseType>(
           setExposes(record ?? {});
         },
       ],
+    ])
+    .use('expose-state-web', () => [
+      [HOST_ELEMENT_CAP, el],
+      [EXPOSE_STATE_WEB_MAP_CAP, createExposeStateWebNameMap],
+      ...(args.exposeStateWebMode
+        ? [[EXPOSE_STATE_WEB_MODE_CAP, args.exposeStateWebMode] as const]
+        : []),
     ])
     .use('context', [
       [CONTEXT_INSTANCE_TOKEN_CAP, instanceToken],

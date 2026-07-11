@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
-import { asFocusEntry, asPresence } from '@proto.ui/hooks';
+import { asFocusEntry } from '@proto.ui/hooks';
 import { createTabsPartId, TABS_CONTEXT, TABS_FAMILY, type TabsContextValue } from './shared';
 import type { TabsContentAsHookContract, TabsContentExposes, TabsContentProps } from './types';
 
@@ -26,7 +26,6 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   const triggerId = def.state.string('triggerId', '');
   // P-BASE-TABS-CONTENT-FOCUS-ENTRY
   const focusEntry = asFocusEntry<TabsContentProps>();
-  const presence = asPresence({ mode: 'immediate' });
   focusEntry.configure({
     strategy: 'descendant-first',
     fallback: 'self',
@@ -35,23 +34,16 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
-    lazyMount: { type: 'boolean', empty: 'fallback' },
-    unmountOnExit: { type: 'boolean', empty: 'fallback' },
     keepMounted: { type: 'boolean', empty: 'fallback' },
   });
   def.props.setDefaults({
     value: '',
-    lazyMount: false,
-    unmountOnExit: false,
     keepMounted: false,
   });
 
   let ownValue = '';
   let rootId = '';
-  let lazyMount = false;
-  let unmountOnExit = false;
   let keepMounted = false;
-  let hasBeenCurrent = false;
   def.expose.state('current', current);
   def.expose.state('hidden', hidden);
 
@@ -70,40 +62,38 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
     );
   };
 
-  const syncContext = (next: TabsContextValue) => {
+  const syncContext = (
+    next: TabsContextValue,
+    lifecycle: { setPresent(present: boolean): void }
+  ) => {
     rootId = next.rootId;
     syncIds();
     syncCurrentFromContext(next.value, ownValue, current, hidden, focusEntry);
     const nextCurrent = next.value === ownValue;
-    if (nextCurrent) hasBeenCurrent = true;
-    const shouldMount =
-      keepMounted || nextCurrent || (!unmountOnExit && (!lazyMount || hasBeenCurrent));
-    presence.setPresent(shouldMount);
+    lifecycle.setPresent(keepMounted || nextCurrent);
   };
 
-  def.context.subscribe(TABS_CONTEXT, (_run, next) => {
-    syncContext(next);
+  def.context.subscribe(TABS_CONTEXT, (run, next) => {
+    syncContext(next, run.lifecycle);
   });
 
   const syncProps = (next: Readonly<TabsContentProps>) => {
     ownValue = next.value ?? '';
-    lazyMount = next.lazyMount ?? false;
-    unmountOnExit = next.unmountOnExit ?? false;
     keepMounted = next.keepMounted ?? false;
   };
 
   def.lifecycle.onCreated((run) => {
     syncProps(run.props.get());
-    syncContext(run.context.read(TABS_CONTEXT));
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
   def.lifecycle.onMounted((run) => {
-    syncContext(run.context.read(TABS_CONTEXT));
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
-  def.props.watch(['value', 'lazyMount', 'unmountOnExit', 'keepMounted'], (run, next) => {
+  def.props.watch(['value', 'keepMounted'], (run, next) => {
     syncProps(next);
-    syncContext(run.context.read(TABS_CONTEXT));
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
   // TODO(P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE): Web currently also receives

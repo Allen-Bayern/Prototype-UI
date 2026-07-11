@@ -362,6 +362,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         instanceToken: this._instanceToken,
         rawPropsSource,
         getMeta,
+        exposeStateWebMode,
         setExposes,
         runInCallbackScope,
         presenceBridge,
