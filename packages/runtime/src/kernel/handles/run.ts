@@ -10,7 +10,8 @@ import { FeedbackFacade } from '@proto.ui/module-feedback';
 
 export const createRunHandle = <P extends PropsBaseType>(
   update: RunHandle<P>['update'],
-  moduleHub: ModuleOrchestratorFacadeView
+  moduleHub: ModuleOrchestratorFacadeView,
+  setPresent: RunHandle<P>['lifecycle']['setPresent']
 ): RunHandle<P> => {
   const facades = moduleHub.getFacades();
   const props = facades['props'] as PropsFacade<P>;
@@ -21,6 +22,9 @@ export const createRunHandle = <P extends PropsBaseType>(
 
   return {
     update,
+    lifecycle: {
+      setPresent,
+    },
     props: {
       get: () => props.get(),
       getRaw: () => props.getRaw(),

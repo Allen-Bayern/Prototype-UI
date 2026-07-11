@@ -18,6 +18,7 @@ import type { RuntimeHost } from './host';
 import type { RuntimeController } from './execute/types';
 import type { ModuleOrchestrator } from '../orchestrator/module-orchestrator';
 import type { Kernel } from '../kernel';
+import type { ViewIntentView } from '../kernel';
 
 export interface RuntimeSession<P extends PropsBaseType = PropsBaseType> {
   readonly controller: RuntimeController;
@@ -25,6 +26,7 @@ export interface RuntimeSession<P extends PropsBaseType = PropsBaseType> {
   readonly mountPhase: MountPhase;
   readonly mountEpoch: number;
   readonly children: TemplateChildren;
+  readonly viewIntent: ViewIntentView;
 
   mount(): Promise<void>;
   unmount(): Promise<void>;
@@ -358,6 +360,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
     if (disposePending) return disposePending;
 
     setInstancePhase('disposing');
+    kernel.viewIntent.lockTerminal();
     emit({ type: 'instance.dispose.begin' });
 
     const finalizeDispose = (): unknown => {
@@ -440,6 +443,7 @@ export function createRuntimeSession<P extends PropsBaseType>(
     get children() {
       return children;
     },
+    viewIntent: kernel.viewIntent,
     mount,
     unmount,
     dispose,

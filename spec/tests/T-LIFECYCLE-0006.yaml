@@ -1,0 +1,109 @@
+id: T-LIFECYCLE-0006
+type: test
+title: L1 ViewIntent materialization and reconciliation tests
+status: draft
+since: 0.1.0
+summary: Planned conformance coverage for callback-only ViewIntent mutation, detached instance creation, latest-intent reconciliation, repeatable view epochs, and terminal owner authority.
+cases:
+  - id: T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
+    title: Initial detached intent completes setup and created without creating a view
+    covers:
+      - C-LIFECYCLE-0008-B
+      - C-LIFECYCLE-0008-C
+    expectation: detached-instance-is-alive-before-first-view
+  - id: T-LIFECYCLE-0006-CASE-FIRST-MATERIALIZATION
+    title: Detached to mounted intent creates the first view epoch
+    covers:
+      - C-LIFECYCLE-0008-A
+      - C-LIFECYCLE-0008-D
+    expectation: mounted-intent-materializes-first-view-epoch
+  - id: T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
+    title: Repeated mounted and detached intents reuse one Proto instance
+    covers:
+      - C-LIFECYCLE-0008-D
+      - C-LIFECYCLE-0008-E
+      - C-LIFECYCLE-0008-I
+    expectation: repeated-view-intents-rebind-one-logical-instance
+  - id: T-LIFECYCLE-0006-CASE-LATEST-INTENT
+    title: Rapid intent reversal invalidates stale asynchronous work
+    covers:
+      - C-LIFECYCLE-0008-D
+    expectation: latest-view-intent-wins
+  - id: T-LIFECYCLE-0006-CASE-CALLBACK-PHASE
+    title: View presence intent can only be changed through callback-time run APIs
+    covers:
+      - C-LIFECYCLE-0008-G
+    expectation: run-lifecycle-set-present-is-callback-only
+  - id: T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
+    title: Terminal owner teardown overrides desired presence
+    covers:
+      - C-LIFECYCLE-0008-F
+    expectation: terminal-owner-disposal-cannot-be-blocked-or-reversed
+  - id: T-LIFECYCLE-0006-CASE-RUN-SURFACE
+    title: RunHandle exposes setPresent without exposing RuntimeSession or host bridges
+    covers:
+      - C-LIFECYCLE-0008-G
+    expectation: run-lifecycle-surface-only-exposes-set-present
+implementations:
+  - id: runtime-view-intent-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/lifecycle.view-intent.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
+      - T-LIFECYCLE-0006-CASE-CALLBACK-PHASE
+      - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
+      - T-LIFECYCLE-0006-CASE-RUN-SURFACE
+  - id: adapters-base-view-intent-owner
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/base/test/view-intent-owner.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-FIRST-MATERIALIZATION
+      - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
+      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
+      - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
+  - id: adapter-react-initial-view-intent
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/react/test/lifecycle-view-intent.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
+      - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
+      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
+  - id: adapter-vue-initial-view-intent
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/vue/test/lifecycle-view-intent.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
+      - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
+      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
+  - id: adapter-web-component-view-intent
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/web-component/test/lifecycle-view-intent.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
+      - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
+      - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
+verifies:
+  contracts:
+    - id: C-LIFECYCLE-0008
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Planned cross-layer L1 ViewIntent conformance coverage.
+  - version: 0.1.1
+    change: partially-implemented
+    summary: Implemented the callback-only RunHandle surface, default/initial intent semantics, versioning, and terminal intent lock.
+tags:
+  - lifecycle
+  - view-intent
+  - materialization
+  - contract-test
