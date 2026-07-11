@@ -119,4 +119,21 @@ describe('PresenceModuleImpl', () => {
     expect(impl.awaitMount()).toBeUndefined();
     expect(handle.getPhase()).toBe('absent');
   });
+
+  it('immediate policy detaches from absent and completes present -> absent in one intent', async () => {
+    const unmount = vi.fn();
+    const impl = createImpl({ unmount });
+    const handle = impl.createHandle({ mode: 'immediate' });
+
+    handle.setIntent('leave');
+    expect(unmount).toHaveBeenLastCalledWith({ immediate: true });
+
+    handle.setIntent('enter');
+    expect(handle.getPhase()).toBe('present');
+    handle.setIntent('leave');
+
+    expect(handle.getPhase()).toBe('absent');
+    expect(unmount).toHaveBeenCalledTimes(2);
+    expect(unmount).toHaveBeenLastCalledWith({ immediate: true });
+  });
 });

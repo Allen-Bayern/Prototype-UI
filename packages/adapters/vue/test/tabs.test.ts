@@ -31,7 +31,7 @@ describe('adapter-vue: base tabs compound protocol', () => {
             ),
             VueAny.h(
               Content,
-              { value: 'b', ref: (el: any) => (refs.contentB = el) },
+              { value: 'b', lazyMount: true, ref: (el: any) => (refs.contentB = el) },
               () => 'B panel'
             ),
           ]);
@@ -47,6 +47,7 @@ describe('adapter-vue: base tabs compound protocol', () => {
     expect(refs.root?.getExposes().value.get()).toBe('a');
     expect(refs.triggerA?.getExposes().selected.get()).toBe(true);
     expect(refs.contentA?.getExposes().current.get()).toBe(true);
+    expect(host.textContent).not.toContain('B panel');
 
     refs.triggerB?.$el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushVue();
@@ -57,6 +58,7 @@ describe('adapter-vue: base tabs compound protocol', () => {
     expect(refs.triggerB?.getExposes().selected.get()).toBe(true);
     expect(refs.contentA?.getExposes().current.get()).toBe(false);
     expect(refs.contentB?.getExposes().current.get()).toBe(true);
+    expect(host.textContent).toContain('B panel');
 
     app.unmount();
     host.remove();

@@ -28,6 +28,7 @@ describe('runtime contract: lifecycle registration (v0)', () => {
         capturedDef = def;
 
         expect(Object.keys(def.lifecycle).sort()).toEqual([
+          'onBeforeDispose',
           'onCreated',
           'onMounted',
           'onUnmounted',
@@ -59,10 +60,22 @@ describe('runtime contract: lifecycle registration (v0)', () => {
               calls.push('unmounted');
             })
           );
+          registrationReturns.push(
+            def.lifecycle.onBeforeDispose((run) => {
+              callbackRuns.push(run);
+              calls.push('beforeDispose');
+            })
+          );
         }).not.toThrow();
 
         expect(calls).toEqual([]);
-        expect(registrationReturns).toEqual([undefined, undefined, undefined, undefined]);
+        expect(registrationReturns).toEqual([
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+        ]);
 
         return (r) => [r.el('div', 'ok')];
       },
@@ -80,11 +93,13 @@ describe('runtime contract: lifecycle registration (v0)', () => {
     expect(() => capturedDef.lifecycle.onMounted(() => undefined)).toThrow(/phase/i);
     expect(() => capturedDef.lifecycle.onUpdated(() => undefined)).toThrow(/phase/i);
     expect(() => capturedDef.lifecycle.onUnmounted(() => undefined)).toThrow(/phase/i);
+    expect(() => capturedDef.lifecycle.onBeforeDispose(() => undefined)).toThrow(/phase/i);
 
     result.controller.update();
     expect(calls).toContain('updated');
 
     await result.invokeUnmounted();
     expect(calls).toContain('unmounted');
+    expect(calls).toContain('beforeDispose');
   });
 });

@@ -1,0 +1,62 @@
+id: T-LIFECYCLE-0005
+type: test
+title: Lifecycle ownership and repeatable host binding tests
+status: draft
+since: 0.1.0
+summary: Adapter conformance tests prove that one host owner retains one Proto instance across view epochs and disposes it at terminal teardown.
+cases:
+  - id: T-LIFECYCLE-0005-CASE-OWNER-ONE-INSTANCE
+    title: One host component owner creates one Proto instance
+    covers:
+      - C-LIFECYCLE-0007-A
+    expectation: host-owner-creates-one-proto-instance
+  - id: T-LIFECYCLE-0005-CASE-INTERNAL-CONDITIONAL-VIEW
+    title: Adapter-internal conditional rendering remounts the same Proto instance
+    covers:
+      - C-LIFECYCLE-0007-B
+      - C-LIFECYCLE-0006-D
+    expectation: conditional-view-rebinds-same-proto-instance
+  - id: T-LIFECYCLE-0005-CASE-TERMINAL-OWNER-TEARDOWN
+    title: Terminal host teardown disposes the owned Proto instance once
+    covers:
+      - C-LIFECYCLE-0007-C
+    expectation: terminal-owner-teardown-disposes-once
+  - id: T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
+    title: Detached view bindings are revoked before a later binding is attached
+    covers:
+      - C-LIFECYCLE-0006-C
+    expectation: stale-host-binding-is-unavailable-after-detach
+implementations:
+  - id: adapter-react-lifecycle-ownership
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/react/test/contract/lifecycle-ownership.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0005-CASE-OWNER-ONE-INSTANCE
+      - T-LIFECYCLE-0005-CASE-INTERNAL-CONDITIONAL-VIEW
+      - T-LIFECYCLE-0005-CASE-TERMINAL-OWNER-TEARDOWN
+      - T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
+  - id: adapter-vue-lifecycle-ownership
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/vue/test/contract/lifecycle-ownership.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0005-CASE-OWNER-ONE-INSTANCE
+      - T-LIFECYCLE-0005-CASE-INTERNAL-CONDITIONAL-VIEW
+      - T-LIFECYCLE-0005-CASE-TERMINAL-OWNER-TEARDOWN
+      - T-LIFECYCLE-0005-CASE-HOST-BINDING-REVOKED
+verifies:
+  contracts:
+    - id: C-LIFECYCLE-0006
+    - id: C-LIFECYCLE-0007
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Added lifecycle owner and repeatable host-binding conformance cases.
+tags:
+  - lifecycle
+  - ownership
+  - adapter
+  - host-binding

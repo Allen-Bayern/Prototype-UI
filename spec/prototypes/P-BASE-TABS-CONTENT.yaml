@@ -3,14 +3,14 @@ type: prototype
 title: Base Tabs Content is a value-matched tabpanel part
 status: draft
 since: 0.1.0
-summary: Base Tabs Content is the repeatable tabpanel part that provides a protocol value, derives current state from Tabs context, and is hidden when inactive without being unmounted by the Tabs core protocol.
+summary: Base Tabs Content is the repeatable tabpanel part that derives current state from Tabs context and supports explicit lazy, unmount-on-exit, and keep-mounted view policies.
 statement:
   zh-CN: >-
-    Base Tabs Content 是 Base Tabs anatomy family 中可重复的 content/tabpanel part。Content 必须提供用于 Tabs selection matching 的 protocol `value`，消费 Tabs context，并在自身 value 与 context selected value 相等时派生 current state。Current content 应显示；非 current content 必须隐藏但不得因此由 Tabs core protocol 自动 unmount。`base-tabs-content` direct prototype 与 `asTabsContent` authored asHook 是同一 Tabs content protocol 的两个 authoring entries。
+    Base Tabs Content 是 Base Tabs anatomy family 中可重复的 content/tabpanel part。Content 通过 protocol `value` 消费 Tabs context 并派生 current state。默认情况下非 current content 只隐藏；作者也可以通过 `lazyMount`、`unmountOnExit` 与 `keepMounted` 显式选择 view presence 策略，detach 不销毁 Proto instance。`base-tabs-content` direct prototype 与 `asTabsContent` authored asHook 是同一 protocol 的两个 authoring entries。
 
 
   en: >-
-    Base Tabs Content is the repeatable content/tabpanel part in the Base Tabs anatomy family. Content must provide a protocol `value` used for Tabs selection matching, consume Tabs context, and derive current state when its own value equals the context selected value. Current content should be visible; non-current content must be hidden but must not be automatically unmounted by the Tabs core protocol. The `base-tabs-content` direct prototype and the `asTabsContent` authored asHook are two authoring entries of the same Tabs content protocol.
+    Base Tabs Content is the repeatable content/tabpanel part in the Base Tabs anatomy family. Content consumes Tabs context through its protocol `value` and derives current state. By default inactive content is only hidden; authors may explicitly select view presence through `lazyMount`, `unmountOnExit`, and `keepMounted`, and detach does not destroy the Proto instance. The direct prototype and `asTabsContent` are two authoring entries of the same protocol.
 
 
 criteria:
@@ -99,15 +99,15 @@ criteria:
     dependsOn:
       prototypes:
         - P-BASE-TABS
-  - id: P-BASE-TABS-CONTENT-PRESENCE-DEFERRED
+  - id: P-BASE-TABS-CONTENT-PRESENCE-POLICY
     text:
-      zh-CN: Tabs Content 的 keepMounted、lazyMount、forceMount、presence transition 与 inactive panel unmount 策略暂缓。
-      en: Tabs Content keepMounted, lazyMount, forceMount, presence transition, and inactive panel unmount policies are deferred.
-    references:
-      prototypes:
-        - id: P-BASE-TABS
-          anchors:
-            - P-BASE-TABS-PRESENCE-DEFERRED
+      zh-CN: Tabs Content 必须接受 `lazyMount`、`unmountOnExit` 与 `keepMounted`；keepMounted 优先级最高，unmount 只 detach view 并保留 Proto instance 与状态。
+      en: Tabs Content must accept `lazyMount`, `unmountOnExit`, and `keepMounted`; keepMounted has highest precedence, and unmount only detaches the view while preserving the Proto instance and state.
+    dependsOn:
+      contracts:
+        - C-LIFECYCLE-0002
+        - C-LIFECYCLE-0006
+        - C-LIFECYCLE-0007
   - id: P-BASE-TABS-CONTENT-A11Y-ROLE
     text:
       zh-CN: 在具备 accessibility projection 的宿主中，Tabs Content 必须投射 tabpanel 语义。
@@ -178,6 +178,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Replaced deferred tabpanel focus entry gap with descendant-first focus entry requirement.
+  - version: 0.1.2
+    change: expanded
+    summary: Added lazyMount, unmountOnExit, and keepMounted view policies on the repeatable lifecycle model.
 tags:
   - prototype
   - base

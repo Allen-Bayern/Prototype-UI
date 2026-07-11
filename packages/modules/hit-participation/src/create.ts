@@ -25,6 +25,7 @@ export function createHitParticipationModule(ctx: ModuleFactoryArgs) {
           getHitParticipation: () => impl.handle,
         },
         hooks: {
+          onMountPhase: (phase, epoch) => impl.onMountPhase(phase, epoch),
           onProtoPhase: (phase) => impl.onProtoPhase(phase),
         },
         port: {

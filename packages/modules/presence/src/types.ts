@@ -1,7 +1,7 @@
 export type PresencePhase = 'absent' | 'mounting' | 'present' | 'unmounting';
 
 export interface PresencePolicy {
-  /** Reserved for future modes (e.g. 'immediate' vs 'deferred'). */
+  mode?: 'transition' | 'immediate';
 }
 
 export interface PresenceHandle {
@@ -18,9 +18,17 @@ export interface PresenceFacade {
 export interface PresencePort {
   awaitMount(): Promise<void> | undefined;
   awaitUnmount(): Promise<void> | undefined;
+  /** Terminal host teardown: notify the bridge but never block disposal. */
+  forceUnmount(): void;
+  setLifecycleDriver(driver: PresenceLifecycleDriver | null): void;
+}
+
+export interface PresenceLifecycleDriver {
+  requestMount(): void;
+  requestUnmount(): void;
 }
 
 export interface PresenceHostBridge {
   mount(): void | Promise<void>;
-  unmount(): void | Promise<void>;
+  unmount(options?: { immediate?: boolean }): void | Promise<void>;
 }

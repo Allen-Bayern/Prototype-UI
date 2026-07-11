@@ -14,6 +14,7 @@ import type { PropsFacade, PropsPort } from '@proto.ui/module-props';
 import type { StatePort } from '@proto.ui/module-state';
 import type { FeedbackPort, FeedbackRuntimeStyleDisposer } from '@proto.ui/module-feedback';
 import type { ContextFacade } from '@proto.ui/module-context';
+import type { MountPhase } from '@proto.ui/core';
 
 type RuleExecutorDeps<Props extends PropsBaseType> = {
   propsFacade?: PropsFacade<Props>;
@@ -132,6 +133,10 @@ export class RuleModuleImpl<Props extends PropsBaseType> {
       this.stopDriver();
       return;
     }
+  }
+
+  onMountPhase(phase: MountPhase): void {
+    if (phase === 'detached') this.stopDriver();
   }
 
   dispose(): void {

@@ -16,6 +16,7 @@ import {
   type OwnedStateHandle,
   type FocusableConfig,
   FocusableConfigPatch,
+  type MountPhase,
   FocusableHandle,
   ObservedStateHandle,
 } from '@proto.ui/core';
@@ -989,6 +990,13 @@ class FocusModuleImpl extends ModuleBase {
       if (self) FOCUS_CENTER.remove(self);
     }
   }
+
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase !== 'detached') return;
+    const self = this.getSelfToken();
+    if (self) FOCUS_CENTER.remove(self);
+  }
 }
 
 export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
@@ -1048,6 +1056,8 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
           getScope: () => impl.getScope(),
         },
         hooks: {
+          onInstancePhase: (p) => impl.onInstancePhase(p),
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
         },

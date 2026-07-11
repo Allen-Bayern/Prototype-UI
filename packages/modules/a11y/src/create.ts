@@ -12,6 +12,7 @@ import type {
   A11yTreeBehavior,
   State,
   Unsubscribe,
+  MountPhase,
 } from '@proto.ui/core';
 import type { StatePort } from '@proto.ui/module-state';
 
@@ -105,6 +106,11 @@ class A11yModuleImpl extends ModuleBase {
     if (phase === 'unmounted') {
       this.dispose();
     }
+  }
+
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'detached') this.dispose();
   }
 
   afterRenderCommit(): void {
@@ -237,6 +243,8 @@ export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {
         facade: impl.facade,
         port: impl.port,
         hooks: {
+          onInstancePhase: (p) => impl.onInstancePhase(p),
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
           dispose: () => impl.dispose(),

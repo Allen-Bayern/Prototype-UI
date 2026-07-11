@@ -21,6 +21,8 @@ export function createExposeStateWebModule(ctx: ModuleFactoryArgs): ExposeStateW
         facade: {},
         port: impl.port,
         hooks: {
+          onInstancePhase: (p) => impl.onInstancePhase(p),
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
           dispose: () => impl.dispose(),

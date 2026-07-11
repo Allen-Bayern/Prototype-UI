@@ -1,5 +1,5 @@
 import { createAdapterHost, createHostWiring } from '@proto.ui/adapter-base';
-import type { CommitSignal, RuntimeCheckpoint } from '@proto.ui/runtime';
+import type { CommitSignal, RuntimeCheckpoint, RuntimeLifecycleEvent } from '@proto.ui/runtime';
 import type { Prototype } from '@proto.ui/core';
 import type { RawPropsSource } from '@proto.ui/module-props';
 import type { PropsBaseType } from '@proto.ui/types';
@@ -17,6 +17,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
     dispose(): void;
   };
   onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
+  onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
   onCommit: (children: any, signal: CommitSignal | null) => void;
   onAfterUnmount?: () => void;
 }) {
@@ -28,6 +29,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
     eventGate,
     router,
     onLifecycleCheckpoint,
+    onLifecycleEvent,
     onCommit,
     onAfterUnmount,
   } = args;
@@ -38,6 +40,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
       getRawProps: () => rawPropsSource.get() as Readonly<Props & PropsBaseType>,
       schedule,
       onLifecycleCheckpoint,
+      onLifecycleEvent,
       commit: (children, signal) => {
         eventGate.disable();
         onCommit(children, signal ?? null);

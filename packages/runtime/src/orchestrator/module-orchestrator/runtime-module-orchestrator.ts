@@ -1,5 +1,12 @@
 // packages/runtime/src/orchestrator/module-orchestrator/runtime-module-orchestrator.ts
-import type { CapEntries, CapsVaultView, ModuleFacade, ProtoPhase } from '@proto.ui/core';
+import type {
+  CapEntries,
+  CapsVaultView,
+  InstancePhase,
+  ModuleFacade,
+  MountPhase,
+  ProtoPhase,
+} from '@proto.ui/core';
 import { SYS_CAP, type SystemCaps, type ExecPhase, CapsVault } from '@proto.ui/module-base';
 
 import type { ModuleDeps, ModuleDef } from '@proto.ui/module-base';
@@ -21,6 +28,8 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
   private readonly getExecPhase: () => ExecPhase;
 
   private protoPhase: ProtoPhase = 'setup';
+  private instancePhase: InstancePhase = 'setup';
+  private mountPhase: MountPhase = 'detached';
   private disposed = false;
 
   private records: ModuleRecord[] = [];
@@ -46,6 +55,8 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
       execPhase: () => this.getExecPhase(),
       domain: () => (this.getExecPhase() === 'setup' ? 'setup' : 'runtime'),
       protoPhase: () => this.protoPhase,
+      instancePhase: () => this.instancePhase,
+      mountPhase: () => this.mountPhase,
       isDisposed: () => this.disposed,
 
       ensureNotDisposed: (op) => {
@@ -240,6 +251,20 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
     this.protoPhase = phase;
     for (const r of this.records) {
       r.module.hooks.onProtoPhase?.(phase);
+    }
+  }
+
+  setInstancePhase(phase: InstancePhase): void {
+    this.instancePhase = phase;
+    for (const r of this.records) {
+      r.module.hooks.onInstancePhase?.(phase);
+    }
+  }
+
+  setMountPhase(phase: MountPhase, epoch: number): void {
+    this.mountPhase = phase;
+    for (const r of this.records) {
+      r.module.hooks.onMountPhase?.(phase, epoch);
     }
   }
 

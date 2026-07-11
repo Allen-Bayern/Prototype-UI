@@ -1,5 +1,7 @@
 # Adapter Lifecycle Contract (v0)
 
+> **Human-readable reference projection.** The normative source is the lifecycle entity catalog. CP0-CP10 passages describe the compatibility projection; structured events with mount epochs and update revisions are canonical under `C-LIFECYCLE-0004` and `C-LIFECYCLE-0007`.
+
 This document defines the **obligations and constraints for Adapter Authors** (Web Components, React, Vue, etc.).
 
 It specifies how host-specific lifecycles MUST be mapped into Proto UI’s canonical lifecycle timeline.

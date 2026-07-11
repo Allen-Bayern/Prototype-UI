@@ -72,6 +72,12 @@ export type TabsTriggerAsHookContract = {
 
 export interface TabsContentProps {
   value?: string;
+  /** Do not materialize the host view until this panel is selected once. */
+  lazyMount?: boolean;
+  /** Detach the host view whenever this panel becomes inactive. */
+  unmountOnExit?: boolean;
+  /** Keep the host view mounted regardless of lazy/unmount policies. */
+  keepMounted?: boolean;
 }
 
 export type TabsContentExposes = {

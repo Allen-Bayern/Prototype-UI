@@ -95,8 +95,8 @@ describe('runtime integration: with-host presence wiring', () => {
     scheduled[0]();
     expect(calls.includes('mounted')).toBe(true);
 
-    // clean up
-    const unmountPromise = res.invokeUnmounted();
+    // Repeatable detach honors presence approval.
+    const unmountPromise = res.session.unmount();
     expect(unmountPromise).toBeInstanceOf(Promise);
 
     // flush microtasks for async unmount path to hit awaitUnmount
@@ -111,6 +111,10 @@ describe('runtime integration: with-host presence wiring', () => {
 
     await unmountPromise;
     expect(calls.includes('bridge:unmount')).toBe(true);
+
+    // Terminal disposal is host-authoritative and cannot be blocked by a
+    // transition that no longer has an owning host view.
+    await res.session.dispose();
   });
 
   it('proceeds synchronously when no presence handle is created', () => {

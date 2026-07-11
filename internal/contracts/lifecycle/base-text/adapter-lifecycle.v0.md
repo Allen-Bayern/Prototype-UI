@@ -1,5 +1,7 @@
 # 适配器生命周期契约（Adapter Lifecycle, v0）
 
+> **面向人的可读参考投射。** 规范真相源是 lifecycle 实体目录。CP0-CP10 相关段落描述兼容投射；带 mount epoch 与 update revision 的结构化事件才是 `C-LIFECYCLE-0004` 定义的 canonical trace。
+
 本契约定义 **Adapter Author（Web Component / React / Vue 等）** 在实现 Proto UI 时必须遵守的生命周期义务与约束。
 
 它规定：

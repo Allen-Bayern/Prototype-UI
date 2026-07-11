@@ -1,5 +1,7 @@
 # internal/contracts/lifecycle/component-lifecycle.v0.md
 
+> **Human-readable reference projection.** The normative source is `spec/contracts/C-LIFECYCLE-0001..0007.yaml`. This document remains useful explanatory material and should be maintained alongside the catalog. Where older single-mount or CP0-CP10 passages conflict with the catalog, the catalog wins and those passages require revision.
+
 > Status: Normative — implementation-aligned (v0)
 >
 > This document specifies the **component-visible lifecycle guarantees** of Proto UI v0.

@@ -6,7 +6,7 @@ since: 0.1.0
 summary: Runtime tests that verify the setup-time `def.lifecycle` API surface required by `C-LIFECYCLE-0005`.
 cases:
   - id: T-LIFECYCLE-0004-CASE-ENTRY-SURFACE
-    title: '`def.lifecycle` exposes only the portable v0 registration entries'
+    title: '`def.lifecycle` exposes the portable instance and mount registration entries'
     covers:
       - C-LIFECYCLE-0005-A
       - C-LIFECYCLE-0005-B
@@ -33,6 +33,12 @@ cases:
     covers:
       - C-LIFECYCLE-0005-F
     expectation: lifecycle-registration-has-no-portable-revoke-handle
+  - id: T-LIFECYCLE-0004-CASE-BEFORE-DISPOSE
+    title: onBeforeDispose runs once before terminal handle invalidation
+    covers:
+      - C-LIFECYCLE-0005-B
+      - C-LIFECYCLE-0002-G
+    expectation: before-dispose-runs-once-with-live-run-handle
 implementations:
   - id: runtime-lifecycle-api-surface
     kind: runtime-test
@@ -45,6 +51,7 @@ implementations:
       - T-LIFECYCLE-0004-CASE-REGISTRATION-DOES-NOT-INVOKE
       - T-LIFECYCLE-0004-CASE-RUN-HANDLE-BINDING
       - T-LIFECYCLE-0004-CASE-NO-PORTABLE-REVOKE
+      - T-LIFECYCLE-0004-CASE-BEFORE-DISPOSE
     notes:
       - Verifies the concrete `def.lifecycle` registration surface and setup-only guards through runtime execution.
       - Uses callback invocation as a runtime probe, not as an ordering test; callback ordering remains owned by `T-LIFECYCLE-0001`.
@@ -77,6 +84,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added lifecycle API surface coverage for `C-LIFECYCLE-0005`.
+  - version: 0.1.0
+    change: revised
+    summary: Added onBeforeDispose terminal callback coverage.
 tags:
   - lifecycle
   - syntax

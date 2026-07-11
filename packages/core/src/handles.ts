@@ -193,6 +193,7 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
     onMounted(cb: (run: RunHandle<Props>) => void): void;
     onUpdated(cb: (run: RunHandle<Props>) => void): void;
     onUnmounted(cb: (run: RunHandle<Props>) => void): void;
+    onBeforeDispose(cb: (run: RunHandle<Props>) => void): void;
   };
 
   props: {

@@ -6,11 +6,11 @@ since: 0.1.0
 summary: Base Tabs is the root-owned compound single-selection protocol for a tablist, tab triggers, tab panels, and optional indicators. The root owns the selected value, provides Tabs context, coordinates controlled and uncontrolled value changes, and defines the Tabs anatomy family.
 statement:
   zh-CN: >-
-    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 将 `value`、`activeValue`、`orientation`、`activationMode` 与 controlled 状态提供给 list、trigger、content 与 indicator parts。Trigger 与 Content 通过各自 props 提供的 protocol `value` 和 context `value` 进行匹配：匹配的 trigger 处于 selected 状态，匹配的 content 处于 current/visible 状态。非受控 Tabs 在 selected value 缺失或指向 disabled trigger 时，回落到第一个 enabled trigger。Base Tabs 不在第一轮承诺 indicator layout measurement、tabpanel unmount/presence 策略、动态删除 selected trigger、重复 value fallback 或完整 part-to-part a11y relationship 投射实现。
+    Base Tabs 是一个 compound single-selection protocol。Root 持有同一 Tabs domain 内唯一的 selected value，并通过 Tabs context 协调 parts。Trigger 与 Content 使用 protocol `value` 匹配 context value；非受控 Tabs 会回落到第一个 enabled trigger。Content 默认 hidden 而不 unmount，也支持显式 lazyMount、unmountOnExit 与 keepMounted view 策略。Indicator layout measurement、动态删除 selected trigger、重复 value fallback 与完整 part-to-part a11y relationship 仍不在本阶段承诺范围。
 
 
   en: >-
-    Base Tabs is a compound single-selection protocol. The root owns the single selected value within the same Tabs domain and provides `value`, `activeValue`, `orientation`, `activationMode`, and controlled state through Tabs context to list, trigger, content, and indicator parts. Trigger and Content match their own protocol `value` props against context `value`: the matching trigger is selected and the matching content is current/visible. Uncontrolled Tabs fall back to the first enabled trigger when the selected value is missing or points to a disabled trigger. The first Base Tabs pass does not promise indicator layout measurement, tabpanel unmount/presence policy, dynamically removed selected-trigger fallback, duplicate value fallback, or full part-to-part a11y relationship projection implementation.
+    Base Tabs is a compound single-selection protocol. The root owns the selected value in one Tabs domain and coordinates parts through Tabs context. Trigger and Content match protocol `value` against context value, and uncontrolled Tabs fall back to the first enabled trigger. Content defaults to hidden without unmount and also supports explicit lazyMount, unmountOnExit, and keepMounted view policies. Indicator layout measurement, dynamically removed selected-trigger fallback, duplicate value fallback, and full part-to-part a11y projection remain outside this phase.
 
 
 anatomy:
@@ -336,13 +336,14 @@ criteria:
     dependsOn:
       contracts:
         - C-A11Y-0001
-  - id: P-BASE-TABS-PRESENCE-DEFERRED
+  - id: P-BASE-TABS-PRESENCE-POLICY
     text:
-      zh-CN: keepMounted、lazyMount、forceMount、presence transition 与 inactive panel unmount 策略暂缓到通用 visibility/presence 治理。
-      en: keepMounted, lazyMount, forceMount, presence transition, and inactive panel unmount policies are deferred to general visibility/presence governance.
+      zh-CN: Content 可以通过显式 lazyMount、unmountOnExit 与 keepMounted props 选择 view presence 策略；默认仍为 hidden 而不 unmount。
+      en: Content may select view presence through explicit lazyMount, unmountOnExit, and keepMounted props; the default remains hidden without unmount.
     dependsOn:
-      knowledge:
-        - K-DESIGN-TRADEOFF-0001
+      contracts:
+        - C-LIFECYCLE-0002
+        - C-LIFECYCLE-0007
   - id: P-BASE-TABS-INDICATOR-MEASUREMENT-DEFERRED
     text:
       zh-CN: Indicator 的真实布局测量、trigger rect 读取、字体渲染稳定性与自动定位能力暂缓；第一轮 indicator 只作为 context consumer。

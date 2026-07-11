@@ -3,7 +3,7 @@ type: test
 title: Base Tabs Content protocol contract tests
 status: draft
 since: 0.1.0
-summary: Contract test coverage for the Base Tabs Content part, including value-matched current state, hidden-without-unmount behavior, focus entry behavior, and Web tabpanel a11y projection.
+summary: Contract test coverage for Base Tabs Content current/hidden semantics, focus entry, accessibility projection, and explicit view-presence policies.
 cases:
   - id: T-BASE-TABS-CONTENT-0001-CASE-HIDDEN
     title: Tabs Content derives current state by value matching and hides inactive panels without unmounting them
@@ -28,6 +28,11 @@ cases:
     covers:
       - P-BASE-TABS-CONTENT-FOCUS-ENTRY
     expectation: tabs-content-focus-entry-descendant-first-fallback-self
+  - id: T-BASE-TABS-CONTENT-0001-CASE-PRESENCE-POLICY
+    title: Tabs Content lazy, unmount-on-exit, and keep-mounted policies preserve logical instance ownership
+    covers:
+      - P-BASE-TABS-CONTENT-PRESENCE-POLICY
+    expectation: tabs-content-view-policy-detaches-and-rebinds-without-instance-recreation
 implementations:
   - id: prototypes-base-tabs-content-contract
     kind: module-test
@@ -39,6 +44,24 @@ implementations:
       - T-BASE-TABS-CONTENT-0001-CASE-FOCUS-ENTRY
     exercises:
       - P-BASE-TABS-CONTENT
+  - id: adapter-react-tabs-content-presence
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-CONTENT-0001-CASE-PRESENCE-POLICY
+    exercises:
+      - P-BASE-TABS-CONTENT
+  - id: adapter-vue-tabs-content-presence
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/tabs.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-TABS-CONTENT-0001-CASE-PRESENCE-POLICY
+    exercises:
+      - P-BASE-TABS-CONTENT
 verifies:
   prototypes:
     - id: P-BASE-TABS-CONTENT
@@ -47,6 +70,7 @@ verifies:
         - P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
         - P-BASE-TABS-CONTENT-A11Y-LABELLEDBY-TARGET
         - P-BASE-TABS-CONTENT-FOCUS-ENTRY
+        - P-BASE-TABS-CONTENT-PRESENCE-POLICY
 exercises:
   prototypes:
     - P-BASE-TABS-CONTENT
@@ -57,6 +81,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added focus entry coverage for current tabpanel descendant-first behavior and inactive panel disablement.
+  - version: 0.1.2
+    change: expanded
+    summary: Added React and Vue coverage for lazyMount, unmountOnExit, and keepMounted.
 tags:
   - prototype
   - base

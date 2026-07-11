@@ -1,4 +1,4 @@
-import { createCapsWiring } from '@proto.ui/adapter-base';
+import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
 import { HOST_ELEMENT_CAP, type EffectsPort, type FocusEntryConfig } from '@proto.ui/core';
 import {
   createDomOrderObserver,
@@ -59,7 +59,7 @@ import { RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP } from '@proto.ui/modul
 import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import { type PropsBaseType } from '@proto.ui/types';
 
-import { getProtoParent, getPrototypeByInstance } from '../platform/instance-tree';
+import { getLogicalParent, getLogicalPrototype, getLogicalRoot } from '../platform/instance-tree';
 
 type BodyWithOverflowSnapshot = HTMLElement & {
   __proto_ui_original_overflow?: string;
@@ -67,6 +67,7 @@ type BodyWithOverflowSnapshot = HTMLElement & {
 
 export function createWebComponentModules<Props extends PropsBaseType>(args: {
   el: HTMLElement;
+  instanceToken: LogicalInstanceToken;
   router: {
     rootTarget: EventTarget;
     globalTarget: EventTarget;
@@ -83,7 +84,16 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
   presenceBridge?: PresenceHostBridge;
   overlayLayerScheduler?: OverlayLayerScheduler;
 }) {
-  const { el, router, rawPropsSource, effectsPort, getMeta, exposeStateWebMode, setExposes } = args;
+  const {
+    el,
+    instanceToken,
+    router,
+    rawPropsSource,
+    effectsPort,
+    getMeta,
+    exposeStateWebMode,
+    setExposes,
+  } = args;
 
   let mountedEl: HTMLElement | null = null;
   let originalParent: Node | null = null;
@@ -118,9 +128,9 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       ],
     ])
     .use('focus', [
-      [FOCUS_INSTANCE_TOKEN_CAP, el],
-      [FOCUS_PARENT_CAP, (inst: unknown) => getProtoParent(inst as HTMLElement)],
-      [FOCUS_ROOT_TARGET_CAP, () => el],
+      [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
+      [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [FOCUS_ROOT_TARGET_CAP, () => getLogicalRoot(instanceToken)],
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, (target: HTMLElement) => isNativelyFocusable(target)],
       [
         FOCUS_SET_FOCUSABLE_CAP,
@@ -172,20 +182,23 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       ...(exposeStateWebMode ? [[EXPOSE_STATE_WEB_MODE_CAP, exposeStateWebMode] as const] : []),
     ])
     .use('context', [
-      [CONTEXT_INSTANCE_TOKEN_CAP, el],
-      [CONTEXT_PARENT_CAP, (inst: unknown) => getProtoParent(inst as HTMLElement)],
+      [CONTEXT_INSTANCE_TOKEN_CAP, instanceToken],
+      [CONTEXT_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
     ])
     .use('anatomy', [
-      [ANATOMY_INSTANCE_TOKEN_CAP, el],
-      [ANATOMY_PARENT_CAP, (inst: unknown) => getProtoParent(inst as HTMLElement)],
-      [ANATOMY_GET_PROTO_CAP, (inst: unknown) => getPrototypeByInstance(inst as HTMLElement)],
-      [ANATOMY_ROOT_TARGET_CAP, (inst: unknown) => inst as HTMLElement],
+      [ANATOMY_INSTANCE_TOKEN_CAP, instanceToken],
+      [ANATOMY_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [ANATOMY_GET_PROTO_CAP, (inst: unknown) => getLogicalPrototype(inst as LogicalInstanceToken)],
+      [ANATOMY_ROOT_TARGET_CAP, (inst: unknown) => getLogicalRoot(inst as LogicalInstanceToken)],
       [ANATOMY_ORDER_OBSERVER_CAP, createDomOrderObserver],
     ])
     .use('as-trigger', [
-      [AS_TRIGGER_INSTANCE_CAP, el],
-      [AS_TRIGGER_PARENT_CAP, (inst: unknown) => getProtoParent(inst as HTMLElement)],
-      [AS_TRIGGER_GET_PROTO_CAP, (inst: unknown) => getPrototypeByInstance(inst as HTMLElement)],
+      [AS_TRIGGER_INSTANCE_CAP, instanceToken],
+      [AS_TRIGGER_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
+      [
+        AS_TRIGGER_GET_PROTO_CAP,
+        (inst: unknown) => getLogicalPrototype(inst as LogicalInstanceToken),
+      ],
     ])
     .use('rule-meta', [[RULE_META_GET_CAP, (key: string) => getMeta(key)]])
     .use('rule-expose-state-web', [

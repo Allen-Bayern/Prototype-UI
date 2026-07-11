@@ -1,5 +1,10 @@
 import type { Prototype } from '@proto.ui/core';
-import type { CommitSignal, RuntimeCheckpoint, RuntimeController } from '@proto.ui/runtime';
+import type {
+  CommitSignal,
+  RuntimeCheckpoint,
+  RuntimeController,
+  RuntimeLifecycleEvent,
+} from '@proto.ui/runtime';
 import {
   createHostWiring,
   createEventGate,
@@ -16,7 +21,11 @@ import type { RawPropsSource } from '@proto.ui/module-props';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { createDefaultMetaGetter } from './platform/meta';
-import { markProtoInstance } from './platform/instance-tree';
+import {
+  createLogicalInstance,
+  markProtoInstance,
+  unbindProtoInstance,
+} from './platform/instance-tree';
 import { createReactEffectsPort } from './runtime/effects-port';
 import { createReactModules } from './runtime/modules';
 import { createReactHostSession } from './runtime/session';
@@ -56,6 +65,8 @@ export interface ReactAdapterOptions<Props extends PropsBaseType> {
   getProps?: (props: ReactAdapterProps<Props>) => Partial<Props> | null | undefined;
   getMeta?: (key: string) => unknown;
   diagnostics?: {
+    onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
+    /** @deprecated Use onLifecycleEvent. */
     onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
   };
   exposeStateWebMode?: ExposeStateWebMode;
@@ -113,6 +124,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
 
     const Component = runtime.forwardRef((props: ReactAdapterProps<Props>, ref: any) => {
       const rootRef = runtime.useRef<HTMLElement | null>(null);
+      const instanceTokenRef = runtime.useRef(createLogicalInstance(proto as Prototype<any>));
       const [renderChildren, setRenderChildren] = runtime.useState<any>(null);
       const [hostTokens, setHostTokens] = runtime.useState<string[]>([]);
       const [shouldExist, setShouldExist] = runtime.useState(true);
@@ -134,7 +146,12 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const pendingSignalRef = runtime.useRef<CommitSignal | null>(null);
       const commitVersionRef = runtime.useRef(0);
       const [commitVersion, setCommitVersion] = runtime.useState(0);
-      const hostSessionRef = runtime.useRef<{ dispose(): void } | null>(null);
+      const hostSessionRef = runtime.useRef<ReturnType<
+        typeof createReactHostSession<Props>
+      > | null>(null);
+      const wiringRef = runtime.useRef<ReturnType<typeof createHostWiring> | null>(null);
+      const boundRootRef = runtime.useRef<HTMLElement | null>(null);
+      const disposeViewRef = runtime.useRef<(() => void) | null>(null);
       const hasBeenUnmountedRef = runtime.useRef(false);
       const baselineOuterRafRef = runtime.useRef<number | null>(null);
       const baselineInnerRafRef = runtime.useRef<number | null>(null);
@@ -200,6 +217,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           resolveBaselineSignal();
           hasBeenUnmountedRef.current = true;
           eventGateRef.current?.disable?.();
+          void hostSessionRef.current?.unmount();
+          disposeViewRef.current?.();
           setHostTokens([]);
           return;
         }
@@ -207,17 +226,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         const rootEl = rootRef.current;
         if (!rootEl) return;
 
-        // If there is an existing session, dispose it before creating a new one.
-        // React rendered null while shouldExist was false, so the old DOM element was
-        // removed. A new rootEl is fresh and the old router/modules are stale.
-        if (hostSessionRef.current) {
-          hostSessionRef.current.dispose();
-          hostSessionRef.current = null;
-          controllerRef.current = null;
-          eventGateRef.current = null;
-        }
-
-        markProtoInstance(rootEl, proto as Prototype<any>);
+        markProtoInstance(rootEl, proto as Prototype<any>, instanceTokenRef.current);
+        boundRootRef.current = rootEl;
 
         const eventGate = createEventGate();
         eventGateRef.current = eventGate;
@@ -227,6 +237,17 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           globalEl: typeof window === 'undefined' ? rootEl : window,
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
+        let viewDisposed = false;
+        disposeViewRef.current = () => {
+          if (viewDisposed) return;
+          viewDisposed = true;
+          eventGate.disable();
+          eventGate.dispose();
+          router.dispose();
+          unbindProtoInstance(instanceTokenRef.current, boundRootRef.current ?? undefined);
+          if (boundRootRef.current === rootEl) boundRootRef.current = null;
+          if (eventGateRef.current === eventGate) eventGateRef.current = null;
+        };
 
         const effectsPort = createReactEffectsPort((tokens) => {
           setHostTokens(tokens);
@@ -237,7 +258,12 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             softUnmount.cancel();
             setShouldExist(true);
           },
-          unmount() {
+          unmount(options?: { immediate?: boolean }) {
+            if (options?.immediate) {
+              softUnmount.cancel();
+              setShouldExist(false);
+              return;
+            }
             return softUnmount.schedule();
           },
         };
@@ -245,6 +271,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         const rawPropsSource = rawPropsSourceRef.current as RawPropsSource<Props>;
         const modules = createReactModules({
           el: rootEl,
+          instanceToken: instanceTokenRef.current,
           router,
           emit: (key, payload) => {
             eventCallbacksRef.current[key]?.(payload);
@@ -268,16 +295,29 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           overlayLayerScheduler,
         });
 
+        if (wiringRef.current) {
+          wiringRef.current.rebind(modules);
+          void hostSessionRef.current?.mount();
+          return;
+        }
+
         const wiring = createHostWiring({ prototypeName: proto.name, modules });
+        wiringRef.current = wiring;
 
         const hostSession = createReactHostSession({
           proto,
           schedule,
           rawPropsSource,
           wiring,
-          eventGate,
-          router,
+          eventGate: {
+            disable: () => eventGateRef.current?.disable(),
+            dispose: () => disposeViewRef.current?.(),
+          },
+          router: {
+            dispose: () => disposeViewRef.current?.(),
+          },
           onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+          onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
           onCommit: (children, signal) => {
             pendingCommitRef.current = true;
             pendingSignalRef.current = signal;
@@ -316,6 +356,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             hostSessionRef.current = null;
             controllerRef.current = null;
           }
+          disposeViewRef.current?.();
+          wiringRef.current = null;
         };
       }, []);
 

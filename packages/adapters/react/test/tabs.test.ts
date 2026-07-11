@@ -50,4 +50,54 @@ describe('adapter-react: base tabs compound protocol', () => {
     list.unmount();
     root.unmount();
   });
+
+  it('lazyMount defers an inactive content view while preserving its logical instance', async () => {
+    const root = createMountedReactAdapter(tabsRoot, { defaultValue: 'a' });
+    const rootEl = root.root as HTMLElement;
+    const triggerA = createMountedReactAdapterInto(tabsTrigger, appendHost(rootEl), { value: 'a' });
+    const triggerB = createMountedReactAdapterInto(tabsTrigger, appendHost(rootEl), { value: 'b' });
+    const contentHost = appendHost(rootEl);
+    const contentB = createMountedReactAdapterInto(tabsContent, contentHost, {
+      value: 'b',
+      lazyMount: true,
+      unmountOnExit: true,
+    });
+    const keptHost = appendHost(rootEl);
+    const keptContent = createMountedReactAdapterInto(tabsContent, keptHost, {
+      value: 'never-selected',
+      lazyMount: true,
+      unmountOnExit: true,
+      keepMounted: true,
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(contentHost.firstElementChild).toBeNull();
+    expect(keptHost.firstElementChild).not.toBeNull();
+    expect(contentB.ref.current.getExposes().current.get()).toBe(false);
+
+    triggerB.root?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    contentB.ref.current.update();
+    await Promise.resolve();
+
+    expect(contentHost.firstElementChild).not.toBeNull();
+    expect(contentB.ref.current.getExposes().current.get()).toBe(true);
+
+    triggerA.root?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    contentB.ref.current.update();
+    await Promise.resolve();
+    expect(contentHost.firstElementChild).toBeNull();
+    expect(contentB.ref.current.getExposes().current.get()).toBe(false);
+
+    triggerB.root?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    contentB.ref.current.update();
+    await Promise.resolve();
+    expect(contentHost.firstElementChild).not.toBeNull();
+
+    keptContent.unmount();
+    contentB.unmount();
+    triggerB.unmount();
+    triggerA.unmount();
+    root.unmount();
+  });
 });

@@ -7,6 +7,7 @@ import type {
   BoundaryRegion,
   BoundaryRegionOptions,
   BoundarySample,
+  MountPhase,
   ProtoPhase,
 } from '@proto.ui/core';
 import { HOST_ELEMENT_CAP, illegalPhase } from '@proto.ui/core';
@@ -70,6 +71,7 @@ export class BoundaryModuleImpl extends ModuleBase {
   private nextRegionId = 1;
   private regions: BoundaryRegionRecord[] = [];
   private stackActive = false;
+  private suspended = false;
 
   constructor(caps: any, prototypeName: string) {
     super(caps);
@@ -87,6 +89,19 @@ export class BoundaryModuleImpl extends ModuleBase {
     this.setStackActive(false);
     this.regions = [];
     this.outsideSubscribers.clear();
+  }
+
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'unmounting' || phase === 'detached') {
+      this.suspended = true;
+      STACK_CENTER.deactivate(this.boundaryInstanceId);
+      return;
+    }
+    if (phase === 'mounted') {
+      this.suspended = false;
+      if (this.stackActive) STACK_CENTER.activate(this.boundaryInstanceId);
+    }
   }
 
   private refreshHostCaps(): void {
@@ -127,7 +142,7 @@ export class BoundaryModuleImpl extends ModuleBase {
 
   setStackActive(active: boolean): void {
     if (Object.is(this.stackActive, active)) {
-      if (active) {
+      if (active && !this.suspended) {
         STACK_CENTER.activate(this.boundaryInstanceId);
       }
       return;
@@ -135,7 +150,7 @@ export class BoundaryModuleImpl extends ModuleBase {
 
     this.stackActive = active;
 
-    if (active) {
+    if (active && !this.suspended) {
       STACK_CENTER.activate(this.boundaryInstanceId);
       return;
     }
@@ -200,6 +215,7 @@ export class BoundaryModuleImpl extends ModuleBase {
   }
 
   notify(sample?: BoundarySample): BoundaryClassification {
+    if (this.suspended) return 'unknown';
     const classification = this.classify(sample);
     if (classification !== 'outside') return classification;
     if (this.stackActive) {

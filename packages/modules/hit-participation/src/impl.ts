@@ -5,6 +5,7 @@ import type {
   HitParticipationMode,
   HitParticipationRegion,
   HitParticipationRegionOptions,
+  MountPhase,
   ProtoPhase,
 } from '@proto.ui/core';
 import { HOST_ELEMENT_CAP, illegalPhase } from '@proto.ui/core';
@@ -43,6 +44,7 @@ export class HitParticipationModuleImpl extends ModuleBase {
   private hostElement: HTMLElement | null = null;
   private nextRegionId = 1;
   private regions: HitParticipationRegionRecord[] = [];
+  private suspended = false;
 
   constructor(caps: any, prototypeName: string) {
     super(caps);
@@ -60,6 +62,20 @@ export class HitParticipationModuleImpl extends ModuleBase {
     if (phase !== 'unmounted') return;
     this.clearHostBridge();
     this.regions = [];
+  }
+
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'unmounting' || phase === 'detached') {
+      this.suspended = true;
+      this.clearHostBridge();
+      return;
+    }
+    if (phase === 'mounted') {
+      this.suspended = false;
+      this.refreshHostCaps();
+      this.syncHostBridge();
+    }
   }
 
   private refreshHostCaps(): void {
@@ -176,7 +192,7 @@ export class HitParticipationModuleImpl extends ModuleBase {
   }
 
   private syncHostBridge(): void {
-    if (!this.hostBridge) return;
+    if (!this.hostBridge || this.suspended) return;
     this.hostBridge.sync({
       config: this.config,
       regions: this.getEffectiveRegions(true),

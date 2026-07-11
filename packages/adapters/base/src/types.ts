@@ -9,6 +9,8 @@ export type WiringSpec = Record<ModuleName, (init: { prototypeName: string }) =>
 
 export type HostWiring = {
   onRuntimeReady(wiring: ModuleWiring): void;
+  /** Replace host/view capabilities for a new mount epoch. */
+  rebind(modules: WiringSpec): void;
   onUnmountBegin?(): void;
 
   /**

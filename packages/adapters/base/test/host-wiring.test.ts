@@ -117,4 +117,34 @@ describe('adapter-base: host-wiring', () => {
     expect(called).toBe(1);
     expect(attached).toEqual({ foo: 'x-proto', n: 1 });
   });
+
+  it('rebinds a new view capability set without resetting logical module state', () => {
+    const attached: unknown[] = [];
+    let resets = 0;
+    const wiring = createHostWiring({
+      prototypeName: 'x-repeatable-view',
+      modules: { context: () => [['view', 'first']] as any },
+    });
+
+    wiring.onRuntimeReady(
+      fakeWiring({
+        context: {
+          attach(entries: unknown) {
+            attached.push(entries);
+          },
+          reset() {
+            resets += 1;
+          },
+        },
+      }) as any
+    );
+
+    wiring.rebind({ context: () => [['view', 'second']] as any });
+
+    expect(attached).toEqual([[['view', 'first']], [['view', 'second']]]);
+    expect(resets).toBe(0);
+
+    wiring.afterUnmount();
+    expect(resets).toBe(1);
+  });
 });

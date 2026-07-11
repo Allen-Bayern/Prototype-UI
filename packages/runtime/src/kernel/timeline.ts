@@ -1,5 +1,9 @@
 // packages/runtime/src/kernel/timeline.ts
 
+/**
+ * @deprecated CP0-CP10 cannot represent repeatable mount epochs or the
+ * unmount/dispose split. Use RuntimeLifecycleEvent.
+ */
 export const CANONICAL_RUNTIME_CHECKPOINTS = [
   'CP0_SETUP_EXIT',
   'CP1_CREATED_CALLBACKS',
@@ -14,6 +18,7 @@ export const CANONICAL_RUNTIME_CHECKPOINTS = [
   'CP10_DISPOSE_COMPLETE',
 ] as const;
 
+/** @deprecated Use RuntimeLifecycleEvent. */
 export type RuntimeCheckpoint = (typeof CANONICAL_RUNTIME_CHECKPOINTS)[number];
 
 export type RuntimeTimelineOptions = {
@@ -24,6 +29,7 @@ export type RuntimeTimeline = {
   mark(cp: RuntimeCheckpoint): void;
 };
 
+/** @deprecated New lifecycle state machines must emit RuntimeLifecycleEvent. */
 export function createTimeline(options: RuntimeTimelineOptions = {}): RuntimeTimeline {
   const instanceOrder: RuntimeCheckpoint[] = [
     'CP0_SETUP_EXIT',

@@ -12,12 +12,14 @@ export type AdapterHostHooks<P extends PropsBaseType> = {
 
 export type AdapterHostInput<P extends PropsBaseType> = Pick<
   RuntimeHost<P>,
-  'commit' | 'schedule' | 'getRawProps' | 'onLifecycleCheckpoint'
+  'commit' | 'schedule' | 'getRawProps' | 'onLifecycleCheckpoint' | 'onLifecycleEvent'
 >;
 
 export type AdapterHostSession<P extends PropsBaseType> = {
   controller: ExecuteWithHostResult['controller'];
-  dispose(): void;
+  mount(): Promise<void>;
+  unmount(): Promise<void>;
+  dispose(): Promise<void>;
   caps: ExecuteWithHostResult['caps'];
   invokeInCallbackScope: ExecuteWithHostResult['invokeInCallbackScope'];
   kernel: ExecuteWithHostResult['kernel'];
@@ -29,6 +31,14 @@ export function createAdapterHost<P extends PropsBaseType>(
   hooks: AdapterHostHooks<P> = {}
 ): AdapterHostSession<P> {
   const teardown = createTeardown();
+  let disposePromise: Promise<void> | null = null;
+  let afterUnmountDone = false;
+
+  const finishAfterUnmount = () => {
+    if (afterUnmountDone) return;
+    afterUnmountDone = true;
+    hooks.afterUnmount?.();
+  };
 
   const res = executeWithHost(proto, {
     prototypeName: proto.name,
@@ -36,6 +46,7 @@ export function createAdapterHost<P extends PropsBaseType>(
     commit: host.commit,
     schedule: host.schedule,
     onLifecycleCheckpoint: host.onLifecycleCheckpoint,
+    onLifecycleEvent: host.onLifecycleEvent,
     onRuntimeReady: hooks.onRuntimeReady,
     onUnmountBegin: hooks.onUnmountBegin,
   });
@@ -45,11 +56,32 @@ export function createAdapterHost<P extends PropsBaseType>(
     caps: res.caps,
     invokeInCallbackScope: res.invokeInCallbackScope,
     kernel: res.kernel,
+    mount: () => res.session.mount(),
+    unmount: () => res.session.unmount(),
     dispose() {
       teardown.run(() => {
-        res.invokeUnmounted();
-        hooks.afterUnmount?.();
+        const runtimeDispose = Promise.resolve(res.invokeUnmounted());
+
+        // RuntimeSession deliberately completes the terminal transition
+        // synchronously when no async presence transition is pending. Keep
+        // adapter resource disposal in that same turn so DOM listeners do not
+        // outlive their host/test environment by an extra microtask.
+        if (res.session.instancePhase === 'disposed') {
+          let afterUnmountError: unknown;
+          try {
+            finishAfterUnmount();
+          } catch (error) {
+            afterUnmountError = error;
+          }
+          disposePromise = runtimeDispose.then(() => {
+            if (afterUnmountError) throw afterUnmountError;
+          });
+          return;
+        }
+
+        disposePromise = runtimeDispose.finally(finishAfterUnmount);
       });
+      return disposePromise ?? Promise.resolve();
     },
   };
 }
