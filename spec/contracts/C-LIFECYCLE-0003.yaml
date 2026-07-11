@@ -46,6 +46,10 @@ criteria:
     text:
       zh-CN: 当多个 update intent 被合并为一次 update commit 时，`updated` callback 必须按实际完成的 update commit 执行一次，而不是按 intent 次数执行。
       en: When multiple update intents are coalesced into one update commit, `updated` callbacks must run once for the completed update commit rather than once per intent.
+  - id: C-LIFECYCLE-0003-I
+    text:
+      zh-CN: detached、mounting 或 unmounting 状态下的 update intent 必须只标记实例 dirty，不得执行 host render/commit 或触发 updated；下一次 mount 必须从最新 runtime state 渲染。
+      en: Update intents while detached, mounting, or unmounting must only mark the instance dirty and must not run host render/commit or updated callbacks; the next mount must render from the latest runtime state.
 sources:
   - path: internal/contracts/runtime/lifecycle-with-host.v0.md
     sections:
@@ -90,6 +94,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: Resolved update scheduling semantics by treating `run.update()` as intent and preserving host-controlled scheduling, batching, coalescing, and commit-completion ordering.
+  - version: 0.1.0
+    change: revised
+    summary: Defined detached updates as dirty intents flushed by a later mount.
 tags:
   - lifecycle
   - runtime

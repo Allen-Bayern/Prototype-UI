@@ -1,9 +1,11 @@
 // packages/runtime/src/orchestrator/module-orchestrator/types.ts
 import type {
   CapEntries,
+  InstancePhase,
   ModuleFacade,
   ModuleInstance,
   ModuleScope,
+  MountPhase,
   ProtoPhase,
 } from '@proto.ui/core';
 import type { CapsController } from '../caps';
@@ -36,6 +38,8 @@ export interface ModuleOrchestratorPrivilegedView extends ModuleOrchestratorFaca
 
 export interface ModuleOrchestrator extends ModuleOrchestratorPrivilegedView {
   /** runtime -> modules */
+  setInstancePhase(phase: InstancePhase): void;
+  setMountPhase(phase: MountPhase, epoch: number): void;
   setProtoPhase(phase: ProtoPhase): void;
   afterRenderCommit(): void;
 

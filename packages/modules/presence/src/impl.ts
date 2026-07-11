@@ -8,6 +8,7 @@ import type {
   PresencePhase,
   PresencePolicy,
   PresencePort,
+  PresenceLifecycleDriver,
 } from './types';
 
 function isPromiseLike<T>(value: T | PromiseLike<T>): value is PromiseLike<T> {
@@ -28,6 +29,9 @@ export class PresenceModuleImpl extends ModuleBase {
   private beforeMounts: Array<() => void | Promise<void>> = [];
   private beforeUnmounts: Array<() => void | Promise<void>> = [];
   private mountResolved = false;
+  private lifecycleDriver: PresenceLifecycleDriver | null = null;
+  private policy: PresencePolicy = { mode: 'transition' };
+  private immediateAbsentNotified = false;
 
   /** Tracks whether bridge.mount() has actually been invoked and not yet settled. */
   private pendingMount: void | Promise<void> | null = null;
@@ -45,6 +49,7 @@ export class PresenceModuleImpl extends ModuleBase {
 
   createHandle(policy?: PresencePolicy): PresenceHandle {
     this.hasHandle = true;
+    this.policy = { mode: policy?.mode ?? 'transition' };
     return {
       setIntent: (intent) => this.setIntent(intent),
       getPhase: () => this.phase,
@@ -67,9 +72,11 @@ export class PresenceModuleImpl extends ModuleBase {
 
   private setIntent(intent: 'enter' | 'leave') {
     if (intent === 'enter') {
+      this.immediateAbsentNotified = false;
       if (this.phase === 'absent') {
         this.phase = 'mounting';
         this.pendingUnmount = null;
+        this.lifecycleDriver?.requestMount();
         this.runCbsSync(this.beforeMounts);
         const mountResult = this.getBridge().mount();
         this.pendingMount = mountResult ?? null;
@@ -100,6 +107,7 @@ export class PresenceModuleImpl extends ModuleBase {
           this.resolveUnmounts();
           this.phase = 'present';
         };
+        this.lifecycleDriver?.requestMount();
         // Only call bridge.mount() if structural unmount was actually started.
         // If we are still in the first-stage unmounting (unmount() not yet called),
         // we can roll back without notifying the host.
@@ -134,12 +142,17 @@ export class PresenceModuleImpl extends ModuleBase {
     } else {
       if (this.phase === 'present') {
         this.phase = 'unmounting';
-      } else if (this.phase === 'unmounting') {
+        if (this.policy.mode !== 'immediate') return;
+      }
+      if (this.phase === 'unmounting') {
         this.runCbsSync(this.beforeUnmounts);
+        this.lifecycleDriver?.requestUnmount();
         // Reverse-enter may leave a pending mount callback; invalidate it
         // before starting unmount to avoid stale present settlement.
         this.pendingMount = null;
-        const unmountResult = this.getBridge().unmount();
+        const unmountResult = this.getBridge().unmount(
+          this.policy.mode === 'immediate' ? { immediate: true } : undefined
+        );
         this.pendingUnmount = unmountResult ?? null;
         if (isPromiseLike(unmountResult)) {
           const activeUnmount = unmountResult;
@@ -176,7 +189,9 @@ export class PresenceModuleImpl extends ModuleBase {
         if (this.pendingMount != null) {
           // Invalidate pending mount completion before reversing.
           this.pendingMount = null;
-          const unmountResult = this.getBridge().unmount();
+          const unmountResult = this.getBridge().unmount(
+            this.policy.mode === 'immediate' ? { immediate: true } : undefined
+          );
           this.pendingUnmount = unmountResult ?? null;
           if (isPromiseLike(unmountResult)) {
             const activeUnmount = unmountResult;
@@ -200,6 +215,13 @@ export class PresenceModuleImpl extends ModuleBase {
           settle();
         }
       } else if (this.phase === 'absent') {
+        if (this.policy.mode === 'immediate' && !this.immediateAbsentNotified) {
+          this.immediateAbsentNotified = true;
+          this.runCbsSync(this.beforeUnmounts);
+          this.lifecycleDriver?.requestUnmount();
+          const unmountResult = this.getBridge().unmount({ immediate: true });
+          if (isPromiseLike(unmountResult)) void Promise.resolve(unmountResult).catch(() => {});
+        }
         this.resolveMounts();
       }
     }
@@ -226,7 +248,9 @@ export class PresenceModuleImpl extends ModuleBase {
   }
 
   awaitMount(): Promise<void> | undefined {
-    if (!this.hasHandle || this.phase !== 'absent') return undefined;
+    if (!this.hasHandle || this.phase === 'present' || this.phase === 'unmounting') {
+      return undefined;
+    }
     // If mount was already resolved (e.g., by leave intent while absent),
     // there's no need to block.
     if (this.mountResolved) return undefined;
@@ -240,5 +264,25 @@ export class PresenceModuleImpl extends ModuleBase {
     return new Promise<void>((resolve) => {
       this.unmountResolvers.push(resolve);
     });
+  }
+
+  forceUnmount(): void {
+    if (!this.hasHandle || this.phase === 'absent') return;
+    this.runCbsSync(this.beforeUnmounts);
+    this.pendingMount = null;
+    this.pendingUnmount = null;
+    try {
+      const result = this.getBridge().unmount({ immediate: true });
+      if (isPromiseLike(result)) void Promise.resolve(result).catch(() => {});
+    } finally {
+      this.phase = 'absent';
+      this.mountResolved = false;
+      this.resolveMounts();
+      this.resolveUnmounts();
+    }
+  }
+
+  setLifecycleDriver(driver: PresenceLifecycleDriver | null): void {
+    this.lifecycleDriver = driver;
   }
 }

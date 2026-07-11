@@ -1,7 +1,7 @@
 // packages/modules/rule-expose-state-web/src/create.ts
 import { createModule, defineModule, ModuleBase } from '@proto.ui/module-base';
 import type { ModuleFactoryArgs, ModuleDeps } from '@proto.ui/module-base';
-import type { ProtoPhase, StyleHandle } from '@proto.ui/core';
+import type { MountPhase, ProtoPhase, StyleHandle } from '@proto.ui/core';
 import type { WhenExpr, RuleIR, RulePort } from '@proto.ui/module-rule';
 import type { ExposeStateWebPort, ExposeStateWebBinding } from '@proto.ui/module-expose-state-web';
 import type { FeedbackPort } from '@proto.ui/module-feedback';
@@ -159,6 +159,10 @@ class RuleExposeStateWebImpl extends ModuleBase {
     if (phase === 'mounted') this.tryApply();
   }
 
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+  }
+
   protected override onCapsEpoch(_epoch: number): void {
     this.tryApply();
   }
@@ -208,6 +212,7 @@ class RuleExposeStateWebImpl extends ModuleBase {
   }
 
   private tryApply(): void {
+    if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
     const map = this.exposeStateWeb.getExposedStateMap();
     if (!map || map.size === 0) return;
     const allowNativeVariant = this.getAllowNativeVariant();
@@ -261,6 +266,7 @@ export function createRuleExposeStateWebModule(ctx: ModuleFactoryArgs): RuleExpo
       return {
         facade: {},
         hooks: {
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
         },
@@ -271,6 +277,7 @@ export function createRuleExposeStateWebModule(ctx: ModuleFactoryArgs): RuleExpo
 
 export const RuleExposeStateWebModuleDef = defineModule({
   name: 'rule-expose-state-web',
+  resourceOwnership: 'mixed',
   deps: ['rule', 'expose-state-web', 'feedback'],
   create: createRuleExposeStateWebModule,
 });

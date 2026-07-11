@@ -1,5 +1,5 @@
 // packages/modules/expose-state/src/impl.ts
-import type { CapsVaultView, ProtoPhase, OwnedStateHandle } from '@proto.ui/core';
+import type { CapsVaultView, InstancePhase, ProtoPhase, OwnedStateHandle } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
 import type { ModuleDeps } from '@proto.ui/module-base';
 import type { StateEvent, StateSpec } from '@proto.ui/types';
@@ -82,6 +82,11 @@ export class ExposeStateModuleImpl extends ModuleBase {
   override onProtoPhase(phase: ProtoPhase): void {
     super.onProtoPhase(phase);
     if (phase === 'unmounted') this.dispose();
+  }
+
+  override onInstancePhase(phase: InstancePhase): void {
+    super.onInstancePhase(phase);
+    if (phase === 'alive') this.publishToHost();
   }
 
   afterRenderCommit(): void {
@@ -170,6 +175,7 @@ export class ExposeStateModuleImpl extends ModuleBase {
   }
 
   private publishToHost(clear = false): void {
+    if (!clear && this.instancePhase === 'setup') return;
     if (!this.caps.has(EXPOSE_STATE_SET_EXPOSES_CAP)) return;
     const sink = this.caps.get(EXPOSE_STATE_SET_EXPOSES_CAP);
     if (!sink) return;

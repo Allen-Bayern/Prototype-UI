@@ -31,6 +31,7 @@ export function createExposeModule(ctx: ModuleFactoryArgs): ExposeModule {
 
 export const ExposeModuleDef = defineModule({
   name: 'expose',
+  resourceOwnership: 'instance',
   deps: [],
   create: createExposeModule,
 });

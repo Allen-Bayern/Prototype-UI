@@ -45,6 +45,7 @@ export function createRuleModule<Props extends PropsBaseType>(
           registerExtension: (ext) => impl.registerExtension(ext as any),
         },
         hooks: {
+          onMountPhase: (p) => impl.onMountPhase(p),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           dispose: () => impl.dispose(),
         },
@@ -55,6 +56,7 @@ export function createRuleModule<Props extends PropsBaseType>(
 
 export const RuleModuleDef = defineModule({
   name: 'rule',
+  resourceOwnership: 'mixed',
   deps: [],
   optionalDeps: ['props', 'state', 'context', 'feedback'],
   create: createRuleModule,

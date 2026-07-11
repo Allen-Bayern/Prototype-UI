@@ -4,6 +4,7 @@ import { PropsBaseType } from '@proto.ui/types';
 import { LifecycleRegistry } from '../../kernel/handles/def';
 import { ModuleOrchestrator } from '../../orchestrator/module-orchestrator';
 import type { Kernel } from '../../kernel';
+import type { RuntimeSession } from '../session';
 
 export interface ExecuteOptions {
   props?: any;
@@ -40,4 +41,7 @@ export interface ExecuteWithHostResult {
 
   /** underlying kernel reference so adapters can patch run handle extensions */
   kernel?: Kernel<any>;
+
+  /** Repeatable lifecycle session underlying the legacy eager entry point. */
+  session: RuntimeSession<any>;
 }

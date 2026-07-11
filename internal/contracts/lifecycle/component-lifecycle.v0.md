@@ -1,5 +1,7 @@
 # Component Lifecycle Contract (v0)
 
+> **Human-readable reference projection.** The normative source is `spec/contracts/C-LIFECYCLE-0001..0008.yaml`. This text is retained and maintained for direct reading; the catalog takes precedence where older v0 wording differs from the repeatable mount-epoch model.
+
 This document defines the **lifecycle guarantees exposed to Component Authors** (Prototype Authors) in Proto UI.
 
 It specifies:

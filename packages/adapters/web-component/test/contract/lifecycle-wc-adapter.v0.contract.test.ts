@@ -116,4 +116,36 @@ describe('contract: adapter-web-component / lifecycle (v0)', () => {
 
     expect(el.tagName.toLowerCase()).toBe(tag);
   });
+
+  it('confirmed disconnect disposes the Proto instance and reconnect materializes a new one', async () => {
+    const calls = { setup: 0, created: 0, disposed: 0 };
+    const P: Prototype = {
+      name: 'x-wc-life-contract-terminal-reconnect',
+      setup(def) {
+        calls.setup += 1;
+        def.lifecycle.onCreated(() => (calls.created += 1));
+        def.lifecycle.onBeforeDispose(() => (calls.disposed += 1));
+        return (r) => [r.el('div', 'ok')];
+      },
+    };
+
+    AdaptToWebComponent(P);
+    const el = document.createElement(P.name);
+    document.body.appendChild(el);
+    await Promise.resolve();
+
+    el.remove();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(calls).toEqual({ setup: 1, created: 1, disposed: 1 });
+
+    document.body.appendChild(el);
+    await Promise.resolve();
+    expect(calls).toEqual({ setup: 2, created: 2, disposed: 1 });
+
+    el.remove();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(calls.disposed).toBe(2);
+  });
 });

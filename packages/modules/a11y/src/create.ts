@@ -12,6 +12,7 @@ import type {
   A11yTreeBehavior,
   State,
   Unsubscribe,
+  MountPhase,
 } from '@proto.ui/core';
 import type { StatePort } from '@proto.ui/module-state';
 
@@ -107,6 +108,11 @@ class A11yModuleImpl extends ModuleBase {
     }
   }
 
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'detached') this.dispose();
+  }
+
   afterRenderCommit(): void {
     this.installStateWatches();
     this.applyProjection();
@@ -190,6 +196,7 @@ class A11yModuleImpl extends ModuleBase {
   }
 
   private applyProjection(): void {
+    if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
     if (!this.caps.has(A11Y_PROJECT_CAP)) return;
     this.caps.get(A11Y_PROJECT_CAP)(this.getSnapshot());
   }
@@ -237,6 +244,8 @@ export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {
         facade: impl.facade,
         port: impl.port,
         hooks: {
+          onInstancePhase: (p) => impl.onInstancePhase(p),
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
           afterRenderCommit: () => impl.afterRenderCommit(),
           dispose: () => impl.dispose(),
@@ -248,6 +257,7 @@ export function createA11yModule(ctx: ModuleFactoryArgs): A11yModule {
 
 export const A11yModuleDef = defineModule({
   name: 'a11y',
+  resourceOwnership: 'mixed',
   deps: ['state'],
   create: createA11yModule,
 });

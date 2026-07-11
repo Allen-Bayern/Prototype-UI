@@ -73,7 +73,9 @@ describe('prototypes/base: tabs', () => {
     expect(contentA.getExposes().hidden.get()).toBe(false);
     expect(contentB.getExposes().hidden.get()).toBe(true);
     expect(contentA.hasAttribute('hidden')).toBe(false);
-    expect(contentB.hasAttribute('hidden')).toBe(true);
+    // The inactive panel has no view by default, so its persistent WC owner
+    // shell does not need an additional projected hidden attribute.
+    expect(contentB.hasAttribute('hidden')).toBe(false);
     expect(contentA.tabIndex).toBe(0);
     expect(contentB.tabIndex).toBe(-1);
     expect(list.getAttribute('role')).toBe('tablist');
@@ -87,6 +89,8 @@ describe('prototypes/base: tabs', () => {
     expect(contentA.getAttribute('aria-labelledby')).toBe(triggerA.getAttribute('id'));
 
     triggerB.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
 
     expect(root.getExposes().value.get()).toBe('b');
     expect(valueChanges).toEqual([{ value: 'b' }]);

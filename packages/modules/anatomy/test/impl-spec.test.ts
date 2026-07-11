@@ -357,6 +357,10 @@ describe('AnatomyModuleImpl', () => {
       calls++;
     });
 
+    // Logical subscription exists while detached, but no DOM observer does.
+    expect(notifyObserver).toBeNull();
+    impl.onMountPhase('mounted', 1);
+    expect(notifyObserver).not.toBeNull();
     expect(impl.port.order.version(family)).toBe(0);
     (notifyObserver as (() => void) | null)?.();
     expect(ctxSeen).toBeNull();
@@ -372,6 +376,11 @@ describe('AnatomyModuleImpl', () => {
     (notifyObserver as (() => void) | null)?.();
     expect(calls).toBe(1);
     expect(impl.port.order.version(family)).toBe(1);
+
+    impl.onMountPhase('detached', 1);
+    expect(notifyObserver).toBeNull();
+    impl.onMountPhase('mounted', 2);
+    expect(notifyObserver).not.toBeNull();
 
     off();
   });

@@ -3,6 +3,8 @@ import { createReactAdapter, type ReactRuntime } from '../../src/adapt';
 type EffectRecord = {
   deps?: any[];
   cleanup?: (() => void) | void;
+  kind?: 'layout' | 'effect';
+  create?: () => void | (() => void);
 };
 
 type HookInstance = {
@@ -18,12 +20,17 @@ type HookInstance = {
   ref: any;
 };
 
+type FakeContext<T> = {
+  current: T;
+  Provider: { __fakeContext: FakeContext<T> };
+};
+
 let CURRENT: HookInstance | null = null;
 const OWNED_STYLE_KEYS = new WeakMap<HTMLElement, Set<string>>();
 const OWNED_ATTR_KEYS = new WeakMap<HTMLElement, Set<string>>();
 const WRAPPED_UPDATE = Symbol('fake-react-wrapped-update');
 
-export function createFakeReactRuntime() {
+export function createFakeReactRuntime(options: { context?: boolean } = {}) {
   const runtime: ReactRuntime = {
     useState<T>(init: T) {
       const inst = getCurrent();
@@ -78,6 +85,18 @@ export function createFakeReactRuntime() {
     },
   };
 
+  if (options.context) {
+    runtime.createContext = <T>(defaultValue: T) => {
+      const context = { current: defaultValue } as FakeContext<T>;
+      context.Provider = { __fakeContext: context };
+      return context;
+    };
+    runtime.useContext = <T>(context: { Provider: any }) => {
+      getCurrent().hookIndex += 1;
+      return (context as unknown as FakeContext<T>).current;
+    };
+  }
+
   function render(
     Component: any,
     props: any = {},
@@ -107,6 +126,15 @@ export function createFakeReactRuntime() {
       update(nextProps: any = inst.props) {
         inst.props = nextProps;
         runInstance(inst);
+      },
+      replayLayoutEffects() {
+        const effects = inst.hooks.filter(
+          (hook): hook is EffectRecord =>
+            hook?.kind === 'layout' && typeof hook.create === 'function'
+        );
+        for (const effect of effects) effect.cleanup?.();
+        for (const effect of effects) effect.cleanup = effect.create?.() ?? undefined;
+        if (inst.dirty) runInstance(inst);
       },
       unmount() {
         for (const hook of inst.hooks) {
@@ -225,6 +253,8 @@ function registerEffect(kind: 'layout' | 'effect', cb: () => void | (() => void)
   const nextRecord: EffectRecord = {
     deps,
     cleanup: prev?.cleanup,
+    kind,
+    create: cb,
   };
   inst.hooks[index] = nextRecord;
   if (!changed) return;
@@ -240,6 +270,10 @@ function registerEffect(kind: 'layout' | 'effect', cb: () => void | (() => void)
 
 function renderVNode(vnode: any, existing: HTMLElement | null): HTMLElement | null {
   if (vnode == null) return null;
+  if (vnode.type?.__fakeContext) {
+    const child = Array.isArray(vnode.children) ? vnode.children[0] : vnode.children;
+    return renderVNode(child, existing);
+  }
   if (typeof vnode.type !== 'string') {
     throw new Error('fake-react runtime only supports string host elements in tests');
   }
@@ -312,6 +346,10 @@ function renderChild(child: any): Node | null {
       if (node) frag.appendChild(node);
     }
     return frag;
+  }
+  if (child.type?.__fakeContext) {
+    const nested = Array.isArray(child.children) ? child.children[0] : child.children;
+    return renderChild(nested);
   }
   if (typeof child.type === 'string') {
     const el = document.createElement(child.type);

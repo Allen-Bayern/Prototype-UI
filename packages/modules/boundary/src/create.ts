@@ -20,6 +20,7 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
           getBoundary: () => impl.handle,
         },
         hooks: {
+          onMountPhase: (phase, epoch) => impl.onMountPhase(phase, epoch),
           onProtoPhase: (phase) => impl.onProtoPhase(phase),
         },
         port: {
@@ -41,5 +42,6 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
 
 export const BoundaryModuleDef = defineModule({
   name: 'boundary',
+  resourceOwnership: 'mixed',
   create: createBoundaryModule,
 });

@@ -17,13 +17,14 @@ import type { ExposeFacade } from '@proto.ui/module-expose';
 import type { AnatomyFacade } from '@proto.ui/module-anatomy';
 import { RuntimeEventCallbacks } from '../event';
 
-export type LifecycleKind = 'created' | 'mounted' | 'updated' | 'unmounted';
+export type LifecycleKind = 'created' | 'mounted' | 'updated' | 'unmounted' | 'beforeDispose';
 
 export interface LifecycleRegistry<P extends PropsBaseType> {
   created: Array<(run: RunHandle<P>) => void>;
   mounted: Array<(run: RunHandle<P>) => void>;
   updated: Array<(run: RunHandle<P>) => void>;
   unmounted: Array<(run: RunHandle<P>) => void>;
+  beforeDispose: Array<(run: RunHandle<P>) => void>;
 }
 
 export interface DefRuntimeState {
@@ -36,7 +37,7 @@ export interface EventCallbacksSink<P extends PropsBaseType> {
 }
 
 export function createLifecycleRegistry<P extends PropsBaseType>(): LifecycleRegistry<P> {
-  return { created: [], mounted: [], updated: [], unmounted: [] };
+  return { created: [], mounted: [], updated: [], unmounted: [], beforeDispose: [] };
 }
 
 export const createDefHandle = <P extends PropsBaseType, E = Record<string, unknown>>(
@@ -100,6 +101,10 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
       onUnmounted(cb) {
         ensureSetup(`def.lifecycle.onUnmounted`);
         life.unmounted.push(cb);
+      },
+      onBeforeDispose(cb) {
+        ensureSetup(`def.lifecycle.onBeforeDispose`);
+        life.beforeDispose.push(cb);
       },
     },
 

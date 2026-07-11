@@ -168,6 +168,7 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     const deps = makeDeps(exposePort, statePort);
     const impl = new ExposeStateModuleImpl(caps as any, deps);
 
+    impl.onInstancePhase('alive');
     impl.afterRenderCommit();
 
     expect(calls.length).toBeGreaterThan(0);

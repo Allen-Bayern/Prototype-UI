@@ -1,9 +1,16 @@
 # internal/contracts/lifecycle/component-lifecycle.v0.md
 
+> **Human-readable reference projection.** The normative source is `spec/contracts/C-LIFECYCLE-0001..0008.yaml`. This document remains useful explanatory material and should be maintained alongside the catalog. Where older single-mount or CP0-CP10 passages conflict with the catalog, the catalog wins and those passages require revision.
+
 > Status: Normative — implementation-aligned (v0)
 >
 > This document specifies the **component-visible lifecycle guarantees** of Proto UI v0.
->
+
+See also:
+
+- [`module-resource-ownership.md`](./module-resource-ownership.md) for the audited instance/view ownership matrix used by runtime modules.
+- [`view-intent-l1.md`](./view-intent-l1.md) for the planned L1 desired-view and adapter reconciliation model governed by `C-LIFECYCLE-0008`.
+
 > It defines:
 >
 > - the canonical lifecycle timeline

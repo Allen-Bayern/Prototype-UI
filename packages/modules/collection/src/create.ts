@@ -182,6 +182,7 @@ export function createCollectionModule(ctx: ModuleFactoryArgs): CollectionModule
 
 export const CollectionModuleDef = defineModule({
   name: 'collection',
+  resourceOwnership: 'instance',
   deps: ['anatomy'],
   create: createCollectionModule,
 });

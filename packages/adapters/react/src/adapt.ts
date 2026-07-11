@@ -1,10 +1,16 @@
 import type { Prototype } from '@proto.ui/core';
-import type { CommitSignal, RuntimeCheckpoint, RuntimeController } from '@proto.ui/runtime';
+import type {
+  CommitSignal,
+  RuntimeCheckpoint,
+  RuntimeController,
+  RuntimeLifecycleEvent,
+} from '@proto.ui/runtime';
 import {
-  createHostWiring,
+  createDeferredOwnerDisposal,
   createEventGate,
-  createWebProtoEventRouter,
   createSoftUnmountScheduler,
+  createViewEpochOwner,
+  createWebProtoEventRouter,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -16,9 +22,14 @@ import type { RawPropsSource } from '@proto.ui/module-props';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { createDefaultMetaGetter } from './platform/meta';
-import { markProtoInstance } from './platform/instance-tree';
+import {
+  bindLogicalParent,
+  createLogicalInstance,
+  markProtoInstance,
+  unbindProtoInstance,
+} from './platform/instance-tree';
 import { createReactEffectsPort } from './runtime/effects-port';
-import { createReactModules } from './runtime/modules';
+import { createReactModules, createReactOwnerModules } from './runtime/modules';
 import { createReactHostSession } from './runtime/session';
 import { renderTemplateToReact, type ReactRuntime as ReactRenderRuntime } from './template';
 
@@ -33,6 +44,8 @@ export type ReactRuntime = ReactRenderRuntime & {
   forwardRef: (render: (props: any, ref: any) => any) => any;
   createElement: (type: any, props?: any, ...children: any[]) => any;
   createPortal?: (children: any, container: Element) => any;
+  createContext?: <T>(defaultValue: T) => { Provider: any };
+  useContext?: <T>(context: { Provider: any }) => T;
 };
 
 export type ReactAdapterHandle = {
@@ -56,6 +69,8 @@ export interface ReactAdapterOptions<Props extends PropsBaseType> {
   getProps?: (props: ReactAdapterProps<Props>) => Partial<Props> | null | undefined;
   getMeta?: (key: string) => unknown;
   diagnostics?: {
+    onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
+    /** @deprecated Use onLifecycleEvent. */
     onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
   };
   exposeStateWebMode?: ExposeStateWebMode;
@@ -85,6 +100,9 @@ function defaultGetProps<Props extends PropsBaseType>(
 export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
   const runtime = normalizeRuntime(runtimeInput);
   const sharedOverlayLayerScheduler = createZIndexOverlayLayerScheduler();
+  const logicalOwnerContext = runtime.createContext?.<ReturnType<
+    typeof createLogicalInstance
+  > | null>(null);
 
   return function AdaptToReact<Props extends PropsBaseType>(
     proto: Prototype<Props>,
@@ -113,9 +131,20 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
 
     const Component = runtime.forwardRef((props: ReactAdapterProps<Props>, ref: any) => {
       const rootRef = runtime.useRef<HTMLElement | null>(null);
+      const instanceTokenRef = runtime.useRef(createLogicalInstance(proto as Prototype<any>));
+      const parentToken =
+        logicalOwnerContext && runtime.useContext
+          ? (runtime.useContext(logicalOwnerContext) as ReturnType<
+              typeof createLogicalInstance
+            > | null)
+          : null;
+      const supportsOwnerContext = !!logicalOwnerContext && !!runtime.useContext;
+      if (logicalOwnerContext && runtime.useContext) {
+        bindLogicalParent(instanceTokenRef.current, parentToken);
+      }
       const [renderChildren, setRenderChildren] = runtime.useState<any>(null);
       const [hostTokens, setHostTokens] = runtime.useState<string[]>([]);
-      const [shouldExist, setShouldExist] = runtime.useState(true);
+      const [shouldExist, setShouldExist] = runtime.useState(!supportsOwnerContext);
 
       const controllerRef = runtime.useRef<RuntimeController | null>(null);
       const eventGateRef = runtime.useRef<ReturnType<typeof createEventGate> | null>(null);
@@ -134,7 +163,20 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const pendingSignalRef = runtime.useRef<CommitSignal | null>(null);
       const commitVersionRef = runtime.useRef(0);
       const [commitVersion, setCommitVersion] = runtime.useState(0);
-      const hostSessionRef = runtime.useRef<{ dispose(): void } | null>(null);
+      const hostSessionRef = runtime.useRef<ReturnType<
+        typeof createReactHostSession<Props>
+      > | null>(null);
+      const ownerRef = runtime.useRef<ReturnType<typeof createViewEpochOwner<Props>> | null>(null);
+      if (!ownerRef.current) {
+        ownerRef.current = createViewEpochOwner<Props>({ prototypeName: proto.name });
+      }
+      const ownerDisposalRef = runtime.useRef<ReturnType<
+        typeof createDeferredOwnerDisposal
+      > | null>(null);
+      if (!ownerDisposalRef.current) {
+        ownerDisposalRef.current = createDeferredOwnerDisposal(() => ownerRef.current?.dispose());
+      }
+      const boundRootRef = runtime.useRef<HTMLElement | null>(null);
       const hasBeenUnmountedRef = runtime.useRef(false);
       const baselineOuterRafRef = runtime.useRef<number | null>(null);
       const baselineInnerRafRef = runtime.useRef<number | null>(null);
@@ -144,6 +186,24 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         () => rootRef.current,
         () => setShouldExist(false)
       );
+      let legacyPresenceWritten = false;
+
+      const presenceBridge = {
+        mount() {
+          legacyPresenceWritten = true;
+          softUnmount.cancel();
+          setShouldExist(true);
+        },
+        unmount(options?: { immediate?: boolean }) {
+          legacyPresenceWritten = true;
+          if (options?.immediate) {
+            softUnmount.cancel();
+            setShouldExist(false);
+            return;
+          }
+          return softUnmount.schedule();
+        },
+      };
 
       const cancelBaselineFrames = () => {
         if (baselineOuterRafRef.current != null) {
@@ -190,6 +250,82 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         if (autoUpdate) controllerRef.current?.update();
       }, [props, autoUpdate]);
 
+      const createHostSession = (
+        wiring: Parameters<typeof createReactHostSession<Props>>[0]['wiring'],
+        initialMount: 'eager' | 'manual'
+      ) =>
+        createReactHostSession({
+          proto,
+          schedule,
+          rawPropsSource: rawPropsSourceRef.current as RawPropsSource<Props>,
+          wiring,
+          eventGate: {
+            disable: () => eventGateRef.current?.disable(),
+            dispose: () => ownerRef.current?.disposeView(),
+          },
+          router: {
+            dispose: () => ownerRef.current?.disposeView(),
+          },
+          onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+          onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
+          onCommit: (children, signal) => {
+            pendingCommitRef.current = true;
+            pendingSignalRef.current = signal;
+            setRenderChildren(children);
+            commitVersionRef.current += 1;
+            setCommitVersion(commitVersionRef.current);
+          },
+          onAfterUnmount: () => {
+            hostSessionRef.current = null;
+            controllerRef.current = null;
+            exposesRef.current = {};
+            setHostTokens([]);
+          },
+          initialMount,
+        });
+
+      runtime.useLayoutEffect(() => {
+        if (!supportsOwnerContext) return;
+        let hostSession = ownerRef.current?.session;
+        if (!hostSession) {
+          const ownerModules = createReactOwnerModules({
+            instanceToken: instanceTokenRef.current,
+            emit: (key, payload) => {
+              eventCallbacksRef.current[key]?.(payload);
+            },
+            rawPropsSource: rawPropsSourceRef.current as RawPropsSource<Props>,
+            getMeta,
+            setExposes: (record) => {
+              exposesRef.current = record;
+            },
+            runInCallbackScope: (fn) => {
+              const invoke = invokeInCallbackScopeRef.current;
+              if (invoke) invoke(fn);
+              else fn();
+            },
+            presenceBridge,
+            overlayLayerScheduler,
+          });
+          hostSession = ownerRef.current!.initialize({
+            modules: ownerModules,
+            createSession: (wiring) => createHostSession(wiring, 'manual'),
+            onViewIntent: (snapshot) => {
+              if (snapshot.version > 0 || !legacyPresenceWritten) {
+                setShouldExist(snapshot.present);
+              }
+            },
+          });
+        }
+
+        hostSessionRef.current = hostSession as ReturnType<typeof createReactHostSession<Props>>;
+        controllerRef.current = hostSession.controller as RuntimeController;
+        invokeInCallbackScopeRef.current = hostSession.invokeInCallbackScope;
+        const initialIntent = hostSession.viewIntent.getSnapshot();
+        if (initialIntent.version > 0 || !legacyPresenceWritten) {
+          setShouldExist(initialIntent.present);
+        }
+      }, []);
+
       runtime.useLayoutEffect(() => {
         if (!shouldExist) {
           // Soft unmount: presence requested unmount, but adapter component remains in tree.
@@ -198,8 +334,9 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
-          hasBeenUnmountedRef.current = true;
+          if (ownerRef.current?.hasView) hasBeenUnmountedRef.current = true;
           eventGateRef.current?.disable?.();
+          if (ownerRef.current?.hasView) void ownerRef.current.detachView();
           setHostTokens([]);
           return;
         }
@@ -207,17 +344,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         const rootEl = rootRef.current;
         if (!rootEl) return;
 
-        // If there is an existing session, dispose it before creating a new one.
-        // React rendered null while shouldExist was false, so the old DOM element was
-        // removed. A new rootEl is fresh and the old router/modules are stale.
-        if (hostSessionRef.current) {
-          hostSessionRef.current.dispose();
-          hostSessionRef.current = null;
-          controllerRef.current = null;
-          eventGateRef.current = null;
-        }
-
-        markProtoInstance(rootEl, proto as Prototype<any>);
+        markProtoInstance(rootEl, proto as Prototype<any>, instanceTokenRef.current);
+        boundRootRef.current = rootEl;
 
         const eventGate = createEventGate();
         eventGateRef.current = eventGate;
@@ -227,24 +355,26 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           globalEl: typeof window === 'undefined' ? rootEl : window,
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
+        let viewDisposed = false;
+        const disposeView = () => {
+          if (viewDisposed) return;
+          viewDisposed = true;
+          eventGate.disable();
+          eventGate.dispose();
+          router.dispose();
+          unbindProtoInstance(instanceTokenRef.current, boundRootRef.current ?? undefined);
+          if (boundRootRef.current === rootEl) boundRootRef.current = null;
+          if (eventGateRef.current === eventGate) eventGateRef.current = null;
+        };
 
         const effectsPort = createReactEffectsPort((tokens) => {
           setHostTokens(tokens);
         });
 
-        const presenceBridge = {
-          mount() {
-            softUnmount.cancel();
-            setShouldExist(true);
-          },
-          unmount() {
-            return softUnmount.schedule();
-          },
-        };
-
         const rawPropsSource = rawPropsSourceRef.current as RawPropsSource<Props>;
         const modules = createReactModules({
           el: rootEl,
+          instanceToken: instanceTokenRef.current,
           router,
           emit: (key, payload) => {
             eventCallbacksRef.current[key]?.(payload);
@@ -268,30 +398,10 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           overlayLayerScheduler,
         });
 
-        const wiring = createHostWiring({ prototypeName: proto.name, modules });
-
-        const hostSession = createReactHostSession({
-          proto,
-          schedule,
-          rawPropsSource,
-          wiring,
-          eventGate,
-          router,
-          onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
-          onCommit: (children, signal) => {
-            pendingCommitRef.current = true;
-            pendingSignalRef.current = signal;
-            setRenderChildren(children);
-            // React may bail out when children keeps the same reference.
-            // Use an explicit commit version so baseline/layout settlement still runs.
-            commitVersionRef.current += 1;
-            setCommitVersion(commitVersionRef.current);
-          },
-          onAfterUnmount: () => {
-            controllerRef.current = null;
-            exposesRef.current = {};
-            setHostTokens([]);
-          },
+        const hostSession = ownerRef.current!.attachView({
+          modules,
+          disposeView,
+          createSession: (wiring) => createHostSession(wiring, 'eager'),
         });
 
         hostSessionRef.current = hostSession;
@@ -304,18 +414,17 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         }
       }, [shouldExist]);
 
-      // Hard unmount: when the React adapter component itself is removed from the parent tree,
-      // unconditionally dispose any remaining session so the prototype runtime is torn down.
+      // React StrictMode replays layout effects. Detach immediately so view
+      // resources follow the replay, but defer terminal owner disposal by one
+      // microtask so an immediate retain can preserve the Proto instance.
       runtime.useLayoutEffect(() => {
+        ownerDisposalRef.current?.retain();
         return () => {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
-          if (hostSessionRef.current) {
-            hostSessionRef.current.dispose();
-            hostSessionRef.current = null;
-            controllerRef.current = null;
-          }
+          void ownerRef.current?.detachView();
+          ownerDisposalRef.current?.release();
         };
       }, []);
 
@@ -393,18 +502,25 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         slot: props.children,
       });
 
-      if (!shouldExist) return null;
+      const content = !shouldExist
+        ? null
+        : runtime.createElement(
+            rootTag,
+            {
+              ref: rootRef as { current: HTMLElement | null },
+              className: mergeHostClassName([props.hostClassName, props.className]),
+              style: mergeHostStyle([props.hostStyle, props.style]),
+              'data-pui-root': '',
+              'data-pui-style': serializeStyleTokens(hostTokens),
+              'data-demo-ref': props['data-demo-ref' as keyof typeof props] as string | undefined,
+            },
+            rendered
+          );
+      if (!logicalOwnerContext) return content;
       return runtime.createElement(
-        rootTag,
-        {
-          ref: rootRef as { current: HTMLElement | null },
-          className: mergeHostClassName([props.hostClassName, props.className]),
-          style: mergeHostStyle([props.hostStyle, props.style]),
-          'data-pui-root': '',
-          'data-pui-style': serializeStyleTokens(hostTokens),
-          'data-demo-ref': props['data-demo-ref' as keyof typeof props] as string | undefined,
-        },
-        rendered
+        logicalOwnerContext.Provider,
+        { value: instanceTokenRef.current },
+        content
       );
     });
 

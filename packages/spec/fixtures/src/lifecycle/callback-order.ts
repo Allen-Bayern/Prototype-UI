@@ -3,7 +3,8 @@ export type LifecycleCallbackOrderExpectation =
   | 'setup-created-render-commit-mounted'
   | 'queued-mounted-callback-invalidated-after-unmount'
   | 'update-render-commit-updated'
-  | 'unmounted-before-dispose-availability-window';
+  | 'repeatable-unmounted-preserves-instance-until-terminal-dispose'
+  | 'setup-created-once-mounted-unmounted-per-epoch';
 
 export type LifecycleTracePoint =
   | 'setup'
@@ -69,9 +70,31 @@ export const LIFECYCLE_CALLBACK_ORDER_CASES = [
     title: 'unmounted callback has an availability window before dispose',
     specCase: 'T-LIFECYCLE-0001-CASE-UNMOUNT-DISPOSAL-BOUNDARY',
     covers: ['C-LIFECYCLE-0002-F', 'C-LIFECYCLE-0002-G'],
-    expectation: 'unmounted-before-dispose-availability-window',
+    expectation: 'repeatable-unmounted-preserves-instance-until-terminal-dispose',
     expectedOrder: ['unmount-begin', 'unmounted', 'dispose'],
     notes: ['Runtime-managed handles remain usable during `unmounted` and fail after `dispose`.'],
+  },
+  {
+    id: 'repeatable-mount-epochs',
+    title: 'one instance repeats mount epochs without rerunning setup or created',
+    specCase: 'T-LIFECYCLE-0001-CASE-REPEATED-MOUNT-EPOCHS',
+    covers: ['C-LIFECYCLE-0002-H'],
+    expectation: 'setup-created-once-mounted-unmounted-per-epoch',
+    expectedOrder: [
+      'setup',
+      'created',
+      'first-render',
+      'commit',
+      'mounted',
+      'unmount-begin',
+      'unmounted',
+      'first-render',
+      'commit',
+      'mounted',
+      'unmount-begin',
+      'unmounted',
+      'dispose',
+    ],
   },
 ] as const satisfies readonly LifecycleCallbackOrderCase[];
 

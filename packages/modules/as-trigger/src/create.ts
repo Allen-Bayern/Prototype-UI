@@ -33,6 +33,7 @@ export function createAsTriggerModule(ctx: ModuleFactoryArgs): AsTriggerModule {
 
 export const AsTriggerModuleDef = defineModule({
   name: 'as-trigger',
+  resourceOwnership: 'instance',
   deps: ['event'],
   create: createAsTriggerModule,
 });

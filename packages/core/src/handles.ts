@@ -148,6 +148,14 @@ export type Phase = 'setup' | 'render' | 'callback' | 'unknown';
 export interface RunHandle<Props extends PropsBaseType> {
   update(): void;
 
+  lifecycle: {
+    /**
+     * Updates desired host-view presence for this alive Proto instance.
+     * Actual mount/unmount is reconciled by the lifecycle owner.
+     */
+    setPresent(present: boolean): void;
+  };
+
   /** Optional getter for the host DOM element (provided by adapters). */
   host?: {
     get(): unknown;
@@ -193,6 +201,7 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
     onMounted(cb: (run: RunHandle<Props>) => void): void;
     onUpdated(cb: (run: RunHandle<Props>) => void): void;
     onUnmounted(cb: (run: RunHandle<Props>) => void): void;
+    onBeforeDispose(cb: (run: RunHandle<Props>) => void): void;
   };
 
   props: {

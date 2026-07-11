@@ -5,6 +5,7 @@ import type {
   OverlayConfig,
   OverlayConfigPatch,
   OverlayHandle,
+  MountPhase,
   ProtoPhase,
   OverlayReason,
   OverlayRegistration,
@@ -139,6 +140,19 @@ export class OverlayModuleImpl extends ModuleBase {
     this.offBoundaryOutside?.();
   }
 
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase === 'unmounting' || phase === 'detached') {
+      this.teardownOpenSideEffects();
+      this.boundary.setStackActive(false);
+      return;
+    }
+    if (phase === 'mounted' && this.isOpen()) {
+      this.boundary.setStackActive(true);
+      this.syncOpenSideEffects();
+    }
+  }
+
   private refreshHostCaps(): void {
     this.globalMount = this.caps.has(OVERLAY_GLOBAL_MOUNT_CAP)
       ? this.caps.get(OVERLAY_GLOBAL_MOUNT_CAP)
@@ -227,6 +241,7 @@ export class OverlayModuleImpl extends ModuleBase {
   }
 
   private syncOpenSideEffects(): void {
+    if (this.mountPhase !== 'mounted') return;
     const hostEl = this.resolveHostElement();
     if (hostEl) {
       this.mountGlobalIfNeeded(hostEl);

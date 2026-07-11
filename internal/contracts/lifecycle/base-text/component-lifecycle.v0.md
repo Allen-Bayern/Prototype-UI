@@ -1,5 +1,7 @@
 # 组件生命周期契约（Component Lifecycle, v0）
 
+> **面向人的可读参考投射。** 规范真相源是 `spec/contracts/C-LIFECYCLE-0001..0008.yaml`。本文继续作为直接阅读与维护材料；旧 v0 表述与可重复 mount epoch 模型冲突时以实体目录为准，并应随后修订本文。
+
 本契约定义 Proto UI **向组件作者（Prototype Author）暴露的生命周期语义保证**。
 
 它规定了：

@@ -23,6 +23,7 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
           getOverlay: () => impl.handle,
         },
         hooks: {
+          onMountPhase: (p, epoch) => impl.onMountPhase(p, epoch),
           onProtoPhase: (p) => impl.onProtoPhase(p),
         },
         port: {
@@ -46,6 +47,7 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
 
 export const OverlayModuleDef = defineModule({
   name: 'overlay',
+  resourceOwnership: 'mixed',
   deps: ['boundary'],
   create: createOverlayModule,
 });

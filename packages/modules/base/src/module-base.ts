@@ -1,10 +1,12 @@
 // packages/modules/base/src/module-base.ts
-import type { ProtoPhase } from '@proto.ui/core';
+import type { InstancePhase, MountPhase, ProtoPhase } from '@proto.ui/core';
 import type { CapsVaultView } from '@proto.ui/core';
 import { SYS_CAP } from './system-caps';
 
 export abstract class ModuleBase {
   protected protoPhase: ProtoPhase = 'setup';
+  protected instancePhase: InstancePhase = 'setup';
+  protected mountPhase: MountPhase = 'detached';
   protected readonly caps: CapsVaultView;
 
   private pending: Array<() => void> = [];
@@ -23,6 +25,14 @@ export abstract class ModuleBase {
 
   onProtoPhase(phase: ProtoPhase): void {
     this.protoPhase = phase;
+  }
+
+  onInstancePhase(phase: InstancePhase): void {
+    this.instancePhase = phase;
+  }
+
+  onMountPhase(phase: MountPhase, _epoch: number): void {
+    this.mountPhase = phase;
   }
 
   protected onCapsEpoch(_epoch: number): void {}

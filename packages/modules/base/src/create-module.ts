@@ -44,6 +44,13 @@ export type ModuleFactoryArgs = {
 export type ModuleDef<Name extends string = string> = {
   name: Name;
   /**
+   * Declares which lifecycle owns the module's resources.
+   * - instance: logical state survives detach and has no host-view activation
+   * - view: resources exist only for one mount epoch
+   * - mixed: logical state survives while host resources suspend/rebind
+   */
+  resourceOwnership: 'instance' | 'view' | 'mixed';
+  /**
    * Hard dependencies: must exist and be initialized first.
    */
   deps?: string[];

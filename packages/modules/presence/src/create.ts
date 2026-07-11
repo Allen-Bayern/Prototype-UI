@@ -23,6 +23,8 @@ export function createPresenceModule(
       port: {
         awaitMount: () => impl.awaitMount(),
         awaitUnmount: () => impl.awaitUnmount(),
+        forceUnmount: () => impl.forceUnmount(),
+        setLifecycleDriver: (driver) => impl.setLifecycleDriver(driver),
       },
     }),
   }) as any;
@@ -30,6 +32,7 @@ export function createPresenceModule(
 
 export const PresenceModuleDef = defineModule({
   name: 'presence',
+  resourceOwnership: 'mixed',
   deps: [],
   create: createPresenceModule,
 });

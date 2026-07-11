@@ -1,10 +1,15 @@
 import type { Prototype } from '@proto.ui/core';
-import type { CommitSignal, RuntimeCheckpoint, RuntimeController } from '@proto.ui/runtime';
+import type {
+  CommitSignal,
+  RuntimeCheckpoint,
+  RuntimeController,
+  RuntimeLifecycleEvent,
+} from '@proto.ui/runtime';
 import {
-  createHostWiring,
   createEventGate,
-  createWebProtoEventRouter,
   createSoftUnmountScheduler,
+  createViewEpochOwner,
+  createWebProtoEventRouter,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -16,9 +21,14 @@ import type { RawPropsSource } from '@proto.ui/module-props';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { createDefaultMetaGetter } from './platform/meta';
-import { markProtoInstance } from './platform/instance-tree';
+import {
+  bindLogicalParent,
+  createLogicalInstance,
+  markProtoInstance,
+  unbindProtoInstance,
+} from './platform/instance-tree';
 import { createVueEffectsPort } from './runtime/effects-port';
-import { createVueModules } from './runtime/modules';
+import { createVueModules, createVueOwnerModules } from './runtime/modules';
 import { createVueHostSession } from './runtime/session';
 import { renderTemplateToVue, type VueRuntime as VueRenderRuntime } from './template';
 
@@ -33,7 +43,11 @@ export type VueRuntime = VueRenderRuntime & {
   watch: (source: any, cb: (...args: any[]) => void | Promise<void>, options?: any) => unknown;
   onMounted: (cb: () => void) => void;
   onBeforeUnmount: (cb: () => void) => void;
+  onActivated?: (cb: () => void) => void;
+  onDeactivated?: (cb: () => void) => void;
   nextTick: (fn?: () => void) => Promise<void>;
+  provide?: (key: symbol, value: unknown) => void;
+  inject?: <T>(key: symbol, defaultValue: T) => T;
 };
 
 export type VueAdapterHandle = {
@@ -55,6 +69,8 @@ export interface VueAdapterOptions<Props extends PropsBaseType> {
   getProps?: (props: VueAdapterProps<Props>) => Partial<Props> | null | undefined;
   getMeta?: (key: string) => unknown;
   diagnostics?: {
+    onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
+    /** @deprecated Use onLifecycleEvent. */
     onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
   };
   exposeStateWebMode?: ExposeStateWebMode;
@@ -81,6 +97,7 @@ function defaultGetProps<Props extends PropsBaseType>(
 
 export function createVueAdapter(runtime: VueRuntime) {
   const sharedOverlayLayerScheduler = createZIndexOverlayLayerScheduler();
+  const logicalOwnerKey = Symbol('@proto.ui/adapter-vue/logical-owner');
 
   return function AdaptToVue<Props extends PropsBaseType>(
     proto: Prototype<Props>,
@@ -123,7 +140,19 @@ export function createVueAdapter(runtime: VueRuntime) {
         const eventGateRef = runtime.ref<ReturnType<typeof createEventGate> | null>(null);
         const exposesRef = runtime.ref<Record<string, unknown>>({});
         const invokeRef = runtime.ref<((fn: () => void) => void) | null>(null);
-        const shouldExist = runtime.ref(true);
+        const instanceToken = createLogicalInstance(proto as Prototype<any>);
+        const supportsOwnerContext = !!runtime.provide && !!runtime.inject;
+        const parentToken = supportsOwnerContext
+          ? runtime.inject!(
+              logicalOwnerKey,
+              null as ReturnType<typeof createLogicalInstance> | null
+            )
+          : null;
+        if (supportsOwnerContext) {
+          bindLogicalParent(instanceToken, parentToken);
+          runtime.provide!(logicalOwnerKey, instanceToken);
+        }
+        const shouldExist = runtime.ref(!supportsOwnerContext);
         let hasBeenUnmounted = false;
 
         const subs = new Set<() => void>();
@@ -148,6 +177,8 @@ export function createVueAdapter(runtime: VueRuntime) {
         let baselineInnerRafId: number | null = null;
         let baselineSignal: CommitSignal | null = null;
         let hostSession: ReturnType<typeof createVueHostSession<Props>> | null = null;
+        const owner = createViewEpochOwner<Props>({ prototypeName: proto.name });
+        let boundRoot: HTMLElement | null = null;
 
         const softUnmount = createSoftUnmountScheduler(
           () => rootRef.value,
@@ -155,6 +186,24 @@ export function createVueAdapter(runtime: VueRuntime) {
             shouldExist.value = false;
           }
         );
+        let legacyPresenceWritten = false;
+
+        const presenceBridge = {
+          mount() {
+            legacyPresenceWritten = true;
+            softUnmount.cancel();
+            shouldExist.value = true;
+          },
+          unmount(options?: { immediate?: boolean }) {
+            legacyPresenceWritten = true;
+            if (options?.immediate) {
+              softUnmount.cancel();
+              shouldExist.value = false;
+              return;
+            }
+            return softUnmount.schedule();
+          },
+        };
 
         const cancelBaselineFrames = () => {
           if (baselineOuterRafId != null) {
@@ -171,6 +220,75 @@ export function createVueAdapter(runtime: VueRuntime) {
           baselineSignal?.done?.();
           baselineSignal = null;
         };
+
+        const createHostSession = (
+          wiring: Parameters<typeof createVueHostSession<Props>>[0]['wiring'],
+          initialMount: 'eager' | 'manual'
+        ) =>
+          createVueHostSession({
+            proto,
+            schedule,
+            rawPropsSource,
+            wiring,
+            eventGate: {
+              disable: () => eventGateRef.value?.disable(),
+              dispose: () => owner.disposeView(),
+            },
+            router: {
+              dispose: () => owner.disposeView(),
+            },
+            onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
+            onLifecycleEvent: opt.diagnostics?.onLifecycleEvent,
+            onCommit: (children, signal) => {
+              pendingCommit = true;
+              pendingSignal = signal;
+              renderChildren.value = children;
+              commitVersion.value += 1;
+            },
+            onAfterUnmount: () => {
+              hostSession = null;
+              controllerRef.value = null;
+              exposesRef.value = {};
+              hostTokens.value = [];
+            },
+            initialMount,
+          });
+
+        if (supportsOwnerContext) {
+          const ownerModules = createVueOwnerModules({
+            instanceToken,
+            emit: (key, payload, options) => {
+              ctx.emit(key, payload, options);
+            },
+            rawPropsSource,
+            getMeta,
+            setExposes: (record) => {
+              exposesRef.value = record;
+            },
+            runInCallbackScope: (fn) => {
+              const invoke = invokeRef.value;
+              if (invoke) invoke(fn);
+              else fn();
+            },
+            presenceBridge,
+            overlayLayerScheduler,
+          });
+          hostSession = owner.initialize({
+            modules: ownerModules,
+            createSession: (wiring) => createHostSession(wiring, 'manual'),
+            onViewIntent: (snapshot) => {
+              if (snapshot.version > 0 || !legacyPresenceWritten) {
+                shouldExist.value = snapshot.present;
+              }
+            },
+          }) as ReturnType<typeof createVueHostSession<Props>>;
+          controllerRef.value = hostSession.controller as RuntimeController;
+          invokeRef.value = hostSession.invokeInCallbackScope;
+          const initialIntent = hostSession.viewIntent.getSnapshot();
+          if (initialIntent.version > 0 || !legacyPresenceWritten) {
+            shouldExist.value = initialIntent.present;
+          }
+        }
 
         ctx.expose({
           update: () => controllerRef.value?.update(),
@@ -263,17 +381,8 @@ export function createVueAdapter(runtime: VueRuntime) {
           if (!rootEl || rootEl === lastInitRoot) return;
           lastInitRoot = rootEl;
 
-          // Dispose any existing session before creating a new one.
-          // Vue removed the old DOM element while shouldExist was false,
-          // so the old router/modules are stale.
-          if (hostSession) {
-            hostSession.dispose();
-            hostSession = null;
-            controllerRef.value = null;
-            eventGateRef.value = null;
-          }
-
-          markProtoInstance(rootEl, proto as Prototype<any>);
+          markProtoInstance(rootEl, proto as Prototype<any>, instanceToken);
+          boundRoot = rootEl;
 
           const eventGate = createEventGate();
           eventGateRef.value = eventGate;
@@ -283,23 +392,25 @@ export function createVueAdapter(runtime: VueRuntime) {
             globalEl: typeof window === 'undefined' ? rootEl : window,
             isEnabled: () => eventGate.isEnabled?.() ?? true,
           });
+          let viewDisposed = false;
+          const disposeView = () => {
+            if (viewDisposed) return;
+            viewDisposed = true;
+            eventGate.disable();
+            eventGate.dispose();
+            router.dispose();
+            unbindProtoInstance(instanceToken, boundRoot ?? undefined);
+            if (boundRoot === rootEl) boundRoot = null;
+            if (eventGateRef.value === eventGate) eventGateRef.value = null;
+          };
 
           const effectsPort = createVueEffectsPort((tokens) => {
             hostTokens.value = tokens;
           });
 
-          const presenceBridge = {
-            mount() {
-              softUnmount.cancel();
-              shouldExist.value = true;
-            },
-            unmount() {
-              return softUnmount.schedule();
-            },
-          };
-
           const modules = createVueModules({
             el: rootEl,
+            instanceToken,
             router,
             emit: (key, payload, options) => {
               ctx.emit(key, payload, options);
@@ -323,27 +434,10 @@ export function createVueAdapter(runtime: VueRuntime) {
             overlayLayerScheduler,
           });
 
-          const wiring = createHostWiring({ prototypeName: proto.name, modules });
-
-          hostSession = createVueHostSession({
-            proto,
-            schedule,
-            rawPropsSource,
-            wiring,
-            eventGate,
-            router,
-            onLifecycleCheckpoint: opt.diagnostics?.onLifecycleCheckpoint,
-            onCommit: (children, signal) => {
-              pendingCommit = true;
-              pendingSignal = signal;
-              renderChildren.value = children;
-              commitVersion.value += 1;
-            },
-            onAfterUnmount: () => {
-              controllerRef.value = null;
-              exposesRef.value = {};
-              hostTokens.value = [];
-            },
+          hostSession = owner.attachView({
+            modules,
+            disposeView,
+            createSession: (wiring) => createHostSession(wiring, 'eager'),
           });
 
           controllerRef.value = hostSession.controller as RuntimeController;
@@ -356,6 +450,16 @@ export function createVueAdapter(runtime: VueRuntime) {
         };
 
         runtime.onMounted(initSession);
+        runtime.onDeactivated?.(() => {
+          softUnmount.cancel();
+          cancelBaselineFrames();
+          resolveBaselineSignal();
+          if (owner.hasView) void owner.detachView();
+          lastInitRoot = null;
+        });
+        runtime.onActivated?.(() => {
+          runtime.nextTick().then(initSession);
+        });
 
         runtime.watch(
           () => shouldExist.value,
@@ -369,8 +473,9 @@ export function createVueAdapter(runtime: VueRuntime) {
               softUnmount.cancel();
               cancelBaselineFrames();
               resolveBaselineSignal();
-              hasBeenUnmounted = true;
+              if (owner.hasView) hasBeenUnmounted = true;
               eventGateRef.value?.disable?.();
+              if (owner.hasView) void owner.detachView();
               hostTokens.value = [];
             }
           },
@@ -397,11 +502,7 @@ export function createVueAdapter(runtime: VueRuntime) {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
-          if (hostSession) {
-            hostSession.dispose();
-            hostSession = null;
-            controllerRef.value = null;
-          }
+          void owner.dispose();
           lastInitRoot = null;
         });
 

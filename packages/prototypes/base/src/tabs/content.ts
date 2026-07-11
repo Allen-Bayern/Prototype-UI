@@ -34,13 +34,16 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
 
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
+    keepMounted: { type: 'boolean', empty: 'fallback' },
   });
   def.props.setDefaults({
     value: '',
+    keepMounted: false,
   });
 
   let ownValue = '';
   let rootId = '';
+  let keepMounted = false;
   def.expose.state('current', current);
   def.expose.state('hidden', hidden);
 
@@ -59,24 +62,38 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
     );
   };
 
-  const syncContext = (next: TabsContextValue) => {
+  const syncContext = (
+    next: TabsContextValue,
+    lifecycle: { setPresent(present: boolean): void }
+  ) => {
     rootId = next.rootId;
     syncIds();
     syncCurrentFromContext(next.value, ownValue, current, hidden, focusEntry);
+    const nextCurrent = next.value === ownValue;
+    lifecycle.setPresent(keepMounted || nextCurrent);
   };
 
-  def.context.subscribe(TABS_CONTEXT, (_run, next) => {
-    syncContext(next);
+  def.context.subscribe(TABS_CONTEXT, (run, next) => {
+    syncContext(next, run.lifecycle);
+  });
+
+  const syncProps = (next: Readonly<TabsContentProps>) => {
+    ownValue = next.value ?? '';
+    keepMounted = next.keepMounted ?? false;
+  };
+
+  def.lifecycle.onCreated((run) => {
+    syncProps(run.props.get());
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
   def.lifecycle.onMounted((run) => {
-    ownValue = run.props.get().value ?? '';
-    syncContext(run.context.read(TABS_CONTEXT));
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
-  def.props.watch(['value'], (run, next) => {
-    ownValue = next.value ?? '';
-    syncContext(run.context.read(TABS_CONTEXT));
+  def.props.watch(['value', 'keepMounted'], (run, next) => {
+    syncProps(next);
+    syncContext(run.context.read(TABS_CONTEXT), run.lifecycle);
   });
 
   // TODO(P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE): Web currently also receives

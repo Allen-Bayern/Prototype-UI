@@ -72,6 +72,8 @@ export type TabsTriggerAsHookContract = {
 
 export interface TabsContentProps {
   value?: string;
+  /** Retain the complete host view while this panel is inactive. Defaults to false. */
+  keepMounted?: boolean;
 }
 
 export type TabsContentExposes = {

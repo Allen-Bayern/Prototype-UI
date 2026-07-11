@@ -31,6 +31,7 @@ export function createStateModule(ctx: ModuleFactoryArgs): StateModule {
 
 export const StateModuleDef = defineModule({
   name: 'state',
+  resourceOwnership: 'instance',
   deps: [],
   create: createStateModule,
 });

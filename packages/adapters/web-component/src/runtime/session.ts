@@ -1,7 +1,7 @@
 import { createAdapterHost, createHostWiring } from '@proto.ui/adapter-base';
 import type { Prototype, TemplateChildren } from '@proto.ui/core';
 import { type RawPropsSource } from '@proto.ui/module-props';
-import type { RuntimeCheckpoint } from '@proto.ui/runtime';
+import type { RuntimeCheckpoint, RuntimeLifecycleEvent } from '@proto.ui/runtime';
 import { type PropsBaseType } from '@proto.ui/types';
 
 import { commitChildren } from '../commit';
@@ -25,10 +25,12 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
     dispose(): void;
   };
   onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
+  onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
   getSlotProjector: () => SlotProjector | null;
   ensureSlotProjector: () => SlotProjector;
   clearSlotProjector: () => void;
   onAfterUnmount?: () => void;
+  initialMount?: 'eager' | 'manual';
 }): ReturnType<typeof createAdapterHost<Props>> & { host: HTMLElement } {
   const {
     proto,
@@ -42,10 +44,12 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
     eventGate,
     router,
     onLifecycleCheckpoint,
+    onLifecycleEvent,
     getSlotProjector,
     ensureSlotProjector,
     clearSlotProjector,
     onAfterUnmount,
+    initialMount,
   } = args;
 
   let capsHub: any = null;
@@ -56,6 +60,7 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
       getRawProps: () => rawPropsSource.get() as Readonly<Props & PropsBaseType>,
       schedule,
       onLifecycleCheckpoint,
+      onLifecycleEvent,
       commit: (children, signal) => {
         commitWebComponentChildren({
           root,
@@ -75,7 +80,6 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
       },
       onUnmountBegin: () => {
         eventGate.disable();
-        clearSlotProjector();
       },
       afterUnmount: () => {
         try {
@@ -89,7 +93,8 @@ export function createWebComponentHostSession<Props extends PropsBaseType>(args:
         clearSlotProjector();
         onAfterUnmount?.();
       },
-    }
+    },
+    { initialMount }
   );
 
   capsHub = hostSession.caps;
@@ -145,10 +150,6 @@ function commitWebComponentChildren(args: {
     projected: slotPool,
     enableMO: result.hasSlot,
   });
-
-  if (!result.hasSlot) {
-    clearSlotProjector();
-  }
 
   eventGate.enable();
 }

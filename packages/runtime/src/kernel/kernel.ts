@@ -25,12 +25,14 @@ import type { ContextFacade } from '@proto.ui/module-context';
 import type { AnatomyFacade } from '@proto.ui/module-anatomy';
 import type { ExecPhase } from '@proto.ui/module-base';
 import { attachAsHookRuntime } from './as-hook';
+import { createViewIntent, type RuntimeViewIntent } from './view-intent';
 
 export type Kernel<P extends PropsBaseType> = {
   getPhase(): Phase;
   setPhase(p: Phase): void;
 
   lifecycle: LifecycleRegistry<P>;
+  viewIntent: RuntimeViewIntent;
   rules: RuleFacade<P>;
 
   run: RunHandle<P>;
@@ -68,6 +70,7 @@ export function createKernel<P extends PropsBaseType>(
   };
 
   const lifecycle = createLifecycleRegistry<P>();
+  const viewIntent = createViewIntent(st);
   const rules = modules.getFacades()['rule'] as RuleFacade<P>;
 
   const def = createDefHandle<P>(st, lifecycle, rules, modules, opt?.eventSink);
@@ -106,12 +109,16 @@ export function createKernel<P extends PropsBaseType>(
   }
 
   // NOTE: createRunHandle only depends on the facade view.
-  const run = createRunHandle<P>(() => {
-    if (!runUpdateImpl) {
-      throw new Error(`[Runtime] run.update() is not supported in host-free execution.`);
-    }
-    runUpdateImpl();
-  }, modules);
+  const run = createRunHandle<P>(
+    () => {
+      if (!runUpdateImpl) {
+        throw new Error(`[Runtime] run.update() is not supported in host-free execution.`);
+      }
+      runUpdateImpl();
+    },
+    modules,
+    (present) => viewIntent.setPresent(present)
+  );
 
   // ----------------
   // read / renderer
@@ -188,6 +195,7 @@ export function createKernel<P extends PropsBaseType>(
     setPhase: (p) => setPhase(p as any),
 
     lifecycle,
+    viewIntent,
     rules,
 
     run,

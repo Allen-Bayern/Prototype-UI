@@ -40,10 +40,12 @@ describe('prototypes/shadcn: tabs', () => {
     expect(triggerA.getAttribute('aria-selected')).toBe('true');
     expect(styleContains(triggerA, 'data-[selected]:bg-background')).toBe(true);
     expect(styleContains(contentA, 'block')).toBe(true);
-    expect(styleContains(contentB, 'data-[hidden]:hidden')).toBe(true);
-    expect(contentB.hasAttribute('hidden')).toBe(true);
+    expect(styleContains(contentB, 'data-[hidden]:hidden')).toBe(false);
+    expect(contentB.hasAttribute('hidden')).toBe(false);
 
     triggerB.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
 
     expect(root.getExposes().value.get()).toBe('b');
     expect(triggerB.getExposes().selected.get()).toBe(true);
@@ -51,7 +53,8 @@ describe('prototypes/shadcn: tabs', () => {
     expect(triggerB.hasAttribute('data-selected')).toBe(true);
     expect(triggerB.getAttribute('aria-selected')).toBe('true');
     expect(styleContains(triggerB, 'data-[selected]:bg-background')).toBe(true);
-    expect(styleContains(contentA, 'data-[hidden]:hidden')).toBe(true);
+    expect(styleContains(contentB, 'block')).toBe(true);
+    expect(styleContains(contentA, 'data-[hidden]:hidden')).toBe(false);
     expect(contentA.hasAttribute('hidden')).toBe(true);
 
     root.remove();

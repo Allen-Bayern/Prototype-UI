@@ -25,6 +25,7 @@ export function createHitParticipationModule(ctx: ModuleFactoryArgs) {
           getHitParticipation: () => impl.handle,
         },
         hooks: {
+          onMountPhase: (phase, epoch) => impl.onMountPhase(phase, epoch),
           onProtoPhase: (phase) => impl.onProtoPhase(phase),
         },
         port: {
@@ -42,5 +43,6 @@ export function createHitParticipationModule(ctx: ModuleFactoryArgs) {
 
 export const HitParticipationModuleDef = defineModule({
   name: 'hit-participation',
+  resourceOwnership: 'mixed',
   create: createHitParticipationModule,
 });

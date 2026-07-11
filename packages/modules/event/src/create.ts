@@ -46,6 +46,7 @@ export function createEventModule(ctx: ModuleFactoryArgs): EventModule {
 
 export const EventModuleDef = defineModule({
   name: 'event',
+  resourceOwnership: 'mixed',
   deps: [],
   create: createEventModule,
 });

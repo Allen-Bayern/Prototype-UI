@@ -1,4 +1,4 @@
-import { cap, type ProtoPhase } from '@proto.ui/core';
+import { cap, type InstancePhase, type MountPhase, type ProtoPhase } from '@proto.ui/core';
 
 export type ExecPhase = 'setup' | 'render' | 'callback' | 'unknown';
 export type GuardDomain = 'setup' | 'runtime';
@@ -11,7 +11,14 @@ export interface SystemCaps {
   domain(): GuardDomain;
 
   /** proto lifecycle phase */
+  /** @deprecated Use instancePhase and mountPhase. */
   protoPhase(): ProtoPhase;
+
+  /** Current terminal instance lifecycle phase. */
+  instancePhase?(): InstancePhase;
+
+  /** Current repeatable host-view lifecycle phase. */
+  mountPhase?(): MountPhase;
 
   /** disposal state */
   isDisposed(): boolean;

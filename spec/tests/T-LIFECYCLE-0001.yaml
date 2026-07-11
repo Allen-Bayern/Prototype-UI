@@ -3,7 +3,7 @@ type: test
 title: Prototype-visible lifecycle callback order tests
 status: draft
 since: 0.1.0
-summary: Shared fixture and runtime test mapping for the lifecycle callback ordering and disposal guarantees in `C-LIFECYCLE-0002`.
+summary: Shared fixture and runtime test mapping for per-instance callbacks, repeatable mount epochs, and terminal disposal.
 cases:
   - id: T-LIFECYCLE-0001-CASE-SETUP-REGISTRATION
     title: Registered lifecycle callbacks are invoked by runtime lifecycle flow
@@ -37,13 +37,20 @@ cases:
       - The fixture models ordering, not whether the host performs the update synchronously or schedules it.
       - The `commit` trace point represents the commit completion boundary for this fixture.
   - id: T-LIFECYCLE-0001-CASE-UNMOUNT-DISPOSAL-BOUNDARY
-    title: Unmounted runs before dispose and handles are invalid after dispose
+    title: Repeatable unmounted preserves instance handles while terminal dispose invalidates them
     covers:
       - C-LIFECYCLE-0002-F
       - C-LIFECYCLE-0002-G
-    expectation: unmounted-before-dispose-availability-window
+    expectation: repeatable-unmounted-preserves-instance-until-terminal-dispose
     notes:
-      - Verifies the availability window during `unmounted` and invalidation after disposal.
+      - Verifies instance handle availability across detached epochs and invalidation after terminal disposal.
+  - id: T-LIFECYCLE-0001-CASE-REPEATED-MOUNT-EPOCHS
+    title: One instance mounts and unmounts repeatedly without rerunning setup or created
+    covers:
+      - C-LIFECYCLE-0002-H
+      - C-LIFECYCLE-0006-B
+      - C-LIFECYCLE-0006-D
+    expectation: setup-created-once-mounted-unmounted-per-epoch
 implementations:
   - id: lifecycle-callback-order-fixture
     kind: fixture
@@ -56,6 +63,7 @@ implementations:
       - T-LIFECYCLE-0001-CASE-MOUNTED-CANCELLED-AFTER-UNMOUNT
       - T-LIFECYCLE-0001-CASE-UPDATE-CYCLE-ORDER
       - T-LIFECYCLE-0001-CASE-UNMOUNT-DISPOSAL-BOUNDARY
+      - T-LIFECYCLE-0001-CASE-REPEATED-MOUNT-EPOCHS
     notes:
       - Shared lifecycle ordering fixture for runtime tests, adapter conformance tests, and future host profile test harnesses.
   - id: runtime-lifecycle-with-host-order
@@ -97,6 +105,15 @@ implementations:
       - T-LIFECYCLE-0001-CASE-SETUP-REGISTRATION
     notes:
       - Focused coverage that `def.lifecycle.*` registers callbacks without immediate invocation; setup-only API surface coverage is owned by `T-LIFECYCLE-0004`.
+  - id: runtime-repeatable-lifecycle-session
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/lifecycle.session.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0001-CASE-MOUNTED-CANCELLED-AFTER-UNMOUNT
+      - T-LIFECYCLE-0001-CASE-UNMOUNT-DISPOSAL-BOUNDARY
+      - T-LIFECYCLE-0001-CASE-REPEATED-MOUNT-EPOCHS
 verifies:
   contracts:
     - id: C-LIFECYCLE-0002
@@ -108,6 +125,7 @@ verifies:
         - C-LIFECYCLE-0002-E
         - C-LIFECYCLE-0002-F
         - C-LIFECYCLE-0002-G
+        - C-LIFECYCLE-0002-H
 exercises:
   contracts:
     - id: C-LIFECYCLE-0001

@@ -1,5 +1,5 @@
 // packages/modules/expose-state-web/src/impl.ts
-import type { CapsVaultView, ProtoPhase } from '@proto.ui/core';
+import type { CapsVaultView, MountPhase, ProtoPhase } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
 import type { ModuleDeps } from '@proto.ui/module-base';
 import type { StateSpec } from '@proto.ui/types';
@@ -64,6 +64,14 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
     if (phase === 'unmounted') this.dispose();
   }
 
+  override onMountPhase(phase: MountPhase, epoch: number): void {
+    super.onMountPhase(phase, epoch);
+    if (phase !== 'detached') return;
+    this.active = false;
+    this.clearBindings();
+    this.exposedByStateId.clear();
+  }
+
   afterRenderCommit(): void {
     this.refresh();
   }
@@ -84,6 +92,7 @@ export class ExposeStateWebModuleImpl extends ModuleBase {
 
   private refresh(): void {
     if (this.disposed) return;
+    if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
 
     if (!this.caps.has(HOST_ELEMENT_CAP)) {
       this.active = false;

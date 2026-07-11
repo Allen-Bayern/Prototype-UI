@@ -1,7 +1,7 @@
 // packages/adapters/base/src/host/adapter-host.ts
 import type { Prototype } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
-import { executeWithHost, type RuntimeHost, type ExecuteWithHostResult } from '@proto.ui/runtime';
+import { createRuntimeSession, type RuntimeHost, type RuntimeSession } from '@proto.ui/runtime';
 import { createTeardown } from '../lifecycle/teardown';
 
 export type AdapterHostHooks<P extends PropsBaseType> = {
@@ -12,44 +12,91 @@ export type AdapterHostHooks<P extends PropsBaseType> = {
 
 export type AdapterHostInput<P extends PropsBaseType> = Pick<
   RuntimeHost<P>,
-  'commit' | 'schedule' | 'getRawProps' | 'onLifecycleCheckpoint'
+  | 'commit'
+  | 'schedule'
+  | 'getRawProps'
+  | 'onLifecycleCheckpoint'
+  | 'onLifecycleEvent'
+  | 'presenceLifecycle'
 >;
 
+export type AdapterHostOptions = {
+  /** Existing adapters stay eager; detached owners opt into manual first mount. */
+  initialMount?: 'eager' | 'manual';
+};
+
 export type AdapterHostSession<P extends PropsBaseType> = {
-  controller: ExecuteWithHostResult['controller'];
-  dispose(): void;
-  caps: ExecuteWithHostResult['caps'];
-  invokeInCallbackScope: ExecuteWithHostResult['invokeInCallbackScope'];
-  kernel: ExecuteWithHostResult['kernel'];
+  controller: RuntimeSession<P>['controller'];
+  mount(): Promise<void>;
+  unmount(): Promise<void>;
+  dispose(): Promise<void>;
+  viewIntent: RuntimeSession<P>['viewIntent'];
+  caps: RuntimeSession<P>['caps'];
+  invokeInCallbackScope: RuntimeSession<P>['invokeInCallbackScope'];
+  kernel: RuntimeSession<P>['kernel'];
 };
 
 export function createAdapterHost<P extends PropsBaseType>(
   proto: Prototype<P>,
   host: AdapterHostInput<P>,
-  hooks: AdapterHostHooks<P> = {}
+  hooks: AdapterHostHooks<P> = {},
+  options: AdapterHostOptions = {}
 ): AdapterHostSession<P> {
   const teardown = createTeardown();
+  let disposePromise: Promise<void> | null = null;
+  let afterUnmountDone = false;
 
-  const res = executeWithHost(proto, {
+  const finishAfterUnmount = () => {
+    if (afterUnmountDone) return;
+    afterUnmountDone = true;
+    hooks.afterUnmount?.();
+  };
+
+  const session = createRuntimeSession(proto, {
     prototypeName: proto.name,
     getRawProps: host.getRawProps,
     commit: host.commit,
     schedule: host.schedule,
     onLifecycleCheckpoint: host.onLifecycleCheckpoint,
+    onLifecycleEvent: host.onLifecycleEvent,
+    presenceLifecycle: host.presenceLifecycle,
     onRuntimeReady: hooks.onRuntimeReady,
     onUnmountBegin: hooks.onUnmountBegin,
   });
+  if (options.initialMount !== 'manual') void session.mount();
 
   return {
-    controller: res.controller,
-    caps: res.caps,
-    invokeInCallbackScope: res.invokeInCallbackScope,
-    kernel: res.kernel,
+    controller: session.controller,
+    viewIntent: session.viewIntent,
+    caps: session.caps,
+    invokeInCallbackScope: session.invokeInCallbackScope,
+    kernel: session.kernel,
+    mount: () => session.mount(),
+    unmount: () => session.unmount(),
     dispose() {
       teardown.run(() => {
-        res.invokeUnmounted();
-        hooks.afterUnmount?.();
+        const runtimeDispose = Promise.resolve(session.dispose());
+
+        // RuntimeSession deliberately completes the terminal transition
+        // synchronously when no async presence transition is pending. Keep
+        // adapter resource disposal in that same turn so DOM listeners do not
+        // outlive their host/test environment by an extra microtask.
+        if (session.instancePhase === 'disposed') {
+          let afterUnmountError: unknown;
+          try {
+            finishAfterUnmount();
+          } catch (error) {
+            afterUnmountError = error;
+          }
+          disposePromise = runtimeDispose.then(() => {
+            if (afterUnmountError) throw afterUnmountError;
+          });
+          return;
+        }
+
+        disposePromise = runtimeDispose.finally(finishAfterUnmount);
       });
+      return disposePromise ?? Promise.resolve();
     },
   };
 }
