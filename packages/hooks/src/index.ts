@@ -7,7 +7,6 @@ export * from './as-focusable';
 export * from './as-focus-scope';
 export * from './as-hit-participation';
 export * from './as-overlay';
-export * from './as-presence';
 export * from './as-trigger';
 export * from './as-transition';
 export * from './as-transition-types';

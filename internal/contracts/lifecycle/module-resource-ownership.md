@@ -8,7 +8,7 @@ This document is the human-readable projection of the lifecycle resource audit. 
 - `view`: all meaningful resources belong to one mount epoch. No current module is purely view-owned because modules themselves are instance-scoped.
 - `mixed`: logical configuration survives, while host listeners, projections, observers, locks, or DOM bindings suspend on detach and rebind on mount.
 
-Host capability objects may remain readable in a caps vault while detached. Their presence does not authorize host effects: mixed modules must gate activation by `MountPhase`, and stale commit acknowledgements must not reactivate them.
+Detached owners retain only owner/instance capabilities. View-only capabilities must be removed from the attached caps layer when an epoch detaches, releasing references to roots, routers, effects ports, projectors, and other host resources. Mixed modules must still gate activation by `MountPhase`, and stale commit acknowledgements must not reactivate them.
 
 ## Audited matrix
 

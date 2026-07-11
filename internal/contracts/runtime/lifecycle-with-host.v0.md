@@ -1,6 +1,6 @@
 # Runtime Lifecycle with Host (v0)
 
-> **Human-readable reference projection.** The normative repeatable lifecycle is catalogued by `C-LIFECYCLE-0001..0007`. `executeWithHost` remains documented as the legacy eager wrapper over `RuntimeSession`; this text should evolve with that relationship.
+> **Human-readable reference projection.** The normative repeatable lifecycle is catalogued by `C-LIFECYCLE-0001..0008`. `executeWithHost` remains documented as the legacy eager wrapper over `RuntimeSession`; this text should evolve with that relationship.
 
 This document defines the **runtime lifecycle contract** for Proto UI when running with a host (adapter). It describes what prototype authors may rely on, and what host implementations (WC/React/Vue/etc.) may choose.
 
