@@ -1,4 +1,5 @@
 import type { PropsBaseType } from '@proto.ui/types';
+import type { ViewIntentSnapshot } from '@proto.ui/runtime';
 import { createHostWiring } from '../wiring/host-wiring';
 import type { AdapterHostSession } from './adapter-host';
 import type { WiringSpec } from '../types';
@@ -8,6 +9,17 @@ type ViewDisposer = () => void;
 export type ViewEpochOwner<P extends PropsBaseType> = {
   readonly session: AdapterHostSession<P> | null;
   readonly hasView: boolean;
+  readonly viewIntent: ViewIntentSnapshot | null;
+
+  /**
+   * Creates the Proto session while it is detached. The supplied wiring must
+   * contain owner/instance capabilities only; view capabilities arrive later.
+   */
+  initialize(args: {
+    modules: WiringSpec;
+    createSession(wiring: ReturnType<typeof createHostWiring>): AdapterHostSession<P>;
+    onViewIntent?(snapshot: ViewIntentSnapshot): void;
+  }): AdapterHostSession<P>;
 
   attachView(args: {
     modules: WiringSpec;
@@ -33,6 +45,8 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
   let wiring: ReturnType<typeof createHostWiring> | null = null;
   let session: AdapterHostSession<P> | null = null;
   let viewDisposer: ViewDisposer | null = null;
+  let viewIntent: ViewIntentSnapshot | null = null;
+  let unsubscribeIntent: (() => void) | null = null;
   let disposed = false;
 
   const disposeView = () => {
@@ -48,6 +62,28 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
     get hasView() {
       return viewDisposer !== null;
     },
+    get viewIntent() {
+      return viewIntent;
+    },
+    initialize(input) {
+      if (disposed) {
+        throw new Error(`[AdapterHost] cannot initialize disposed ${args.prototypeName}`);
+      }
+      if (session || wiring) {
+        throw new Error(`[AdapterHost] ${args.prototypeName} owner is already initialized`);
+      }
+
+      wiring = createHostWiring({ prototypeName: args.prototypeName, modules: input.modules });
+      session = input.createSession(wiring);
+
+      const notify = (snapshot: ViewIntentSnapshot) => {
+        viewIntent = snapshot;
+        input.onViewIntent?.(snapshot);
+      };
+      unsubscribeIntent = session.viewIntent.subscribe(notify);
+      notify(session.viewIntent.getSnapshot());
+      return session;
+    },
     attachView(input) {
       if (disposed) {
         throw new Error(`[AdapterHost] cannot attach a view to disposed ${args.prototypeName}`);
@@ -59,6 +95,7 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
       if (!wiring) {
         wiring = createHostWiring({ prototypeName: args.prototypeName, modules: input.modules });
         session = input.createSession(wiring);
+        viewIntent = session.viewIntent.getSnapshot();
         return session;
       }
 
@@ -78,6 +115,8 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
     dispose() {
       if (disposed) return session?.dispose() ?? Promise.resolve();
       disposed = true;
+      unsubscribeIntent?.();
+      unsubscribeIntent = null;
       const result = session?.dispose() ?? Promise.resolve();
       disposeView();
       wiring = null;

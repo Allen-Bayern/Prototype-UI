@@ -20,11 +20,17 @@ export type AdapterHostInput<P extends PropsBaseType> = Pick<
   | 'presenceLifecycle'
 >;
 
+export type AdapterHostOptions = {
+  /** Existing adapters stay eager; detached owners opt into manual first mount. */
+  initialMount?: 'eager' | 'manual';
+};
+
 export type AdapterHostSession<P extends PropsBaseType> = {
   controller: RuntimeSession<P>['controller'];
   mount(): Promise<void>;
   unmount(): Promise<void>;
   dispose(): Promise<void>;
+  viewIntent: RuntimeSession<P>['viewIntent'];
   caps: RuntimeSession<P>['caps'];
   invokeInCallbackScope: RuntimeSession<P>['invokeInCallbackScope'];
   kernel: RuntimeSession<P>['kernel'];
@@ -33,7 +39,8 @@ export type AdapterHostSession<P extends PropsBaseType> = {
 export function createAdapterHost<P extends PropsBaseType>(
   proto: Prototype<P>,
   host: AdapterHostInput<P>,
-  hooks: AdapterHostHooks<P> = {}
+  hooks: AdapterHostHooks<P> = {},
+  options: AdapterHostOptions = {}
 ): AdapterHostSession<P> {
   const teardown = createTeardown();
   let disposePromise: Promise<void> | null = null;
@@ -56,10 +63,11 @@ export function createAdapterHost<P extends PropsBaseType>(
     onRuntimeReady: hooks.onRuntimeReady,
     onUnmountBegin: hooks.onUnmountBegin,
   });
-  void session.mount();
+  if (options.initialMount !== 'manual') void session.mount();
 
   return {
     controller: session.controller,
+    viewIntent: session.viewIntent,
     caps: session.caps,
     invokeInCallbackScope: session.invokeInCallbackScope,
     kernel: session.kernel,

@@ -57,14 +57,20 @@ implementations:
       - T-LIFECYCLE-0006-CASE-RUN-SURFACE
   - id: adapters-base-view-intent-owner
     kind: adapter-test
-    status: planned
-    path: packages/adapters/base/test/view-intent-owner.test.ts
+    status: passing
+    path: packages/adapters/base/test/view-epoch-owner.test.ts
     required: true
     consumesCases:
       - T-LIFECYCLE-0006-CASE-FIRST-MATERIALIZATION
       - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
-      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
       - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
+  - id: adapters-base-latest-intent-reconciliation
+    kind: adapter-test
+    status: planned
+    path: packages/adapters/base/test/view-intent-reconciler.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
   - id: adapter-react-initial-view-intent
     kind: adapter-test
     status: planned
@@ -102,6 +108,9 @@ revisions:
   - version: 0.1.1
     change: partially-implemented
     summary: Implemented the callback-only RunHandle surface, default/initial intent semantics, versioning, and terminal intent lock.
+  - version: 0.1.2
+    change: partially-implemented
+    summary: Added manual AdapterHost sessions and detached ViewEpochOwner initialization before the first view exists.
 tags:
   - lifecycle
   - view-intent
