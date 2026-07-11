@@ -20,6 +20,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
   onLifecycleEvent?: (event: RuntimeLifecycleEvent) => void;
   onCommit: (children: any, signal: CommitSignal | null) => void;
   onAfterUnmount?: () => void;
+  initialMount?: 'eager' | 'manual';
 }) {
   const {
     proto,
@@ -32,6 +33,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
     onLifecycleEvent,
     onCommit,
     onAfterUnmount,
+    initialMount,
   } = args;
 
   return createAdapterHost(
@@ -59,6 +61,7 @@ export function createReactHostSession<Props extends PropsBaseType>(args: {
         router.dispose();
         onAfterUnmount?.();
       },
-    }
+    },
+    { initialMount }
   );
 }

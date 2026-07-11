@@ -38,6 +38,14 @@ export function createInstanceTreeMarkers(symbolName: string) {
     return token;
   }
 
+  function bindLogicalParent(
+    token: LogicalInstanceToken,
+    parent: LogicalInstanceToken | null
+  ): void {
+    if (parent) PARENT_BY_TOKEN.set(token, parent);
+    else PARENT_BY_TOKEN.delete(token);
+  }
+
   function markProtoInstance(
     el: HTMLElement,
     proto: Prototype<any>,
@@ -133,6 +141,7 @@ export function createInstanceTreeMarkers(symbolName: string) {
   return {
     PROTO_INSTANCE,
     createLogicalInstance,
+    bindLogicalParent,
     markProtoInstance,
     unbindProtoInstance,
     setProtoParent,

@@ -64,16 +64,9 @@ implementations:
       - T-LIFECYCLE-0006-CASE-FIRST-MATERIALIZATION
       - T-LIFECYCLE-0006-CASE-REPEATABLE-DETACH
       - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
-  - id: adapters-base-latest-intent-reconciliation
-    kind: adapter-test
-    status: planned
-    path: packages/adapters/base/test/view-intent-reconciler.test.ts
-    required: true
-    consumesCases:
-      - T-LIFECYCLE-0006-CASE-LATEST-INTENT
   - id: adapter-react-initial-view-intent
     kind: adapter-test
-    status: planned
+    status: passing
     path: packages/adapters/react/test/lifecycle-view-intent.test.ts
     required: true
     consumesCases:
@@ -82,7 +75,7 @@ implementations:
       - T-LIFECYCLE-0006-CASE-LATEST-INTENT
   - id: adapter-vue-initial-view-intent
     kind: adapter-test
-    status: planned
+    status: passing
     path: packages/adapters/vue/test/lifecycle-view-intent.test.ts
     required: true
     consumesCases:
@@ -111,6 +104,9 @@ revisions:
   - version: 0.1.2
     change: partially-implemented
     summary: Added manual AdapterHost sessions and detached ViewEpochOwner initialization before the first view exists.
+  - version: 0.1.3
+    change: partially-implemented
+    summary: React and Vue now reconcile latest ViewIntent through logical component owners and repeatable view epochs.
 tags:
   - lifecycle
   - view-intent

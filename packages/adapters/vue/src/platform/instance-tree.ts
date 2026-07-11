@@ -3,6 +3,7 @@ import { createInstanceTreeMarkers } from '@proto.ui/adapter-base';
 export const {
   PROTO_INSTANCE: __VUE_PROTO_INSTANCE,
   createLogicalInstance,
+  bindLogicalParent,
   markProtoInstance,
   unbindProtoInstance,
   setProtoParent,
