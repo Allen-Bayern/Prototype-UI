@@ -90,13 +90,14 @@ asHook 在 v0 中提供：
 
 ### 4.1 基准形状（v0）
 
-`AsHookResult` 是 **asHook 调用器** 的返回值（不是 authored prototype 的 `setup` 返回值）。
+`AsHookResult` 是 runtime 从 authored asHook setup frame 合成的结果（不是 authored prototype 的 `setup` 返回值），也是 **asHook 调用器** 的默认返回值。
 
 这里区分两个返回通道：
 
 - authored asHook 的 `setup` 仍然保持与 `definePrototype` 相同的返回通道：`RenderFn | void`
 - `AsHookResult` 是 runtime 在执行该 setup 之后，对这个 setup frame 中的语法贡献进行分析后合成的结果
 - 这个合成结果可以包含分门别类的 setup 贡献，例如 state handles、artifacts、可取消 setup effect 及其 disposers，以及 setup 返回的 render function
+- authored asHook 可以声明 `projectHandle(result)`，把合成结果投射为定制 caller handle
 
 其结构必须是一个对象，形态对齐 def 句柄风格：
 
@@ -110,6 +111,14 @@ asHook 在 v0 中提供：
 - 允许出现 **自定义字段**（用于扩展）
 
 > 仅 `state` 强制为 Borrowed 视图；其转换由 state module 提供的 SPI 完成。
+
+### 4.1.1 定制 caller handle 投射
+
+- `projectHandle` 是可选能力，不改变 `setup` 的返回通道。
+- 它在 capture 与 Borrowed state 投射完成后运行，并接收合成的 `AsHookResult`。
+- 它的返回值成为公开的 caller 返回值。
+- once 安装中它只运行一次；重复调用必须返回严格相同的投射 handle。
+- runtime 的组合与诊断记录仍以合成 artifacts 为真相，不以定制 handle 取代内部结果。
 
 ### 4.2 模块结果的语义约束
 

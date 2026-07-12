@@ -16,8 +16,8 @@ statement:
 criteria:
   - id: C-AS-TRANSITION-0001-A
     text:
-      zh-CN: '`asTransition()` 必须是无参数的 privileged once hook；同一 setup chain 重复调用必须跳过安装并返回严格相同的 handle。'
-      en: '`asTransition()` must be a no-argument privileged once hook; repeated calls in one setup chain must skip installation and return the exact same handle.'
+      zh-CN: '`asTransition()` 必须是由 `defineAsHook` 定义的无参数 ordinary once hook；同一 setup chain 重复调用必须跳过安装并返回严格相同的投射 handle。'
+      en: '`asTransition()` must be a no-argument ordinary once hook defined through `defineAsHook`; repeated calls in one setup chain must skip installation and return the exact same projected handle.'
   - id: C-AS-TRANSITION-0001-B
     text:
       zh-CN: transitionState 必须限定为 closed、entering、entered、leaving；isPresent 只表示感知存在性，不得作为结构 mount fact。
@@ -60,10 +60,10 @@ criteria:
       en: closed, ViewIntent detached, and Proto instance disposed must remain distinct facts; controls and exposes remain available after detach until terminal owner disposal.
 sources:
   - path: internal/contracts/prototype-base/transition.v0.md
-  - path: packages/hooks/src/as-transition.ts
+  - path: packages/prototypes/base/src/transition/as-transition.ts
     sections:
       - asTransition
-  - path: packages/hooks/src/transition-machine.ts
+  - path: packages/prototypes/base/src/transition/machine.ts
     sections:
       - createTransitionMachine
   - path: packages/core/src/delay.ts
@@ -71,12 +71,12 @@ sources:
       - delay
 dependsOn:
   contracts:
-    - C-AS-HOOK-PRIVILEGED-0001
+    - C-AS-HOOK-0004
+    - C-AS-HOOK-0009
     - C-DELAY-0001
     - C-LIFECYCLE-0008
   decisions:
     - D-AS-HOOK-NO-ARG-ONCE-0001
-    - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
 verifies:
   tests:
     - T-AS-TRANSITION-0001
@@ -84,6 +84,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Replaced the legacy Presence-bridge transition model with a no-arg state machine coordinated through lifecycle ViewIntent and Core delay.
+  - version: 0.1.1
+    change: revised
+    summary: Reclassified asTransition as an ordinary authored asHook using stable custom caller handle projection.
 tags:
   - transition
   - as-hook

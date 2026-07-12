@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { definePrototype } from '@proto.ui/core';
-import { asTransition, type TransitionProps } from '@proto.ui/hooks';
+import { asTransition, type TransitionProps } from '@proto.ui/prototypes-base';
 
 import { createMountedVueAdapter, flushVue } from './utils/vue';
 

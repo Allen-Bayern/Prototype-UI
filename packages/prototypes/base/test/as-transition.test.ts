@@ -417,6 +417,11 @@ describe('prototypes/base: asTransition', () => {
 
     expect(first).toBe(second);
     expect(ctx.getExposes().transitionState.get()).toBe('closed');
+    expect((P as any).__asHooks[0]).toMatchObject({
+      name: 'asTransition',
+      mode: 'once',
+      privileged: false,
+    });
   });
 
   it('AS-TRANSITION-1500: supports controlled sync from props updates', () => {

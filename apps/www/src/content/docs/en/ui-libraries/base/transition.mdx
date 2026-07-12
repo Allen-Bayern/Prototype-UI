@@ -62,9 +62,9 @@ Transition is a **low-level foundational component** for managing the presence l
 
 ### Architecture
 
-`asTransition()` is a no-argument **privileged once hook**. Repeated calls in one setup chain return the same handle. It governs only the perceptual `closed / entering / entered / leaving` phases and submits structural intent through `run.lifecycle.setPresent()` and L1 ViewIntent.
+`asTransition()` is a no-argument **ordinary once asHook** exported by `@proto.ui/prototypes-base`. Repeated calls in one setup chain return the same projected handle. It governs only the perceptual `closed / entering / entered / leaving` phases and submits structural intent through `run.lifecycle.setPresent()` and L1 ViewIntent.
 
-Why privileged? Because delaying structural mount before "entering" starts, and delaying unmount until "leaving → closed" finishes, requires host-level capabilities that go beyond what ordinary prototype authors can access.
+It does not require module ports or host-private facades. Lifecycle callbacks, `run.lifecycle.setPresent()`, and Core `delay()` provide the complete public capability boundary needed to implement the policy.
 
 Transition, ViewIntent, and the actual view epoch remain separate facts:
 

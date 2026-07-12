@@ -62,9 +62,9 @@ Transition 是一个**底层基础组件**，用于管理元素的存在状态�
 
 ### 架构
 
-`asTransition()` 是一个无参数的 **privileged once hook**。同一 setup chain 重复调用会返回同一个 handle。它只治理 `closed / entering / entered / leaving` 这组感知状态，并通过 `run.lifecycle.setPresent()` 向 L1 ViewIntent 提交结构意图。
+`asTransition()` 是由 `@proto.ui/prototypes-base` 导出的无参数 **ordinary once asHook**。同一 setup chain 重复调用会返回同一个投射 handle。它只治理 `closed / entering / entered / leaving` 这组感知状态，并通过 `run.lifecycle.setPresent()` 向 L1 ViewIntent 提交结构意图。
 
-为什么要做成特权 hook？因为"在入场动画开始前让元素不存在于 DOM 中"，以及"在退出动画完成后再延迟卸载"，这些都属于宿主平台级能力，超出了普通原型作者通过常规 API 能访问的范围。
+它不再需要 module port 或宿主私有 facade。生命周期回调、`run.lifecycle.setPresent()` 与 Core `delay()` 已构成实现该策略所需的完整公开能力边界。
 
 Transition、ViewIntent 与实际 view epoch 是三个不同事实：
 

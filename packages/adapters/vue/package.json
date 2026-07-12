@@ -25,7 +25,9 @@
     "@proto.ui/module-rule-expose-state-web": "workspace:*",
     "@proto.ui/module-rule-meta": "workspace:*"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@proto.ui/prototypes-base": "workspace:*"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

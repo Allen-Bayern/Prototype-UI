@@ -79,11 +79,16 @@ describe('runtime contract: asHook (v0)', () => {
   it('AS-HOOK-0200: dedupe by name: first asHook wins; subsequent same-name asHooks are skipped', () => {
     let a = 0;
     let b = 0;
+    let firstResult: any;
+    let secondResult: any;
 
     const asFirst = defineAsHook({
       name: 'asDup',
       setup() {
         a += 1;
+      },
+      projectHandle() {
+        return { source: 'first' };
       },
     });
 
@@ -97,8 +102,8 @@ describe('runtime contract: asHook (v0)', () => {
     const P: Prototype = definePrototype({
       name: 'x-as-hook-0200',
       setup() {
-        asFirst();
-        asSecond();
+        firstResult = asFirst();
+        secondResult = asSecond();
         return (r) => r.el('div', 'ok');
       },
     });
@@ -108,6 +113,8 @@ describe('runtime contract: asHook (v0)', () => {
 
     expect(a).toBe(1);
     expect(b).toBe(0);
+    expect(secondResult).toBe(firstResult);
+    expect(secondResult).toEqual({ source: 'first' });
     expect((P as any).__asHooks[0]).toMatchObject({ name: 'asDup', mode: 'once' });
   });
 
@@ -709,5 +716,78 @@ describe('runtime contract: asHook (v0)', () => {
     expect(first).toBe(second);
     expect(first.getState?.('open')?.get()).toBe(false);
     expect((P as any).__asHooks[0]).toMatchObject({ name: 'asOnceState', mode: 'once' });
+  });
+
+  it('AS-HOOK-0850: authored asHook may project one stable caller handle from captured artifacts', () => {
+    let projectionCount = 0;
+    let closeCount = 0;
+    let first: any;
+    let second: any;
+    let outerResult: any;
+
+    const asProjected = defineAsHook<
+      PropsBaseType,
+      Record<string, never>,
+      { state: { open: State<boolean> } },
+      { open: { get(): boolean }; close(): void }
+    >({
+      name: 'asProjected',
+      setup(def) {
+        def.state.bool('open', true);
+        def.expose.method('close', () => {
+          closeCount += 1;
+        });
+      },
+      projectHandle(result) {
+        projectionCount += 1;
+        return {
+          open: result.getState?.('open') as { get(): boolean },
+          close: result.getMethod?.('close') as () => void,
+        };
+      },
+    });
+
+    const asProjectedOwner = defineAsHook({
+      name: 'asProjectedOwner',
+      setup() {
+        first = asProjected();
+        second = asProjected();
+      },
+    });
+
+    const P: Prototype = definePrototype({
+      name: 'x-as-hook-0850',
+      setup() {
+        outerResult = asProjectedOwner();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    executeWithHost(P as any, host as any);
+
+    expect(projectionCount).toBe(1);
+    expect(first).toBe(second);
+    expect(first.open.get()).toBe(true);
+    first.close();
+    expect(closeCount).toBe(1);
+
+    expect((P as any).__asHooks).toContainEqual(
+      expect.objectContaining({
+        name: 'asProjected',
+        mode: 'once',
+        privileged: false,
+      })
+    );
+
+    const recordedResult = outerResult.getAsHook('asProjected').result;
+    expect(recordedResult).not.toBe(first);
+    expect(recordedResult.getState('open')).toBe(first.open);
+    expect(recordedResult.getMethod('close')).toBe(first.close);
+    expect((P as any).__asHooks[0]).toMatchObject({
+      name: 'asProjectedOwner',
+      mode: 'once',
+      privileged: false,
+    });
   });
 });

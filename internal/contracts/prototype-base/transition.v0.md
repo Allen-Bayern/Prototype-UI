@@ -20,7 +20,7 @@ Consequently, `closed` does not itself prove that no host view exists, and `isPr
 const transition = asTransition();
 ```
 
-`asTransition` is a privileged, no-argument, once hook. Repeated calls in one prototype setup chain skip installation and return the exact same handle.
+`asTransition` is an ordinary authored, no-argument, once hook in `@proto.ui/prototypes-base`. Repeated calls in one prototype setup chain skip installation and return the exact same projected handle. Its implementation uses only public prototype/runtime capabilities: lifecycle callbacks, `run.lifecycle.setPresent()`, and Core `delay()`.
 
 The returned handle contains:
 

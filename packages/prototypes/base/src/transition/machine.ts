@@ -1,5 +1,5 @@
 import type { DelayTask } from '@proto.ui/core';
-import type { TransitionInterrupt, TransitionState } from './as-transition-types';
+import type { TransitionInterrupt, TransitionState } from './types';
 
 type TransitionIntent = 'enter' | 'leave';
 type TransitionEvent = 'beforeEnter' | 'afterEnter' | 'beforeLeave' | 'afterLeave';

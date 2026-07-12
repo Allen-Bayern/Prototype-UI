@@ -2,8 +2,7 @@ export { useEscapeKey } from './use-escape-key';
 export type { EscapeKeyOptions } from './use-escape-key';
 export { useOpenState } from './use-open-state';
 export type { OpenStateExposes, OpenStateHandles, OpenStateOptions } from './use-open-state';
-// asTransition 已移动到 @proto.ui/hooks
-export { asTransition } from '@proto.ui/hooks';
+export { asTransition } from '../transition/as-transition';
 export type {
   TransitionExposes,
   TransitionHandles,
@@ -11,4 +10,4 @@ export type {
   TransitionState,
   TransitionProps,
   TransitionControls,
-} from '@proto.ui/hooks';
+} from '../transition/types';
