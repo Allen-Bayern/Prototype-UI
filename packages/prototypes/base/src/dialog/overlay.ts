@@ -79,6 +79,13 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     }
   });
 
+  def.lifecycle.onCreated((run) => {
+    const ctx = run.context.read(DIALOG_CONTEXT);
+    open.set(ctx.open, 'reason: lifecycle.onCreated => dialog mask open sync');
+    if (ctx.open) controls.enter();
+    else controls.leave();
+  });
+
   def.lifecycle.onMounted((run) => {
     hitSyncDisposed = false;
     syncHitParticipation(run);

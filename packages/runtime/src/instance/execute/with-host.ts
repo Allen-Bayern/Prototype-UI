@@ -1,4 +1,3 @@
-// packages/runtime/src/instance/execute/with-host.ts
 import type { Prototype } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import type { RuntimeHost } from '../host';

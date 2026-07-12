@@ -46,6 +46,35 @@ describe('runtime contract: L1 view intent (v1)', () => {
     expect(render).not.toHaveBeenCalled();
   });
 
+  it('dispatches prop watchers while detached so controlled input can request a view', () => {
+    const render = vi.fn((renderer: any) => renderer.el('div', 'ok'));
+    const proto: Prototype<any> = {
+      name: 'view-intent-controlled-detached-update',
+      setup(def) {
+        def.props.define({ open: { type: 'boolean', empty: 'fallback' } });
+        def.lifecycle.onCreated((run) => {
+          run.lifecycle.setPresent(!!run.props.get().open);
+        });
+        def.props.watch(['open'], (run, next) => {
+          run.lifecycle.setPresent(!!next.open);
+        });
+        return render;
+      },
+    };
+    const host = createHost();
+    host.getRawProps = () => ({ open: false });
+    const session = createRuntimeSession(proto, host);
+
+    expect(session.viewIntent.getSnapshot()).toEqual({ present: false, version: 1 });
+    expect(session.mountPhase).toBe('detached');
+
+    session.controller.applyRawProps({ open: true });
+
+    expect(session.viewIntent.getSnapshot()).toEqual({ present: true, version: 2 });
+    expect(session.mountPhase).toBe('detached');
+    expect(render).not.toHaveBeenCalled();
+  });
+
   it('is callback-only and rejects captured run usage during unknown and render phases', () => {
     let capturedRun!: RunHandle<any>;
     const proto: Prototype = {

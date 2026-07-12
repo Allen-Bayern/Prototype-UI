@@ -8,7 +8,6 @@ import type {
 import {
   createDeferredOwnerDisposal,
   createEventGate,
-  createSoftUnmountScheduler,
   createViewEpochOwner,
   createWebProtoEventRouter,
   installViewVisibilityRule,
@@ -180,49 +179,6 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         ownerDisposalRef.current = createDeferredOwnerDisposal(() => ownerRef.current?.dispose());
       }
       const boundRootRef = runtime.useRef<HTMLElement | null>(null);
-      const hasBeenUnmountedRef = runtime.useRef(false);
-      const baselineOuterRafRef = runtime.useRef<number | null>(null);
-      const baselineInnerRafRef = runtime.useRef<number | null>(null);
-      const baselineSignalRef = runtime.useRef<CommitSignal | null>(null);
-
-      const softUnmount = createSoftUnmountScheduler(
-        () => rootRef.current,
-        () => setShouldExist(false)
-      );
-      let legacyPresenceWritten = false;
-
-      const presenceBridge = {
-        mount() {
-          legacyPresenceWritten = true;
-          softUnmount.cancel();
-          setShouldExist(true);
-        },
-        unmount(options?: { immediate?: boolean }) {
-          legacyPresenceWritten = true;
-          if (options?.immediate) {
-            softUnmount.cancel();
-            setShouldExist(false);
-            return;
-          }
-          return softUnmount.schedule();
-        },
-      };
-
-      const cancelBaselineFrames = () => {
-        if (baselineOuterRafRef.current != null) {
-          cancelAnimationFrame(baselineOuterRafRef.current);
-          baselineOuterRafRef.current = null;
-        }
-        if (baselineInnerRafRef.current != null) {
-          cancelAnimationFrame(baselineInnerRafRef.current);
-          baselineInnerRafRef.current = null;
-        }
-      };
-
-      const resolveBaselineSignal = () => {
-        baselineSignalRef.current?.done?.();
-        baselineSignalRef.current = null;
-      };
 
       if (!rawPropsSourceRef.current) {
         rawPropsSourceRef.current = {
@@ -306,16 +262,13 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
               if (invoke) invoke(fn);
               else fn();
             },
-            presenceBridge,
             overlayLayerScheduler,
           });
           hostSession = ownerRef.current!.initialize({
             modules: ownerModules,
             createSession: (wiring) => createHostSession(wiring, 'manual'),
             onViewIntent: (snapshot) => {
-              if (snapshot.version > 0 || !legacyPresenceWritten) {
-                setShouldExist(snapshot.present);
-              }
+              setShouldExist(snapshot.present);
             },
           });
         }
@@ -324,20 +277,11 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         controllerRef.current = hostSession.controller as RuntimeController;
         invokeInCallbackScopeRef.current = hostSession.invokeInCallbackScope;
         const initialIntent = hostSession.viewIntent.getSnapshot();
-        if (initialIntent.version > 0 || !legacyPresenceWritten) {
-          setShouldExist(initialIntent.present);
-        }
+        setShouldExist(initialIntent.present);
       }, []);
 
       runtime.useLayoutEffect(() => {
         if (!shouldExist) {
-          // Soft unmount: presence requested unmount, but adapter component remains in tree.
-          // Disable events and clear visual host tokens, but keep exposes so imperative
-          // methods (e.g. controls.enter) can still re-enter from closed/absent.
-          softUnmount.cancel();
-          cancelBaselineFrames();
-          resolveBaselineSignal();
-          if (ownerRef.current?.hasView) hasBeenUnmountedRef.current = true;
           eventGateRef.current?.disable?.();
           if (ownerRef.current?.hasView) void ownerRef.current.detachView();
           setHostTokens([]);
@@ -400,7 +344,6 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             }
             fn();
           },
-          presenceBridge,
           overlayLayerScheduler,
         });
 
@@ -426,9 +369,6 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       runtime.useLayoutEffect(() => {
         ownerDisposalRef.current?.retain();
         return () => {
-          softUnmount.cancel();
-          cancelBaselineFrames();
-          resolveBaselineSignal();
           viewReadyRef.current = false;
           rootRef.current?.setAttribute(PUI_VIEW_PENDING_ATTR, '');
           void ownerRef.current?.detachView();
@@ -441,68 +381,6 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         pendingCommitRef.current = false;
         viewReadyRef.current = true;
         rootRef.current?.removeAttribute(PUI_VIEW_PENDING_ATTR);
-
-        const rootEl = rootRef.current;
-        const needsBaseline =
-          rootEl && !eventGateRef.current?.isEnabled?.() && hasBeenUnmountedRef.current;
-
-        if (needsBaseline) {
-          // 为跨帧 CSS transition 做准备：真实卸载后的 remount 需要先以 closed 状态渲染一帧
-          cancelBaselineFrames();
-          resolveBaselineSignal();
-
-          rootEl!.setAttribute('data-transition-state', 'closed');
-          void rootEl!.offsetHeight;
-          eventGateRef.current?.enable();
-
-          const signal = pendingSignalRef.current;
-          pendingSignalRef.current = null;
-
-          baselineSignalRef.current = signal;
-
-          // 关键：使用双 RAF，确保 closed baseline 至少经历一帧可见提交。
-          baselineOuterRafRef.current = requestAnimationFrame(() => {
-            baselineOuterRafRef.current = null;
-            baselineInnerRafRef.current = requestAnimationFrame(() => {
-              baselineInnerRafRef.current = null;
-              hasBeenUnmountedRef.current = false;
-
-              const latestRoot = rootRef.current;
-              const realState = (
-                exposesRef.current as { transitionState?: { get?(): string } } | undefined
-              )?.transitionState?.get?.();
-              if (latestRoot) {
-                if (typeof realState === 'string') {
-                  latestRoot.setAttribute('data-transition-state', realState);
-                } else {
-                  latestRoot.removeAttribute('data-transition-state');
-                }
-              }
-
-              resolveBaselineSignal();
-            });
-          });
-          return;
-        }
-
-        // Baseline is already running (double RAF not settled yet).
-        // Keep forcing closed state and do not cancel queued baseline frames,
-        // otherwise React follow-up commits can collapse closed -> entering.
-        if (
-          hasBeenUnmountedRef.current &&
-          (baselineSignalRef.current != null ||
-            baselineOuterRafRef.current != null ||
-            baselineInnerRafRef.current != null)
-        ) {
-          rootEl?.setAttribute('data-transition-state', 'closed');
-          eventGateRef.current?.enable();
-          pendingSignalRef.current?.done?.();
-          pendingSignalRef.current = null;
-          return;
-        }
-
-        cancelBaselineFrames();
-        resolveBaselineSignal();
         eventGateRef.current?.enable();
         pendingSignalRef.current?.done?.();
         pendingSignalRef.current = null;

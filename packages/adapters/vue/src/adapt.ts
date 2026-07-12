@@ -7,7 +7,6 @@ import type {
 } from '@proto.ui/runtime';
 import {
   createEventGate,
-  createSoftUnmountScheduler,
   createViewEpochOwner,
   createWebProtoEventRouter,
   installViewVisibilityRule,
@@ -44,6 +43,7 @@ export type VueRuntime = VueRenderRuntime & {
   shallowRef: <T>(v: T) => { value: T };
   watch: (source: any, cb: (...args: any[]) => void | Promise<void>, options?: any) => unknown;
   onMounted: (cb: () => void) => void;
+  onUpdated?: (cb: () => void) => void;
   onBeforeUnmount: (cb: () => void) => void;
   onActivated?: (cb: () => void) => void;
   onDeactivated?: (cb: () => void) => void;
@@ -95,6 +95,18 @@ function defaultGetProps<Props extends PropsBaseType>(
     filtered[key] = value;
   }
   return filtered as Partial<Props>;
+}
+
+function shallowEqualHostProps(
+  prev: Readonly<Record<string, unknown>>,
+  next: Readonly<Record<string, unknown>>
+) {
+  const prevKeys = Object.keys(prev);
+  const nextKeys = Object.keys(next);
+  if (prevKeys.length !== nextKeys.length) return false;
+  return prevKeys.every(
+    (key) => Object.prototype.hasOwnProperty.call(next, key) && Object.is(prev[key], next[key])
+  );
 }
 
 export function createVueAdapter(runtime: VueRuntime) {
@@ -156,7 +168,6 @@ export function createVueAdapter(runtime: VueRuntime) {
         }
         const shouldExist = runtime.ref(!supportsOwnerContext);
         let viewReady = false;
-        let hasBeenUnmounted = false;
 
         const subs = new Set<() => void>();
         const rawPropsSource: RawPropsSource<Props> = {
@@ -176,53 +187,9 @@ export function createVueAdapter(runtime: VueRuntime) {
 
         let pendingCommit = false;
         let pendingSignal: CommitSignal | null = null;
-        let baselineOuterRafId: number | null = null;
-        let baselineInnerRafId: number | null = null;
-        let baselineSignal: CommitSignal | null = null;
         let hostSession: ReturnType<typeof createVueHostSession<Props>> | null = null;
         const owner = createViewEpochOwner<Props>({ prototypeName: proto.name });
         let boundRoot: HTMLElement | null = null;
-
-        const softUnmount = createSoftUnmountScheduler(
-          () => rootRef.value,
-          () => {
-            shouldExist.value = false;
-          }
-        );
-        let legacyPresenceWritten = false;
-
-        const presenceBridge = {
-          mount() {
-            legacyPresenceWritten = true;
-            softUnmount.cancel();
-            shouldExist.value = true;
-          },
-          unmount(options?: { immediate?: boolean }) {
-            legacyPresenceWritten = true;
-            if (options?.immediate) {
-              softUnmount.cancel();
-              shouldExist.value = false;
-              return;
-            }
-            return softUnmount.schedule();
-          },
-        };
-
-        const cancelBaselineFrames = () => {
-          if (baselineOuterRafId != null) {
-            cancelAnimationFrame(baselineOuterRafId);
-            baselineOuterRafId = null;
-          }
-          if (baselineInnerRafId != null) {
-            cancelAnimationFrame(baselineInnerRafId);
-            baselineInnerRafId = null;
-          }
-        };
-
-        const resolveBaselineSignal = () => {
-          baselineSignal?.done?.();
-          baselineSignal = null;
-        };
 
         const createHostSession = (
           wiring: Parameters<typeof createVueHostSession<Props>>[0]['wiring'],
@@ -273,24 +240,19 @@ export function createVueAdapter(runtime: VueRuntime) {
               if (invoke) invoke(fn);
               else fn();
             },
-            presenceBridge,
             overlayLayerScheduler,
           });
           hostSession = owner.initialize({
             modules: ownerModules,
             createSession: (wiring) => createHostSession(wiring, 'manual'),
             onViewIntent: (snapshot) => {
-              if (snapshot.version > 0 || !legacyPresenceWritten) {
-                shouldExist.value = snapshot.present;
-              }
+              shouldExist.value = snapshot.present;
             },
           }) as ReturnType<typeof createVueHostSession<Props>>;
           controllerRef.value = hostSession.controller as RuntimeController;
           invokeRef.value = hostSession.invokeInCallbackScope;
           const initialIntent = hostSession.viewIntent.getSnapshot();
-          if (initialIntent.version > 0 || !legacyPresenceWritten) {
-            shouldExist.value = initialIntent.present;
-          }
+          shouldExist.value = initialIntent.present;
         }
 
         ctx.expose({
@@ -299,13 +261,22 @@ export function createVueAdapter(runtime: VueRuntime) {
           invokeInCallbackScope: (fn: () => void) => invokeRef.value?.(fn),
         } satisfies VueAdapterHandle);
 
+        let lastHostProps = rawPropsSource.get();
         const notifyPropsChange = () => {
+          const nextHostProps = rawPropsSource.get();
+          if (shallowEqualHostProps(lastHostProps, nextHostProps)) return;
+          lastHostProps = nextHostProps;
           for (const cb of subs) cb();
           if (autoUpdate) controllerRef.value?.update();
         };
 
         runtime.watch(props as any, notifyPropsChange, { deep: true });
         runtime.watch(() => ctx.attrs, notifyPropsChange, { deep: true });
+        // Vue's attrs object always exposes the latest values but is not a
+        // reactive watch source. Protocol props live in attrs because the
+        // adapter component cannot declare instance-time prototype props.
+        // Reconcile once the host component has received a parent update.
+        runtime.onUpdated?.(notifyPropsChange);
 
         runtime.watch(
           () => commitVersion.value,
@@ -315,63 +286,6 @@ export function createVueAdapter(runtime: VueRuntime) {
             await runtime.nextTick();
             viewReady = true;
             rootRef.value?.removeAttribute(PUI_VIEW_PENDING_ATTR);
-
-            const rootEl = rootRef.value;
-            const eventGate = eventGateRef.value;
-            const needsBaseline = rootEl && eventGate && !eventGate.isEnabled() && hasBeenUnmounted;
-
-            if (needsBaseline) {
-              cancelBaselineFrames();
-              resolveBaselineSignal();
-
-              rootEl.setAttribute('data-transition-state', 'closed');
-              void rootEl.offsetHeight;
-              eventGateRef.value?.enable();
-
-              const signal = pendingSignal;
-              pendingSignal = null;
-
-              baselineSignal = signal;
-
-              // 双 RAF 保证 closed baseline 至少经历一帧可见提交。
-              baselineOuterRafId = requestAnimationFrame(() => {
-                baselineOuterRafId = null;
-                baselineInnerRafId = requestAnimationFrame(() => {
-                  baselineInnerRafId = null;
-                  hasBeenUnmounted = false;
-                  const latestRoot = rootRef.value;
-                  const realState = (
-                    exposesRef.value as { transitionState?: { get?(): string } } | undefined
-                  )?.transitionState?.get?.();
-                  if (latestRoot) {
-                    if (typeof realState === 'string') {
-                      latestRoot.setAttribute('data-transition-state', realState);
-                    } else {
-                      latestRoot.removeAttribute('data-transition-state');
-                    }
-                  }
-                  resolveBaselineSignal();
-                });
-              });
-              return;
-            }
-
-            // Baseline is already running (double RAF not settled yet).
-            // Keep forcing closed state and do not cancel queued baseline frames,
-            // otherwise follow-up commits can collapse closed -> entering.
-            if (
-              hasBeenUnmounted &&
-              (baselineSignal != null || baselineOuterRafId != null || baselineInnerRafId != null)
-            ) {
-              rootEl?.setAttribute('data-transition-state', 'closed');
-              eventGateRef.value?.enable();
-              pendingSignal?.done?.();
-              pendingSignal = null;
-              return;
-            }
-
-            cancelBaselineFrames();
-            resolveBaselineSignal();
             eventGateRef.value?.enable();
             pendingSignal?.done?.();
             pendingSignal = null;
@@ -435,7 +349,6 @@ export function createVueAdapter(runtime: VueRuntime) {
               }
               fn();
             },
-            presenceBridge,
             overlayLayerScheduler,
           });
 
@@ -460,9 +373,6 @@ export function createVueAdapter(runtime: VueRuntime) {
           initSession();
         });
         runtime.onDeactivated?.(() => {
-          softUnmount.cancel();
-          cancelBaselineFrames();
-          resolveBaselineSignal();
           viewReady = false;
           rootRef.value?.setAttribute(PUI_VIEW_PENDING_ATTR, '');
           if (owner.hasView) void owner.detachView();
@@ -480,12 +390,6 @@ export function createVueAdapter(runtime: VueRuntime) {
               await runtime.nextTick();
               initSession();
             } else {
-              // Soft unmount: disable events and clear surfaced state,
-              // but keep exposes so imperative controls can re-enter from absent.
-              softUnmount.cancel();
-              cancelBaselineFrames();
-              resolveBaselineSignal();
-              if (owner.hasView) hasBeenUnmounted = true;
               eventGateRef.value?.disable?.();
               if (owner.hasView) void owner.detachView();
               hostTokens.value = [];
@@ -512,9 +416,6 @@ export function createVueAdapter(runtime: VueRuntime) {
         );
 
         runtime.onBeforeUnmount(() => {
-          softUnmount.cancel();
-          cancelBaselineFrames();
-          resolveBaselineSignal();
           void owner.dispose();
           lastInitRoot = null;
         });

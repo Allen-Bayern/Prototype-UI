@@ -21,12 +21,13 @@
     "@proto.ui/module-focus": "workspace:*",
     "@proto.ui/module-hit-participation": "workspace:*",
     "@proto.ui/module-overlay": "workspace:*",
-    "@proto.ui/module-presence": "workspace:*",
     "@proto.ui/module-props": "workspace:*",
     "@proto.ui/module-rule-expose-state-web": "workspace:*",
     "@proto.ui/module-rule-meta": "workspace:*"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@proto.ui/prototypes-base": "workspace:*"
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

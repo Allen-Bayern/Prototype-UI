@@ -3,7 +3,6 @@ export * from './wiring/host-wiring';
 export * from './wiring/caps-builder';
 export * from './gate/event-gate';
 export * from './lifecycle/teardown';
-export * from './lifecycle/soft-unmount';
 export * from './host/adapter-host';
 export * from './host/view-epoch-owner';
 export * from './host/view-visibility';

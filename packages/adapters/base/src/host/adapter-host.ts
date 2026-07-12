@@ -14,6 +14,7 @@ export type AdapterHostInput<P extends PropsBaseType> = Pick<
   RuntimeHost<P>,
   | 'commit'
   | 'schedule'
+  | 'scheduleDelay'
   | 'getRawProps'
   | 'onLifecycleCheckpoint'
   | 'onLifecycleEvent'
@@ -57,6 +58,7 @@ export function createAdapterHost<P extends PropsBaseType>(
     getRawProps: host.getRawProps,
     commit: host.commit,
     schedule: host.schedule,
+    scheduleDelay: host.scheduleDelay ?? defaultScheduleDelay,
     onLifecycleCheckpoint: host.onLifecycleCheckpoint,
     onLifecycleEvent: host.onLifecycleEvent,
     presenceLifecycle: host.presenceLifecycle,
@@ -97,6 +99,15 @@ export function createAdapterHost<P extends PropsBaseType>(
         disposePromise = runtimeDispose.finally(finishAfterUnmount);
       });
       return disposePromise ?? Promise.resolve();
+    },
+  };
+}
+
+function defaultScheduleDelay(durationMs: number, task: () => void): { cancel(): void } {
+  const timer = setTimeout(task, durationMs);
+  return {
+    cancel() {
+      clearTimeout(timer);
     },
   };
 }

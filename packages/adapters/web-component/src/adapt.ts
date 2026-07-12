@@ -187,18 +187,6 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         },
       };
 
-      const presenceBridge = {
-        mount: () => {
-          // no-op for WC: structural mount timing is browser-controlled via connectedCallback
-        },
-        unmount: () => {
-          // no-op for WC: actual teardown is handled by disconnectedCallback when the
-          // element is truly removed from the DOM. We must NOT dispose the runtime here
-          // because the element may still be in the DOM (e.g. transition closed state)
-          // and needs to remain interactive (getExposes, update, re-enter, etc.).
-        },
-      };
-
       let runFocusCallbackScope: ((fn: () => void) => void) | null = null;
       const runInCallbackScope = (fn: () => void) => {
         if (runFocusCallbackScope) {
@@ -326,7 +314,6 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
             exposeStateWebMode,
             setExposes,
             runInCallbackScope,
-            presenceBridge,
             overlayLayerScheduler,
           }),
           disposeView,
@@ -378,7 +365,6 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         exposeStateWebMode,
         setExposes,
         runInCallbackScope,
-        presenceBridge,
         overlayLayerScheduler,
       });
       const hostSession = owner.initialize({

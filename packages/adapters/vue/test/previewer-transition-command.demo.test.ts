@@ -3,6 +3,7 @@ import { VueAny } from './utils/vue';
 
 import { loadPrototypes } from '../../../../apps/www/src/components/PrototypePreviewer/prototype-modules';
 import commandDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-transition-command.demo';
+import controlledDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-transition-controlled.demo';
 
 vi.mock('../../../../apps/www/src/components/PrototypePreviewer/runtimes/vue-runtime', () => ({
   loadVue: vi.fn(async () => VueAny),
@@ -77,7 +78,7 @@ describe('PrototypePreviewer demo-renderer / vue command transition', () => {
       clickRef(host, 'completeBtn');
       expect(await waitForState(host, 'entered')).toBe('entered');
 
-      // entered -> leaving -> closed, then wait for soft-unmount to settle.
+      // entered -> leaving -> closed, then wait for ViewIntent detach to settle.
       clickRef(host, 'leaveBtn');
       expect(await waitForState(host, 'leaving')).toBe('leaving');
 
@@ -86,6 +87,34 @@ describe('PrototypePreviewer demo-renderer / vue command transition', () => {
 
       // A single Enter click should be enough to reach entering.
       clickRef(host, 'enterBtn');
+      expect(await waitForState(host, 'entering')).toBe('entering');
+      expect(host.querySelector('[data-demo-ref="transition"]')).not.toBeNull();
+    } finally {
+      await session.destroy();
+      host.remove();
+    }
+  });
+
+  it('materializes a controlled transition when open changes from false to true', async () => {
+    await loadPrototypes(['base-transition']);
+
+    const { renderDemo } =
+      await import('../../../../apps/www/src/components/PrototypePreviewer/demo-renderer');
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const session = await renderDemo({
+      runtime: 'vue',
+      demo: controlledDemo as any,
+      host,
+    });
+
+    try {
+      await flushFrames(2);
+      expect(getTransitionState(host)).toBe('');
+
+      clickRef(host, 'toggleBtn');
       expect(await waitForState(host, 'entering')).toBe('entering');
       expect(host.querySelector('[data-demo-ref="transition"]')).not.toBeNull();
     } finally {

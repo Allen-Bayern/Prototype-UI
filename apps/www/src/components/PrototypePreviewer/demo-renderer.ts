@@ -209,11 +209,19 @@ async function renderDemoReact(opt: DemoRenderOptions): Promise<DemoRenderResult
   ).createRoot(host);
   reactRoots.set(host, root);
 
+  const flushReact = <T>(fn: () => T): T => {
+    const flushSync = (ReactDOM as { flushSync?: <R>(callback: () => R) => R }).flushSync;
+    return typeof flushSync === 'function' ? flushSync(fn) : fn();
+  };
+
   function renderTree() {
     return renderNode(demo.root);
   }
 
-  root.render(renderTree());
+  // Demo setup reads DOM refs and Proto exposes immediately after initial
+  // mount. A fixed number of animation frames is not a readiness guarantee
+  // when Demo Matrix mounts many React roots concurrently.
+  flushReact(() => root.render(renderTree()));
 
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   const refs = collectDemoRefs(host);
@@ -225,8 +233,11 @@ async function renderDemoReact(opt: DemoRenderOptions): Promise<DemoRenderResult
       const exposes = inst.getExposes?.() ?? {};
       const fn = resolvePath(exposes, path);
       if (typeof fn !== 'function') return;
-      const result = callInScope(inst, () => fn(...args));
-      inst.update?.();
+      let result: unknown;
+      flushReact(() => {
+        result = callInScope(inst, () => fn(...args));
+        inst.update?.();
+      });
       return result;
     },
     getExposes(ref) {
@@ -237,7 +248,11 @@ async function renderDemoReact(opt: DemoRenderOptions): Promise<DemoRenderResult
       const current = propsMap.get(ref);
       if (!current) return;
       Object.assign(current, next);
-      root.render(renderTree());
+      flushReact(() => root.render(renderTree()));
+      componentRefs.get(ref)?.update?.();
+      // React root rendering may commit asynchronously. Refresh the retained
+      // Proto owner only after the adapter has received the new props.
+      requestAnimationFrame(() => componentRefs.get(ref)?.update?.());
     },
   };
 
@@ -354,10 +369,9 @@ async function renderDemoVue(opt: DemoRenderOptions): Promise<DemoRenderResult> 
       if (propsMap[ref]) {
         Object.assign(propsMap[ref], next);
       }
-      const inst = componentRefs.get(ref);
-      if (inst) {
-        inst.update?.();
-      }
+      // Wait until reactive props/attrs have reached the adapter. Calling the
+      // controller in the same stack would re-read the previous attrs value.
+      void Vue.nextTick(() => componentRefs.get(ref)?.update?.());
     },
   };
 

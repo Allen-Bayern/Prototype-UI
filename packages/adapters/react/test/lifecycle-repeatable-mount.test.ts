@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { definePrototype } from '@proto.ui/core';
-import { asTransition, type TransitionProps } from '@proto.ui/hooks';
+import { asTransition, type TransitionProps } from '@proto.ui/prototypes-base';
 
 import { createMountedReactAdapter } from './utils/fake-react';
 
@@ -43,7 +43,12 @@ describe('adapter-react: repeatable Proto mount epochs', () => {
       },
     });
 
-    const mounted = createMountedReactAdapter(proto as any, { open: true, appear: false });
+    const mounted = createMountedReactAdapter(
+      proto as any,
+      { open: true, appear: false },
+      {},
+      { context: true }
+    );
     try {
       call(mounted, 'controls.complete');
       const firstRoot = mounted.root;

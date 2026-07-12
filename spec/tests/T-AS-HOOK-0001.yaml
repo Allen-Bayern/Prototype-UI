@@ -37,6 +37,14 @@ cases:
       - C-AS-HOOK-0004-C
       - C-AS-HOOK-0004-D
     expectation: once-by-default-repeat-policy
+  - id: T-AS-HOOK-0001-CASE-CUSTOM-HANDLE
+    title: authored asHook projects captured artifacts into one stable custom caller handle
+    covers:
+      - C-AS-HOOK-0009-A
+      - C-AS-HOOK-0009-B
+      - C-AS-HOOK-0009-C
+      - C-AS-HOOK-0009-D
+    expectation: stable-custom-caller-handle-projection
   - id: T-AS-HOOK-0001-CASE-TRACE
     title: applied asHooks leave readonly diagnostic trace metadata
     covers:
@@ -56,6 +64,7 @@ implementations:
       - T-AS-HOOK-0001-CASE-SETUP-ONLY
       - T-AS-HOOK-0001-CASE-PROTOTYPE-COMPATIBLE
       - T-AS-HOOK-0001-CASE-ONCE-DEFAULT
+      - T-AS-HOOK-0001-CASE-CUSTOM-HANDLE
       - T-AS-HOOK-0001-CASE-TRACE
   - id: type-as-hook-authoring-contract
     kind: workspace-check
@@ -65,6 +74,7 @@ implementations:
     consumesCases:
       - T-AS-HOOK-0001-CASE-PROTOTYPE-COMPATIBLE
       - T-AS-HOOK-0001-CASE-ONCE-DEFAULT
+      - T-AS-HOOK-0001-CASE-CUSTOM-HANDLE
 verifies:
   contracts:
     - id: C-AS-HOOK-0001
@@ -97,6 +107,12 @@ verifies:
         - C-AS-HOOK-0008-B
         - C-AS-HOOK-0008-C
         - C-AS-HOOK-0008-D
+    - id: C-AS-HOOK-0009
+      anchors:
+        - C-AS-HOOK-0009-A
+        - C-AS-HOOK-0009-B
+        - C-AS-HOOK-0009-C
+        - C-AS-HOOK-0009-D
 exercises:
   decisions:
     - id: D-AS-HOOK-CALLER-NAME-0001

@@ -3,9 +3,6 @@ import type { DemoSetupContext } from '../../../components/PrototypePreviewer/de
 export default {
   type: 'demo',
   setup({ host, refs, api }: DemoSetupContext) {
-    const enterBtn = refs.enterBtn;
-    const leaveBtn = refs.leaveBtn;
-    const completeBtn = refs.completeBtn;
     const label = refs.stateLabel;
     if (!label) return;
 
@@ -27,19 +24,23 @@ export default {
       attributeFilter: ['data-transition-state'],
     });
 
-    const onEnter = () => api.call('transition', 'controls.enter');
-    const onLeave = () => api.call('transition', 'controls.leave');
-    const onComplete = () => api.call('transition', 'controls.complete');
+    const onHostClick = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest('[data-demo-ref="enterBtn"]')) {
+        api.call('transition', 'controls.enter');
+      } else if (target.closest('[data-demo-ref="leaveBtn"]')) {
+        api.call('transition', 'controls.leave');
+      } else if (target.closest('[data-demo-ref="completeBtn"]')) {
+        api.call('transition', 'controls.complete');
+      }
+    };
 
-    enterBtn?.addEventListener('click', onEnter);
-    leaveBtn?.addEventListener('click', onLeave);
-    completeBtn?.addEventListener('click', onComplete);
+    host.addEventListener('click', onHostClick);
 
     return () => {
       mo.disconnect();
-      enterBtn?.removeEventListener('click', onEnter);
-      leaveBtn?.removeEventListener('click', onLeave);
-      completeBtn?.removeEventListener('click', onComplete);
+      host.removeEventListener('click', onHostClick);
     };
   },
   root: {

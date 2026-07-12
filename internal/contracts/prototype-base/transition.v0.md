@@ -1,306 +1,94 @@
-> **Status**: Draft – v0 (contract-first) **Version**: v0
->
-> This contract specifies the Proto UI v0 base `transition` protocol.
->
-> The contract applies to the transition family:
->
-> - `base-transition` / `asTransition`
+# Base Transition v0
+
+> Status: Draft — human-readable projection. The normative source is `spec/contracts/C-AS-TRANSITION-0001.yaml`.
 
 ## Purpose
 
-`transition` is a **presence-state governance** protocol in the base prototype library.
+`asTransition()` governs a component's **perceptual transition state** and coordinates that state with lifecycle ViewIntent. It does not create a second mount lifecycle and it does not expose an adapter-specific animation engine.
 
-It governs the perceptual lifecycle of elements: the discrete states an element passes through when becoming visible (`closed` → `entering` → `entered`) and invisible (`entered` → `leaving` → `closed`).
+Three facts must remain distinct:
 
-The protocol provides **state machine governance**; visual animation is delegated to host platforms via the `transitionState` exposed state.
+- `transitionState`: perceptual phase (`closed`, `entering`, `entered`, `leaving`)
+- ViewIntent: whether a host view is desired
+- lifecycle phase: whether the current view epoch is mounted
 
-## Positioning
+Consequently, `closed` does not itself prove that no host view exists, and `isPresent` is not a structural mount flag.
 
-The v0 `transition` protocol is intentionally focused on discrete state governance.
+## Authoring surface
 
-It is suitable for:
-
-- Dialog/modal enter/leave presence
-- Toast notification lifecycle
-- Dropdown content visibility
-- Any component needing controlled presence state
-
-It is **not yet** a full definition of:
-
-- Physics-based or gesture-driven animations (achieved via composition)
-- Layout transition animations (FLIP, shared element)
-- Coordinated stagger/sequence orchestration
-- Cross-platform animation engine abstraction
-
-## Information Flow
-
-### User ↔ Component
-
-**User → Component (Events)**:
-
-- Implicit: user actions that trigger `open` prop changes via parent components
-
-**Component → User (Feedback)**:
-
-- `transitionState` drives `data-transition-state` attribute for CSS styling
-- `isPresent` drives conditional rendering (element in DOM or not)
-
-### Maker ↔ Component
-
-**Maker → Component (Props)**:
-
-- `open`: target presence state
-- `appear`: animate on initial mount
-- `enterDuration` / `leaveDuration`: timing hints
-- `interrupt`: strategy for mid-transition changes
-
-**Component → Maker (Expose)**:
-
-- `transitionState`: current state for observation
-- `isPresent`: derived presence for conditional rendering
-- `enter()` / `leave()`: imperative state triggers
-- `complete()`: signal animation completion
-
-### Component ↔ Component
-
-None in v0.
-
-Nested transition coordination (group / child / boundary) is intentionally out of scope for the base `transition` protocol and should be addressed as a separate abstraction.
-
-## State Machine
-
-### Base States
-
-| State      | Meaning                  | `isPresent` | Platform Mapping                   |
-| ---------- | ------------------------ | ----------- | ---------------------------------- |
-| `closed`   | Not perceptually present | `false`     | `display: none`, unmounted         |
-| `entering` | Transitioning to present | `true`      | `data-transition-state="entering"` |
-| `entered`  | Fully present and stable | `true`      | `data-transition-state="entered"`  |
-| `leaving`  | Transitioning to absent  | `true`      | `data-transition-state="leaving"`  |
-
-### Transitions
-
-```
-closed <---> entering <---> entered
-   |                           |
-   |<--------------------------|
-   |                           |
-leaving <----------------------+
+```ts
+const transition = asTransition();
 ```
 
-**Flow**:
+`asTransition` is an ordinary authored, no-argument, once hook in `@proto.ui/prototypes-base`. Repeated calls in one prototype setup chain skip installation and return the exact same projected handle. Its implementation uses only public prototype/runtime capabilities: lifecycle callbacks, `run.lifecycle.setPresent()`, and Core `delay()`.
 
-- `open=true`: `closed` → `entering` → `entered`
-- `open=false`: `entered` → `leaving` → `closed`
+The returned handle contains:
 
-**Interruption** (when `open` changes mid-transition):
+- `transitionState`
+- `isPresent`
+- `controls.enter()`
+- `controls.leave()`
+- `controls.complete()`
 
-| Strategy            | `entering` + `open=false`    | `leaving` + `open=true`       |
-| ------------------- | ---------------------------- | ----------------------------- |
-| `reverse` (default) | → `leaving` (restart)        | → `entering` (restart)        |
-| `wait`              | Queue until complete         | Queue until complete          |
-| `immediate`         | Jump to `closed`, then enter | Jump to `entered`, then leave |
+The hook declares these props:
 
-## Surface
+| Prop            | Default      | Meaning                                            |
+| --------------- | ------------ | -------------------------------------------------- |
+| `open`          | not provided | controlled target when provided                    |
+| `defaultOpen`   | `false`      | initial uncontrolled target                        |
+| `appear`        | `false`      | whether an initially open view enters perceptually |
+| `enterDuration` | `300`        | enter fallback duration in milliseconds            |
+| `leaveDuration` | `200`        | leave fallback duration in milliseconds            |
+| `interrupt`     | `reverse`    | `reverse`, `wait`, or `immediate`                  |
 
-### Props (Maker → Component)
+The component exposes the two states, the three methods, the grouped `controls` value, and `beforeEnter`, `afterEnter`, `beforeLeave`, `afterLeave` events.
 
-**Setup-only** (declared in `setup()`, read at runtime):
+## State and view sequencing
 
-- `open?: boolean`
-  - Target presence state
-  - `true` → drive toward `entered`
-  - `false` → drive toward `closed`
-  - Default: `false`
+### Initial closed
 
-- `appear?: boolean`
-  - Animate on initial mount when `open=true`
-  - `false` → immediately start at `entered`
-  - Default: `false`
+Setup and `created` complete while ViewIntent is set to detached. No first view epoch is required.
 
-- `enterDuration?: number`
-  - Expected enter duration (ms)
-  - Used for timeout fallback
-  - Default: `300`
+### Initial open
 
-- `leaveDuration?: number`
-  - Expected leave duration (ms)
-  - Default: `200`
+- `appear=false`: ViewIntent is present and state begins at `entered`.
+- `appear=true`: ViewIntent becomes present first. The state changes from `closed` to `entering` only after the view epoch reports `mounted`.
 
-- `interrupt?: 'reverse' | 'wait' | 'immediate'`
-  - Mid-transition interruption strategy
-  - Default: `'reverse'`
+### Enter from closed
 
-### Expose (Component → Maker)
+1. Set ViewIntent to present.
+2. Wait for a mounted view epoch when one does not exist.
+3. Emit `beforeEnter` and enter `entering`.
+4. Complete manually or after `enterDuration`.
+5. Enter `entered` and emit `afterEnter`.
 
-**State** (subscribable at runtime):
+This ordering prevents partially initialized or unstyled DOM from becoming visible before the adapter's reveal barrier has completed.
 
-- `transitionState: EnumState<'closed' | 'entering' | 'entered' | 'leaving'>`
-  - Current presence state
-  - **Extensible**: may include contributor-defined states
+### Leave from entered
 
-- `isPresent: BooleanState<boolean>`
-  - Derived: `true` when not `closed`
-  - Stable through entire enter flow
+1. Emit `beforeLeave` and enter `leaving` while retaining the current view.
+2. Complete manually or after `leaveDuration`.
+3. Enter `closed` and emit `afterLeave`.
+4. Set ViewIntent to detached; the adapter may release the current view epoch.
 
-**Methods** (runtime invocation):
+The Proto instance and its exposes remain alive while detached. A later enter may create a fresh host view epoch without rerunning prototype setup.
 
-- `enter(): void`
-  - Imperatively trigger enter
-  - Equivalent to setting `open = true`
+## Delay and completion
 
-- `leave(): void`
-  - Imperatively trigger leave
-  - Equivalent to setting `open = false`
+Fallback completion uses Core `delay()`, not browser timers or frame APIs. The host supplies delayed scheduling. RuntimeSession owns pending tasks, runs their callbacks with runtime callback authority, and cancels them on unmount or dispose. `complete()` cancels the pending fallback and completes the current phase immediately.
 
-- `complete(): void`
-  - Signal current transition phase complete
-  - Advances: `entering` → `entered`, `leaving` → `closed`
-  - **Called by platform adapter** (e.g., on `transitionend`)
+Stale delayed callbacks must never complete a newer phase after interruption, remount, or disposal.
 
-### Events (User → Component)
+## Interruption
 
-None directly. Transition responds to `open` prop changes, not direct user events.
+- `reverse`: cancel the current fallback and start the opposite phase on the retained view.
+- `wait`: retain only the latest opposite target and consume it when the current phase completes.
+- `immediate`: complete the current phase synchronously, then begin the latest target phase.
 
-### Context (Component ↔ Component)
+Rapid input is latest-intent governed; it must not behave as an unbounded FIFO.
 
-None in v0.
+## Boundaries
 
-### Feedback (Component → User)
+Transition does not define physics animation, layout/shared-element motion, staggering, child coordination, or host event detection. A host or higher-level capability may call `complete()` when native animation finishes; duration is the portable fallback.
 
-**Setup-only** (rule-based):
-
-- `data-transition-state` attribute mapping
-  - `when: transitionState.eq('entering')` → `intent: style.use({ attr: { 'data-transition-state': 'entering' } })`
-
-## Behavioral Rules
-
-### State Governance
-
-- `transition` MUST expose `transitionState` for external subscription
-- `transition` MUST transition through states in valid paths only
-- `transition` MUST emit `beforeEnter` event before entering `entering` state
-- `transition` MUST emit `afterEnter` event after reaching `entered` state
-- `transition` MUST emit `beforeLeave` event before entering `leaving` state
-- `transition` MUST emit `afterLeave` event after reaching `closed` state
-
-### Interruption
-
-- `transition` MUST handle rapid `open` changes according to `interrupt` strategy
-- `transition` MUST NOT drop state updates (queue or resolve, never ignore)
-
-### Uncontrolled Mode
-
-- `transition` MUST support uncontrolled operation when `open` prop not provided
-- In uncontrolled mode, internal state managed via `enter()` / `leave()` calls
-
-### Lifecycle
-
-- `transition` MUST complete ongoing transitions before unmount when possible
-- `transition` MUST support `appear` for mount-time animation
-
-## Platform Mapping
-
-### Web Platform
-
-**State → Attribute**:
-
-```
-transitionState → data-transition-state="{state}"
-```
-
-**Completion Detection**:
-
-- Adapter listens for `transitionend` / `animationend`
-- Calls `complete()` when event fires
-- Uses `enterDuration` / `leaveDuration` as timeout fallback
-
-**CSS Targeting**:
-
-```css
-[data-transition-state='entering'] {
-  opacity: 0;
-}
-[data-transition-state='entered'] {
-  opacity: 1;
-  transition: opacity 300ms;
-}
-```
-
-### Future Platforms
-
-| Platform | State Mapping                       | Completion Signal           |
-| -------- | ----------------------------------- | --------------------------- |
-| Flutter  | `AnimationController` state         | `AnimationStatus.completed` |
-| iOS      | `UIView` animation block completion | Completion handler          |
-| Android  | `Animator` state                    | `onAnimationEnd`            |
-
-Contract remains identical; mapping changes per platform.
-
-## Composition
-
-### With Custom Drivers
-
-Gesture-driven animation (e.g., Toast swipe) is achieved via **composition**, not built-in props:
-
-```typescript
-const asSwipeableDismiss = defineAsHook({
-  setup(def) {
-    const transition = asTransition();
-    const progress = def.state.numberRange('dismissProgress', 0, { min: 0, max: 1 });
-
-    def.expose.state('dismissProgress', progress);
-
-    // Gesture logic updates progress
-    // Calls transition.leave() when threshold reached
-
-    return transition.render;
-  },
-});
-```
-
-**TODO**: Feedback module integration for interpolation (linear, spring).
-
-### Higher-Order Components
-
-- **Dialog**: consumes `asTransition` for modal presence
-- **Toast**: consumes `asTransition` for notification lifecycle
-- **Dropdown**: consumes `asTransition` for content presence
-
-Components SHOULD expose their own timing hooks rather than exposing transition internals.
-
-## Extensibility
-
-### Source-Level Extension
-
-Contributors modify `asTransition` source to:
-
-1. **Add intermediate states**:
-
-   ```typescript
-   const transitionState = def.state.enum(
-     'transitionState',
-     ['closed', 'enter-preparing', 'entering', 'entered', 'leaving'],
-     { default: 'closed' }
-   );
-   ```
-
-2. **Update transition logic** to handle new state paths
-
-3. **Update progress calculation** if using normalized (0-1) progress
-
-### Naming Conventions
-
-| Phase | Prefix              | Example           |
-| ----- | ------------------- | ----------------- |
-| Enter | `enter-*`           | `enter-preparing` |
-| Leave | `leave-*`, `exit-*` | `leave-settling`  |
-
-## Future Considerations (v1+)
-
-Not in v0:
-
-- `mode?: 'parallel' | 'sequence'` for child coordination
-- `stagger?: number` for staggered animations
-- `spring?: SpringConfig` for physics timing
-- `layout?: boolean` for layout transitions
+The legacy Presence host bridge is not a structural authority for Transition. Structural materialization is governed exclusively through `run.lifecycle.setPresent()` and ViewIntent reconciliation.

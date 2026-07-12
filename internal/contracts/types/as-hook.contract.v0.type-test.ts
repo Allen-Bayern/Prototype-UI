@@ -43,6 +43,41 @@ asNoArgs();
 // @ts-expect-error authored asHook callers are no-arg in v0
 asNoArgs({ enabled: true });
 
+const asCustomHandle = defineAsHook<
+  Props,
+  Record<string, never>,
+  ButtonContract,
+  { hovered: { get(): boolean }; press(): void }
+>({
+  name: 'asCustomHandle',
+  setup(def) {
+    def.state.bool('hovered', false);
+    def.expose.method('press', () => {});
+  },
+  projectHandle(result) {
+    return {
+      hovered: result.getState?.('hovered')!,
+      press: result.getMethod?.('press') as () => void,
+    };
+  },
+});
+
+const customHandle = asCustomHandle();
+customHandle.hovered.get();
+customHandle.press();
+// @ts-expect-error a projected caller exposes the custom handle instead of AsHookResult
+customHandle.stateHandles;
+
+const asInferredCustomHandle = defineAsHook({
+  name: 'asInferredCustomHandle',
+  setup() {},
+  projectHandle() {
+    return { configure(value: boolean) {} };
+  },
+});
+
+asInferredCustomHandle().configure(true);
+
 defineAsHook({
   name: 'asNoMode',
   // @ts-expect-error authored asHook definitions do not expose install modes

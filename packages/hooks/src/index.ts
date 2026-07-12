@@ -8,7 +8,5 @@ export * from './as-focus-scope';
 export * from './as-hit-participation';
 export * from './as-overlay';
 export * from './as-trigger';
-export * from './as-transition';
-export * from './as-transition-types';
 export * from './collection/use-collection';
 export * from './collection/use-collection-item';

@@ -7,7 +7,6 @@
     "@proto.ui/core": "workspace:*",
     "@proto.ui/module-anatomy": "workspace:*",
     "@proto.ui/module-collection": "workspace:*",
-    "@proto.ui/module-presence": "workspace:*",
     "@proto.ui/types": "workspace:*"
   },
   "exports": {

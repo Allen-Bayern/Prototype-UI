@@ -43,7 +43,7 @@ Enter → Complete → Leave → Complete
   />
 </div>
 
-这段 Demo 展示通过 **`open` prop** 受控驱动状态机。**宿主平台在 CSS 过渡结束后会调用 `complete()` 来自动推进状态**。
+这段 Demo 展示通过 **`open` prop** 受控驱动状态机。Transition 使用 `enterDuration` / `leaveDuration` 作为中立的延时完成机制；宿主也可以在原生动画结束时主动调用 `complete()` 提前完成。
 
 - **Toggle Open**：翻转 `open` 值。
   - 若当前是 `closed` / `leaving`，切到 `open=true` 会进入 `entering → entered`。
@@ -62,33 +62,37 @@ Transition 是一个**底层基础组件**，用于管理元素的存在状态�
 
 ### 架构
 
-`asTransition` 被实现为一个**特权 hook**（privileged hook），而不是普通的 `asHook`。它通过系统级模块 `@proto.ui/module-presence` 来**控制结构挂载与卸载的时机**，这一行为跨越所有适配器（Web Component、React、Vue）。
+`asTransition()` 是由 `@proto.ui/prototypes-base` 导出的无参数 **ordinary once asHook**。同一 setup chain 重复调用会返回同一个投射 handle。它只治理 `closed / entering / entered / leaving` 这组感知状态，并通过 `run.lifecycle.setPresent()` 向 L1 ViewIntent 提交结构意图。
 
-为什么要做成特权 hook？因为"在入场动画开始前让元素不存在于 DOM 中"，以及"在退出动画完成后再延迟卸载"，这些都属于宿主平台级能力，超出了普通原型作者通过常规 API 能访问的范围。
+它不再需要 module port 或宿主私有 facade。生命周期回调、`run.lifecycle.setPresent()` 与 Core `delay()` 已构成实现该策略所需的完整公开能力边界。
 
-在 `module-presence` 管理下的生命周期：
+Transition、ViewIntent 与实际 view epoch 是三个不同事实：
 
 ```
-absent → (setIntent enter) → mounting → present → (setIntent leave) → unmounting → absent
+transitionState：closed → entering → entered → leaving → closed
+ViewIntent：      detached ↔ present
+view epoch：      detached ↔ mounting ↔ mounted ↔ unmounting
 ```
 
-- **阻塞挂载**：当过渡从 `closed` 状态启动且尚未收到进入意图时，运行时的 `mounted` 阶段会被延后。宿主适配器只有在 presence handle 解析挂载后，才会真正渲染并挂载组件。
-- **延迟卸载**：当离开动画开始（`entered → leaving`），宿主适配器会保持组件在 DOM 中。只有在 `complete()` 将状态推进到 `closed`，并且 presence handle 确认卸载后，适配器才会真正移除组件。
+- **进入**：先把 ViewIntent 设为 present；新 view epoch mounted 后才进入 `entering`，避免暴露尚未完成首次提交的 DOM。
+- **离开**：`leaving` 全程保留当前 view；完成到 `closed` 后才把 ViewIntent 设为 detached。
+- **复原**：detach 不会销毁 Proto instance。controls、state 与 props watcher 仍然存活，后续 `open=true` 或 `enter()` 可以重建新的 view epoch。
 
 这让状态机能与 CSS 过渡正确配合：即便适配器原本会立即移除元素，`entering` 和 `leaving` 阶段也能保证 DOM 元素始终存在。
 
-### 与 `module-presence` 的关系
+### 与 lifecycle ViewIntent 的关系
 
-`transition` 是 `presence` 的**特化**（specialization）。你可以把 `@proto.ui/module-presence` 想像成底层的结构治理层，而 `asTransition` 是在它之上构建的、面向用户的状态机。
+ViewIntent 是 Transition 唯一使用的结构意图通路。`isPresent` 只表示感知存在性，`closed` 也不等价于 Proto instance 已销毁。
 
-- **`module-presence`** 决定宿主元素**何时**可以出现在 DOM 中。它管理 `absent → mounting → present → unmounting → absent` 这些相位。
-- **`asTransition`** 决定状态**为何**变化。它暴露 4 状态状态机（`closed → entering → entered → leaving → closed`），并把用户的操作（props、controls）转换成 presence 意图（`setIntent('enter')` 或 `setIntent('leave')`）。
+- **RuntimeSession** 在 detached 时仍同步 props 并派发 watcher，因此受控 `open=false → true` 可以请求自己的 view，不会形成“先 mount 才能读取 open”的死锁。
+- **Adapter owner** 保留 Proto instance，并按最新 ViewIntent 创建或释放 React、Vue 或 WC 的 view epoch。
+- **Reveal barrier** 保证新 view 完成首次 commit 与 effects replay 后才可见，不再依赖 React/Vue 的双 RAF baseline。
 
 这种分离带来的好处是：
 
-1. **适配器只需要关心 presence。** React 或 Vue 适配器不需要了解 `entering` 和 `entered` 的区别，只需响应 `module-presence` 发出的 `mount()` / `unmount()` 信号即可。
-2. **Transition 使用者只需要关心状态机。** 不需要操心宿主层面的结构挂载时机，因为 `asTransition` 已经自动把这些委托给 `module-presence`。
-3. **物理移除的语义因宿主而异。** 在 Web Component 中，浏览器通过 `connectedCallback` / `disconnectedCallback` 控制结构存在。而在 React 和 Vue 中，当 presence handle 发出卸载信号时，适配器会渲染 `null`，因此在 `leaving → closed` 完成后，元素会被真正从 DOM 中移除。为了保证在重新进入（`closed → entering`）时 CSS 过渡仍能正确播放，React/Vue 适配器会在首次挂载后的第一帧插入一个 baseline：临时强制 `data-transition-state="closed"`，触发强制回流（reflow），然后恢复真实状态。这让浏览器在切换到 `entering` 之前获得必要的样式锚点。
+1. **Transition 使用者只关心状态机。** 结构协调由 `run.lifecycle.setPresent()` 完成，不需要直接操作 adapter。
+2. **适配器只关心 ViewIntent 与 view epoch。** React、Vue 和 WC 不需要识别 `entering` 与 `entered` 的业务区别。
+3. **Proto instance 可以跨 view epoch 存活。** React/Vue 可以渲染 `null`，WC 可以释放内部 view；两者都不会因此丢失 controls 与原型状态。
 
 ### 最佳实践
 
@@ -96,9 +100,9 @@ absent → (setIntent enter) → mounting → present → (setIntent leave) → 
 
 `Transition` 只管理逻辑状态。如果你没有为 `data-transition-state="entering"` 和 `data-transition-state="leaving"` 提供 CSS，元素在 `complete()` 被调用时就会瞬间出现或消失。
 
-#### 2. 受控模式下，宿主必须在 CSS 结束后调用 `complete()`
+#### 2. 使用 duration fallback，并可接入宿主完成信号
 
-使用 `open` prop 时，适配器（或你的包装代码）负责监听 CSS 过渡结束事件并调用 `controls.complete()`。如果不做这一步，状态会永远卡在 `entering` 或 `leaving`。
+默认情况下 Transition 会在 `enterDuration` / `leaveDuration` 后完成。若宿主动画实际更早结束，可以监听完成事件并调用 `controls.complete()`；旧的延时任务会被取消。
 
 典型的受控模式写法：
 
@@ -121,11 +125,11 @@ el.addEventListener('transitionend', () => {
 
 #### 5. 不要直接修改 transition 状态
 
-始终通过暴露的 controls（`controls.enter()`、`controls.leave()`、`controls.complete()`）或 `open` prop 来驱动状态。直接修改 `transitionState` 会绕过 presence 意图层，导致适配器状态不一致。
+始终通过暴露的 controls（`controls.enter()`、`controls.leave()`、`controls.complete()`）或 `open` prop 来驱动状态。直接修改 `transitionState` 会绕过状态机与 ViewIntent 的顺序约束。
 
 #### 6. 在 `leaving` 期间保持 DOM 子树稳定
 
-由于 `module-presence` 可能会在 `leaving` 阶段保持元素在 DOM 中，请避免在此时销毁子元素状态（例如拆毁 `<video>` 元素或取消网络请求），直到适配器真正卸载或状态到达 `closed`。
+Transition 会在 `leaving` 阶段保留当前 view，请避免提前销毁子元素状态（例如拆毁 `<video>` 元素或取消网络请求），直到状态到达 `closed` 或收到真正的 view unmount 生命周期。
 
 ### 状态机
 
@@ -133,7 +137,7 @@ el.addEventListener('transitionend', () => {
 closed → entering → entered → leaving → closed
 ```
 
-- **closed**: 不可见，通常 `display: none` 或从 DOM 移除
+- **closed**: 感知上不可见；通常会请求 ViewIntent detached，但不表示 Proto instance 已销毁
 - **entering**: 进入动画中，DOM 存在，应用进入样式
 - **entered**: 完全可见，稳定状态
 - **leaving**: 离开动画中，DOM 仍存在，应用离开样式

@@ -107,13 +107,14 @@ Privileged asHooks may define their own parameter and configuration shape in the
 
 ### 4.1 Baseline Shape (v0)
 
-`AsHookResult` is the return value of the **asHook caller**, not the authored prototype setup result.
+`AsHookResult` is the runtime-synthesized result of the authored asHook setup frame, not the authored prototype setup result. It is also the default return value of the **asHook caller**.
 
 This separates two return channels:
 
 - the authored asHook `setup` keeps the same return channel as `definePrototype`: `RenderFn | void`
 - `AsHookResult` is synthesized by the runtime after executing that setup and analyzing the setup frame
 - the synthesized result may include categorized setup contributions, such as state handles, artifacts, cancellable setup effects and their disposers, and the setup render function when one was returned
+- an authored asHook may declare `projectHandle(result)` to project that synthesized result into a custom caller handle
 
 It must be an object and may contain:
 
@@ -127,6 +128,14 @@ It must be an object and may contain:
 - custom fields
 
 Only `state` is required to be projected as Borrowed view.
+
+### 4.1.1 Custom caller handle projection
+
+- `projectHandle` is optional and does not alter the `setup` return channel
+- it runs after capture and borrowed-state projection, and receives the synthesized `AsHookResult`
+- its return value becomes the public caller result
+- it runs only for the first once installation; repeated calls return the exact same projected handle
+- runtime composition and diagnostic recording continue to use the synthesized artifacts, not the custom caller handle
 
 ### 4.2 Module Result Constraints
 
