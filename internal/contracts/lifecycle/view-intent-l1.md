@@ -51,6 +51,8 @@ Intent versions and lifecycle epochs make stale asynchronous attach, detach, and
 
 A newly attached host root is not yet a perceptually usable view. The adapter may create it internally, but must keep it visually hidden until the first runtime commit and view-effect projection for that epoch are coherent. If materialization misses the current frame, the correct fallback is to reveal it in a later frame, not to expose partially styled DOM.
 
+Instance-owned feedback state is replayed to the fresh view EffectsPort when the epoch enters `mounting`, before the host commit. The adapter must not depend on a post-commit framework update to recover baseline style tokens for the first visible frame.
+
 When a platform must retain a detached owner shell, such as a Web Component preserving consumer light DOM, that shell must also remain visually hidden while no host view epoch is attached.
 
 ## Prototype author boundary

@@ -76,6 +76,13 @@ implementations:
     required: true
     consumesCases:
       - T-LIFECYCLE-0006-CASE-REVEAL-BARRIER
+  - id: runtime-feedback-view-epoch-replay
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/lifecycle.module-resources.v1.contract.test.ts
+    required: true
+    consumesCases:
+      - T-LIFECYCLE-0006-CASE-REVEAL-BARRIER
   - id: adapter-react-initial-view-intent
     kind: adapter-test
     status: passing
@@ -128,6 +135,9 @@ revisions:
   - version: 0.1.5
     change: refined
     summary: Added cross-adapter coverage for materialization reveal barriers and hidden detached owner shells.
+  - version: 0.1.6
+    change: fixed
+    summary: Required retained Feedback style to replay into each fresh EffectsPort before the first host commit.
 tags:
   - lifecycle
   - view-intent

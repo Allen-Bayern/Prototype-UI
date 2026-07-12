@@ -138,6 +138,12 @@ export function createFeedbackModule(ctx: ModuleFactoryArgs): FeedbackModule {
 
         override onMountPhase(phase: MountPhase, epoch: number): void {
           super.onMountPhase(phase, epoch);
+          if (phase === 'mounting') {
+            // A fresh view epoch owns a fresh EffectsPort. Replay the retained
+            // instance style before the host commit so the first materialized
+            // frame already carries its baseline tokens.
+            this.replayStyleForViewEpoch();
+          }
         }
 
         protected override onCapsEpoch(_epoch: number): void {
@@ -186,6 +192,17 @@ export function createFeedbackModule(ctx: ModuleFactoryArgs): FeedbackModule {
           const effects = this.caps.get(EFFECTS_CAP);
           const merged = this.exportMerged();
           effects.queueStyle(merged);
+          effects.requestFlush();
+          this.flushRequested = true;
+        }
+
+        private replayStyleForViewEpoch(): void {
+          // Runtime ProtoPhase intentionally remains `setup` until the first
+          // commit completes. Mounting is nevertheless after prototype setup,
+          // so replay must not use flushIfPossible's setup-phase guard.
+          if (!this.caps.has(EFFECTS_CAP)) return;
+          const effects = this.caps.get(EFFECTS_CAP);
+          effects.queueStyle(this.exportMerged());
           effects.requestFlush();
           this.flushRequested = true;
         }

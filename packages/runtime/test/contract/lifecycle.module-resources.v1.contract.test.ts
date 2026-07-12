@@ -38,6 +38,7 @@ function createImmediateHost(
 describe('runtime contract: lifecycle module resource ownership (v1)', () => {
   it('keeps Feedback logical style state while suppressing detached host flushes', async () => {
     const queued: unknown[] = [];
+    const stylesSeenAtCommit: unknown[] = [];
     const effects: EffectsPort = {
       queueStyle: (style) => queued.push(style),
       requestFlush: vi.fn(),
@@ -49,22 +50,42 @@ describe('runtime contract: lifecycle module resource ownership (v1)', () => {
         return (run) => run.el('div', 'ok');
       },
     });
-    const session = createRuntimeSession(
-      proto,
-      createImmediateHost((wiring) => wiring.attach('feedback', [[EFFECTS_CAP, effects]]))
+    const host = createImmediateHost((wiring) =>
+      wiring.attach('feedback', [[EFFECTS_CAP, effects]])
     );
+    host.commit = (_children, signal) => {
+      stylesSeenAtCommit.push(queued.at(-1));
+      signal?.done();
+    };
+    const session = createRuntimeSession(proto, host);
 
     expect(queued).toEqual([]);
     await session.mount();
     expect(queued.length).toBeGreaterThan(0);
+    expect(stylesSeenAtCommit.at(-1)).toMatchObject({
+      kind: 'tw',
+      tokens: expect.arrayContaining(['base-token']),
+    });
     queued.length = 0;
 
+    await session.unmount();
+    await session.mount();
+    expect(stylesSeenAtCommit.at(-1)).toMatchObject({
+      kind: 'tw',
+      tokens: expect.arrayContaining(['base-token']),
+    });
+
+    queued.length = 0;
     await session.unmount();
     const feedback = session.caps.getPort<FeedbackPort>('feedback')!;
     session.invokeInCallbackScope(() => feedback.patchStyle(tw('detached-token')));
     expect(queued).toEqual([]);
 
     await session.mount();
+    expect(stylesSeenAtCommit.at(-1)).toMatchObject({
+      kind: 'tw',
+      tokens: expect.arrayContaining(['base-token', 'detached-token']),
+    });
     expect(queued.at(-1)).toMatchObject({
       kind: 'tw',
       tokens: expect.arrayContaining(['base-token', 'detached-token']),
