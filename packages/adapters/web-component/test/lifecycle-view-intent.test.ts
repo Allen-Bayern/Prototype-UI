@@ -112,14 +112,19 @@ describe('adapter-web-component: L1 view intent', () => {
     document.body.appendChild(el);
 
     expect(el.innerHTML).toBe('<span>consumer</span>');
+    expect(el.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(getComputedStyle(el).display).toBe('none');
 
     el.getExposes().view.show();
     await flushReconciliation();
     expect(el.innerHTML).toBe('<div><span>consumer</span></div>');
+    expect(el.hasAttribute('data-pui-view-detached')).toBe(false);
 
     el.getExposes().view.hide();
     await flushReconciliation();
     expect(el.innerHTML).toBe('<span>consumer</span>');
+    expect(el.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(getComputedStyle(el).display).toBe('none');
 
     el.remove();
     await flushReconciliation();

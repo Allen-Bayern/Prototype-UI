@@ -21,7 +21,11 @@ import { bindController, getElementProps, setElementProps, unbindController } fr
 import { SlotProjector } from './slot-projector';
 import { createOwnedTwTokenApplier } from './feedback-style';
 import { installDebugHooks, removeDebugHooks } from './debug/hooks';
-import { installDefaultHostDisplay, type HostDisplayController } from './host-display';
+import {
+  installDefaultHostDisplay,
+  PUI_VIEW_DETACHED_ATTR,
+  type HostDisplayController,
+} from './host-display';
 import { createDefaultMetaGetter } from './platform/meta';
 import {
   createLogicalInstance,
@@ -216,6 +220,10 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         this._slotProjector = null;
       };
 
+      const setViewDetached = (detached: boolean) => {
+        thisEl.toggleAttribute(PUI_VIEW_DETACHED_ATTR, detached);
+      };
+
       const releaseRenderedChildren = () => {
         if (shadow) {
           thisRoot.replaceChildren();
@@ -272,7 +280,10 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         });
 
       const attachView = () => {
-        if (owner.hasView) return;
+        if (owner.hasView) {
+          setViewDetached(false);
+          return;
+        }
 
         const eventGate = createEventGate();
         const router = createWebProtoEventRouter({
@@ -321,6 +332,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
           disposeView,
           createSession: createHostSession,
         });
+        setViewDetached(false);
       };
 
       let latestIntentVersion = 0;
@@ -332,6 +344,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
           initialPresent = snapshot.present;
           return;
         }
+        if (!snapshot.present) setViewDetached(true);
         const requestVersion = ++latestIntentVersion;
         queueMicrotask(() => {
           reconciliation = reconciliation
@@ -377,6 +390,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
       runFocusCallbackScope = hostSession.invokeInCallbackScope;
 
       if (initialPresent) attachView();
+      else setViewDetached(true);
 
       const { controller, kernel } = hostSession;
       if (kernel && kernel.run) {

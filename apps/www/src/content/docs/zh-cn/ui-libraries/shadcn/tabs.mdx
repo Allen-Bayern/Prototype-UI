@@ -48,10 +48,10 @@ import { getCode } from '@/utils/conversionUtils';
 
 ## Content mount 策略
 
-`TabsContent` 支持 `lazyMount`、`unmountOnExit` 与 `keepMounted`：
+`TabsContent` 默认采用 lazy L1 view：
 
-- `lazyMount` 在 panel 第一次被选中前推迟 React/Vue host view 的创建。
-- `unmountOnExit` 在 panel 失活时 detach view，但保留 Proto instance 及其状态。
-- `keepMounted` 的优先级最高，会覆盖前两项并始终保留 view。
+- 只有当前 panel 会物化 host view。
+- panel 失活时会 detach view，但保留 Proto instance、状态与 exposes。
+- `keepMounted={true}` 是唯一的 view retention 选项，会让 inactive panel 继续保留完整 view。
 
-Web Component 的 disconnect 是终止所有权边界。Custom element 无法移除自身后继续观察父 Tabs context，因此整元素级 lazy/destroy 组合必须由 WC 使用方或未来的 compound host wrapper 持有；当前 element 仍会投射 inactive/hidden 语义。
+Web Component 会保留 custom element 作为 owner，并在 internal view detached 时隐藏该 owner；重新激活后，同一个 Proto instance 会在该 owner 内物化新的 view。

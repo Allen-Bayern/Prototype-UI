@@ -50,6 +50,10 @@ criteria:
     text:
       zh-CN: L1 只保证当前 Proto instance 的逻辑状态跨 view epoch 保留；被 detached view 包含的宿主子组件实例与原生 view state 不属于该保证。
       en: L1 only guarantees preservation of the current Proto instance's logical state across view epochs; host child-component instances and native view state contained by the detached view are outside this guarantee.
+  - id: C-LIFECYCLE-0008-J
+    text:
+      zh-CN: 新 attach 的 host root 在该 view epoch 的首次 runtime commit 与 view-effect projection 达到一致前不得被视觉暴露；平台为 detached instance 保留的 owner shell 在不存在 host view epoch 时也必须保持隐藏。
+      en: A newly attached host root must not be visually exposed before the view epoch's first runtime commit and view-effect projection are coherent; any owner shell retained by the platform for a detached instance must also remain hidden while no host view epoch exists.
 dependsOn:
   contracts:
     - C-LIFECYCLE-0005
@@ -62,6 +66,9 @@ revisions:
   - version: 0.1.1
     change: implemented
     summary: RuntimeSession and the React, Vue, and Web Component owners now implement initial and repeatable L1 ViewIntent reconciliation.
+  - version: 0.1.2
+    change: refined
+    summary: Required a reveal barrier for newly attached roots and visual hiding for retained detached owner shells.
 tags:
   - lifecycle
   - view-intent
