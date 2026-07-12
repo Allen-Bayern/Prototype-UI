@@ -8,6 +8,8 @@ const reactRoot = {
   unmount: vi.fn(),
 };
 
+const flushSync = vi.fn((callback: () => unknown) => callback());
+
 const loadReact = vi.fn(async () => ({
   React: {
     useState: <T>(init: T) => [init, vi.fn()] as [T, (next: T) => void],
@@ -36,6 +38,7 @@ const loadReact = vi.fn(async () => ({
   ReactDOM: {
     createRoot: vi.fn(() => reactRoot),
     createPortal: vi.fn((children: any) => children),
+    flushSync,
   },
 }));
 
@@ -47,6 +50,7 @@ describe('PrototypePreviewer demo-renderer / react', () => {
   beforeEach(() => {
     reactRoot.render.mockReset();
     reactRoot.unmount.mockReset();
+    flushSync.mockClear();
   });
 
   it('passes hostClassName and props into React adapter tree', async () => {
@@ -85,6 +89,7 @@ describe('PrototypePreviewer demo-renderer / react', () => {
 
     expect(loadReact).toHaveBeenCalledTimes(1);
     expect(reactRoot.render).toHaveBeenCalledTimes(1);
+    expect(flushSync).toHaveBeenCalledTimes(1);
 
     const tree = reactRoot.render.mock.calls[0]?.[0] as any;
     expect(typeof tree.type).toBe('function');
