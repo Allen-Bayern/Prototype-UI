@@ -238,6 +238,9 @@ async function renderDemoReact(opt: DemoRenderOptions): Promise<DemoRenderResult
       if (!current) return;
       Object.assign(current, next);
       root.render(renderTree());
+      // React root rendering may commit asynchronously. Refresh the retained
+      // Proto owner only after the adapter has received the new props.
+      requestAnimationFrame(() => componentRefs.get(ref)?.update?.());
     },
   };
 
@@ -354,10 +357,9 @@ async function renderDemoVue(opt: DemoRenderOptions): Promise<DemoRenderResult> 
       if (propsMap[ref]) {
         Object.assign(propsMap[ref], next);
       }
-      const inst = componentRefs.get(ref);
-      if (inst) {
-        inst.update?.();
-      }
+      // Wait until reactive props/attrs have reached the adapter. Calling the
+      // controller in the same stack would re-read the previous attrs value.
+      void Vue.nextTick(() => componentRefs.get(ref)?.update?.());
     },
   };
 

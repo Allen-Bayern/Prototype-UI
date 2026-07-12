@@ -43,7 +43,7 @@ Enter → Complete → Leave → Complete
   />
 </div>
 
-This demo shows the state machine driven by the **`open` prop**. **The host platform calls `complete()` after the CSS transition ends to advance the state automatically**.
+This demo drives the state machine through the **`open` prop**. Transition uses `enterDuration` / `leaveDuration` as a host-neutral completion fallback; a host may also call `complete()` when its native animation finishes earlier.
 
 - **Toggle Open**: Flips the `open` value.
   - If currently `closed` / `leaving`, setting `open=true` triggers `entering → entered`.
@@ -62,33 +62,37 @@ Transition is a **low-level foundational component** for managing the presence l
 
 ### Architecture
 
-`asTransition` is implemented as a **privileged hook** (not a regular `asHook`). It uses the system-level module `@proto.ui/module-presence` to control **structural mount and unmount timing** across all adapters (Web Component, React, Vue).
+`asTransition()` is a no-argument **privileged once hook**. Repeated calls in one setup chain return the same handle. It governs only the perceptual `closed / entering / entered / leaving` phases and submits structural intent through `run.lifecycle.setPresent()` and L1 ViewIntent.
 
 Why privileged? Because delaying structural mount before "entering" starts, and delaying unmount until "leaving → closed" finishes, requires host-level capabilities that go beyond what ordinary prototype authors can access.
 
-Lifecycle under `module-presence`:
+Transition, ViewIntent, and the actual view epoch remain separate facts:
 
 ```
-absent → (setIntent enter) → mounting → present → (setIntent leave) → unmounting → absent
+transitionState: closed → entering → entered → leaving → closed
+ViewIntent:      detached ↔ present
+view epoch:      detached ↔ mounting ↔ mounted ↔ unmounting
 ```
 
-- **Mount blocking**: When the transition starts at `closed` and hasn't received an enter intent, the runtime `mounted` phase is deferred. The host adapter only renders/mounts the component once the presence handle resolves the mount.
-- **Deferred unmount**: When leaving starts (`entered → leaving`), the host adapter keeps the component in the DOM. Only after `complete()` moves the state to `closed` and the presence handle confirms unmount does the adapter actually remove the component.
+- **Enter**: ViewIntent becomes present first. The state enters `entering` only after the new view epoch mounts, preventing partially committed DOM from being revealed.
+- **Leave**: The current view is retained throughout `leaving`; ViewIntent becomes detached only after completion into `closed`.
+- **Restore**: Detaching does not dispose the Proto instance. Controls, state, and prop watchers remain alive and can create a fresh view epoch later.
 
 This makes the state machine work correctly with CSS transitions, because the DOM element is guaranteed to exist during `entering` and `leaving` even when the adapter would otherwise remove it immediately.
 
-### Relationship with `module-presence`
+### Relationship with lifecycle ViewIntent
 
-`transition` is a **specialization** of `presence`. Think of `@proto.ui/module-presence` as the lower-level structural governance layer, while `asTransition` is the user-facing state machine built on top of it.
+ViewIntent is Transition's only structural-intent path. `isPresent` is perceptual only, and `closed` does not mean the Proto instance has been disposed.
 
-- **`module-presence`** decides **when** the host element may exist in the DOM. It tracks phases: `absent → mounting → present → unmounting → absent`.
-- **`asTransition`** decides **why** the state changes. It exposes the 4-state FSM (`closed → entering → entered → leaving → closed`) and translates user actions (props, controls) into presence intents (`setIntent('enter')` or `setIntent('leave')`).
+- **RuntimeSession** continues syncing props and dispatching watchers while detached, so controlled `open=false → true` can request its own view without a mount-before-update deadlock.
+- **Adapter owners** retain the Proto instance and create or release React, Vue, or WC view epochs from the latest ViewIntent.
+- **The reveal barrier** keeps a fresh view hidden until its first commit and effects replay are coherent; React/Vue no longer need a double-RAF baseline.
 
 This separation means:
 
-1. **Adapters only deal with presence.** A React or Vue adapter does not need to know about `entering` vs `entered`; it only needs to respect the `mount()` / `unmount()` signals from `module-presence`.
-2. **Transition authors only deal with the state machine.** They do not need to worry about host-level structural timing because `asTransition` delegates that to `module-presence` automatically.
-3. **Physical removal semantics differ by host.** In Web Components, the browser controls structural presence via `connectedCallback` / `disconnectedCallback`. In React and Vue, the adapters render `null` when the presence handle signals unmount, so the element is truly removed from the DOM once `leaving → closed` completes. To ensure CSS transitions still animate correctly on re-enter (`closed → entering`), React/Vue adapters insert a one-frame baseline: on the first commit after a fresh mount, they temporarily force `data-transition-state="closed"`, force a reflow, then restore the real state. This gives the browser the style anchor it needs before switching to `entering`.
+1. **Transition users deal only with the state machine.** Structural coordination goes through `run.lifecycle.setPresent()` rather than adapter-specific APIs.
+2. **Adapters deal only with ViewIntent and view epochs.** React, Vue, and WC do not need to interpret the business difference between `entering` and `entered`.
+3. **A Proto instance can survive across view epochs.** React/Vue may render `null`, while WC may release its internal view; neither operation loses controls or prototype state.
 
 ### Best Practices
 
@@ -96,9 +100,9 @@ This separation means:
 
 `Transition` only manages logical state. If you do not provide CSS for `data-transition-state="entering"` and `data-transition-state="leaving"`, the element will appear/disappear instantly when `complete()` is called.
 
-#### 2. In controlled mode, the host must call `complete()`
+#### 2. Use the duration fallback and optionally provide a host completion signal
 
-When using the `open` prop, the adapter (or your wrapper code) is responsible for observing the CSS transition end and calling `controls.complete()`. Without this, the state will hang in `entering` or `leaving` indefinitely.
+By default Transition completes after `enterDuration` / `leaveDuration`. If the host animation finishes earlier, observe that signal and call `controls.complete()`; the stale fallback task is canceled.
 
 Typical controlled-mode wiring:
 
@@ -121,11 +125,11 @@ If you want an element to animate in when it first renders, set `appear: true`. 
 
 #### 5. Do not modify transition state directly
 
-Always use the exposed controls (`controls.enter()`, `controls.leave()`, `controls.complete()`) or the `open` prop. Mutating `transitionState` directly will bypass the presence intent layer and can cause adapters to get out of sync.
+Always use the exposed controls (`controls.enter()`, `controls.leave()`, `controls.complete()`) or the `open` prop. Mutating `transitionState` directly bypasses the state-machine and ViewIntent ordering constraints.
 
 #### 6. Keep DOM children stable during leaving
 
-Because `module-presence` may keep the element in the DOM during `leaving`, avoid destroying child state (like tearing down `<video>` elements or canceling network requests) until the adapter actually unmounts or `closed` is reached.
+Transition retains the current view during `leaving`. Avoid destroying child state (such as tearing down a `<video>` or canceling requests) until `closed` or the actual view-unmount lifecycle.
 
 ### State Machine
 
@@ -133,7 +137,7 @@ Because `module-presence` may keep the element in the DOM during `leaving`, avoi
 closed → entering → entered → leaving → closed
 ```
 
-- **closed**: Invisible, typically `display: none` or removed from DOM
+- **closed**: Perceptually absent; it normally requests a detached ViewIntent but does not mean the Proto instance is disposed
 - **entering**: Entering animation in progress, DOM exists, entering styles applied
 - **entered**: Fully visible, stable state
 - **leaving**: Leaving animation in progress, DOM still exists, leaving styles applied

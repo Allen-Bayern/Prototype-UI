@@ -43,6 +43,7 @@ export type VueRuntime = VueRenderRuntime & {
   shallowRef: <T>(v: T) => { value: T };
   watch: (source: any, cb: (...args: any[]) => void | Promise<void>, options?: any) => unknown;
   onMounted: (cb: () => void) => void;
+  onUpdated?: (cb: () => void) => void;
   onBeforeUnmount: (cb: () => void) => void;
   onActivated?: (cb: () => void) => void;
   onDeactivated?: (cb: () => void) => void;
@@ -94,6 +95,18 @@ function defaultGetProps<Props extends PropsBaseType>(
     filtered[key] = value;
   }
   return filtered as Partial<Props>;
+}
+
+function shallowEqualHostProps(
+  prev: Readonly<Record<string, unknown>>,
+  next: Readonly<Record<string, unknown>>
+) {
+  const prevKeys = Object.keys(prev);
+  const nextKeys = Object.keys(next);
+  if (prevKeys.length !== nextKeys.length) return false;
+  return prevKeys.every(
+    (key) => Object.prototype.hasOwnProperty.call(next, key) && Object.is(prev[key], next[key])
+  );
 }
 
 export function createVueAdapter(runtime: VueRuntime) {
@@ -248,13 +261,22 @@ export function createVueAdapter(runtime: VueRuntime) {
           invokeInCallbackScope: (fn: () => void) => invokeRef.value?.(fn),
         } satisfies VueAdapterHandle);
 
+        let lastHostProps = rawPropsSource.get();
         const notifyPropsChange = () => {
+          const nextHostProps = rawPropsSource.get();
+          if (shallowEqualHostProps(lastHostProps, nextHostProps)) return;
+          lastHostProps = nextHostProps;
           for (const cb of subs) cb();
           if (autoUpdate) controllerRef.value?.update();
         };
 
         runtime.watch(props as any, notifyPropsChange, { deep: true });
         runtime.watch(() => ctx.attrs, notifyPropsChange, { deep: true });
+        // Vue's attrs object always exposes the latest values but is not a
+        // reactive watch source. Protocol props live in attrs because the
+        // adapter component cannot declare instance-time prototype props.
+        // Reconcile once the host component has received a parent update.
+        runtime.onUpdated?.(notifyPropsChange);
 
         runtime.watch(
           () => commitVersion.value,

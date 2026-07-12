@@ -211,7 +211,14 @@ export function createRuntimeSession<P extends PropsBaseType>(
   };
 
   const startUpdate = () => {
-    if (instancePhase !== 'alive' || mountPhase !== 'mounted') {
+    if (instancePhase !== 'alive') return;
+
+    if (mountPhase !== 'mounted') {
+      // A detached Proto instance must still observe host props. Otherwise a
+      // controlled prop cannot request its own first/rematerialized view
+      // through run.lifecycle.setPresent(), creating a mount-before-update
+      // deadlock. Only view rendering/commit is gated by mount phase.
+      callbackScope.run(run, () => {});
       dirty = true;
       return;
     }

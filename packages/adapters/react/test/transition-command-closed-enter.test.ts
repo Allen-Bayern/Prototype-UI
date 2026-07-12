@@ -39,6 +39,33 @@ function createTransitionProto(name: string) {
 }
 
 describe('adapter-react: Transition and ViewIntent', () => {
+  it('materializes when a controlled open prop changes from false to true', async () => {
+    const mounted = createMountedReactAdapter(
+      createTransitionProto('react-transition-controlled-materialize') as any,
+      { open: false, appear: false },
+      {},
+      { context: true }
+    );
+
+    try {
+      expect(readTransitionState(mounted)).toBe('closed');
+      expect(mounted.root).toBeNull();
+
+      mounted.update({ open: true, appear: false });
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      mounted.update();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(readTransitionState(mounted)).toBe('entering');
+    } finally {
+      mounted.unmount();
+    }
+  });
+
   it('keeps the same view while a leaving phase is reversed', () => {
     const mounted = createMountedReactAdapter(
       createTransitionProto('react-transition-reverse') as any,

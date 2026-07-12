@@ -34,6 +34,13 @@ cases:
     covers:
       - C-LIFECYCLE-0008-G
     expectation: run-lifecycle-set-present-is-callback-only
+  - id: T-LIFECYCLE-0006-CASE-DETACHED-PROPS
+    title: Controlled props continue dispatching watchers while the view is detached
+    covers:
+      - C-LIFECYCLE-0008-C
+      - C-LIFECYCLE-0008-D
+      - C-LIFECYCLE-0008-G
+    expectation: detached-proto-instance-can-request-materialization-from-props
   - id: T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
     title: Terminal owner teardown overrides desired presence
     covers:
@@ -58,6 +65,7 @@ implementations:
     consumesCases:
       - T-LIFECYCLE-0006-CASE-INITIAL-DETACHED
       - T-LIFECYCLE-0006-CASE-CALLBACK-PHASE
+      - T-LIFECYCLE-0006-CASE-DETACHED-PROPS
       - T-LIFECYCLE-0006-CASE-TERMINAL-OWNER
       - T-LIFECYCLE-0006-CASE-RUN-SURFACE
   - id: adapters-base-view-intent-owner
@@ -138,6 +146,9 @@ revisions:
   - version: 0.1.6
     change: fixed
     summary: Required retained Feedback style to replay into each fresh EffectsPort before the first host commit.
+  - version: 0.1.7
+    change: refined
+    summary: Required detached RuntimeSessions to synchronize props and dispatch watchers before a controlled input can request materialization.
 tags:
   - lifecycle
   - view-intent
