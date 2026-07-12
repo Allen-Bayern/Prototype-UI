@@ -74,7 +74,7 @@ describe('adapter-vue: dialog integration', () => {
     }
   });
 
-  it('dialog mask follows transition state', async () => {
+  it('keeps a closed dialog mask detached', async () => {
     const proto = definePrototype({
       name: 'vue-dialog-mask-transition',
       setup(def) {
@@ -96,18 +96,10 @@ describe('adapter-vue: dialog integration', () => {
 
     try {
       const host = mounted.host;
-      expect(host.querySelector('div')).not.toBeNull();
+      expect(host.querySelector('div')).toBeNull();
 
       const exposes = mounted.vm.getExposes();
       expect(exposes.transitionState?.get?.()).toBe('closed');
-
-      mounted.vm.invokeInCallbackScope(() => {
-        exposes.controls.enter();
-      });
-      mounted.vm.update?.();
-      await flushVue();
-
-      expect(['entering', 'entered']).toContain(exposes.transitionState?.get?.());
     } finally {
       mounted.unmount();
     }

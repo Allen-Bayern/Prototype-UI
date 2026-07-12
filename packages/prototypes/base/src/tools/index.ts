@@ -7,7 +7,7 @@ export { asTransition } from '@proto.ui/hooks';
 export type {
   TransitionExposes,
   TransitionHandles,
-  TransitionOptions,
+  TransitionInterrupt,
   TransitionState,
   TransitionProps,
   TransitionControls,

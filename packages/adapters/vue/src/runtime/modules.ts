@@ -45,7 +45,6 @@ import {
   OVERLAY_MODAL_CAP,
   type OverlayLayerScheduler,
 } from '@proto.ui/module-overlay';
-import { PRESENCE_HOST_BRIDGE_CAP, type PresenceHostBridge } from '@proto.ui/module-presence';
 import { RAW_PROPS_SOURCE_CAP, type RawPropsSource } from '@proto.ui/module-props';
 import {
   createExposeStateWebNameMap,
@@ -72,7 +71,6 @@ type VueOwnerModulesArgs<Props extends PropsBaseType> = {
   getMeta: (key: string) => unknown;
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
-  presenceBridge?: PresenceHostBridge;
   overlayLayerScheduler?: OverlayLayerScheduler;
 };
 
@@ -120,9 +118,6 @@ export function createVueOwnerModules<Props extends PropsBaseType>(
     .use('rule-expose-state-web', [
       [RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP, createExposeStateWebNativeVariantPolicy],
     ])
-    .use('presence', [
-      [PRESENCE_HOST_BRIDGE_CAP, args.presenceBridge ?? { mount: () => {}, unmount: () => {} }],
-    ])
     .use('overlay', () => [
       ...(args.overlayLayerScheduler
         ? [[OVERLAY_LAYER_SCHEDULER_CAP, args.overlayLayerScheduler] as const]
@@ -145,7 +140,6 @@ export function createVueModules<Props extends PropsBaseType>(args: {
   exposeStateWebMode?: ExposeStateWebMode;
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
-  presenceBridge?: PresenceHostBridge;
   overlayLayerScheduler?: OverlayLayerScheduler;
 }) {
   const {
@@ -237,9 +231,6 @@ export function createVueModules<Props extends PropsBaseType>(args: {
     .use('rule-meta', [[RULE_META_GET_CAP, (key: string) => getMeta(key)]])
     .use('rule-expose-state-web', [
       [RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP, createExposeStateWebNativeVariantPolicy],
-    ])
-    .use('presence', [
-      [PRESENCE_HOST_BRIDGE_CAP, args.presenceBridge ?? { mount: () => {}, unmount: () => {} }],
     ])
     .use('hit-participation', [
       [HOST_ELEMENT_CAP, el],

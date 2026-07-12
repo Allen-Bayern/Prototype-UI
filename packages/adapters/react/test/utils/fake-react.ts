@@ -160,9 +160,10 @@ export function createFakeReactRuntime(options: { context?: boolean } = {}) {
 export function createMountedReactAdapter(
   proto: any,
   props: Record<string, unknown> = {},
-  options: Record<string, unknown> = {}
+  options: Record<string, unknown> = {},
+  runtimeOptions: { context?: boolean } = {}
 ) {
-  const fake = createFakeReactRuntime();
+  const fake = createFakeReactRuntime(runtimeOptions);
   const adapter = createReactAdapter(fake.runtime);
   const Component = adapter(proto, {
     schedule: (task: () => void) => task(),
@@ -177,9 +178,10 @@ export function createMountedReactAdapterInto(
   proto: any,
   hostEl: HTMLElement,
   props: Record<string, unknown> = {},
-  options: Record<string, unknown> = {}
+  options: Record<string, unknown> = {},
+  runtimeOptions: { context?: boolean } = {}
 ) {
-  const fake = createFakeReactRuntime();
+  const fake = createFakeReactRuntime(runtimeOptions);
   const adapter = createReactAdapter(fake.runtime);
   const Component = adapter(proto, {
     schedule: (task: () => void) => task(),

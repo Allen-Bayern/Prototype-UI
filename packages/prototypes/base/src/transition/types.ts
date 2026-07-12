@@ -1,9 +1,9 @@
 export type {
   TransitionState,
+  TransitionInterrupt,
   TransitionProps,
   TransitionExposes,
   TransitionHandles,
   TransitionControls,
-  TransitionOptions,
   TransitionAsHookContract,
 } from '@proto.ui/hooks';

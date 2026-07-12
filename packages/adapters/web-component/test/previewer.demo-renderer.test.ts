@@ -85,7 +85,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     expect(trigger).not.toBeNull();
     expect(content).not.toBeNull();
     expect(close).not.toBeNull();
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content?.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger?.focus();
     trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -130,7 +130,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     expect(trigger).not.toBeNull();
     expect(content).not.toBeNull();
     expect(close).not.toBeNull();
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content?.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger?.focus();
     trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));

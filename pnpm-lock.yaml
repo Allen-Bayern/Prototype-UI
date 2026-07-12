@@ -223,9 +223,6 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
-      '@proto.ui/module-presence':
-        specifier: workspace:*
-        version: link:../../modules/presence
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -289,9 +286,6 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
-      '@proto.ui/module-presence':
-        specifier: workspace:*
-        version: link:../../modules/presence
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -355,9 +349,6 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
-      '@proto.ui/module-presence':
-        specifier: workspace:*
-        version: link:../../modules/presence
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -410,9 +401,6 @@ importers:
       '@proto.ui/module-collection':
         specifier: workspace:*
         version: link:../modules/collection
-      '@proto.ui/module-presence':
-        specifier: workspace:*
-        version: link:../modules/presence
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../types

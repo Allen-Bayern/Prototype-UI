@@ -41,10 +41,12 @@ describe('prototypes/shadcn: dialog', () => {
     await Promise.resolve();
 
     expect(styleContains(trigger, 'rounded-lg')).toBe(true);
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(mask, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
@@ -57,6 +59,8 @@ describe('prototypes/shadcn: dialog', () => {
     expect(document.activeElement).toBe(close);
 
     close.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);

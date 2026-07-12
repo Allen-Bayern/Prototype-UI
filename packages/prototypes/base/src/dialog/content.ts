@@ -51,9 +51,15 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   ) => {
     const prevOpen = open.get();
     open.set(nextOpen, reason ?? 'reason: dialog content sync => open');
+    // Context remains live while the L1 view is detached. Structural intent
+    // is driven by Transition below, but overlay/focus effects require a
+    // mounted view and must not be consumed early by the retained instance.
+    if (!mountedRun) return;
     if (nextOpen) {
       overlay.openOverlay(reason ?? 'dialog.open');
-      if (!prevOpen) focusScope.activate({ reason: options?.focusReason ?? 'programmatic' });
+      if (!prevOpen || !focusScope.isActive()) {
+        focusScope.activate({ reason: options?.focusReason ?? 'programmatic' });
+      }
     } else {
       if (prevOpen) focusScope.deactivate({ reason: options?.focusReason ?? 'programmatic' });
       overlay.close(reason ?? 'dialog.close');
@@ -70,6 +76,16 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
     });
+    if (next.open) controls.enter();
+    else controls.leave();
+  });
+
+  def.lifecycle.onCreated((run) => {
+    syncAlert(run);
+    const ctx = run.context.read(DIALOG_CONTEXT);
+    open.set(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync');
+    if (ctx.open) controls.enter();
+    else controls.leave();
   });
 
   def.lifecycle.onMounted((run) => {

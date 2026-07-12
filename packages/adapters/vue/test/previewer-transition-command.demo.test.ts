@@ -77,7 +77,7 @@ describe('PrototypePreviewer demo-renderer / vue command transition', () => {
       clickRef(host, 'completeBtn');
       expect(await waitForState(host, 'entered')).toBe('entered');
 
-      // entered -> leaving -> closed, then wait for soft-unmount to settle.
+      // entered -> leaving -> closed, then wait for ViewIntent detach to settle.
       clickRef(host, 'leaveBtn');
       expect(await waitForState(host, 'leaving')).toBe('leaving');
 

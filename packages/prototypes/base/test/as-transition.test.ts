@@ -16,6 +16,11 @@ function createHost(
   let exposes: any = null;
   const bridgeCalls = { mount: 0, unmount: 0 };
   const emitted: Array<{ key: string; payload: unknown }> = [];
+  const delays: Array<{
+    durationMs: number;
+    task: () => void;
+    cancelled: boolean;
+  }> = [];
 
   const host: RuntimeHost<TransitionProps> = {
     prototypeName: 'as-transition-contract',
@@ -25,6 +30,15 @@ function createHost(
     },
     schedule(task) {
       task();
+    },
+    scheduleDelay(durationMs, task) {
+      const record = { durationMs, task, cancelled: false };
+      delays.push(record);
+      return {
+        cancel() {
+          record.cancelled = true;
+        },
+      };
     },
     onRuntimeReady(wiring) {
       wiring.attach('presence', [
@@ -65,6 +79,12 @@ function createHost(
     getEmitted() {
       return emitted;
     },
+    getDelays() {
+      return delays;
+    },
+    flushDelay(index: number) {
+      delays[index]?.task();
+    },
   };
 }
 
@@ -100,13 +120,13 @@ describe('prototypes/base: asTransition', () => {
     expect(ctx.getExposes().isPresent.get()).toBe(false);
   });
 
-  it('AS-TRANSITION-0200: with open=true and appear=false, starts at entering', () => {
+  it('AS-TRANSITION-0200: with open=true and appear=false, starts at entered', () => {
     const ctx = createHost({ open: true, appear: false });
     const P = createTransitionProto('x-as-transition-0200');
 
     mountTransition(P, ctx);
 
-    expect(ctx.getExposes().transitionState.get()).toBe('entering');
+    expect(ctx.getExposes().transitionState.get()).toBe('entered');
     expect(ctx.getExposes().isPresent.get()).toBe(true);
   });
 
@@ -271,9 +291,9 @@ describe('prototypes/base: asTransition', () => {
     mountTransition(P, ctx);
 
     expect(steps).toEqual([
-      'after-leave:entering',
-      'after-enter:entering',
-      'after-complete:leaving',
+      'after-leave:leaving',
+      'after-enter:leaving',
+      'after-complete:entering',
     ]);
     expect(ctx.getExposes().isPresent.get()).toBe(true);
   });
@@ -343,8 +363,8 @@ describe('prototypes/base: asTransition', () => {
       'after-enter2:entering',
       'after-leave2:entering',
       'after-complete1:leaving',
-      'after-complete2:entering',
-      'after-complete3:leaving',
+      'after-complete2:closed',
+      'after-complete3:closed',
     ]);
   });
 
@@ -380,19 +400,22 @@ describe('prototypes/base: asTransition', () => {
     mountTransition(P, ctx);
   });
 
-  it('AS-TRANSITION-1400: configurable mode shares state across calls', () => {
+  it('AS-TRANSITION-1400: repeated no-arg calls return the same handle', () => {
     const ctx = createHost();
+    let first: ReturnType<typeof asTransition> | undefined;
+    let second: ReturnType<typeof asTransition> | undefined;
     const P = definePrototype<TransitionProps>({
       name: 'x-as-transition-1400',
       setup() {
-        asTransition({ stateKey: 'transitionState' });
-        asTransition({ stateKey: 'transitionState' });
+        first = asTransition();
+        second = asTransition();
         return (r) => r.el('div', 'ok');
       },
     });
 
     mountTransition(P, ctx);
 
+    expect(first).toBe(second);
     expect(ctx.getExposes().transitionState.get()).toBe('closed');
   });
 
@@ -442,7 +465,7 @@ describe('prototypes/base: asTransition', () => {
 
     mountTransition(P, ctx);
 
-    expect(ctx.getExposes().transitionState.get()).toBe('entering');
+    expect(ctx.getExposes().transitionState.get()).toBe('entered');
     expect(ctx.getExposes().isPresent.get()).toBe(true);
   });
 
@@ -476,38 +499,36 @@ describe('prototypes/base: asTransition', () => {
     expect(keys).toContain('afterLeave');
   });
 
-  it('AS-TRANSITION-2000: presence bridge is driven by enter/leave/complete', async () => {
-    const ctx = createHost(
-      { open: true, appear: true },
-      {
-        bridge: {
-          mount: () => {},
-          unmount: () => {},
-        },
-      }
-    );
-    const P = createTransitionProto('x-as-transition-2000', (def) => {
-      def.lifecycle.onMounted(() => {
-        const exposes = ctx.getExposes();
-        exposes.controls.complete();
-        exposes.controls.leave();
-        exposes.controls.complete();
-      });
+  it('AS-TRANSITION-2000: ViewIntent stays present through leave and detaches after completion', () => {
+    const ctx = createHost();
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2000',
+      setup() {
+        transition = asTransition();
+        return (r) => r.el('div', 'ok');
+      },
     });
 
-    mountTransition(P, ctx);
-    // flush microtasks for setIntent('enter') -> bridge.mount,
-    // finishMount -> onMounted, and setIntent('leave') -> bridge.unmount
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    const result = mountTransition(P, ctx);
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
 
-    expect(ctx.getExposes().transitionState.get()).toBe('closed');
-    expect(ctx.getBridgeCalls().mount).toBe(1);
-    expect(ctx.getBridgeCalls().unmount).toBe(1);
+    result.invokeInCallbackScope(() => transition.controls.enter());
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    expect(transition.transitionState.get()).toBe('entering');
+
+    result.invokeInCallbackScope(() => transition.controls.leave());
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    expect(transition.transitionState.get()).toBe('leaving');
+
+    result.invokeInCallbackScope(() => transition.controls.complete());
+
+    expect(transition.transitionState.get()).toBe('closed');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+    expect(ctx.getBridgeCalls()).toEqual({ mount: 0, unmount: 0 });
   });
 
-  it('AS-TRANSITION-2100: rapid enter cancels pending unmount', async () => {
+  it('AS-TRANSITION-2100: rapid enter cancels the pending detach intent', () => {
     const ctx = createHost(
       { open: true, appear: false },
       {
@@ -517,22 +538,66 @@ describe('prototypes/base: asTransition', () => {
         },
       }
     );
-    const P = createTransitionProto('x-as-transition-2100', (def) => {
-      def.lifecycle.onMounted(() => {
-        const exposes = ctx.getExposes();
-        exposes.controls.leave();
-        exposes.controls.enter();
-        exposes.controls.complete();
-      });
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2100',
+      setup() {
+        transition = asTransition();
+        return (r) => r.el('div', 'ok');
+      },
     });
 
-    mountTransition(P, ctx);
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.leave();
+      transition.controls.enter();
+      transition.controls.complete();
+    });
 
+    expect(transition.transitionState.get()).toBe('entered');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    expect(ctx.getBridgeCalls()).toEqual({ mount: 0, unmount: 0 });
+  });
+
+  it('AS-TRANSITION-2200: neutral delay completes an entering phase', () => {
+    const ctx = createHost({ open: true, appear: true, enterDuration: 45 });
+    const P = createTransitionProto('x-as-transition-2200');
+
+    mountTransition(P, ctx);
+
+    expect(ctx.getExposes().transitionState.get()).toBe('entering');
+    expect(ctx.getDelays().map((entry) => entry.durationMs)).toEqual([45]);
+
+    ctx.flushDelay(0);
     expect(ctx.getExposes().transitionState.get()).toBe('entered');
-    expect(ctx.getBridgeCalls().mount).toBe(1);
-    expect(ctx.getBridgeCalls().unmount).toBe(0);
+  });
+
+  it('AS-TRANSITION-2300: stale delayed completion is inert after reversal', () => {
+    const ctx = createHost({ enterDuration: 30, leaveDuration: 20 });
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2300',
+      setup() {
+        transition = asTransition();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.enter();
+      transition.controls.leave();
+    });
+
+    expect(ctx.getDelays().map((entry) => [entry.durationMs, entry.cancelled])).toEqual([
+      [30, true],
+      [20, false],
+    ]);
+
+    ctx.flushDelay(0);
+    expect(transition.transitionState.get()).toBe('leaving');
+
+    ctx.flushDelay(1);
+    expect(transition.transitionState.get()).toBe('closed');
   });
 });

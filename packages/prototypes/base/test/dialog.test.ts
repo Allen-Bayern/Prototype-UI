@@ -9,6 +9,12 @@ AdaptToWebComponent(dialogMask as any);
 AdaptToWebComponent(dialogContent as any);
 AdaptToWebComponent(dialogClose as any);
 
+async function flushViewReconciliation(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe('prototypes/base: dialog', () => {
   it('uncontrolled root toggles open from trigger click and closes from close click', async () => {
     const root = document.createElement('base-dialog-root') as any;
@@ -27,8 +33,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(mask, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();
@@ -41,8 +47,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(mask, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();
@@ -66,13 +72,13 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
+    await flushViewReconciliation();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     setElementProps(root, { open: true });
     await Promise.resolve();
@@ -208,7 +214,7 @@ describe('prototypes/base: dialog', () => {
     expect(content.getExposes().transitionState.get()).toBe('closed');
 
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
+    await flushViewReconciliation();
 
     expect(mask.getExposes().transitionState.get()).toBe('entering');
     expect(content.getExposes().transitionState.get()).toBe('entering');
