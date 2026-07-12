@@ -10,6 +10,8 @@ import {
   createSoftUnmountScheduler,
   createViewEpochOwner,
   createWebProtoEventRouter,
+  installViewVisibilityRule,
+  PUI_VIEW_PENDING_ATTR,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -153,6 +155,7 @@ export function createVueAdapter(runtime: VueRuntime) {
           runtime.provide!(logicalOwnerKey, instanceToken);
         }
         const shouldExist = runtime.ref(!supportsOwnerContext);
+        let viewReady = false;
         let hasBeenUnmounted = false;
 
         const subs = new Set<() => void>();
@@ -310,6 +313,8 @@ export function createVueAdapter(runtime: VueRuntime) {
             if (!pendingCommit) return;
             pendingCommit = false;
             await runtime.nextTick();
+            viewReady = true;
+            rootRef.value?.removeAttribute(PUI_VIEW_PENDING_ATTR);
 
             const rootEl = rootRef.value;
             const eventGate = eventGateRef.value;
@@ -449,11 +454,17 @@ export function createVueAdapter(runtime: VueRuntime) {
           }
         };
 
-        runtime.onMounted(initSession);
+        runtime.onMounted(() => {
+          const rootEl = rootRef.value;
+          if (rootEl) installViewVisibilityRule(rootEl.ownerDocument);
+          initSession();
+        });
         runtime.onDeactivated?.(() => {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
+          viewReady = false;
+          rootRef.value?.setAttribute(PUI_VIEW_PENDING_ATTR, '');
           if (owner.hasView) void owner.detachView();
           lastInitRoot = null;
         });
@@ -465,6 +476,7 @@ export function createVueAdapter(runtime: VueRuntime) {
           () => shouldExist.value,
           async (val: boolean) => {
             if (val) {
+              viewReady = false;
               await runtime.nextTick();
               initSession();
             } else {
@@ -477,6 +489,7 @@ export function createVueAdapter(runtime: VueRuntime) {
               eventGateRef.value?.disable?.();
               if (owner.hasView) void owner.detachView();
               hostTokens.value = [];
+              viewReady = false;
             }
           },
           { flush: 'post' }
@@ -522,6 +535,7 @@ export function createVueAdapter(runtime: VueRuntime) {
               class: mergeHostClass([props.hostClass, ctx.attrs.class]),
               style: mergeHostStyle([props.hostStyle, ctx.attrs.style]),
               'data-pui-root': '',
+              [PUI_VIEW_PENDING_ATTR]: viewReady ? undefined : '',
               'data-pui-style': serializeStyleTokens(hostTokens.value),
               'data-demo-ref': ctx.attrs['data-demo-ref'] as string | undefined,
             },

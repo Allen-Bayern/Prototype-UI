@@ -6,6 +6,7 @@ export * from './lifecycle/teardown';
 export * from './lifecycle/soft-unmount';
 export * from './host/adapter-host';
 export * from './host/view-epoch-owner';
+export * from './host/view-visibility';
 export * from './events/web-event-router';
 export * from './platform/instance-tree';
 export * from './types';

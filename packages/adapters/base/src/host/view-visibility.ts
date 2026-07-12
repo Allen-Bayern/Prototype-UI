@@ -1,0 +1,18 @@
+export const PUI_VIEW_PENDING_ATTR = 'data-pui-view-pending';
+
+const VIEW_VISIBILITY_STYLE_ID = 'proto-ui-view-visibility';
+const RULES_BY_DOCUMENT = new WeakMap<Document, boolean>();
+
+export function installViewVisibilityRule(doc: Document): void {
+  if (RULES_BY_DOCUMENT.get(doc)) return;
+
+  let styleEl = doc.getElementById(VIEW_VISIBILITY_STYLE_ID) as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = doc.createElement('style');
+    styleEl.id = VIEW_VISIBILITY_STYLE_ID;
+    (doc.head ?? doc.documentElement).appendChild(styleEl);
+  }
+
+  styleEl.textContent = `${styleEl.textContent ?? ''}\n:where([${PUI_VIEW_PENDING_ATTR}]) { visibility: hidden !important; }\n`;
+  RULES_BY_DOCUMENT.set(doc, true);
+}

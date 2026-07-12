@@ -1,6 +1,7 @@
 const HOST_DISPLAY_STYLE_ID = 'proto-ui-wc-host-display';
 const HOST_DISPLAY_CLASS = 'pui-host-root';
 const PUI_STYLE_ATTR = 'data-pui-style';
+export const PUI_VIEW_DETACHED_ATTR = 'data-pui-view-detached';
 
 const RULES_BY_DOCUMENT = new WeakMap<Document, boolean>();
 
@@ -59,7 +60,7 @@ function ensureDefaultHostDisplayRule(doc: Document) {
   if (RULES_BY_DOCUMENT.get(doc)) return;
 
   const styleEl = getOrCreateStyleElement(doc);
-  styleEl.textContent = `${styleEl.textContent ?? ''}\n:where(.${HOST_DISPLAY_CLASS}) { display: block; }\n`;
+  styleEl.textContent = `${styleEl.textContent ?? ''}\n:where(.${HOST_DISPLAY_CLASS}) { display: block; }\n:where([${PUI_VIEW_DETACHED_ATTR}]) { display: none !important; }\n`;
   RULES_BY_DOCUMENT.set(doc, true);
 }
 

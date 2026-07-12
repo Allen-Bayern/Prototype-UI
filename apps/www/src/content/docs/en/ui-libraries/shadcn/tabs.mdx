@@ -45,10 +45,10 @@ import { getCode } from '@/utils/conversionUtils';
 
 ## Content mount policy
 
-`TabsContent` accepts `lazyMount`, `unmountOnExit`, and `keepMounted`:
+`TabsContent` uses a lazy L1 view by default:
 
-- `lazyMount` delays the React/Vue host view until the panel is selected for the first time.
-- `unmountOnExit` detaches that view whenever the panel becomes inactive, while preserving the Proto instance and its state.
-- `keepMounted` takes precedence over both options and keeps the view present.
+- only the current panel materializes a host view;
+- an inactive panel detaches its view while preserving its Proto instance, state, and exposes;
+- `keepMounted={true}` is the only view-retention option and keeps the complete inactive view mounted.
 
-Web Component disconnection is a terminal ownership boundary. A custom element cannot remove itself and later observe its parent Tabs context, so full-element lazy/destroy composition must be owned by the WC consumer or a future compound host wrapper; the element still projects the inactive/hidden semantics today.
+Web Component keeps the custom element as the owner and hides that owner while its internal view is detached. Reactivating the panel materializes a new view inside the same Proto instance owner.

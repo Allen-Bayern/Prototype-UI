@@ -11,6 +11,8 @@ import {
   createSoftUnmountScheduler,
   createViewEpochOwner,
   createWebProtoEventRouter,
+  installViewVisibilityRule,
+  PUI_VIEW_PENDING_ATTR,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -145,6 +147,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const [renderChildren, setRenderChildren] = runtime.useState<any>(null);
       const [hostTokens, setHostTokens] = runtime.useState<string[]>([]);
       const [shouldExist, setShouldExist] = runtime.useState(!supportsOwnerContext);
+      const viewReadyRef = runtime.useRef(false);
 
       const controllerRef = runtime.useRef<RuntimeController | null>(null);
       const eventGateRef = runtime.useRef<ReturnType<typeof createEventGate> | null>(null);
@@ -338,11 +341,14 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           eventGateRef.current?.disable?.();
           if (ownerRef.current?.hasView) void ownerRef.current.detachView();
           setHostTokens([]);
+          viewReadyRef.current = false;
           return;
         }
 
         const rootEl = rootRef.current;
         if (!rootEl) return;
+
+        installViewVisibilityRule(rootEl.ownerDocument);
 
         markProtoInstance(rootEl, proto as Prototype<any>, instanceTokenRef.current);
         boundRootRef.current = rootEl;
@@ -423,6 +429,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           softUnmount.cancel();
           cancelBaselineFrames();
           resolveBaselineSignal();
+          viewReadyRef.current = false;
+          rootRef.current?.setAttribute(PUI_VIEW_PENDING_ATTR, '');
           void ownerRef.current?.detachView();
           ownerDisposalRef.current?.release();
         };
@@ -431,6 +439,8 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       runtime.useLayoutEffect(() => {
         if (!pendingCommitRef.current) return;
         pendingCommitRef.current = false;
+        viewReadyRef.current = true;
+        rootRef.current?.removeAttribute(PUI_VIEW_PENDING_ATTR);
 
         const rootEl = rootRef.current;
         const needsBaseline =
@@ -511,6 +521,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
               className: mergeHostClassName([props.hostClassName, props.className]),
               style: mergeHostStyle([props.hostStyle, props.style]),
               'data-pui-root': '',
+              [PUI_VIEW_PENDING_ATTR]: viewReadyRef.current ? undefined : '',
               'data-pui-style': serializeStyleTokens(hostTokens),
               'data-demo-ref': props['data-demo-ref' as keyof typeof props] as string | undefined,
             },

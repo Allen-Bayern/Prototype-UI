@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { definePrototype, type RunHandle } from '@proto.ui/core';
+import { definePrototype, tw, type RunHandle } from '@proto.ui/core';
 import { createVueAdapter } from '../src/adapt';
 import { VueAny, flushVue } from './utils/vue';
 
@@ -23,6 +23,7 @@ describe('adapter-vue: L1 view intent', () => {
       name: 'vue-view-intent',
       setup(def) {
         calls.setup += 1;
+        def.feedback.style.use(tw('rounded-md p-4'));
         def.lifecycle.onCreated((nextRun) => {
           calls.created += 1;
           run = nextRun;
@@ -64,13 +65,19 @@ describe('adapter-vue: L1 view intent', () => {
       vm.invokeInCallbackScope(() => run.lifecycle.setPresent(true));
       await flushVue();
       await flushVue();
-      expect(host.querySelector('[data-pui-root]')).not.toBeNull();
+      const firstRoot = host.querySelector<HTMLElement>('[data-pui-root]');
+      expect(firstRoot).not.toBeNull();
+      expect(firstRoot?.hasAttribute('data-pui-view-pending')).toBe(false);
+      expect(firstRoot?.getAttribute('data-pui-style')).toBe('rounded-md p-4');
       expect(calls.mounted).toBe(1);
 
       vm.invokeInCallbackScope(() => run.lifecycle.setPresent(false));
       vm.invokeInCallbackScope(() => run.lifecycle.setPresent(true));
       await flushVue();
-      expect(host.querySelector('[data-pui-root]')).not.toBeNull();
+      const remountedRoot = host.querySelector<HTMLElement>('[data-pui-root]');
+      expect(remountedRoot).not.toBeNull();
+      expect(remountedRoot?.hasAttribute('data-pui-view-pending')).toBe(false);
+      expect(remountedRoot?.getAttribute('data-pui-style')).toBe('rounded-md p-4');
       expect(calls.unmounted).toBe(0);
 
       vm.invokeInCallbackScope(() => run.lifecycle.setPresent(false));

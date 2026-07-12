@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { definePrototype, type RunHandle } from '@proto.ui/core';
+import { definePrototype, tw, type RunHandle } from '@proto.ui/core';
 import { createReactAdapter } from '../src/adapt';
 import { createFakeReactRuntime } from './utils/fake-react';
 
@@ -23,6 +23,7 @@ describe('adapter-react: L1 view intent', () => {
       name: 'react-view-intent',
       setup(def) {
         calls.setup += 1;
+        def.feedback.style.use(tw('rounded-md p-4'));
         def.lifecycle.onCreated((nextRun) => {
           calls.created += 1;
           run = nextRun;
@@ -65,6 +66,8 @@ describe('adapter-react: L1 view intent', () => {
       await Promise.resolve();
       mounted.update();
       expect(mounted.root).not.toBeNull();
+      expect(mounted.root?.hasAttribute('data-pui-view-pending')).toBe(false);
+      expect(mounted.root?.getAttribute('data-pui-style')).toBe('rounded-md p-4');
       expect(calls.mounted).toBe(1);
 
       // Reversal before React renders keeps the current view attached.
@@ -92,6 +95,8 @@ describe('adapter-react: L1 view intent', () => {
         mounted.update();
       }
       expect(mounted.root).not.toBeNull();
+      expect(mounted.root?.hasAttribute('data-pui-view-pending')).toBe(false);
+      expect(mounted.root?.getAttribute('data-pui-style')).toBe('rounded-md p-4');
       expect(calls.setup).toBe(1);
       expect(calls.created).toBe(1);
       expect(calls.mounted).toBe(2);
