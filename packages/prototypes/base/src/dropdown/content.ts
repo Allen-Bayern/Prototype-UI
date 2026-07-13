@@ -43,7 +43,9 @@ function setupDropdownContent(
   const focusFirst = roving.getMethod?.('focusFirst') as (() => boolean) | undefined;
   const focusLast = roving.getMethod?.('focusLast') as (() => boolean) | undefined;
 
-  const overlay = asOverlay({
+  const overlay = asOverlay<DropdownContentProps>();
+  overlay.keepMounted();
+  overlay.configure({
     restore: 'trigger',
     entry: 'content',
   });

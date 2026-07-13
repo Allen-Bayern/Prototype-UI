@@ -19,6 +19,17 @@ AdaptToWebComponent(dialogTitle as any);
 AdaptToWebComponent(dialogDescription as any);
 AdaptToWebComponent(dialogClose as any);
 
+async function completeTransitions(...elements: any[]): Promise<void> {
+  for (const element of elements) {
+    const exposes = element?.getExposes?.();
+    const state = exposes?.transitionState?.get?.();
+    if (state === 'entering' || state === 'leaving') exposes.controls.complete();
+  }
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe('prototypes/shadcn: dialog', () => {
   it('styles and opens a dialog compound prototype', async () => {
     const root = document.createElement('shadcn-dialog-root') as any;
@@ -64,8 +75,10 @@ describe('prototypes/shadcn: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(mask, 'hidden')).toBe(true);
+    expect(content.getExposes().transitionState.get()).toBe('leaving');
+    await completeTransitions(mask, content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();

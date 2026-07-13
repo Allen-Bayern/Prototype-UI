@@ -4,7 +4,7 @@ import type {
   ObservedStateHandle,
   OverlayConfig,
   OverlayConfigPatch,
-  OverlayHandle,
+  OverlayModuleHandle,
   MountPhase,
   ProtoPhase,
   OverlayReason,
@@ -99,6 +99,7 @@ export class OverlayModuleImpl extends ModuleBase {
   });
 
   private readonly openState = createObservedBoolHandle(false);
+  private viewActive = false;
   private globalMount: OverlayGlobalMount | null = null;
   private modalLock: OverlayModal | null = null;
   private layerScheduler: OverlayLayerScheduler | null = null;
@@ -135,7 +136,7 @@ export class OverlayModuleImpl extends ModuleBase {
   override onProtoPhase(phase: ProtoPhase): void {
     super.onProtoPhase(phase);
     if (phase !== 'unmounted') return;
-    this.teardownOpenSideEffects();
+    this.teardownMountedViewSideEffects();
     this.clearBoundaryRegistrations();
     this.offBoundaryOutside?.();
   }
@@ -143,13 +144,13 @@ export class OverlayModuleImpl extends ModuleBase {
   override onMountPhase(phase: MountPhase, epoch: number): void {
     super.onMountPhase(phase, epoch);
     if (phase === 'unmounting' || phase === 'detached') {
-      this.teardownOpenSideEffects();
+      this.teardownMountedViewSideEffects();
       this.boundary.setStackActive(false);
       return;
     }
-    if (phase === 'mounted' && this.isOpen()) {
-      this.boundary.setStackActive(true);
-      this.syncOpenSideEffects();
+    if (phase === 'mounted') {
+      if (this.isOpen()) this.boundary.setStackActive(true);
+      if (this.viewActive) this.syncViewSideEffects();
     }
   }
 
@@ -240,7 +241,7 @@ export class OverlayModuleImpl extends ModuleBase {
     this.modalLocked = false;
   }
 
-  private syncOpenSideEffects(): void {
+  private syncViewSideEffects(): void {
     if (this.mountPhase !== 'mounted') return;
     const hostEl = this.resolveHostElement();
     if (hostEl) {
@@ -250,7 +251,11 @@ export class OverlayModuleImpl extends ModuleBase {
     this.lockModalIfNeeded();
   }
 
-  private teardownOpenSideEffects(): void {
+  private deactivateViewSideEffects(): void {
+    this.unlockModalIfNeeded();
+  }
+
+  private teardownMountedViewSideEffects(): void {
     this.clearLayer();
     this.unmountGlobalIfNeeded();
     this.unlockModalIfNeeded();
@@ -263,7 +268,7 @@ export class OverlayModuleImpl extends ModuleBase {
     if (Object.is(wasOpen, next)) {
       if (next) {
         this.boundary.setStackActive(true);
-        this.syncOpenSideEffects();
+        if (this.viewActive) this.syncViewSideEffects();
       } else {
         this.boundary.setStackActive(false);
       }
@@ -274,12 +279,28 @@ export class OverlayModuleImpl extends ModuleBase {
 
     if (next) {
       this.boundary.setStackActive(true);
-      this.syncOpenSideEffects();
       return;
     }
 
     this.boundary.setStackActive(false);
-    this.teardownOpenSideEffects();
+  }
+
+  setViewActive(active: boolean): void {
+    if (Object.is(this.viewActive, active)) {
+      return;
+    }
+
+    this.viewActive = active;
+    if (active) {
+      if (this.mountPhase === 'mounted') this.lockModalIfNeeded();
+      return;
+    }
+    this.deactivateViewSideEffects();
+  }
+
+  reconcileViewResources(): void {
+    if (!this.viewActive) return;
+    this.syncViewSideEffects();
   }
 
   private replaceRegistration(next: Partial<OverlayRegistration>) {
@@ -399,7 +420,7 @@ export class OverlayModuleImpl extends ModuleBase {
   registerContent(target: unknown): void {
     this.replaceRegistration({ content: target });
 
-    if (!this.isOpen()) return;
+    if (!this.viewActive) return;
 
     const hostEl = this.resolveHostElement();
     if (!hostEl) return;
@@ -407,7 +428,7 @@ export class OverlayModuleImpl extends ModuleBase {
     this.applyLayerIfNeeded(hostEl);
   }
 
-  readonly handle: OverlayHandle<any> = {
+  readonly handle: OverlayModuleHandle<any> = {
     open: this.openState.handle,
     isOpen: () => this.isOpen(),
     openOverlay: (reason?: OverlayReason) => this.open(reason),

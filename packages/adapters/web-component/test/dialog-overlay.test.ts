@@ -36,6 +36,17 @@ function styleContains(el: Element, token: string): boolean {
   return (el.getAttribute('data-pui-style') ?? '').split(/\s+/).includes(token);
 }
 
+async function completeTransitions(...elements: any[]): Promise<void> {
+  for (const element of elements) {
+    const exposes = element?.getExposes?.();
+    const state = exposes?.transitionState?.get?.();
+    if (state === 'entering' || state === 'leaving') exposes.controls.complete();
+  }
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe('adapter-web-component: dialog overlay', () => {
   it('sets body overflow hidden on open and restores on close (modal)', async () => {
     registerDialogWcs();
@@ -71,6 +82,9 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    expect(mask.getExposes().transitionState.get()).toBe('leaving');
+    expect(document.body.style.overflow).toBe('hidden');
+    await completeTransitions(mask, content);
     expect(document.body.style.overflow).toBe(originalOverflow);
 
     root.remove();
@@ -103,7 +117,9 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content.getExposes().transitionState.get()).toBe('leaving');
+    await completeTransitions(content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     document.body.style.overflow = '';
@@ -138,7 +154,8 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(styleContains(content, 'hidden')).toBe(true);
+    await completeTransitions(content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     document.body.style.overflow = '';
@@ -185,7 +202,8 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(styleContains(content, 'hidden')).toBe(true);
+    await completeTransitions(mask, content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
     expect(document.activeElement).toBe(trigger);
 
     root.remove();
@@ -228,6 +246,7 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    await completeTransitions(content);
     root.remove();
     document.body.style.overflow = '';
   });
@@ -265,7 +284,8 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(styleContains(content, 'hidden')).toBe(true);
+    await completeTransitions(content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
     expect(document.activeElement).toBe(trigger);
     expect(trigger.getExposes().focusVisible.get()).toBe(true);
 
@@ -353,6 +373,7 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    await completeTransitions(content);
     root.remove();
     document.body.style.overflow = '';
   });

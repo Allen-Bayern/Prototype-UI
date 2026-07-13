@@ -24,7 +24,9 @@ function setupHoverCardContent(
 ): void {
   def.anatomy.claim(HOVER_CARD_FAMILY, { role: 'content' });
 
-  const overlay = asOverlay({
+  const overlay = asOverlay<HoverCardContentProps>();
+  overlay.keepMounted();
+  overlay.configure({
     closeOnEscape: true,
     closeOnOutsidePress: true,
     closeOnFocusOutside: true,

@@ -2,7 +2,7 @@
 
 > Status: Draft - v0
 >
-> This document defines the Proto UI v0 `asOverlay(...)` contract.
+> Human-readable projection of `spec/contracts/C-AS-OVERLAY-0001.yaml`.
 
 ---
 
@@ -83,12 +83,51 @@ These may be defined later by a separate modal overlay contract or an explicit e
 
 ## 3. Invocation Model
 
-`asOverlay(...)` is a privileged, configurable, singleton-install asHook.
+`asOverlay()` is a privileged, no-argument, once-installed asHook.
 
 - the first call installs overlay capability for the current instance
 - later calls reuse the same underlying handle
-- later setup calls may contribute configuration patches
+- setup configuration is expressed through `handle.configure(...)`
 - repeated calls must not reinstall the capability
+
+```ts
+const overlay = asOverlay();
+overlay.configure({
+  closeOnOutsidePress: true,
+  portal: true,
+});
+```
+
+### 3.1 Presence Coordination
+
+Overlay logical open is not itself a mount fact.
+
+- without a binding, Overlay uses one immediate driver that projects logical open through `run.lifecycle.setPresent()`
+- `keepMounted()` explicitly retains the structural view for protocols that are not yet lazy-mount safe
+- a component may bind a perceptual Presence driver such as `asTransition()`
+- after binding, the immediate driver is disabled and only the binding may submit structural ViewIntent
+- submitting the same binding again is idempotent; a competing binding is a contract error
+- `keepMounted()` and external Presence binding are mutually exclusive
+
+```ts
+const overlay = asOverlay();
+const transition = asTransition();
+
+overlay.bindPresence({
+  enter: transition.controls.enter,
+  leave: transition.controls.leave,
+  present: transition.isPresent,
+});
+```
+
+The following facts remain distinct:
+
+- Overlay logical open
+- perceptual presence (`entering`, `entered`, and `leaving` are present)
+- lifecycle ViewIntent
+- current view-epoch mount phase
+
+Boundary stack participation follows logical open. Modal activity follows perceptual presence. Portal and layer resources remain attached through leaving and are finally revoked when the current view epoch detaches.
 
 The primary authoring entry is expected to be content/root-oriented hooks such as:
 

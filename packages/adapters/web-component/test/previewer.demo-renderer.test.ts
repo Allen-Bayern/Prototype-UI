@@ -15,6 +15,15 @@ async function settle() {
   await Promise.resolve();
 }
 
+async function completeTransitions(...elements: Array<HTMLElement | null>): Promise<void> {
+  for (const element of elements) {
+    const exposes = (element as any)?.getExposes?.();
+    const state = exposes?.transitionState?.get?.();
+    if (state === 'entering' || state === 'leaving') exposes.controls.complete();
+  }
+  await settle();
+}
+
 describe('PrototypePreviewer demo-renderer / wc', () => {
   it('renders shadcn tabs parts with host styles in demo wc mode', async () => {
     await loadPrototypes([
@@ -80,6 +89,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
 
     const trigger = host.querySelector('wc-base-dialog-trigger') as HTMLElement | null;
     const content = host.querySelector('wc-base-dialog-content') as HTMLElement | null;
+    const mask = host.querySelector('wc-base-dialog-mask') as HTMLElement | null;
     const close = host.querySelector('wc-base-dialog-close') as HTMLElement | null;
 
     expect(trigger).not.toBeNull();
@@ -96,6 +106,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
 
     close?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await settle();
+    await completeTransitions(mask, content);
 
     await session.destroy();
     host.remove();
@@ -125,6 +136,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
 
     const trigger = host.querySelector('wc-shadcn-dialog-trigger') as HTMLElement | null;
     const content = host.querySelector('wc-shadcn-dialog-content') as HTMLElement | null;
+    const mask = host.querySelector('wc-shadcn-dialog-mask') as HTMLElement | null;
     const close = host.querySelector('wc-shadcn-dialog-close') as HTMLElement | null;
 
     expect(trigger).not.toBeNull();
@@ -141,6 +153,7 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
 
     close?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await settle();
+    await completeTransitions(mask, content);
 
     await session.destroy();
     host.remove();

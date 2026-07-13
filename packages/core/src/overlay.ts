@@ -66,7 +66,18 @@ export type OverlayRegistration = Readonly<{
   content: unknown | null;
 }>;
 
-export interface OverlayHandle<P extends PropsBaseType = PropsBaseType> {
+/**
+ * Supplies perceptual presence for an overlay. Only the active binding may
+ * submit structural ViewIntent; binding a transition disables Overlay's
+ * immediate presence driver.
+ */
+export type OverlayPresenceBinding<P extends PropsBaseType = PropsBaseType> = Readonly<{
+  enter(): void;
+  leave(): void;
+  present: ObservedStateHandle<boolean, any>;
+}>;
+
+export interface OverlayModuleHandle<P extends PropsBaseType = PropsBaseType> {
   open: ObservedStateHandle<boolean, P>;
 
   isOpen(): boolean;
@@ -79,4 +90,12 @@ export interface OverlayHandle<P extends PropsBaseType = PropsBaseType> {
   registerTrigger(target: unknown): void;
   registerAnchor(target: unknown): void;
   registerContent(target: unknown): void;
+}
+
+export interface OverlayHandle<
+  P extends PropsBaseType = PropsBaseType,
+> extends OverlayModuleHandle<P> {
+  /** Keeps the host view mounted while logical open still gates Overlay resources. */
+  keepMounted(): void;
+  bindPresence(binding: OverlayPresenceBinding<P>): void;
 }

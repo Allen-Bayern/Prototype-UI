@@ -1,26 +1,149 @@
-import type { OverlayConfigPatch, OverlayHandle } from '@proto.ui/core';
+import type {
+  OverlayHandle,
+  OverlayModuleHandle,
+  OverlayPresenceBinding,
+  RunHandle,
+} from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import { definePrivilegedAsHook } from './privileged';
 
 type OverlayFacade = {
-  getOverlay<P extends PropsBaseType = PropsBaseType>(): OverlayHandle<P>;
+  getOverlay<P extends PropsBaseType = PropsBaseType>(): OverlayModuleHandle<P>;
 };
 
-const getOverlay = definePrivilegedAsHook<PropsBaseType, OverlayHandle<PropsBaseType>>({
+type OverlayPort = {
+  setViewActive(active: boolean): void;
+  reconcileViewResources(): void;
+};
+
+const installOverlay = definePrivilegedAsHook<PropsBaseType, OverlayHandle<PropsBaseType>>({
   name: 'asOverlay',
-  setup: ({ facades }) => {
+  setup: ({ def, rt, facades, ports }) => {
     const facade = facades.overlay as OverlayFacade | undefined;
-    if (!facade || typeof facade.getOverlay !== 'function') {
-      throw new Error(`[AsHook] overlay facade unavailable for asOverlay.`);
+    const port = ports.overlay as OverlayPort | undefined;
+    if (!facade || typeof facade.getOverlay !== 'function' || !port) {
+      throw new Error(`[AsHook] overlay capability unavailable for asOverlay.`);
     }
-    return facade.getOverlay();
+
+    const raw = facade.getOverlay();
+    let currentRun: RunHandle<PropsBaseType> | null = null;
+    let presenceBinding: OverlayPresenceBinding<PropsBaseType> | null = null;
+    let retainedView = false;
+    let offPresence: (() => void) | null = null;
+    let disposed = false;
+    let viewActiveVersion = 0;
+
+    const scheduleBoundViewActive = (active: boolean) => {
+      port.setViewActive(active);
+      const version = ++viewActiveVersion;
+      if (!active) return;
+      queueMicrotask(() => {
+        if (disposed || version !== viewActiveVersion || !presenceBinding) return;
+        if (presenceBinding.present.get() !== active) return;
+        port.reconcileViewResources();
+      });
+    };
+
+    const driveLogicalPresence = (open: boolean) => {
+      if (!currentRun || disposed) return;
+      if (presenceBinding) {
+        if (open) presenceBinding.enter();
+        else presenceBinding.leave();
+        return;
+      }
+
+      port.setViewActive(open);
+      if (retainedView) return;
+      currentRun.lifecycle.setPresent(open);
+    };
+
+    const offOpen = raw.open.watch((_run, event) => {
+      if (event.type !== 'next') return;
+      driveLogicalPresence(event.next);
+    });
+
+    def.lifecycle.onCreated((run) => {
+      currentRun = run;
+      if (presenceBinding) return;
+      const open = raw.isOpen();
+      port.setViewActive(open);
+      run.lifecycle.setPresent(retainedView ? true : open);
+    });
+
+    def.lifecycle.onMounted((run) => {
+      currentRun = run;
+      const target = run.host?.get?.();
+      if (target) raw.registerContent(target);
+    });
+
+    def.lifecycle.onUnmounted((run) => {
+      currentRun = run;
+    });
+
+    def.lifecycle.onBeforeDispose(() => {
+      disposed = true;
+      offPresence?.();
+      offPresence = null;
+      offOpen();
+      currentRun = null;
+    });
+
+    const handle: OverlayHandle<PropsBaseType> = {
+      open: raw.open,
+      isOpen: () => raw.isOpen(),
+      openOverlay: (reason) => raw.openOverlay(reason),
+      close: (reason) => raw.close(reason),
+      toggle: (reason) => raw.toggle(reason),
+      configure: (patch) => raw.configure(patch),
+      registerTrigger: (target) => raw.registerTrigger(target),
+      registerAnchor: (target) => raw.registerAnchor(target),
+      registerContent: (target) => raw.registerContent(target),
+      keepMounted() {
+        rt.ensureSetup('overlay.keepMounted');
+        if (presenceBinding) {
+          throw new Error('[asOverlay] cannot keep mounted after Presence binding.');
+        }
+        retainedView = true;
+      },
+      bindPresence(binding) {
+        rt.ensureSetup('overlay.bindPresence');
+        if (presenceBinding === binding) return;
+        if (presenceBinding) {
+          throw new Error('[asOverlay] presence is already bound for this prototype instance.');
+        }
+        if (retainedView) {
+          throw new Error('[asOverlay] cannot bind Presence after keepMounted().');
+        }
+
+        presenceBinding = binding;
+        port.setViewActive(binding.present.get());
+        offPresence = binding.present.watch((_run, event) => {
+          if (event.type !== 'next') return;
+          // Activating portal/layer resources synchronously from a transition's
+          // mounted callback can relocate a WC host in the middle of the same
+          // lifecycle callback chain. Reconcile after that chain completes.
+          scheduleBoundViewActive(event.next);
+        });
+
+        // This callback is registered at bind time, after the transition's own
+        // created callback, so runtime controls are available before first sync.
+        def.lifecycle.onCreated((run) => {
+          currentRun = run;
+          port.setViewActive(binding.present.get());
+          if (raw.isOpen()) binding.enter();
+          else binding.leave();
+        });
+      },
+    };
+
+    return Object.freeze(handle);
   },
 });
 
-export function asOverlay<P extends PropsBaseType = PropsBaseType>(
-  patch?: OverlayConfigPatch
-): OverlayHandle<P> {
-  const handle = getOverlay() as OverlayHandle<P>;
-  if (patch) handle.configure(patch);
-  return handle;
+/**
+ * Installs one privileged overlay capability. Configuration and optional
+ * transition presence binding are expressed through the returned handle.
+ */
+export function asOverlay<P extends PropsBaseType = PropsBaseType>(): OverlayHandle<P> {
+  return installOverlay() as OverlayHandle<P>;
 }

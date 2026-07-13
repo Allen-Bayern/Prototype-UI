@@ -1,0 +1,85 @@
+id: T-AS-OVERLAY-0001
+type: test
+title: Overlay logical state, Presence binding, and resource lifetime tests
+status: draft
+since: 0.1.0
+summary: Runtime and Base integration tests for no-argument Overlay installation, immediate ViewIntent projection, Transition binding, single-writer conflict diagnostics, and leaving resource retention.
+cases:
+  - id: T-AS-OVERLAY-0001-CASE-NO-ARG-ONCE
+    title: repeated no-argument asOverlay calls reuse one configurable handle
+    covers:
+      - C-AS-OVERLAY-0001-A
+    expectation: no-argument-once-overlay-handle
+  - id: T-AS-OVERLAY-0001-CASE-IMMEDIATE
+    title: unbound Overlay projects logical open directly to ViewIntent
+    covers:
+      - C-AS-OVERLAY-0001-B
+    expectation: immediate-overlay-presence-driver
+  - id: T-AS-OVERLAY-0001-CASE-BOUND
+    title: Transition-bound Overlay disables immediate presence and retains resources through leave
+    covers:
+      - C-AS-OVERLAY-0001-C
+      - C-AS-OVERLAY-0001-E
+      - C-AS-OVERLAY-0001-F
+    expectation: transition-bound-overlay-presence
+  - id: T-AS-OVERLAY-0001-CASE-KEEP-MOUNTED
+    title: keepMounted retains structural presence independently of logical open
+    covers:
+      - C-AS-OVERLAY-0001-H
+    expectation: explicit-retained-overlay-view
+  - id: T-AS-OVERLAY-0001-CASE-CONFLICT
+    title: a second competing Presence binding is rejected
+    covers:
+      - C-AS-OVERLAY-0001-D
+    expectation: single-overlay-presence-writer
+  - id: T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
+    title: Boundary dismissal and Hit Participation remain independently composable
+    covers:
+      - C-AS-OVERLAY-0001-G
+    expectation: independent-boundary-hit-composition
+implementations:
+  - id: runtime-overlay-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/overlay.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-NO-ARG-ONCE
+      - T-AS-OVERLAY-0001-CASE-IMMEDIATE
+      - T-AS-OVERLAY-0001-CASE-KEEP-MOUNTED
+      - T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
+  - id: base-overlay-transition-contract
+    kind: runtime-test
+    status: passing
+    path: packages/prototypes/base/test/as-transition.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-BOUND
+      - T-AS-OVERLAY-0001-CASE-CONFLICT
+verifies:
+  contracts:
+    - id: C-AS-OVERLAY-0001
+      anchors:
+        - C-AS-OVERLAY-0001-A
+        - C-AS-OVERLAY-0001-B
+        - C-AS-OVERLAY-0001-C
+        - C-AS-OVERLAY-0001-D
+        - C-AS-OVERLAY-0001-E
+        - C-AS-OVERLAY-0001-F
+        - C-AS-OVERLAY-0001-G
+        - C-AS-OVERLAY-0001-H
+exercises:
+  decisions:
+    - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
+      role: api-surface
+      coverageImpact: exercises-test-surface
+      note: asOverlay now uses a no-argument once caller and returned configuration/binding handle.
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Added Overlay Presence coordination and resource lifetime coverage.
+tags:
+  - overlay
+  - presence
+  - transition
+  - contract-test

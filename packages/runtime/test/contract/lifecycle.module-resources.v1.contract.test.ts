@@ -177,7 +177,8 @@ describe('runtime contract: lifecycle module resource ownership (v1)', () => {
     const proto = definePrototype({
       name: 'lifecycle-overlay-resource-owner',
       setup() {
-        asOverlay({ defaultOpen: true, portal: true, modal: true });
+        const overlay = asOverlay();
+        overlay.configure({ defaultOpen: true, portal: true, modal: true });
         return (run) => run.el('div', 'ok');
       },
     });

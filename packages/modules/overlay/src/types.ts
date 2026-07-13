@@ -2,7 +2,7 @@ import type {
   ModuleInstance,
   OverlayConfig,
   OverlayConfigPatch,
-  OverlayHandle,
+  OverlayModuleHandle,
   OverlayReason,
   OverlayRegistration,
 } from '@proto.ui/core';
@@ -16,7 +16,7 @@ export type {
 } from './caps';
 
 export type OverlayFacade = {
-  getOverlay<P extends PropsBaseType = PropsBaseType>(): OverlayHandle<P>;
+  getOverlay<P extends PropsBaseType = PropsBaseType>(): OverlayModuleHandle<P>;
 };
 
 export type OverlayPort = {
@@ -32,6 +32,8 @@ export type OverlayPort = {
   registerTrigger(target: unknown): void;
   registerAnchor(target: unknown): void;
   registerContent(target: unknown): void;
+  setViewActive(active: boolean): void;
+  reconcileViewResources(): void;
 };
 
 export type OverlayModule = ModuleInstance<OverlayFacade> & {

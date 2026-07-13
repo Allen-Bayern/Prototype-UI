@@ -13,7 +13,8 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     passthrough: false,
   });
 
-  const overlay = asOverlay({
+  const overlay = asOverlay<DialogMaskProps>();
+  overlay.configure({
     closeOnEscape: false,
     closeOnOutsidePress: false,
     closeOnFocusOutside: false,
@@ -29,7 +30,11 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   });
 
   const transition = asTransition();
-  const controls = transition.controls;
+  overlay.bindPresence({
+    enter: transition.controls.enter,
+    leave: transition.controls.leave,
+    present: transition.isPresent,
+  });
   const open = def.state.bool('open', false);
   let hitRegionDispose: (() => void) | null = null;
   let hitSyncDisposed = false;
@@ -70,20 +75,9 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     syncHitParticipation(run);
   });
 
-  overlay.open.watch((_ctx, event) => {
-    if (event.type !== 'next') return;
-    if (event.next) {
-      controls.enter();
-    } else {
-      controls.leave();
-    }
-  });
-
   def.lifecycle.onCreated((run) => {
     const ctx = run.context.read(DIALOG_CONTEXT);
-    open.set(ctx.open, 'reason: lifecycle.onCreated => dialog mask open sync');
-    if (ctx.open) controls.enter();
-    else controls.leave();
+    updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog mask open sync');
   });
 
   def.lifecycle.onMounted((run) => {
@@ -94,11 +88,6 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
       syncHitParticipation(run);
     });
     updateOpen(open.get(), 'reason: lifecycle.onMounted => dialog mask open sync');
-    if (open.get()) {
-      controls.enter();
-    } else {
-      controls.leave();
-    }
   });
 
   def.lifecycle.onUnmounted(() => {
@@ -108,7 +97,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   });
 
   def.rule({
-    when: (w) => w.state(open).eq(false),
+    when: (w) => w.state(transition.isPresent).eq(false),
     intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }

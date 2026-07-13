@@ -38,7 +38,9 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     | undefined;
   const focusFirst = roving.getMethod?.('focusFirst') as (() => boolean) | undefined;
   const focusLast = roving.getMethod?.('focusLast') as (() => boolean) | undefined;
-  const overlay = asOverlay({
+  const overlay = asOverlay<SelectContentProps>();
+  overlay.keepMounted();
+  overlay.configure({
     restore: 'trigger',
     entry: 'content',
   });

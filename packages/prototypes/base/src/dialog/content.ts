@@ -20,7 +20,8 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   const alertProp = def.state.bool('alert', false);
 
-  const overlay = asOverlay({
+  const overlay = asOverlay<DialogContentProps>();
+  overlay.configure({
     closeOnEscape: true,
     closeOnOutsidePress: false,
     closeOnFocusOutside: true,
@@ -37,7 +38,11 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   focusScope.configure({ trap: true, loop: true });
 
   const transition = asTransition();
-  const controls = transition.controls;
+  overlay.bindPresence({
+    enter: transition.controls.enter,
+    leave: transition.controls.leave,
+    present: transition.isPresent,
+  });
 
   const open = def.state.bool('open', false);
   def.expose.state('open', open);
@@ -51,18 +56,21 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   ) => {
     const prevOpen = open.get();
     open.set(nextOpen, reason ?? 'reason: dialog content sync => open');
+    if (nextOpen) {
+      overlay.openOverlay(reason ?? 'dialog.open');
+    } else {
+      overlay.close(reason ?? 'dialog.close');
+    }
     // Context remains live while the L1 view is detached. Structural intent
     // is driven by Transition below, but overlay/focus effects require a
     // mounted view and must not be consumed early by the retained instance.
     if (!mountedRun) return;
     if (nextOpen) {
-      overlay.openOverlay(reason ?? 'dialog.open');
       if (!prevOpen || !focusScope.isActive()) {
         focusScope.activate({ reason: options?.focusReason ?? 'programmatic' });
       }
     } else {
       if (prevOpen) focusScope.deactivate({ reason: options?.focusReason ?? 'programmatic' });
-      overlay.close(reason ?? 'dialog.close');
     }
   };
 
@@ -76,16 +84,14 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
     });
-    if (next.open) controls.enter();
-    else controls.leave();
   });
 
   def.lifecycle.onCreated((run) => {
     syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
-    open.set(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync');
-    if (ctx.open) controls.enter();
-    else controls.leave();
+    updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync', {
+      focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
+    });
   });
 
   def.lifecycle.onMounted((run) => {
@@ -95,11 +101,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
-    if (ctx.open) {
-      controls.enter();
-    } else {
-      controls.leave();
-    }
   });
 
   def.lifecycle.onUnmounted(() => {
@@ -108,10 +109,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   overlay.open.watch((_ctx, event) => {
     if (event.type !== 'next') return;
-    if (event.next) {
-      controls.enter();
-    } else {
-      controls.leave();
+    if (!event.next) {
       const run = mountedRun;
       if (!run) return;
       const ctx = run.context.read(DIALOG_CONTEXT);
@@ -126,6 +124,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   def.event.onGlobal('host:pointerdown', (run, ev) => {
+    if (!overlay.isOpen()) return;
     const returnFocusReason: DialogOpenFocusReason = 'pointer';
     const ctx = run.context.read(DIALOG_CONTEXT);
     if (!ctx.open) return;
@@ -141,7 +140,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     if (ctx.controlled) {
       focusScope.deactivate({ reason: returnFocusReason });
       overlay.close('outside.press');
-      controls.leave();
       return;
     }
     run.context.update(DIALOG_CONTEXT, (prev) => ({
@@ -153,6 +151,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   def.event.onGlobal('key.down', (run, ev) => {
+    if (!overlay.isOpen()) return;
     const returnFocusReason: DialogOpenFocusReason = 'keyboard';
     const ctx = run.context.read(DIALOG_CONTEXT);
     if (!ctx.open) return;
@@ -162,7 +161,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     if (ctx.controlled) {
       focusScope.deactivate({ reason: returnFocusReason });
       overlay.close('escape');
-      controls.leave();
       return;
     }
     run.context.update(DIALOG_CONTEXT, (prev) => ({
@@ -174,7 +172,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   def.rule({
-    when: (w) => w.state(open).eq(false),
+    when: (w) => w.state(transition.isPresent).eq(false),
     intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }
