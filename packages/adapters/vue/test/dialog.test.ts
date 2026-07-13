@@ -105,6 +105,57 @@ describe('adapter-vue: dialog integration', () => {
     }
   });
 
+  it('reattaches a portaled dialog view after transition-driven detach', async () => {
+    const proto = definePrototype({
+      name: 'vue-dialog-portaled-rematerialization',
+      setup(def) {
+        def.context.provide(DIALOG_CONTEXT, {
+          open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
+          controlled: false,
+          disabled: false,
+          alert: false,
+        });
+        dialogContent.setup(def);
+        return (r) => [r.el('div', 'portaled dialog epoch')];
+      },
+    });
+
+    const mounted = createMountedVueAdapter(proto as any, { appear: false });
+    await flushVue();
+
+    try {
+      const controls = mounted.vm.getExposes().controls;
+
+      mounted.vm.invokeInCallbackScope(() => controls.complete());
+      mounted.vm.update?.();
+      await flushVue();
+      mounted.vm.invokeInCallbackScope(() => controls.leave());
+      mounted.vm.update?.();
+      await flushVue();
+      mounted.vm.invokeInCallbackScope(() => controls.complete());
+      mounted.vm.update?.();
+      await flushVue();
+      await flushVue();
+
+      expect(document.body.textContent).not.toContain('portaled dialog epoch');
+
+      mounted.vm.invokeInCallbackScope(() => controls.enter());
+      mounted.vm.update?.();
+      await flushVue();
+      await flushVue();
+
+      const rematerialized = Array.from(
+        document.body.querySelectorAll('[data-transition-state]')
+      ).find((element) => element.textContent?.includes('portaled dialog epoch'));
+      expect(rematerialized?.getAttribute('data-transition-state')).toBe('entering');
+      expect(mounted.vm.getExposes().transitionState?.get?.()).toBe('entering');
+    } finally {
+      mounted.unmount();
+    }
+  });
+
   it('supports adapter overlayLayer base z-index configuration', async () => {
     const proto = definePrototype({
       name: 'vue-dialog-layer-base',

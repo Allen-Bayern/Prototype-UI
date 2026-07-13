@@ -47,6 +47,12 @@ cases:
     covers:
       - C-AS-OVERLAY-0001-J
     expectation: renderer-owned-overlay-portal
+  - id: T-AS-OVERLAY-0001-CASE-PORTAL-REENTER
+    title: A detached portal view preserves logical ownership and can re-enter
+    covers:
+      - C-AS-OVERLAY-0001-K
+      - C-LIFECYCLE-0008-E
+    expectation: portaled-overlay-logical-owner-survives-detach
 implementations:
   - id: runtime-overlay-contract
     kind: runtime-test
@@ -88,6 +94,13 @@ implementations:
     required: true
     consumesCases:
       - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: vue-dialog-portal-reentry
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/previewer-dialog.demo.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-PORTAL-REENTER
 verifies:
   contracts:
     - id: C-AS-OVERLAY-0001
@@ -102,6 +115,10 @@ verifies:
         - C-AS-OVERLAY-0001-H
         - C-AS-OVERLAY-0001-I
         - C-AS-OVERLAY-0001-J
+        - C-AS-OVERLAY-0001-K
+    - id: C-LIFECYCLE-0008
+      anchors:
+        - C-LIFECYCLE-0008-E
 exercises:
   decisions:
     - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
@@ -118,6 +135,9 @@ revisions:
   - version: 0.1.2
     change: updated
     summary: Added React renderer-owned portal regression coverage.
+  - version: 0.1.3
+    change: updated
+    summary: Added Vue Dialog portal re-entry coverage for retained logical ownership.
 tags:
   - overlay
   - presence

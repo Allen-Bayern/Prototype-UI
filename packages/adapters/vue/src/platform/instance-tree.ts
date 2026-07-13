@@ -7,6 +7,7 @@ export const {
   markProtoInstance,
   unbindProtoInstance,
   setProtoParent,
+  clearProtoParentProjection,
   getProtoParent,
   getPrototypeByInstance,
   getLogicalParent,

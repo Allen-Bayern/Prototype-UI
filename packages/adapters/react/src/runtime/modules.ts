@@ -60,6 +60,7 @@ import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import type { PropsBaseType } from '@proto.ui/types';
 
 import {
+  clearProtoParentProjection,
   getLogicalParent,
   getLogicalPrototype,
   getLogicalRoot,
@@ -85,7 +86,9 @@ export function createReactOverlayGlobalMount(
       setProtoParent(hostEl, parentToken ? getLogicalRoot(parentToken) : null);
     },
     unmount(hostEl: HTMLElement) {
-      setProtoParent(hostEl, null);
+      // Removing a renderer-owned portal view must not detach the retained
+      // Proto instance from its logical owner.
+      clearProtoParentProjection(hostEl);
     },
   };
 }

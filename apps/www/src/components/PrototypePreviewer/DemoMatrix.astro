@@ -1,5 +1,6 @@
 ---
 import PrototypePreviewer from './PrototypePreviewer.astro';
+import DialogDemoStyles from './DialogDemoStyles.astro';
 import TransitionDemoStyles from './TransitionDemoStyles.astro';
 import { getAvailableDemos } from './demo-modules';
 import { AdapterIds, type RuntimeId } from './runtimes/registry';
@@ -60,6 +61,7 @@ function getPreviewerClass(demoId: string) {
 ---
 
 <TransitionDemoStyles />
+<DialogDemoStyles />
 
 <section class="demo-matrix" aria-label="Demo matrix">
   <div class="demo-matrix__summary" aria-label="Demo matrix summary">

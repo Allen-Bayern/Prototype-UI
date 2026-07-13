@@ -6,8 +6,8 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
     'demo-shadcn-dialog': formatCode(`
 <wc-shadcn-dialog-root class="relative inline-flex items-start">
   <wc-shadcn-dialog-trigger>Open Dialog</wc-shadcn-dialog-trigger>
-  <wc-shadcn-dialog-mask></wc-shadcn-dialog-mask>
-  <wc-shadcn-dialog-content>
+  <wc-shadcn-dialog-mask class="dialog-demo-mask"></wc-shadcn-dialog-mask>
+  <wc-shadcn-dialog-content class="dialog-demo-content">
     <wc-shadcn-dialog-title>Edit Profile</wc-shadcn-dialog-title>
     <wc-shadcn-dialog-description>
       Make changes to your profile here. Click save when you're done.
@@ -36,8 +36,8 @@ export function DemoShadcnDialogDemo() {
   return (
     <ShadcnDialogRoot className="relative inline-flex items-start">
       <ShadcnDialogTrigger>Open Dialog</ShadcnDialogTrigger>
-      <ShadcnDialogMask />
-      <ShadcnDialogContent>
+      <ShadcnDialogMask className="dialog-demo-mask" />
+      <ShadcnDialogContent className="dialog-demo-content">
         <ShadcnDialogTitle>Edit Profile</ShadcnDialogTitle>
         <ShadcnDialogDescription>
           Make changes to your profile here. Click save when you're done.
@@ -69,8 +69,8 @@ import {
 <template>
   <ShadcnDialogRoot class="relative inline-flex items-start">
     <ShadcnDialogTrigger>Open Dialog</ShadcnDialogTrigger>
-    <ShadcnDialogMask />
-    <ShadcnDialogContent>
+    <ShadcnDialogMask class="dialog-demo-mask" />
+    <ShadcnDialogContent class="dialog-demo-content">
       <ShadcnDialogTitle>Edit Profile</ShadcnDialogTitle>
       <ShadcnDialogDescription>
         Make changes to your profile here. Click save when you're done.

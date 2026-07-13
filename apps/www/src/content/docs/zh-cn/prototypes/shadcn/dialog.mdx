@@ -5,6 +5,9 @@ description: 'Dialog Shadcn 风格原型'
 ---
 
 import PrototypePreviewer from '@/components/PrototypePreviewer/PrototypePreviewer.astro';
+import DialogDemoStyles from '@/components/PrototypePreviewer/DialogDemoStyles.astro';
+
+<DialogDemoStyles />
 
 <div class="dialog-demo-container">
   <PrototypePreviewer
@@ -26,26 +29,3 @@ Shadcn Dialog 家族提供构建模态对话框的样式化部件。
 - **shadcn-dialog-close**：点击时关闭对话框。
 
 向 `shadcn-dialog-content` 传入 `alert` 可将其转换为 alert dialog：禁用外部点击关闭，同时保留 ESC 关闭行为。
-
-<style>{`
-  .dialog-demo-container .dialog-mask[data-transition-state="closed"],
-  .dialog-demo-container .dialog-mask[data-transition-state="leaving"] {
-    opacity: 0;
-  }
-  .dialog-demo-container .dialog-mask[data-transition-state="entering"],
-  .dialog-demo-container .dialog-mask[data-transition-state="entered"] {
-    opacity: 1;
-    transition: opacity 0.2s ease;
-  }
-  .dialog-demo-container .dialog-content[data-transition-state="closed"],
-  .dialog-demo-container .dialog-content[data-transition-state="leaving"] {
-    opacity: 0;
-    transform: scale(0.96) translateY(-8px);
-  }
-  .dialog-demo-container .dialog-content[data-transition-state="entering"],
-  .dialog-demo-container .dialog-content[data-transition-state="entered"] {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-`}</style>

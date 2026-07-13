@@ -59,6 +59,7 @@ import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import type { PropsBaseType } from '@proto.ui/types';
 
 import {
+  clearProtoParentProjection,
   getLogicalParent,
   getLogicalPrototype,
   getLogicalRoot,
@@ -84,7 +85,10 @@ export function createVueOverlayGlobalMount(
       setProtoParent(hostEl, parentToken ? getLogicalRoot(parentToken) : null);
     },
     unmount(hostEl: HTMLElement) {
-      setProtoParent(hostEl, null);
+      // Portal teardown removes only the host projection. The retained Proto
+      // instance must stay in its logical tree so context and anatomy remain
+      // live across the next L1 view epoch.
+      clearProtoParentProjection(hostEl);
     },
   };
 }

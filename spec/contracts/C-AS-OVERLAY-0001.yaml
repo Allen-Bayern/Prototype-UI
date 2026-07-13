@@ -54,6 +54,10 @@ criteria:
     text:
       zh-CN: 对 React/Vue 等 renderer-owned host，portal 必须由宿主 renderer 的 portal/teleport primitive 投射；Overlay bridge 不得在 renderer 背后直接移动其拥有的 DOM node。
       en: For renderer-owned hosts such as React and Vue, portal projection must use the host renderer's portal/teleport primitive; an Overlay bridge must not move renderer-owned DOM nodes behind the renderer's back.
+  - id: C-AS-OVERLAY-0001-K
+    text:
+      zh-CN: portal view epoch detach 只能撤销临时 host projection；被保留 Proto instance 的 logical parent、context/anatomy topology 与重新进入能力必须继续有效。
+      en: Detaching a portal view epoch may revoke only the temporary host projection; the retained Proto instance's logical parent, context/anatomy topology, and ability to re-enter must remain valid.
 sources:
   - path: internal/contracts/overlay/as-overlay.v0.md
   - path: packages/hooks/src/as-overlay.ts
@@ -65,6 +69,9 @@ sources:
   - path: packages/adapters/react/src/adapt.ts
     sections:
       - AdaptToReact
+  - path: packages/adapters/base/src/platform/instance-tree.ts
+    sections:
+      - createInstanceTreeMarkers
 dependsOn:
   contracts:
     - C-AS-HOOK-PRIVILEGED-0001
@@ -86,6 +93,9 @@ revisions:
   - version: 0.1.2
     change: updated
     summary: Required renderer-owned portal projection for virtual-DOM adapters.
+  - version: 0.1.3
+    change: refined
+    summary: Required portal host-projection teardown to preserve retained Proto logical ownership across view epochs.
 tags:
   - overlay
   - as-hook
