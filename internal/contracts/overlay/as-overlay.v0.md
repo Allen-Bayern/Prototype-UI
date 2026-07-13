@@ -8,7 +8,7 @@
 
 ## 0. Positioning
 
-`asOverlay(...)` declares that the current prototype instance participates in overlay governance.
+`asOverlay()` declares that the current prototype instance participates in overlay governance.
 
 It is responsible for:
 
@@ -29,7 +29,7 @@ It is not responsible for:
 
 ### 0.1 Transitional Semantics Note
 
-Current repository implementations may still expose options such as `modal`, `closeOnOutsidePress`, and `closeOnFocusOutside` through `asOverlay(...)`.
+The returned handle exposes setup-only options such as `modal`, `closeOnOutsidePress`, and `closeOnFocusOutside` through `overlay.configure(...)`.
 
 Normative direction:
 
@@ -59,7 +59,7 @@ These concerns should not be re-authored independently inside every dropdown, po
 
 ## 2. Scope of v0
 
-`asOverlay(...)` in v0 targets **anchored non-modal overlays** first.
+`asOverlay()` in v0 targets **anchored non-modal overlays** first.
 
 Examples:
 
@@ -135,15 +135,15 @@ The primary authoring entry is expected to be content/root-oriented hooks such a
 - `asTooltipContent(...)`
 - `asPopoverContent(...)`
 
-Direct use of `asOverlay(...)` by authors should be possible, but is not the primary expected path.
+Direct use of `asOverlay()` by authors should be possible, but is not the primary expected path.
 
 ---
 
 ## 4. Trigger Relationship
 
-`asOverlay(...)` does **not** own trigger interaction semantics.
+`asOverlay()` does **not** own trigger interaction semantics.
 
-The following are outside the responsibility of `asOverlay(...)`:
+The following are outside the responsibility of `asOverlay()`:
 
 - open on click
 - open on hover
@@ -156,7 +156,7 @@ Those behaviors should be defined by component-specific trigger hooks such as:
 - `asTooltipTrigger(...)`
 - `asDialogTrigger(...)`
 
-However, `asOverlay(...)` may still recognize **trigger** as a structural role for purposes such as:
+However, `asOverlay()` may still recognize **trigger** as a structural role for purposes such as:
 
 - focus restoration
 - outside-interaction classification
@@ -187,7 +187,7 @@ The contract does not require trigger and anchor to be the same node.
 
 ## 6. Open State
 
-`asOverlay(...)` should minimally provide:
+`asOverlay()` should minimally provide:
 
 - `open`
 - `defaultOpen`
@@ -224,6 +224,8 @@ v0 should support setup-time policy for at least:
 
 Component protocols may override these defaults.
 
+Dismiss policies are opt-in. `closeOnEscape`, `closeOnOutsidePress`, and `closeOnFocusOutside` default to `false`; an adapter-independent Overlay must not require a global event target merely because the capability was installed for logical state or Presence coordination.
+
 Examples:
 
 - dropdown: usually closes on item commit, escape, and outside press
@@ -232,20 +234,25 @@ Examples:
 
 ### 7.1 Outside Is a Derived Consumer Signal
 
-The long-term contract direction is:
+The current contract is:
 
 - `outside` is a derived result of interaction-boundary classification
+- `Boundary.observe('pointer.press')` requests the sample stream through Event
+- Overlay may enable that observation when `closeOnOutsidePress` is configured
 
 Therefore:
 
-- `asOverlay(...)` should not require each component to invent its own outside detection logic
+- `asOverlay()` should not require each component to invent its own outside detection logic
 - "outside press" and "focus outside" are overlay consumer behaviors, not foundational overlay-owned primitives
+- component protocols with controlled state or exception policy may subscribe to the same Boundary signal instead of enabling automatic Overlay close
+
+Escape is not a Boundary classification. When enabled, Overlay consumes the neutral `key.down` event stream directly. Focus-outside observation remains deferred until a reliable cross-host focus sample contract is defined.
 
 ---
 
 ## 8. Focus Policy
 
-`asOverlay(...)` should coordinate with the focus system rather than replacing it.
+`asOverlay()` should coordinate with the focus system rather than replacing it.
 
 v0 should support:
 
@@ -263,7 +270,7 @@ Routine policies such as "restore to trigger on close" should not require manual
 
 ## 9. Placement
 
-`asOverlay(...)` may expose host-mediated placement configuration.
+`asOverlay()` may expose host-mediated placement configuration.
 
 v0 should only require a minimal anchored model, such as:
 
@@ -291,7 +298,7 @@ Overlays frequently nest:
 - tooltip inside popover
 - combobox popup inside dialog
 
-`asOverlay(...)` should therefore participate in a runtime overlay stack.
+`asOverlay()` should therefore participate in a runtime overlay stack.
 
 v0 should minimally support:
 
@@ -305,7 +312,7 @@ The contract does not require a public arbitrary overlay-query API.
 
 ## 11. No Portal Requirement in v0
 
-`asOverlay(...)` must not require portal support in v0.
+`asOverlay()` must not require portal support in v0.
 
 Inline DOM placement is the default portable model.
 
@@ -347,7 +354,7 @@ Notes:
 
 The core boundary is:
 
-- `asOverlay(...)` governs overlay existence, dismissal, placement, and focus coordination
+- `asOverlay()` governs overlay existence, dismissal, placement, and focus coordination
 - trigger hooks govern which interaction requests state change
 
 This separation keeps overlay as a reusable structural capability while allowing dropdown, tooltip, dialog, and context menu to define their own trigger semantics.

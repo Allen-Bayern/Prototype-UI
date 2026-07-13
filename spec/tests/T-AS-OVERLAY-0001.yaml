@@ -37,6 +37,11 @@ cases:
     covers:
       - C-AS-OVERLAY-0001-G
     expectation: independent-boundary-hit-composition
+  - id: T-AS-OVERLAY-0001-CASE-DISMISS
+    title: opted-in outside press and Escape policies use Boundary and Event transport
+    covers:
+      - C-AS-OVERLAY-0001-I
+    expectation: explicit-overlay-dismiss-transport
 implementations:
   - id: runtime-overlay-contract
     kind: runtime-test
@@ -48,6 +53,7 @@ implementations:
       - T-AS-OVERLAY-0001-CASE-IMMEDIATE
       - T-AS-OVERLAY-0001-CASE-KEEP-MOUNTED
       - T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
+      - T-AS-OVERLAY-0001-CASE-DISMISS
   - id: base-overlay-transition-contract
     kind: runtime-test
     status: passing
@@ -68,6 +74,7 @@ verifies:
         - C-AS-OVERLAY-0001-F
         - C-AS-OVERLAY-0001-G
         - C-AS-OVERLAY-0001-H
+        - C-AS-OVERLAY-0001-I
 exercises:
   decisions:
     - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
@@ -78,6 +85,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added Overlay Presence coordination and resource lifetime coverage.
+  - version: 0.1.1
+    change: updated
+    summary: Added automatic Boundary outside sampling and Event Escape coverage.
 tags:
   - overlay
   - presence

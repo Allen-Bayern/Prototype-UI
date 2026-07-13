@@ -4,6 +4,7 @@ import { asBoundary } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
 import { BOUNDARY_HOST_BRIDGE_CAP, type BoundaryPort } from '@proto.ui/module-boundary';
+import { EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import type { PropsBaseType } from '@proto.ui/types';
 
 const createHost = <P extends PropsBaseType>(
@@ -207,6 +208,74 @@ describe('runtime contract: interaction boundary (v0)', () => {
 
     expect(outsideCalls).toBe(1);
     expect(lastClassification).toBe('outside');
+  });
+
+  it('BOUNDARY-0450: an observed pointer press is transported by Event and classified once by Boundary', () => {
+    const content = document.createElement('div');
+    const outsider = document.createElement('button');
+    let outsideCalls = 0;
+
+    const P = definePrototype({
+      name: 'x-boundary-0450',
+      setup() {
+        const boundary = asBoundary();
+        boundary.observe('pointer.press');
+        boundary.observe('pointer.press');
+        boundary.registerRegion(content, { role: 'content' });
+        boundary.subscribeOutside(() => {
+          outsideCalls += 1;
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, {
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [[EVENT_GLOBAL_TARGET_CAP, () => outsider]]);
+        wiring.attach('boundary', [
+          [
+            BOUNDARY_HOST_BRIDGE_CAP,
+            {
+              classify({ regions, sample }: any) {
+                if (sample?.target !== outsider) return 'unknown';
+                return regions.some((region: any) => region.target === outsider)
+                  ? 'inside'
+                  : 'outside';
+              },
+            },
+          ],
+        ]);
+      },
+    });
+
+    executeWithHost(P as any, host as any);
+    outsider.dispatchEvent(new Event('host:pointerdown'));
+
+    expect(outsideCalls).toBe(1);
+  });
+
+  it('BOUNDARY-0470: observation requests are setup-only', () => {
+    let thrown: unknown;
+
+    const P = definePrototype({
+      name: 'x-boundary-0470',
+      setup(def) {
+        const boundary = asBoundary();
+        def.lifecycle.onCreated(() => {
+          try {
+            boundary.observe('pointer.press');
+          } catch (error) {
+            thrown = error;
+          }
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    executeWithHost(P as any, createHost(P.name).host as any);
+
+    expect(thrown).toBeTruthy();
+    expect(String(thrown)).toMatch(/setup/i);
   });
 
   it('BOUNDARY-0500: portaled or relocated content remains classifiable as inside when the adapter can prove ownership', () => {

@@ -24,7 +24,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   overlay.configure({
     closeOnEscape: true,
     closeOnOutsidePress: false,
-    closeOnFocusOutside: true,
+    closeOnFocusOutside: false,
     restore: 'trigger',
     entry: 'content',
     placement: 'center' as any,
@@ -33,6 +33,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     layerRole: 'dialog-content',
   });
   const boundary = asBoundary();
+  boundary.observe('pointer.press');
 
   const focusScope = asFocusScope<DialogContentProps>();
   focusScope.configure({ trap: true, loop: true });
@@ -113,57 +114,34 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
       const run = mountedRun;
       if (!run) return;
       const ctx = run.context.read(DIALOG_CONTEXT);
+      const returnFocusReason: DialogOpenFocusReason | null =
+        event.reason === 'escape' ? 'keyboard' : null;
+      if (returnFocusReason) focusScope.deactivate({ reason: returnFocusReason });
       if (ctx.controlled) return;
       run.context.update(DIALOG_CONTEXT, (prev: any) => ({
         ...prev,
         open: false,
         openFocusReason: null,
-        returnFocusReason: null,
+        returnFocusReason,
       }));
     }
   });
 
-  def.event.onGlobal('host:pointerdown', (run, ev) => {
+  boundary.subscribeOutside(() => {
     if (!overlay.isOpen()) return;
     const returnFocusReason: DialogOpenFocusReason = 'pointer';
+    const run = mountedRun;
+    if (!run) return;
     const ctx = run.context.read(DIALOG_CONTEXT);
     if (!ctx.open) return;
     if (alertProp.get()) return;
-
-    const classification = boundary.notify({
-      type: 'pointerdown',
-      target: ev?.target,
-      nativeEvent: ev,
-    });
-    if (classification !== 'outside') return;
 
     if (ctx.controlled) {
       focusScope.deactivate({ reason: returnFocusReason });
       overlay.close('outside.press');
       return;
     }
-    run.context.update(DIALOG_CONTEXT, (prev) => ({
-      ...prev,
-      open: false,
-      openFocusReason: null,
-      returnFocusReason,
-    }));
-  });
-
-  def.event.onGlobal('key.down', (run, ev) => {
-    if (!overlay.isOpen()) return;
-    const returnFocusReason: DialogOpenFocusReason = 'keyboard';
-    const ctx = run.context.read(DIALOG_CONTEXT);
-    if (!ctx.open) return;
-    const key = ev?.detail?.key;
-    if (key !== 'Escape') return;
-
-    if (ctx.controlled) {
-      focusScope.deactivate({ reason: returnFocusReason });
-      overlay.close('escape');
-      return;
-    }
-    run.context.update(DIALOG_CONTEXT, (prev) => ({
+    run.context.update(DIALOG_CONTEXT, (prev: any) => ({
       ...prev,
       open: false,
       openFocusReason: null,

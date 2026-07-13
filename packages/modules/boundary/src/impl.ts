@@ -4,6 +4,7 @@ import type {
   BoundaryConfigPatch,
   BoundaryHandle,
   BoundaryOutsideEvent,
+  BoundaryObservation,
   BoundaryRegion,
   BoundaryRegionOptions,
   BoundarySample,
@@ -12,6 +13,7 @@ import type {
 } from '@proto.ui/core';
 import { HOST_ELEMENT_CAP, illegalPhase } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
+import type { EventPort } from '@proto.ui/module-event';
 import { BOUNDARY_HOST_BRIDGE_CAP, type BoundaryHostBridge } from './caps';
 
 const DEFAULT_CONFIG: BoundaryConfig = Object.freeze({});
@@ -72,8 +74,13 @@ export class BoundaryModuleImpl extends ModuleBase {
   private regions: BoundaryRegionRecord[] = [];
   private stackActive = false;
   private suspended = false;
+  private observingPointerDown = false;
 
-  constructor(caps: any, prototypeName: string) {
+  constructor(
+    caps: any,
+    prototypeName: string,
+    private readonly eventPort: EventPort
+  ) {
     super(caps);
     this.prototypeName = prototypeName;
     this.refreshHostCaps();
@@ -234,6 +241,20 @@ export class BoundaryModuleImpl extends ModuleBase {
     return classification;
   }
 
+  observe(observation: BoundaryObservation): void {
+    this.ensureSetup('boundary.observe');
+    if (observation !== 'pointer.press') return;
+    if (this.observingPointerDown) return;
+    this.observingPointerDown = true;
+    this.eventPort.onGlobal('host:pointerdown', (nativeEvent) => {
+      this.notify({
+        type: 'pointerdown',
+        target: nativeEvent?.target,
+        nativeEvent,
+      });
+    });
+  }
+
   subscribeOutside(cb: (event: BoundaryOutsideEvent) => void): () => void {
     this.outsideSubscribers.add(cb);
     return () => {
@@ -251,6 +272,7 @@ export class BoundaryModuleImpl extends ModuleBase {
 
   readonly handle: BoundaryHandle<any> = {
     configure: (patch: BoundaryConfigPatch) => this.configure(patch),
+    observe: (observation: BoundaryObservation) => this.observe(observation),
     setStackActive: (active: boolean) => this.setStackActive(active),
     registerRegion: (target: unknown, options?: BoundaryRegionOptions) =>
       this.registerRegion(target, options),

@@ -3,7 +3,8 @@ import { definePrototype, type OverlayHandle } from '@proto.ui/core';
 import { asOverlay } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
-import { BOUNDARY_HOST_BRIDGE_CAP, type BoundaryPort } from '@proto.ui/module-boundary';
+import { BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
+import { EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import type { OverlayPort } from '@proto.ui/module-overlay';
 import type { PropsBaseType } from '@proto.ui/types';
 
@@ -56,6 +57,7 @@ describe('runtime contract: overlay (v0)', () => {
       defaultOpen: true,
       placement: 'top',
       closeOnOutsidePress: false,
+      closeOnEscape: false,
       align: 'start',
       restore: 'trigger',
     });
@@ -163,6 +165,7 @@ describe('runtime contract: overlay (v0)', () => {
 
     const { host } = createHost(P.name, {
       onRuntimeReady(wiring) {
+        wiring.attach('event', [[EVENT_GLOBAL_TARGET_CAP, () => outsider]]);
         wiring.attach('boundary', [
           [
             BOUNDARY_HOST_BRIDGE_CAP,
@@ -177,14 +180,37 @@ describe('runtime contract: overlay (v0)', () => {
     });
     const result = executeWithHost(P as any, host as any);
     const overlayPort = result.caps.getPort<OverlayPort>('overlay');
-    const boundaryPort = result.caps.getPort<BoundaryPort>('boundary');
 
     expect(overlayPort?.isOpen()).toBe(true);
-    expect(result.invokeInCallbackScope(() => boundaryPort?.notify({ target: outsider }))).toBe(
-      'outside'
-    );
+    outsider.dispatchEvent(new Event('host:pointerdown'));
     expect(overlayPort?.isOpen()).toBe(false);
     expect(overlayPort?.getLastReason()).toBe('outside.press');
+  });
+
+  it('OVERLAY-0550: an opted-in Escape policy closes through the runtime event transport', () => {
+    const globalTarget = new EventTarget();
+
+    const P = definePrototype({
+      name: 'x-overlay-0550',
+      setup() {
+        const overlay = asOverlay<PropsBaseType>();
+        overlay.configure({ closeOnEscape: true, defaultOpen: true });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, {
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [[EVENT_GLOBAL_TARGET_CAP, () => globalTarget]]);
+      },
+    });
+    const result = executeWithHost(P as any, host as any);
+    const overlayPort = result.caps.getPort<OverlayPort>('overlay');
+
+    expect(overlayPort?.isOpen()).toBe(true);
+    globalTarget.dispatchEvent(new CustomEvent('key.down', { detail: { key: 'Escape' } }));
+    expect(overlayPort?.isOpen()).toBe(false);
+    expect(overlayPort?.getLastReason()).toBe('escape');
   });
 
   it('OVERLAY-0600: unbound overlay uses one immediate ViewIntent driver', () => {

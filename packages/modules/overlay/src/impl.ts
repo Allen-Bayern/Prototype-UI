@@ -12,6 +12,8 @@ import type {
 } from '@proto.ui/core';
 import { illegalPhase } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
+import type { EventPort } from '@proto.ui/module-event';
+import type { BoundaryPort } from '@proto.ui/module-boundary';
 import type { StateEvent } from '@proto.ui/types';
 import { HOST_ELEMENT_CAP } from '@proto.ui/core';
 import {
@@ -25,9 +27,9 @@ import {
 
 const DEFAULT_CONFIG: OverlayConfig = Object.freeze({
   defaultOpen: false,
-  closeOnEscape: true,
-  closeOnOutsidePress: true,
-  closeOnFocusOutside: true,
+  closeOnEscape: false,
+  closeOnOutsidePress: false,
+  closeOnFocusOutside: false,
   closeOnAnchorPress: false,
   closeOnTriggerPress: false,
   placement: 'bottom',
@@ -116,8 +118,15 @@ export class OverlayModuleImpl extends ModuleBase {
     content: null,
   };
   private readonly offBoundaryOutside: (() => void) | null;
+  private escapeSamplingInstalled = false;
 
-  constructor(caps: CapsVaultView, prototypeName: string, boundary: BoundaryHandle<any>) {
+  constructor(
+    caps: CapsVaultView,
+    prototypeName: string,
+    boundary: BoundaryHandle<any>,
+    private readonly boundaryPort: BoundaryPort,
+    private readonly eventPort: EventPort
+  ) {
     super(caps);
     this.prototypeName = prototypeName;
     this.boundary = boundary;
@@ -127,6 +136,20 @@ export class OverlayModuleImpl extends ModuleBase {
       if (!this.config.closeOnOutsidePress) return;
       this.close('outside.press');
     });
+  }
+
+  private installDismissSampling(): void {
+    if (this.config.closeOnOutsidePress) {
+      this.boundaryPort.observe('pointer.press');
+    }
+    if (this.config.closeOnEscape && !this.escapeSamplingInstalled) {
+      this.escapeSamplingInstalled = true;
+      this.eventPort.onGlobal('key.down', (event) => {
+        if (!this.isOpen() || !this.config.closeOnEscape) return;
+        if (event?.detail?.key !== 'Escape') return;
+        this.close('escape');
+      });
+    }
   }
 
   protected override onCapsEpoch(_epoch: number): void {
@@ -371,6 +394,8 @@ export class OverlayModuleImpl extends ModuleBase {
         meta: mergeMeta(this.config.meta, patch.meta),
       });
     }
+
+    this.installDismissSampling();
 
     if (this.config.defaultOpen) {
       this.setOpen(true, 'programmatic');

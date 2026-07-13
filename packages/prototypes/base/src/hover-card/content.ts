@@ -27,9 +27,9 @@ function setupHoverCardContent(
   const overlay = asOverlay<HoverCardContentProps>();
   overlay.keepMounted();
   overlay.configure({
-    closeOnEscape: true,
-    closeOnOutsidePress: true,
-    closeOnFocusOutside: true,
+    closeOnEscape: false,
+    closeOnOutsidePress: false,
+    closeOnFocusOutside: false,
     restore: 'trigger',
     entry: 'content',
     placement: 'bottom',

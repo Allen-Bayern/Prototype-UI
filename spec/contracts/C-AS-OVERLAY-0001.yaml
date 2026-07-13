@@ -46,6 +46,10 @@ criteria:
     text:
       zh-CN: '`keepMounted()` 必须显式保留结构 view，并且不得与外部 Presence binding 同时成为有效策略。'
       en: '`keepMounted()` must explicitly retain the structural view and must not coexist with an external Presence binding as an effective policy.'
+  - id: C-AS-OVERLAY-0001-I
+    text:
+      zh-CN: Dismiss 策略必须显式 opt-in；outside press 通过 Boundary observation/classification，Escape 直接消费 Event，Focus outside 在可靠的中立 sample 契约出现前不得伪造实现。
+      en: Dismiss policies must be explicitly opted in; outside press uses Boundary observation/classification, Escape consumes Event directly, and focus outside must not be fabricated before a reliable neutral sample contract exists.
 sources:
   - path: internal/contracts/overlay/as-overlay.v0.md
   - path: packages/hooks/src/as-overlay.ts
@@ -59,6 +63,7 @@ dependsOn:
     - C-AS-HOOK-PRIVILEGED-0001
     - C-LIFECYCLE-0008
     - C-AS-TRANSITION-0001
+    - C-BOUNDARY-0001
   decisions:
     - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
 verifies:
@@ -68,6 +73,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Defined Overlay logical state and single Presence-driver coordination over lifecycle ViewIntent.
+  - version: 0.1.1
+    change: updated
+    summary: Added explicit dismiss opt-in and the Event-Boundary-Overlay sampling path.
 tags:
   - overlay
   - as-hook
