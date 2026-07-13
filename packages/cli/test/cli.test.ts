@@ -120,6 +120,9 @@ describe('@proto.ui/cli', () => {
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);
     expect(tokensCss).toContain(`data-[hidden]:hidden"])[data-hidden]`);
+    expect(tokensCss).toContain(`data-[open]:animate-in"])[data-open]`);
+    expect(tokensCss).toContain('@keyframes pui-enter');
+    expect(tokensCss).toContain('@keyframes pui-exit');
     expect(tokensCss).toContain(
       `data-[focus-visible]:ring-3"])[data-focus-visible] {\n    --pui-ring-width: 3px;`
     );

@@ -52,6 +52,7 @@ export type DialogMaskExposes = {
 };
 
 export type DialogMaskStateHandles = {
+  open: State<boolean>;
   transitionState: State<'closed' | 'entering' | 'entered' | 'leaving'>;
   isPresent: State<boolean>;
 };

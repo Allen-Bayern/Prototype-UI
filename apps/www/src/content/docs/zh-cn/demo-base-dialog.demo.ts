@@ -14,12 +14,13 @@ export default {
       {
         kind: 'proto',
         prototypeId: 'base-dialog-mask',
-        className: 'dialog-demo-mask bg-black/50',
+        className: 'base-dialog-demo-mask bg-black/50',
       },
       {
         kind: 'proto',
         prototypeId: 'base-dialog-content',
-        className: 'dialog-demo-content w-full max-w-md rounded-lg border bg-white p-6 shadow-xl',
+        className:
+          'base-dialog-demo-content w-full max-w-md rounded-lg border bg-white p-6 shadow-xl',
         children: [
           {
             kind: 'proto',

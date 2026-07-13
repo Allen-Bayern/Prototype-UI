@@ -12,12 +12,10 @@ export default {
       {
         kind: 'proto',
         prototypeId: 'shadcn-dialog-mask',
-        className: 'dialog-demo-mask',
       },
       {
         kind: 'proto',
         prototypeId: 'shadcn-dialog-content',
-        className: 'dialog-demo-content',
         children: [
           {
             kind: 'proto',

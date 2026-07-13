@@ -61,10 +61,19 @@ describe('prototypes/shadcn: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
+    expect(content.getExposes().transitionState.get()).toBe('entering');
+    expect(mask.getExposes().transitionState.get()).toBe('entering');
     expect(styleContains(content, 'hidden')).toBe(false);
     expect(styleContains(mask, 'hidden')).toBe(false);
     expect(styleContains(content, 'rounded-lg')).toBe(true);
     expect(styleContains(content, 'shadow-lg')).toBe(true);
+    expect(styleContains(content, 'data-[open]:animate-in')).toBe(true);
+    expect(styleContains(content, 'data-[open]:fade-in-0')).toBe(true);
+    expect(styleContains(content, 'data-[open]:zoom-in-95')).toBe(true);
+    expect(styleContains(content, 'duration-200')).toBe(true);
+    expect(styleContains(mask, 'bg-black/50')).toBe(true);
+    expect(styleContains(mask, 'animate-in')).toBe(true);
+    expect(styleContains(mask, 'fade-in-0')).toBe(true);
     expect(styleContains(title, 'text-lg')).toBe(true);
     expect(styleContains(description, 'text-muted-foreground')).toBe(true);
     expect(document.activeElement).toBe(close);
@@ -76,6 +85,11 @@ describe('prototypes/shadcn: dialog', () => {
 
     expect(root.getExposes().open.get()).toBe(false);
     expect(content.getExposes().transitionState.get()).toBe('leaving');
+    expect(styleContains(content, 'animate-out')).toBe(true);
+    expect(styleContains(content, 'fade-out-0')).toBe(true);
+    expect(styleContains(content, 'zoom-out-95')).toBe(true);
+    expect(styleContains(mask, 'animate-out')).toBe(true);
+    expect(styleContains(mask, 'fade-out-0')).toBe(true);
     await completeTransitions(mask, content);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
     expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);

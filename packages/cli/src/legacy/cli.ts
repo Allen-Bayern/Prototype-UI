@@ -802,6 +802,10 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asDialogMask' || hookName === 'asDialogContent') {
+    return new Map([['open', 'data-[open]']]);
+  }
+
   return null;
 }
 
