@@ -42,6 +42,11 @@ cases:
     covers:
       - C-AS-OVERLAY-0001-I
     expectation: explicit-overlay-dismiss-transport
+  - id: T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+    title: React and Vue portal projection remains renderer-owned
+    covers:
+      - C-AS-OVERLAY-0001-J
+    expectation: renderer-owned-overlay-portal
 implementations:
   - id: runtime-overlay-contract
     kind: runtime-test
@@ -62,6 +67,27 @@ implementations:
     consumesCases:
       - T-AS-OVERLAY-0001-CASE-BOUND
       - T-AS-OVERLAY-0001-CASE-CONFLICT
+  - id: react-overlay-portal-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/overlay-portal-ownership.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: react-dialog-portal-projection
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/dialog.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: vue-overlay-portal-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/overlay-portal-ownership.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
 verifies:
   contracts:
     - id: C-AS-OVERLAY-0001
@@ -75,6 +101,7 @@ verifies:
         - C-AS-OVERLAY-0001-G
         - C-AS-OVERLAY-0001-H
         - C-AS-OVERLAY-0001-I
+        - C-AS-OVERLAY-0001-J
 exercises:
   decisions:
     - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
@@ -88,6 +115,9 @@ revisions:
   - version: 0.1.1
     change: updated
     summary: Added automatic Boundary outside sampling and Event Escape coverage.
+  - version: 0.1.2
+    change: updated
+    summary: Added React renderer-owned portal regression coverage.
 tags:
   - overlay
   - presence

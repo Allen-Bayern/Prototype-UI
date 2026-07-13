@@ -16,6 +16,7 @@ import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
   createZIndexOverlayLayerScheduler,
   type OverlayLayerScheduler,
+  type OverlayPort,
   type OverlayZIndexLayerSchedulerOptions,
 } from '@proto.ui/module-overlay';
 import type { RawPropsSource } from '@proto.ui/module-props';
@@ -427,7 +428,7 @@ export function createVueAdapter(runtime: VueRuntime) {
             slot: slotNodes as any,
           });
 
-          return runtime.h(
+          const content = runtime.h(
             rootTag,
             {
               ref: (el: HTMLElement | null) => {
@@ -442,6 +443,11 @@ export function createVueAdapter(runtime: VueRuntime) {
             },
             rendered as any
           );
+          const overlayPort = owner.session?.caps.getPort<OverlayPort>('overlay');
+          if (overlayPort?.getConfig().portal === true && runtime.Teleport) {
+            return runtime.h(runtime.Teleport, { to: 'body' }, [content]);
+          }
+          return content;
         };
       },
     }) as any;

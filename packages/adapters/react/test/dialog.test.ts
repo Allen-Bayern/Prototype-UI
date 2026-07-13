@@ -143,6 +143,45 @@ describe('adapter-react: dialog integration', () => {
     }
   });
 
+  it('projects portal overlays through the React renderer', () => {
+    const portalContainers: Element[] = [];
+    const proto = definePrototype({
+      name: 'react-dialog-renderer-owned-portal',
+      setup(def) {
+        def.context.provide(DIALOG_CONTEXT, {
+          open: true,
+          openFocusReason: null,
+          returnFocusReason: null,
+          controlled: false,
+          disabled: false,
+          alert: false,
+        });
+        dialogContent.setup(def);
+        return (r) => [r.el('div', 'hello')];
+      },
+    });
+
+    const mounted = createMountedReactAdapter(
+      proto as any,
+      { appear: false },
+      {},
+      {
+        context: true,
+        createPortal(children, container) {
+          portalContainers.push(container);
+          return children;
+        },
+      }
+    );
+
+    try {
+      expect(portalContainers.length).toBeGreaterThan(0);
+      expect(portalContainers.every((container) => container === document.body)).toBe(true);
+    } finally {
+      mounted.unmount();
+    }
+  });
+
   it('routes global outside pointerdown through the adapter and closes dialog content', () => {
     const proto = definePrototype({
       name: 'react-dialog-outside-pointerdown',

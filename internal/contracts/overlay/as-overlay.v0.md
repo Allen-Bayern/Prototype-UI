@@ -318,6 +318,8 @@ Inline DOM placement is the default portable model.
 
 If a host later supports portal/teleport-like mounting, that capability should be defined at the adapter/runtime level rather than as a private overlay trick.
 
+For renderer-owned hosts, portal projection must remain renderer-owned. React adapters must use `createPortal`, Vue adapters must use an equivalent renderer primitive when available, and an Overlay host bridge must not imperatively reparent a node that the renderer still owns. Logical parent links remain adapter metadata and do not authorize DOM mutation behind the renderer.
+
 The logical prototype tree should remain the semantic source of truth.
 
 ---

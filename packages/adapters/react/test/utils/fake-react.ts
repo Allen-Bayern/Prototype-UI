@@ -30,7 +30,12 @@ const OWNED_STYLE_KEYS = new WeakMap<HTMLElement, Set<string>>();
 const OWNED_ATTR_KEYS = new WeakMap<HTMLElement, Set<string>>();
 const WRAPPED_UPDATE = Symbol('fake-react-wrapped-update');
 
-export function createFakeReactRuntime(options: { context?: boolean } = {}) {
+export function createFakeReactRuntime(
+  options: {
+    context?: boolean;
+    createPortal?: (children: any, container: Element) => any;
+  } = {}
+) {
   const runtime: ReactRuntime = {
     useState<T>(init: T) {
       const inst = getCurrent();
@@ -80,8 +85,8 @@ export function createFakeReactRuntime(options: { context?: boolean } = {}) {
         children: flatChildren,
       };
     },
-    createPortal(children: any, _container: any) {
-      return children;
+    createPortal(children: any, container: Element) {
+      return options.createPortal?.(children, container) ?? children;
     },
   };
 
@@ -161,7 +166,10 @@ export function createMountedReactAdapter(
   proto: any,
   props: Record<string, unknown> = {},
   options: Record<string, unknown> = {},
-  runtimeOptions: { context?: boolean } = {}
+  runtimeOptions: {
+    context?: boolean;
+    createPortal?: (children: any, container: Element) => any;
+  } = {}
 ) {
   const fake = createFakeReactRuntime(runtimeOptions);
   const adapter = createReactAdapter(fake.runtime);
@@ -179,7 +187,10 @@ export function createMountedReactAdapterInto(
   hostEl: HTMLElement,
   props: Record<string, unknown> = {},
   options: Record<string, unknown> = {},
-  runtimeOptions: { context?: boolean } = {}
+  runtimeOptions: {
+    context?: boolean;
+    createPortal?: (children: any, container: Element) => any;
+  } = {}
 ) {
   const fake = createFakeReactRuntime(runtimeOptions);
   const adapter = createReactAdapter(fake.runtime);

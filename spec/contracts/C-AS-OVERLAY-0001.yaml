@@ -50,6 +50,10 @@ criteria:
     text:
       zh-CN: Dismiss 策略必须显式 opt-in；outside press 通过 Boundary observation/classification，Escape 直接消费 Event，Focus outside 在可靠的中立 sample 契约出现前不得伪造实现。
       en: Dismiss policies must be explicitly opted in; outside press uses Boundary observation/classification, Escape consumes Event directly, and focus outside must not be fabricated before a reliable neutral sample contract exists.
+  - id: C-AS-OVERLAY-0001-J
+    text:
+      zh-CN: 对 React/Vue 等 renderer-owned host，portal 必须由宿主 renderer 的 portal/teleport primitive 投射；Overlay bridge 不得在 renderer 背后直接移动其拥有的 DOM node。
+      en: For renderer-owned hosts such as React and Vue, portal projection must use the host renderer's portal/teleport primitive; an Overlay bridge must not move renderer-owned DOM nodes behind the renderer's back.
 sources:
   - path: internal/contracts/overlay/as-overlay.v0.md
   - path: packages/hooks/src/as-overlay.ts
@@ -58,6 +62,9 @@ sources:
   - path: packages/modules/overlay/src/impl.ts
     sections:
       - OverlayModuleImpl
+  - path: packages/adapters/react/src/adapt.ts
+    sections:
+      - AdaptToReact
 dependsOn:
   contracts:
     - C-AS-HOOK-PRIVILEGED-0001
@@ -76,6 +83,9 @@ revisions:
   - version: 0.1.1
     change: updated
     summary: Added explicit dismiss opt-in and the Event-Boundary-Overlay sampling path.
+  - version: 0.1.2
+    change: updated
+    summary: Required renderer-owned portal projection for virtual-DOM adapters.
 tags:
   - overlay
   - as-hook
