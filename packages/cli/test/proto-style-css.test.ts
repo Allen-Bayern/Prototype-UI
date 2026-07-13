@@ -32,6 +32,13 @@ describe('proto style css renderer', () => {
     expect(css).toContain('--pui-exit-opacity: 0;');
     expect(css).toContain('--pui-enter-scale: 0.95;');
     expect(css).toContain('--pui-exit-scale: 0.95;');
+    expect(css).toContain(
+      'transform: translate(var(--pui-translate-x, 0), var(--pui-translate-y, 0)) scale(var(--pui-enter-scale, 1));'
+    );
+    expect(css).toContain(
+      'transform: translate(var(--pui-translate-x, 0), var(--pui-translate-y, 0)) scale(var(--pui-exit-scale, 1));'
+    );
+    expect(css).not.toContain('scale: var(--pui-enter-scale');
     expect(css).toContain('--pui-animation-duration: 200ms;');
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
