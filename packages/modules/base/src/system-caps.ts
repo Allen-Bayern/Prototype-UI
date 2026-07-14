@@ -45,6 +45,13 @@ export interface SystemCaps {
    * - State/event modules MUST treat it as unknown and not depend on its shape.
    */
   getCallbackCtx(): unknown;
+
+  /**
+   * Queue work until the outermost runtime callback chain has completed.
+   * Module implementations may use this to avoid mutating host resources in
+   * the middle of lifecycle/event/state callback delivery.
+   */
+  deferAfterCallback?(task: () => void): void;
 }
 
 export const SYS_CAP = cap<SystemCaps>('@proto.ui/__sys');

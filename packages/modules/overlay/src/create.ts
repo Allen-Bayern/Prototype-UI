@@ -48,7 +48,7 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
           registerAnchor: (target) => impl.registerAnchor(target),
           registerContent: (target) => impl.registerContent(target),
           setViewActive: (active) => impl.setViewActive(active),
-          reconcileViewResources: () => impl.reconcileViewResources(),
+          reconcileViewResourcesAfterCallback: () => impl.reconcileViewResourcesAfterCallback(),
         },
       };
     },

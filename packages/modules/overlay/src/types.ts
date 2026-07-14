@@ -33,7 +33,7 @@ export type OverlayPort = {
   registerAnchor(target: unknown): void;
   registerContent(target: unknown): void;
   setViewActive(active: boolean): void;
-  reconcileViewResources(): void;
+  reconcileViewResourcesAfterCallback(): void;
 };
 
 export type OverlayModule = ModuleInstance<OverlayFacade> & {
