@@ -38,9 +38,18 @@ export type DialogTriggerExposes = {
 };
 
 export type DialogTriggerAsHookContract = {
+  state: DialogCommandStateHandles;
   event: {
     click: void;
   };
+};
+
+export type DialogCommandStateHandles = {
+  disabled: State<boolean>;
+  hovered: State<boolean>;
+  focused: State<boolean>;
+  focusVisible: State<boolean>;
+  pressed: State<boolean>;
 };
 
 export type DialogMaskProps = TransitionProps & {
@@ -120,6 +129,7 @@ export type DialogCloseExposes = {
 };
 
 export type DialogCloseAsHookContract = {
+  state: DialogCommandStateHandles;
   event: {
     click: void;
   };

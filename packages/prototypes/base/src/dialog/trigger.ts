@@ -1,5 +1,5 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asButton } from '../button';
+import { setupDialogCommand } from './command';
 import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogOpenFocusReason } from './shared';
 import type {
   DialogTriggerAsHookContract,
@@ -9,21 +9,23 @@ import type {
 
 function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExposes>): void {
   def.anatomy.claim(DIALOG_FAMILY, { role: 'trigger' });
-  asButton();
+  const command = setupDialogCommand(def, 'dialog trigger');
 
-  def.props.define({
-    disabled: { type: 'boolean', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    disabled: false,
+  def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
+    command.syncDisabled(!!run.props.get().disabled || next.disabled);
   });
 
-  def.context.subscribe(DIALOG_CONTEXT);
+  def.lifecycle.onCreated((run) => {
+    command.syncDisabled(!!run.props.get().disabled || run.context.read(DIALOG_CONTEXT).disabled);
+  });
+
+  def.props.watch(['disabled'], (run, next) => {
+    command.syncDisabled(!!next.disabled || run.context.read(DIALOG_CONTEXT).disabled);
+  });
 
   def.event.on('press.commit', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
     const ctx = run.context.read(DIALOG_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
+    if (command.disabled.get()) return;
     if (ctx.controlled) return;
     const openFocusReason: DialogOpenFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
     run.context.update(DIALOG_CONTEXT, (prev) => ({
