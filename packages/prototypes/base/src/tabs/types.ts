@@ -35,6 +35,7 @@ export type TabsListExposes = {
   focusLast: ExposeMethod<() => void>;
   focusNext: ExposeMethod<() => void>;
   focusPrev: ExposeMethod<() => void>;
+  focusSelected: ExposeMethod<() => void>;
 };
 export type TabsListAsHookContract = {};
 

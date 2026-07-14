@@ -354,6 +354,13 @@ describe('prototypes/base: tabs', () => {
     expect(triggerB.tabIndex).toBe(-1);
     expect(triggerC.tabIndex).toBe(0);
 
+    list.getExposes().focusSelected();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.activeElement).toBe(triggerA);
+    expect(root.getExposes().value.get()).toBe('a');
+
     triggerC.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();
     await Promise.resolve();

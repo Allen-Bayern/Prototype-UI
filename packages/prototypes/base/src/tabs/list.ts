@@ -1,14 +1,13 @@
-import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { defineAsHook, definePrototype, type DefHandle, type RunHandle } from '@proto.ui/core';
 import { asFocusRoving } from '@proto.ui/hooks';
-import { useFocusRoving } from '../behaviors';
 import { TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsListAsHookContract, TabsListExposes, TabsListProps } from './types';
 
 function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   // P-BASE-TABS-LIST-CLAIM-ROLE, P-BASE-TABS-LIST-SAME-DOMAIN
   def.anatomy.claim(TABS_FAMILY, { role: 'list' });
-  let activeValue = '';
   let selectedValue = '';
+  let mountedRun: RunHandle<TabsListProps> | null = null;
 
   def.props.define({
     orientation: { type: 'enum', empty: 'fallback', options: ['horizontal', 'vertical'] },
@@ -30,28 +29,37 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   def.a11y.name(a11yLabel);
   def.a11y.state('orientation', orientation);
 
+  // P-BASE-TABS-LIST-FOCUS-ROVING, P-BASE-TABS-LIST-SKIP-DISABLED
+  // P-BASE-TABS-LIST-ORIENTATION-KEYS, P-BASE-TABS-LIST-HOME-END
   const focusRoving = asFocusRoving<TabsListProps>();
   focusRoving.configure({
     navigation: 'arrow',
     orientation: 'horizontal',
     entry: 'manual',
   });
-  useFocusRoving({
-    family: TABS_FAMILY,
-    itemRole: 'trigger',
-    loop: false,
-    skipDisabled: true,
-    getId: (snapshot) => {
-      const value = snapshot.value;
-      return typeof value === 'string' && value ? value : null;
-    },
-    getActiveId: () => activeValue,
-    getCurrentId: () => selectedValue,
-    exposeFocusCurrentMethodKey: 'focusSelected',
+
+  // P-BASE-TABS-LIST-FOCUS-METHODS
+  def.expose.method('focusFirst', () => focusRoving.focusFirst());
+  def.expose.method('focusLast', () => focusRoving.focusLast());
+  def.expose.method('focusNext', () => focusRoving.focusNext());
+  def.expose.method('focusPrev', () => focusRoving.focusPrev());
+  def.expose.method('focusSelected', () => {
+    if (!mountedRun || !selectedValue) return;
+    const selected = mountedRun.anatomy.order.partsOf(TABS_FAMILY, 'trigger').find((part) => {
+      const read = part.getExpose('__collectionItem');
+      const snapshot = typeof read === 'function' ? read() : read;
+      return (snapshot as { value?: unknown } | null)?.value === selectedValue;
+    });
+    const focusSelf = selected?.getExpose('focusSelf');
+    if (typeof focusSelf === 'function') focusSelf({ reason: 'keyboard' });
   });
 
+  // TODO(C-AS-FOCUS-ROVING-0001-B): route focusSelected directly through the
+  // roving handle after Focus models semantic selected membership. Its current
+  // generic implementation resolves "selected" to the first eligible member,
+  // which is incorrect for manual-activation Tabs after focus has roved.
+
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
-    activeValue = next.activeValue ?? '';
     selectedValue = next.value ?? '';
     const nextOrientation = next.orientation ?? 'horizontal';
     orientation.set(nextOrientation, 'reason: tabs list context orientation sync');
@@ -59,8 +67,8 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   });
 
   def.lifecycle.onMounted((run) => {
+    mountedRun = run;
     const ctx = run.context.read(TABS_CONTEXT);
-    activeValue = ctx.activeValue ?? '';
     selectedValue = ctx.value ?? '';
     const nextOrientation = ctx.orientation ?? 'horizontal';
     orientation.set(nextOrientation, 'reason: tabs list mounted orientation sync');
@@ -75,7 +83,7 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   });
 
   def.lifecycle.onUnmounted(() => {
-    activeValue = '';
+    mountedRun = null;
     selectedValue = '';
   });
 }
