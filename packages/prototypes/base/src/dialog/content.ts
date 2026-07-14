@@ -8,13 +8,12 @@ import type {
   DialogContentHandles,
   DialogContentProps,
 } from './types';
-import type { TransitionHandles } from '../transition/types';
 
 function projectDialogContentHandle(
   result: import('@proto.ui/core').AsHookResult<DialogContentProps, DialogContentAsHookContract>
 ): DialogContentHandles {
   const open = result.getState?.('open');
-  const asTransition = result.getAsHookHandle?.<TransitionHandles>('asTransition');
+  const asTransition = result.getAsHookHandle?.('asTransition');
   if (!open || !asTransition) {
     throw new Error('[as-dialog-content] missing captured Dialog or Transition handles.');
   }

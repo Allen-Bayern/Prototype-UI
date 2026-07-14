@@ -55,6 +55,9 @@ export type DialogMaskStateHandles = {
 
 export type DialogMaskAsHookContract = {
   state: DialogMaskStateHandles;
+  asHooks: {
+    asTransition: TransitionHandles;
+  };
 };
 
 export type DialogMaskHandles = {
@@ -78,6 +81,9 @@ export type DialogContentStateHandles = {
 
 export type DialogContentAsHookContract = {
   state: DialogContentStateHandles;
+  asHooks: {
+    asTransition: TransitionHandles;
+  };
 };
 
 export type DialogContentHandles = {

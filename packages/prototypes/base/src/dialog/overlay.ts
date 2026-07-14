@@ -8,13 +8,12 @@ import type {
   DialogMaskHandles,
   DialogMaskProps,
 } from './types';
-import type { TransitionHandles } from '../transition/types';
 
 function projectDialogMaskHandle(
   result: import('@proto.ui/core').AsHookResult<DialogMaskProps, DialogMaskAsHookContract>
 ): DialogMaskHandles {
   const open = result.getState?.('open');
-  const asTransition = result.getAsHookHandle?.<TransitionHandles>('asTransition');
+  const asTransition = result.getAsHookHandle?.('asTransition');
   if (!open || !asTransition) {
     throw new Error('[as-dialog-mask] missing captured Dialog or Transition handles.');
   }

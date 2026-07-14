@@ -12,6 +12,9 @@ type ButtonContract = {
     click: void;
     submit: { source: 'keyboard' | 'pointer' };
   };
+  asHooks: {
+    asNested: { close(): void };
+  };
 };
 
 declare const buttonResult: AsHookResult<Props, ButtonContract>;
@@ -26,7 +29,7 @@ const submitKey = buttonResult.artifacts?.eventKeys?.submit;
 const exactClick: 'click' | undefined = clickKey;
 const exactSubmit: 'submit' | undefined = submitKey;
 
-const nestedHandle = buttonResult.getAsHookHandle?.<{ close(): void }>('asNested');
+const nestedHandle = buttonResult.getAsHookHandle?.('asNested');
 nestedHandle?.close();
 
 // Legacy third generic as raw state map should keep working.

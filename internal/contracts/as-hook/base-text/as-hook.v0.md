@@ -61,8 +61,9 @@ asHook 在 v0 中提供：
 
 ### 2.2 命名规范（v0 强制）
 
-- asHook 的 `name` 必须满足：`/^as[A-Z]/`。
-- 不满足命名规范必须抛错。
+- `defineAsHook({ name })` 记录的是 prototype spec name，应遵守 prototype 命名规则，例如 `as-dialog-content`。
+- 面向作者的 caller binding 应采用 `asXxx` 形式，例如 `asDialogContent`。
+- runtime 无法观察 JavaScript / TypeScript binding name，因此 caller binding 校验属于 lint、CLI、generator 或 TypeScript tooling，不应通过检查 `defineAsHook({ name })` 实现。
 
 ---
 
