@@ -4,11 +4,13 @@ import { TABS_CONTEXT, TABS_FAMILY } from './shared';
 import type { TabsListAsHookContract, TabsListExposes, TabsListProps } from './types';
 
 function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
+  // P-BASE-TABS-LIST-ROLE-COLLECTION, P-BASE-TABS-LIST-PROTOCOL-DEPENDENCY
   // P-BASE-TABS-LIST-CLAIM-ROLE, P-BASE-TABS-LIST-SAME-DOMAIN
   def.anatomy.claim(TABS_FAMILY, { role: 'list' });
   let selectedValue = '';
   let mountedRun: RunHandle<TabsListProps> | null = null;
 
+  // P-BASE-TABS-LIST-PROP-LOOP, P-BASE-TABS-LIST-PROP-A11Y-LABEL
   def.props.define({
     orientation: { type: 'enum', empty: 'fallback', options: ['horizontal', 'vertical'] },
     loop: { type: 'boolean', empty: 'fallback' },
@@ -25,6 +27,7 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   });
   const a11yLabel = def.state.string('a11yLabel', '');
   // P-BASE-TABS-LIST-A11Y-ROLE, P-BASE-TABS-LIST-A11Y-ORIENTATION
+  // P-BASE-TABS-LIST-A11Y-LABEL
   def.a11y.role('tablist');
   def.a11y.name(a11yLabel);
   def.a11y.state('orientation', orientation);
@@ -60,6 +63,7 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   // which is incorrect for manual-activation Tabs after focus has roved.
 
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
+    // P-BASE-TABS-LIST-CONTEXT-CONSUME
     selectedValue = next.value ?? '';
     const nextOrientation = next.orientation ?? 'horizontal';
     orientation.set(nextOrientation, 'reason: tabs list context orientation sync');
@@ -88,6 +92,7 @@ function setupTabsList(def: DefHandle<TabsListProps, TabsListExposes>): void {
   });
 }
 
+// P-BASE-TABS-LIST-AUTHORING-ENTRIES
 export const asTabsList = defineAsHook<TabsListProps, TabsListExposes, TabsListAsHookContract>({
   name: 'as-tabs-list',
   setup: setupTabsList,

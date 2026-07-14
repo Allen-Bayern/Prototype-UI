@@ -33,6 +33,11 @@ cases:
       - P-BASE-TABS-TRIGGER-DISABLED-SUPPRESS-ACTIVATION
       - P-BASE-TABS-TRIGGER-A11Y-DISABLED
     expectation: disabled-tabs-trigger-suppresses-selection
+  - id: T-BASE-TABS-TRIGGER-0001-CASE-KEYBOARD
+    title: focused Tabs Trigger suppresses the Space default action
+    covers:
+      - P-BASE-TABS-TRIGGER-KEYBOARD-ACTIVATION
+    expectation: focused-tabs-trigger-prevents-space-default-action
 implementations:
   - id: prototypes-base-tabs-trigger-contract
     kind: module-test
@@ -42,6 +47,7 @@ implementations:
     consumesCases:
       - T-BASE-TABS-TRIGGER-0001-CASE-SELECTION
       - T-BASE-TABS-TRIGGER-0001-CASE-DISABLED-GATING
+      - T-BASE-TABS-TRIGGER-0001-CASE-KEYBOARD
     exercises:
       - P-BASE-TABS-TRIGGER
 verifies:
@@ -50,6 +56,7 @@ verifies:
       anchors:
         - P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY
         - P-BASE-TABS-TRIGGER-SELECTED-DERIVED
+        - P-BASE-TABS-TRIGGER-KEYBOARD-ACTIVATION
         - P-BASE-TABS-TRIGGER-A11Y-CONTROLS-TARGET
 exercises:
   prototypes:
@@ -58,6 +65,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced Base Tabs Trigger protocol test entity aligned to P-BASE-TABS-TRIGGER criteria.
+  - version: 0.2.0
+    change: refined
+    summary: Added focused Space default-action coverage.
 tags:
   - prototype
   - base

@@ -7,11 +7,13 @@ import type {
 } from './types';
 
 function setupTabsIndicator(def: DefHandle<TabsIndicatorProps, TabsIndicatorExposes>): void {
+  // P-BASE-TABS-INDICATOR-PROTOCOL-DEPENDENCY
   // P-BASE-TABS-INDICATOR-ROLE-INDICATOR, P-BASE-TABS-INDICATOR-CLAIM-ROLE
   // P-BASE-TABS-INDICATOR-SAME-DOMAIN
   def.anatomy.claim(TABS_FAMILY, { role: 'indicator' });
 
   // P-BASE-TABS-INDICATOR-DERIVED-VALUE, P-BASE-TABS-INDICATOR-DERIVED-ACTIVE-VALUE
+  // P-BASE-TABS-INDICATOR-DERIVED-ORIENTATION
   const value = def.state.string('value', '');
   const activeValue = def.state.string('activeValue', '');
   const orientation = def.state.string('orientation', 'horizontal', {

@@ -153,6 +153,14 @@ criteria:
       contracts:
         - C-AS-TRIGGER-0001
         - C-EVENT-TYPE-0001
+  - id: P-BASE-TABS-TRIGGER-KEYBOARD-ACTIVATION
+    text:
+      zh-CN: Tabs Trigger 必须通过 Trigger semantics 支持键盘 activation；focused trigger 的 Space keydown 必须阻止页面滚动等宿主默认动作。
+      en: Tabs Trigger must support keyboard activation through Trigger semantics; Space keydown on a focused trigger must prevent host default actions such as page scrolling.
+    dependsOn:
+      contracts:
+        - C-AS-TRIGGER-0001
+        - C-EVENT-TYPE-0001
   - id: P-BASE-TABS-TRIGGER-DISABLED-SUPPRESS-ACTIVATION
     text:
       zh-CN: Disabled Tabs Trigger 不得请求 root selection，也不得更新 Tabs context activeValue。
@@ -250,6 +258,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs Trigger protocol catalog.
+  - version: 0.2.0
+    change: refined
+    summary: Made keyboard activation and Space default-action control explicit.
 tags:
   - prototype
   - base
