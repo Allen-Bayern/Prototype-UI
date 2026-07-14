@@ -146,6 +146,13 @@ class A11yModuleImpl extends ModuleBase {
       this.stateWatchOffs.push(off);
     }
 
+    if (isState(this.ir.role)) {
+      const off = this.statePort.watch(this.ir.role as any, () => {
+        this.applyProjection();
+      });
+      this.stateWatchOffs.push(off);
+    }
+
     if (this.ir.name?.kind === 'text' && isState(this.ir.name.value)) {
       const off = this.statePort.watch(this.ir.name.value as any, () => {
         this.applyProjection();
@@ -185,7 +192,7 @@ class A11yModuleImpl extends ModuleBase {
 
     return {
       id: isState(this.ir.id) ? (this.ir.id.get() as string | null | undefined) : this.ir.id,
-      role: this.ir.role,
+      role: isState(this.ir.role) ? (this.ir.role.get() as A11yRole) : this.ir.role,
       name: resolveTextAlternative(this.ir.name),
       description: resolveTextAlternative(this.ir.description),
       states,

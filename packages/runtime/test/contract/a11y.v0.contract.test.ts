@@ -39,6 +39,27 @@ function createHost(initialRaw: Record<string, unknown> = {}) {
 }
 
 describe('runtime contract: a11y (v0)', () => {
+  it('A11Y-0050: role may follow a state-backed semantic fact', () => {
+    let role!: { set(value: string, reason?: string): void };
+    const P = definePrototype({
+      name: 'x-a11y-dynamic-role',
+      setup(def) {
+        role = def.state.string('role', 'dialog', { options: ['dialog', 'alertdialog'] });
+        def.a11y.role(role as any);
+        return (r) => r.el('div', 'dialog');
+      },
+    });
+
+    const ctx = createHost();
+    const result = executeWithHost(P as any, ctx.host as any);
+    const port = result.caps.getPort<A11yPort>('a11y');
+    expect(port?.getSnapshot().role).toBe('dialog');
+
+    result.invokeInCallbackScope(() => role.set('alertdialog', 'reason: alert mode'));
+    expect(port?.getSnapshot().role).toBe('alertdialog');
+    expect(ctx.snapshots.at(-1)?.role).toBe('alertdialog');
+  });
+
   it('A11Y-0100: def.a11y records semantic object IR and projects state snapshots', () => {
     // T-A11Y-0001-CASE-IR
     const P: Prototype<{ disabled?: boolean }> = definePrototype({

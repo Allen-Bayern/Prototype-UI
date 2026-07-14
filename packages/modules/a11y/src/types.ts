@@ -6,6 +6,7 @@ import type {
   A11yRelationKey,
   A11yRelationSpec,
   A11yRole,
+  A11yRoleTarget,
   A11ySemanticObjectSnapshot,
   A11yStateKey,
   A11yTextAlternative,
@@ -29,7 +30,7 @@ export type A11yRelationBinding = {
 
 export type A11ySemanticObjectIR = {
   id?: A11yIdentityTarget;
-  role?: A11yRole;
+  role?: A11yRoleTarget;
   name?: A11yTextAlternative;
   description?: A11yTextAlternative;
   states: Map<A11yStateKey, A11yStateBinding>;
