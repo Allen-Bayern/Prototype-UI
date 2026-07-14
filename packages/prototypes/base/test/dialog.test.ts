@@ -229,8 +229,7 @@ describe('prototypes/base: dialog', () => {
     const mask = document.createElement('base-dialog-mask') as any;
     const content = document.createElement('base-dialog-content') as any;
 
-    setElementProps(root, { defaultOpen: true });
-    setElementProps(content, { alert: true });
+    setElementProps(root, { defaultOpen: true, alert: true });
     root.appendChild(trigger);
     root.appendChild(mask);
     root.appendChild(content);

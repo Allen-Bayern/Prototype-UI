@@ -99,10 +99,6 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   def.lifecycle.onMounted((run) => {
     hitSyncDisposed = false;
     syncHitParticipation(run);
-    queueMicrotask(() => {
-      if (hitSyncDisposed) return;
-      syncHitParticipation(run);
-    });
     updateOpen(open.get(), 'reason: lifecycle.onMounted => dialog mask open sync');
   });
 

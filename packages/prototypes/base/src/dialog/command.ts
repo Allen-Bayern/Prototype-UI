@@ -41,8 +41,6 @@ export function setupDialogCommand(
     if (disabled.get()) return;
     focusable.focusSelf(options);
   });
-  def.expose.event('click', { payload: 'void' });
-
   def.a11y.role('button');
   def.a11y.nameFromContent();
   def.a11y.state('disabled', disabled);
@@ -72,9 +70,8 @@ export function setupDialogCommand(
     if (!disabled.get()) pressed.set(true, `reason: ${reasonPrefix} pointer.down`);
   });
   def.event.on('pointer.up', () => pressed.set(false, `reason: ${reasonPrefix} pointer.up`));
-  def.event.on('press.commit', (run) => {
+  def.event.on('press.commit', () => {
     pressed.set(false, `reason: ${reasonPrefix} press.commit`);
-    if (!disabled.get()) run.expose.emit('click');
   });
 
   return { disabled, syncDisabled };

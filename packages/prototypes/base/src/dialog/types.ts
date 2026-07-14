@@ -46,14 +46,10 @@ export type DialogTriggerExposes = {
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: { reason?: 'programmatic' | 'keyboard' | 'pointer' }) => void>;
-  click: import('@proto.ui/core').ExposeEvent<void>;
 };
 
 export type DialogTriggerAsHookContract = {
   state: DialogCommandStateHandles;
-  event: {
-    click: void;
-  };
 };
 
 export type DialogCommandStateHandles = {
@@ -88,9 +84,7 @@ export type DialogMaskHandles = {
   asTransition: TransitionHandles;
 };
 
-export type DialogContentProps = TransitionProps & {
-  alert?: boolean;
-};
+export type DialogContentProps = TransitionProps;
 
 export type DialogContentExposes = TransitionExposes & {
   open: ExposeState<boolean>;
@@ -137,12 +131,8 @@ export type DialogCloseExposes = {
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: { reason?: 'programmatic' | 'keyboard' | 'pointer' }) => void>;
-  click: import('@proto.ui/core').ExposeEvent<void>;
 };
 
 export type DialogCloseAsHookContract = {
   state: DialogCommandStateHandles;
-  event: {
-    click: void;
-  };
 };

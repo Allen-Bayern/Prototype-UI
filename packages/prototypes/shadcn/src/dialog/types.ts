@@ -4,7 +4,6 @@ import type {
   DialogCloseProps,
   DialogContentAsHookContract,
   DialogContentExposes,
-  DialogContentProps,
   DialogDescriptionAsHookContract,
   DialogDescriptionExposes,
   DialogDescriptionProps,
@@ -38,7 +37,7 @@ export type ShadcnDialogMaskProps = Pick<DialogMaskProps, 'passthrough'>;
 export type ShadcnDialogMaskExposes = Pick<DialogMaskExposes, 'transitionState' | 'isPresent'>;
 export type ShadcnDialogMaskAsHookContract = DialogMaskAsHookContract;
 
-export type ShadcnDialogContentProps = Pick<DialogContentProps, 'alert'>;
+export interface ShadcnDialogContentProps {}
 export type ShadcnDialogContentExposes = Pick<
   DialogContentExposes,
   'open' | 'transitionState' | 'isPresent'

@@ -30,13 +30,6 @@ function projectDialogContentHandle(
 function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExposes>): void {
   def.anatomy.claim(DIALOG_FAMILY, { role: 'content' });
 
-  def.props.define({
-    alert: { type: 'boolean', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    alert: false,
-  });
-
   const alertProp = def.state.bool('alert', false);
   const role = def.state.string('dialogRole', 'dialog', {
     options: ['dialog', 'alertdialog'],
@@ -116,8 +109,8 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     );
   };
 
-  const syncAlert = (run: any, ctx: DialogContextValue) => {
-    const alert = !!run.props.get().alert || ctx.alert;
+  const syncAlert = (ctx: DialogContextValue) => {
+    const alert = ctx.alert;
     alertProp.set(alert, 'reason: dialog alert sync');
     role.set(alert ? 'alertdialog' : 'dialog', 'reason: dialog semantic role sync');
   };
@@ -125,7 +118,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
     currentContext = next;
     syncIdentity(next);
-    syncAlert(run, next);
+    syncAlert(next);
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
     });
@@ -135,7 +128,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     const ctx = run.context.read(DIALOG_CONTEXT);
     currentContext = ctx;
     syncIdentity(ctx);
-    syncAlert(run, ctx);
+    syncAlert(ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -146,7 +139,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     const ctx = run.context.read(DIALOG_CONTEXT);
     currentContext = ctx;
     syncIdentity(ctx);
-    syncAlert(run, ctx);
+    syncAlert(ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -155,10 +148,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   def.lifecycle.onUnmounted(() => {
     mountedRun = null;
     currentContext = null;
-  });
-
-  def.props.watch(['alert'], (run) => {
-    if (currentContext) syncAlert(run, currentContext);
   });
 
   overlay.open.watch((_ctx, event) => {
