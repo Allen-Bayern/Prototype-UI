@@ -5,8 +5,21 @@ import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogOpenFocusReason } from './sha
 import type {
   DialogContentAsHookContract,
   DialogContentExposes,
+  DialogContentHandles,
   DialogContentProps,
 } from './types';
+import type { TransitionHandles } from '../transition/types';
+
+function projectDialogContentHandle(
+  result: import('@proto.ui/core').AsHookResult<DialogContentProps, DialogContentAsHookContract>
+): DialogContentHandles {
+  const open = result.getState?.('open');
+  const asTransition = result.getAsHookHandle?.<TransitionHandles>('asTransition');
+  if (!open || !asTransition) {
+    throw new Error('[as-dialog-content] missing captured Dialog or Transition handles.');
+  }
+  return { stateHandles: { open }, asTransition };
+}
 
 function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExposes>): void {
   def.anatomy.claim(DIALOG_FAMILY, { role: 'content' });
@@ -158,10 +171,12 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 export const asDialogContent = defineAsHook<
   DialogContentProps,
   DialogContentExposes,
-  DialogContentAsHookContract
+  DialogContentAsHookContract,
+  DialogContentHandles
 >({
   name: 'as-dialog-content',
   setup: setupDialogContent,
+  projectHandle: projectDialogContentHandle,
 });
 
 const dialogContent = definePrototype({

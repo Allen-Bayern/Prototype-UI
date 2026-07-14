@@ -42,6 +42,10 @@ criteria:
     text:
       zh-CN: 合并输出必须确定；相同声明集合不得因 define 顺序不同而产生不同 resolved 行为或 diagnostics。
       en: Merge output must be deterministic; the same declaration set must not produce different resolved behavior or diagnostics due to define order.
+  - id: C-PROPS-0007-H
+    text:
+      zh-CN: 单次 `def.props.define()` 的类型与运行时输入可以只声明完整 Props 类型的子集，以允许 caller 与嵌套 asHook 分次贡献互不相交的 key。
+      en: A single `def.props.define()` type and runtime input may declare only a subset of the full Props type so callers and nested asHooks can contribute disjoint keys incrementally.
 sources:
   - path: internal/contracts/props/base-text/00.props-contract.v0.zh-CN.md
     sections:
@@ -61,6 +65,9 @@ revisions:
   - version: 0.1.0
     change: revised
     summary: 'Added statement and criteria, and aligned enum merge semantics with `type: "enum"` plus string `options`.'
+  - version: 0.1.1
+    change: revised
+    summary: Aligned the declaration type surface with incremental subset contributions already supported by merge semantics.
 tags:
   - props
   - define

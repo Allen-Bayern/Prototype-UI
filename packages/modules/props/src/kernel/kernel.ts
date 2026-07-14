@@ -62,7 +62,7 @@ export class PropsKernel<P extends PropsBaseType> {
   }
 
   /** setup-only */
-  define(input: PropsSpecMap<P>) {
+  define(input: Partial<PropsSpecMap<P>>) {
     const { specs, diags } = mergeSpecs(this.specs, input);
     const hasError = diags.some((d: PropsKernelDiag) => d.level === 'error');
     if (hasError) {

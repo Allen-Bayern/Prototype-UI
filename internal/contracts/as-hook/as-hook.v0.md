@@ -136,6 +136,7 @@ Only `state` is required to be projected as Borrowed view.
 - its return value becomes the public caller result
 - it runs only for the first once installation; repeated calls return the exact same projected handle
 - runtime composition and diagnostic recording continue to use the synthesized artifacts, not the custom caller handle
+- when the hook is nested, its child entry retains both `result` (the synthesized artifacts) and `handle` (the stable projected caller handle)
 
 ### 4.2 Module Result Constraints
 
@@ -155,7 +156,9 @@ Only `state` is required to be projected as Borrowed view.
 
 - runtime records child asHook calls made directly inside the current asHook setup frame
 - child entries are exposed through `asHooks` and may also be mirrored in `artifacts.asHooks`
+- every child entry retains `result` as the runtime truth source and `handle` as the stable caller-facing projection; `getAsHookHandle(name)` retrieves the latter
 - child state handles stay inside the child entry result; they are not flattened into the outer `stateHandles`
+- an outer `projectHandle` may deliberately re-export selected child handles under a named field; the runtime does not automatically flatten, alias, or expose every nested capability
 - prototype authors do not declare child entries through a `def` API
 
 ---

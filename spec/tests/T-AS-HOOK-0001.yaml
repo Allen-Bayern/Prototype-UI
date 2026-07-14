@@ -44,6 +44,7 @@ cases:
       - C-AS-HOOK-0009-B
       - C-AS-HOOK-0009-C
       - C-AS-HOOK-0009-D
+      - C-AS-HOOK-0009-E
     expectation: stable-custom-caller-handle-projection
   - id: T-AS-HOOK-0001-CASE-TRACE
     title: applied asHooks leave readonly diagnostic trace metadata
@@ -113,6 +114,7 @@ verifies:
         - C-AS-HOOK-0009-B
         - C-AS-HOOK-0009-C
         - C-AS-HOOK-0009-D
+        - C-AS-HOOK-0009-E
 exercises:
   decisions:
     - id: D-AS-HOOK-CALLER-NAME-0001

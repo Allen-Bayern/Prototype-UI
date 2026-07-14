@@ -1,4 +1,4 @@
-import type { PropsSnapshot } from '@proto.ui/core';
+import type { DefHandle, PropsSnapshot } from '@proto.ui/core';
 import type { PropsSpecMap } from '@proto.ui/types';
 
 type Equal<A, B> =
@@ -7,6 +7,12 @@ type IsAny<T> = 0 extends 1 & T ? true : false;
 type Expect<T extends true> = T;
 
 type P = { disabled: boolean | null; count: number };
+
+declare const def: DefHandle<P>;
+
+// Nested asHooks may contribute disjoint pieces of the caller's prop contract.
+def.props.define({ disabled: { type: 'boolean', empty: 'accept' } });
+def.props.define({ count: { type: 'number' } });
 
 // ✅ should compile
 ({

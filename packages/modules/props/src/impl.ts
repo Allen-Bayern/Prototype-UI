@@ -88,7 +88,7 @@ export class PropsModuleImpl<P extends PropsBaseType> extends ModuleBase {
   // setup-only API (guarded)
   // -------------------------
 
-  define(decl: PropsSpecMap<P>): void {
+  define(decl: Partial<PropsSpecMap<P>>): void {
     this.guardSetupOnly('def.props.define');
     this.kernel.define(decl);
 

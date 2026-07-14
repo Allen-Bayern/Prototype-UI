@@ -11,6 +11,7 @@ This document defines the v0 contract for how prop declarations are registered a
 
 - **Base**: declarations already registered
 - **Incoming**: declarations passed to the current `define()`
+- one incoming declaration may contain any subset of the caller's full Props type; nested asHooks may contribute disjoint keys through later `define()` calls
 - **Diagnostic**:
   - error: `define()` must throw and **no changes apply**
   - warning: merge succeeds but is recorded

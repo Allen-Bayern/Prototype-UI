@@ -9,5 +9,6 @@ export type {
   TransitionInterrupt,
   TransitionState,
   TransitionProps,
+  TransitionConfig,
   TransitionControls,
 } from '../transition/types';

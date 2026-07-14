@@ -29,6 +29,9 @@ The returned handle contains:
 - `controls.enter()`
 - `controls.leave()`
 - `controls.complete()`
+- `configure({ appear, enterDuration, leaveDuration, interrupt })`
+
+`configure(...)` is setup-only. It changes hook-owned defaults without adding parameters to the asHook caller. Multiple setup-time calls patch only the supplied fields; the latest supplied value wins. An explicit host prop always takes precedence over the corresponding configured default.
 
 The hook declares these props:
 
@@ -42,6 +45,8 @@ The hook declares these props:
 | `interrupt`     | `reverse`    | `reverse`, `wait`, or `immediate`                  |
 
 The component exposes the two states, the three methods, the grouped `controls` value, and `beforeEnter`, `afterEnter`, `beforeLeave`, `afterLeave` events.
+
+Higher-level authored asHooks may selectively re-export this handle (for example, `asDialogContent().asTransition`) while keeping Transition's captured artifacts nested. Design-language prototype libraries should use that nested setup handle for fixed motion policy instead of adding Transition tuning fields to their intended public component API.
 
 ## State and view sequencing
 

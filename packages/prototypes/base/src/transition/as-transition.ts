@@ -2,6 +2,7 @@ import { defineAsHook, delay, type RunHandle } from '@proto.ui/core';
 import { createTransitionMachine, type TransitionMachineDriver } from './machine';
 import type {
   TransitionAsHookContract,
+  TransitionConfig,
   TransitionControls,
   TransitionExposes,
   TransitionHandles,
@@ -60,6 +61,14 @@ export const asTransition = defineAsHook<
       { options: ['closed', 'entering', 'entered', 'leaving'] }
     );
     const isPresent = def.state.bool('isPresent', false);
+    const appearDefault = def.state.bool('transitionAppearDefault', false);
+    const enterDurationDefault = def.state.numberDiscrete('transitionEnterDurationDefault', 300);
+    const leaveDurationDefault = def.state.numberDiscrete('transitionLeaveDurationDefault', 200);
+    const interruptDefault = def.state.enum<['reverse', 'wait', 'immediate']>(
+      'transitionInterruptDefault',
+      'reverse',
+      { options: ['reverse', 'wait', 'immediate'] }
+    );
 
     let currentRun: RunHandle<TransitionProps> | null = null;
     const getProps = () => currentRun?.props.get();
@@ -70,11 +79,18 @@ export const asTransition = defineAsHook<
         transitionState.set(state, `reason: asTransition => ${state}`);
         isPresent.set(state !== 'closed', `reason: asTransition presence => ${state}`);
       },
-      getInterrupt: () => (getProps()?.interrupt as TransitionInterrupt | undefined) ?? 'reverse',
+      getInterrupt: () =>
+        currentRun?.props.isProvided('interrupt')
+          ? ((getProps()?.interrupt as TransitionInterrupt | undefined) ?? interruptDefault.get())
+          : interruptDefault.get(),
       getDuration: (state) =>
         state === 'entering'
-          ? (getProps()?.enterDuration ?? 300)
-          : (getProps()?.leaveDuration ?? 200),
+          ? currentRun?.props.isProvided('enterDuration')
+            ? (getProps()?.enterDuration ?? enterDurationDefault.get())
+            : enterDurationDefault.get()
+          : currentRun?.props.isProvided('leaveDuration')
+            ? (getProps()?.leaveDuration ?? leaveDurationDefault.get())
+            : leaveDurationDefault.get(),
       schedule: (durationMs, callback) => delay(durationMs, callback),
       setViewPresent(present) {
         if (!currentRun) {
@@ -99,7 +115,8 @@ export const asTransition = defineAsHook<
       const props = run.props.get();
       const controlled = run.props.isProvided('open');
       const open = controlled ? !!props.open : !!props.defaultOpen;
-      machine.initialize(open, !!props.appear);
+      const appear = run.props.isProvided('appear') ? !!props.appear : appearDefault.get();
+      machine.initialize(open, appear);
     });
 
     def.lifecycle.onMounted((run) => {
@@ -151,6 +168,51 @@ export const asTransition = defineAsHook<
       ),
     };
 
-    return { transitionState, isPresent, controls };
+    const appearDefault = requireProjectedHandle(
+      result.getState?.('transitionAppearDefault'),
+      'transitionAppearDefault'
+    );
+    const enterDurationDefault = requireProjectedHandle(
+      result.getState?.('transitionEnterDurationDefault'),
+      'transitionEnterDurationDefault'
+    );
+    const leaveDurationDefault = requireProjectedHandle(
+      result.getState?.('transitionLeaveDurationDefault'),
+      'transitionLeaveDurationDefault'
+    );
+    const interruptDefault = requireProjectedHandle(
+      result.getState?.('transitionInterruptDefault'),
+      'transitionInterruptDefault'
+    );
+
+    const configure = (config: TransitionConfig) => {
+      let configured = false;
+      if (typeof config.appear !== 'undefined') {
+        appearDefault.setDefault(config.appear);
+        configured = true;
+      }
+      if (typeof config.enterDuration !== 'undefined') {
+        if (!Number.isFinite(config.enterDuration) || config.enterDuration < 0) {
+          throw new Error('[asTransition] enterDuration must be a finite non-negative number.');
+        }
+        enterDurationDefault.setDefault(config.enterDuration);
+        configured = true;
+      }
+      if (typeof config.leaveDuration !== 'undefined') {
+        if (!Number.isFinite(config.leaveDuration) || config.leaveDuration < 0) {
+          throw new Error('[asTransition] leaveDuration must be a finite non-negative number.');
+        }
+        leaveDurationDefault.setDefault(config.leaveDuration);
+        configured = true;
+      }
+      if (typeof config.interrupt !== 'undefined') {
+        interruptDefault.setDefault(config.interrupt);
+        configured = true;
+      }
+      // Keep even an empty call setup-only.
+      if (!configured) appearDefault.setDefault(appearDefault.get());
+    };
+
+    return { transitionState, isPresent, controls, configure };
   },
 });

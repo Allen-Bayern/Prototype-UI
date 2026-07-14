@@ -2,15 +2,12 @@ import { definePrototype, tw } from '@proto.ui/core';
 import { asDialogContent } from '@proto.ui/prototypes-base';
 import type { ShadcnDialogContentExposes, ShadcnDialogContentProps } from './types';
 
-const dialogContent = definePrototype<ShadcnDialogContentExposes, ShadcnDialogContentProps>({
+const dialogContent = definePrototype<ShadcnDialogContentProps, ShadcnDialogContentExposes>({
   name: 'shadcn-dialog-content',
   setup(def) {
-    const dialogState = asDialogContent().stateHandles;
-    if (!dialogState) {
-      throw new Error(
-        '[shadcn-dialog-content] asDialogContent must project Dialog content state handles.'
-      );
-    }
+    const dialog = asDialogContent();
+    dialog.asTransition.configure({ enterDuration: 200, leaveDuration: 200 });
+    const dialogState = dialog.stateHandles;
     const { open } = dialogState;
     def.feedback.style.use(
       tw(

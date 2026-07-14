@@ -711,4 +711,67 @@ describe('prototypes/base: asTransition', () => {
     mountTransition(P, ctx);
     expect(String(conflict)).toMatch(/already bound/i);
   });
+
+  it('AS-TRANSITION-2600: setup configuration supplies phase defaults', () => {
+    const ctx = createHost();
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2600',
+      setup() {
+        transition = asTransition();
+        transition.configure({ enterDuration: 100, leaveDuration: 80 });
+        transition.configure({ enterDuration: 120 });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.enter();
+      transition.controls.leave();
+    });
+
+    expect(ctx.getDelays().map((entry) => [entry.durationMs, entry.cancelled])).toEqual([
+      [120, true],
+      [80, false],
+    ]);
+  });
+
+  it('AS-TRANSITION-2700: explicit host props override setup configuration', () => {
+    const ctx = createHost({ enterDuration: 45, leaveDuration: 25 });
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2700',
+      setup() {
+        transition = asTransition();
+        transition.configure({ enterDuration: 120, leaveDuration: 80 });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.enter();
+      transition.controls.leave();
+    });
+
+    expect(ctx.getDelays().map((entry) => entry.durationMs)).toEqual([45, 25]);
+  });
+
+  it('AS-TRANSITION-2800: configure is setup-only', () => {
+    const ctx = createHost();
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2800',
+      setup() {
+        transition = asTransition();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    expect(() =>
+      result.invokeInCallbackScope(() => transition.configure({ enterDuration: 100 }))
+    ).toThrow(/exec-phase violation/i);
+  });
 });

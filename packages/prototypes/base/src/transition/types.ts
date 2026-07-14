@@ -25,6 +25,13 @@ export type TransitionControls = {
   complete(): void;
 };
 
+export type TransitionConfig = {
+  appear?: boolean;
+  enterDuration?: number;
+  leaveDuration?: number;
+  interrupt?: TransitionInterrupt;
+};
+
 export type TransitionExposes = {
   beforeEnter: ExposeEvent<void>;
   afterEnter: ExposeEvent<void>;
@@ -44,11 +51,17 @@ export type TransitionHandles = {
   /** Perceptual presence. This must not be used as a second mount-phase fact. */
   isPresent: BorrowedStateHandle<boolean, TransitionProps>;
   controls: TransitionControls;
+  /** Sets setup-time defaults. Explicit host props take precedence at runtime. */
+  configure(config: TransitionConfig): void;
 };
 
 export type TransitionAsHookContract = {
   state: {
     transitionState: State<TransitionState>;
     isPresent: State<boolean>;
+    transitionAppearDefault: State<boolean>;
+    transitionEnterDurationDefault: State<number>;
+    transitionLeaveDurationDefault: State<number>;
+    transitionInterruptDefault: State<TransitionInterrupt>;
   };
 };

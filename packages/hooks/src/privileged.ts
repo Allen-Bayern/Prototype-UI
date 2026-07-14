@@ -48,6 +48,7 @@ export function definePrivilegedAsHook<P extends PropsBaseType, Result>(
         privileged: true,
         mode: definition.mode ?? 'once',
         result,
+        handle: result,
       });
       return result;
     }
@@ -60,6 +61,7 @@ export function definePrivilegedAsHook<P extends PropsBaseType, Result>(
       privileged: true,
       mode: definition.mode ?? 'once',
       result,
+      handle: result,
     });
     return result;
   };

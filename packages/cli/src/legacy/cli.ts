@@ -623,9 +623,18 @@ function resolveExpression(node, scope) {
     return lookup(node.text, scope);
   }
 
+  if (ts.isCallExpression(node)) {
+    const stateHandles = resolveKnownAsHookStateHandles(node);
+    if (stateHandles) return asSemanticMapValue(stateHandles);
+  }
+
   if (ts.isPropertyAccessExpression(node) && node.name.text === 'stateHandles') {
     const stateHandles = resolveKnownAsHookStateHandles(node.expression);
     if (stateHandles) return asSemanticMapValue(stateHandles);
+    if (ts.isIdentifier(node.expression)) {
+      const hookHandle = lookup(node.expression.text, scope);
+      if (hookHandle.semanticMap) return hookHandle;
+    }
   }
 
   if (

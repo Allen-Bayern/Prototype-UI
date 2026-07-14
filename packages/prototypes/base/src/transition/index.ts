@@ -4,6 +4,7 @@ export type {
   TransitionState,
   TransitionInterrupt,
   TransitionProps,
+  TransitionConfig,
   TransitionControls,
   TransitionExposes,
   TransitionHandles,
