@@ -9,7 +9,35 @@ export type DialogContextValue = {
   controlled: boolean;
   disabled: boolean;
   alert: boolean;
+  requestedOpen: boolean;
+  requestReason: string | null;
+  requestFocusReason: DialogOpenFocusReason | null;
+  requestVersion: number;
 };
+
+export function requestDialogOpen(
+  run: any,
+  nextOpen: boolean,
+  reason: string,
+  focusReason: DialogOpenFocusReason | null
+): boolean {
+  try {
+    run.context.update(DIALOG_CONTEXT, (prev: DialogContextValue) => ({
+      ...prev,
+      open: prev.controlled ? prev.open : nextOpen,
+      openFocusReason: nextOpen ? focusReason : null,
+      returnFocusReason: nextOpen ? null : focusReason,
+      requestedOpen: nextOpen,
+      requestReason: reason,
+      requestFocusReason: focusReason,
+      requestVersion: prev.requestVersion + 1,
+    }));
+    return true;
+  } catch (error) {
+    if ((error as { code?: string })?.code === 'CONTEXT_DISCONNECTED') return false;
+    throw error;
+  }
+}
 
 export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
   roles: {

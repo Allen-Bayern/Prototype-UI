@@ -1,4 +1,11 @@
-import type { BorrowedStateHandle, ExposeMethod, ExposeState, State } from '@proto.ui/core';
+import type {
+  BorrowedStateHandle,
+  ExposeEvent,
+  ExposeMethod,
+  ExposeState,
+  State,
+} from '@proto.ui/core';
+import type { DialogOpenFocusReason } from './shared';
 import type { TransitionExposes, TransitionHandles, TransitionProps } from '../transition/types';
 
 export interface DialogRootProps {
@@ -13,6 +20,11 @@ export type DialogRootExposes = {
   openDialog: ExposeMethod<(reason?: string) => void>;
   close: ExposeMethod<(reason?: string) => void>;
   toggle: ExposeMethod<(reason?: string) => void>;
+  openChange: ExposeEvent<{
+    open: boolean;
+    reason: string | null;
+    focusReason: DialogOpenFocusReason | null;
+  }>;
 };
 
 export type DialogRootStateHandles = {

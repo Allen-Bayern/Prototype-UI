@@ -1,6 +1,11 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { setupDialogCommand } from './command';
-import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogOpenFocusReason } from './shared';
+import {
+  DIALOG_CONTEXT,
+  DIALOG_FAMILY,
+  requestDialogOpen,
+  type DialogOpenFocusReason,
+} from './shared';
 import type { DialogCloseAsHookContract, DialogCloseExposes, DialogCloseProps } from './types';
 
 function setupDialogClose(def: DefHandle<DialogCloseProps, DialogCloseExposes>): void {
@@ -20,16 +25,9 @@ function setupDialogClose(def: DefHandle<DialogCloseProps, DialogCloseExposes>):
   });
 
   def.event.on('press.commit', (run, ev) => {
-    const ctx = run.context.read(DIALOG_CONTEXT);
     if (command.disabled.get()) return;
-    if (ctx.controlled) return;
     const returnFocusReason: DialogOpenFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
-    run.context.update(DIALOG_CONTEXT, (prev) => ({
-      ...prev,
-      open: false,
-      openFocusReason: null,
-      returnFocusReason,
-    }));
+    requestDialogOpen(run, false, 'close.press', returnFocusReason);
   });
 }
 

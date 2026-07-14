@@ -1,6 +1,11 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { setupDialogCommand } from './command';
-import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogOpenFocusReason } from './shared';
+import {
+  DIALOG_CONTEXT,
+  DIALOG_FAMILY,
+  requestDialogOpen,
+  type DialogOpenFocusReason,
+} from './shared';
 import type {
   DialogTriggerAsHookContract,
   DialogTriggerExposes,
@@ -26,14 +31,8 @@ function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExpo
   def.event.on('press.commit', (run, ev) => {
     const ctx = run.context.read(DIALOG_CONTEXT);
     if (command.disabled.get()) return;
-    if (ctx.controlled) return;
     const openFocusReason: DialogOpenFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
-    run.context.update(DIALOG_CONTEXT, (prev) => ({
-      ...prev,
-      open: !prev.open,
-      openFocusReason: prev.open ? null : openFocusReason,
-      returnFocusReason: prev.open ? openFocusReason : null,
-    }));
+    requestDialogOpen(run, !ctx.open, 'trigger.press', openFocusReason);
   });
 }
 

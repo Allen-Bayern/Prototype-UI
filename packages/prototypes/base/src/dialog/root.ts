@@ -10,7 +10,11 @@ function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
     a.returnFocusReason === b.returnFocusReason &&
     a.controlled === b.controlled &&
     a.disabled === b.disabled &&
-    a.alert === b.alert
+    a.alert === b.alert &&
+    a.requestedOpen === b.requestedOpen &&
+    a.requestReason === b.requestReason &&
+    a.requestFocusReason === b.requestFocusReason &&
+    a.requestVersion === b.requestVersion
   );
 }
 
@@ -36,12 +40,17 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     controlled: false,
     disabled: false,
     alert: false,
+    requestedOpen: false,
+    requestReason: null,
+    requestFocusReason: null,
+    requestVersion: 0,
   });
 
   const openState = useOpenState({
     exposeOpenMethodKey: 'openDialog',
   });
   const open = openState.getState?.('open');
+  def.expose.event('openChange', { payload: 'json' });
 
   const initialContext: DialogContextValue = {
     open: false,
@@ -50,9 +59,14 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     controlled: false,
     disabled: false,
     alert: false,
+    requestedOpen: false,
+    requestReason: null,
+    requestFocusReason: null,
+    requestVersion: 0,
   };
   let snapshot: DialogContextValue = initialContext;
   let published: DialogContextValue = initialContext;
+  let lastRequestVersion = 0;
 
   const syncContext = (run: any) => {
     const next = {
@@ -65,9 +79,21 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     run.context.update(DIALOG_CONTEXT, next);
   };
 
-  def.context.subscribe(DIALOG_CONTEXT, (_run, next) => {
+  def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
     snapshot = next;
     published = next;
+    if (next.requestVersion !== lastRequestVersion) {
+      lastRequestVersion = next.requestVersion;
+      if (!next.controlled) {
+        open?.set(next.requestedOpen, 'reason: dialog open request => uncontrolled sync');
+      }
+      run.expose.emit('openChange', {
+        open: next.requestedOpen,
+        reason: next.requestReason,
+        focusReason: next.requestFocusReason,
+      });
+      return;
+    }
     if (!snapshot.controlled) {
       open?.set(next.open, 'reason: dialog context sync => open');
     }

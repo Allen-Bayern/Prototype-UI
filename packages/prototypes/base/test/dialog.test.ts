@@ -64,12 +64,16 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
   });
 
-  it('controlled root synchronizes open from props and ignores trigger/close clicks', async () => {
+  it('controlled root keeps prop state while trigger and close emit openChange requests', async () => {
     const root = document.createElement('base-dialog-root') as any;
     const trigger = document.createElement('base-dialog-trigger') as any;
     const mask = document.createElement('base-dialog-mask') as any;
     const content = document.createElement('base-dialog-content') as any;
     const close = document.createElement('base-dialog-close') as any;
+    const requests: any[] = [];
+    root.addEventListener('openChange', (event: Event) => {
+      requests.push((event as CustomEvent).detail);
+    });
 
     setElementProps(root, { open: false });
     root.appendChild(trigger);
@@ -83,17 +87,22 @@ describe('prototypes/base: dialog', () => {
 
     expect(root.getExposes().open.get()).toBe(false);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(requests).toEqual([]);
 
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushViewReconciliation();
 
     expect(root.getExposes().open.get()).toBe(false);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(requests).toEqual([
+      expect.objectContaining({ open: true, reason: 'trigger.press', focusReason: 'pointer' }),
+    ]);
 
     setElementProps(root, { open: true });
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
+    expect(requests).toEqual([expect.objectContaining({ open: true, reason: 'trigger.press' })]);
     expect(styleContains(content, 'hidden')).toBe(false);
     expect(styleContains(mask, 'hidden')).toBe(false);
 
@@ -101,6 +110,10 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
+    expect(requests).toEqual([
+      expect.objectContaining({ open: true, reason: 'trigger.press' }),
+      expect.objectContaining({ open: false, reason: 'close.press', focusReason: 'pointer' }),
+    ]);
 
     setElementProps(root, { open: false });
     await Promise.resolve();
@@ -109,6 +122,40 @@ describe('prototypes/base: dialog', () => {
     expect(root.getExposes().open.get()).toBe(false);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
     expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('controlled dismissal emits requests without closing before the owner updates open', async () => {
+    const root = document.createElement('base-dialog-root') as any;
+    const trigger = document.createElement('base-dialog-trigger') as any;
+    const mask = document.createElement('base-dialog-mask') as any;
+    const content = document.createElement('base-dialog-content') as any;
+    const requests: any[] = [];
+    root.addEventListener('openChange', (event: Event) => {
+      requests.push((event as CustomEvent).detail);
+    });
+
+    setElementProps(root, { open: true });
+    root.appendChild(trigger);
+    root.appendChild(mask);
+    root.appendChild(content);
+    document.body.appendChild(root);
+    await flushViewReconciliation();
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await flushViewReconciliation();
+    expect(root.getExposes().open.get()).toBe(true);
+    expect(content.getExposes().transitionState.get()).not.toBe('leaving');
+
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await flushViewReconciliation();
+    expect(root.getExposes().open.get()).toBe(true);
+    expect(requests).toEqual([
+      expect.objectContaining({ open: false, reason: 'escape', focusReason: 'keyboard' }),
+      expect.objectContaining({ open: false, reason: 'outside.press', focusReason: 'pointer' }),
+    ]);
 
     root.remove();
     await Promise.resolve();

@@ -1,7 +1,13 @@
 import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
 import { asBoundary, asFocusScope, asOverlay } from '@proto.ui/hooks';
 import { asTransition } from '../tools';
-import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogOpenFocusReason } from './shared';
+import {
+  DIALOG_CONTEXT,
+  DIALOG_FAMILY,
+  requestDialogOpen,
+  type DialogContextValue,
+  type DialogOpenFocusReason,
+} from './shared';
 import type {
   DialogContentAsHookContract,
   DialogContentExposes,
@@ -61,6 +67,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   def.expose.state('open', open);
 
   let mountedRun: any = null;
+  let currentContext: DialogContextValue | null = null;
 
   const updateOpen = (
     nextOpen: boolean,
@@ -93,6 +100,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   };
 
   def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
+    currentContext = next;
     syncAlert(run);
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
@@ -102,6 +110,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   def.lifecycle.onCreated((run) => {
     syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
+    currentContext = ctx;
     updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -111,6 +120,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     mountedRun = run;
     syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
+    currentContext = ctx;
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -118,25 +128,18 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   def.lifecycle.onUnmounted(() => {
     mountedRun = null;
+    currentContext = null;
   });
 
   overlay.open.watch((_ctx, event) => {
-    if (event.type !== 'next') return;
-    if (!event.next) {
-      const run = mountedRun;
-      if (!run) return;
-      const ctx = run.context.read(DIALOG_CONTEXT);
-      const returnFocusReason: DialogOpenFocusReason | null =
-        event.reason === 'escape' ? 'keyboard' : null;
-      if (returnFocusReason) focusScope.deactivate({ reason: returnFocusReason });
-      if (ctx.controlled) return;
-      run.context.update(DIALOG_CONTEXT, (prev: any) => ({
-        ...prev,
-        open: false,
-        openFocusReason: null,
-        returnFocusReason,
-      }));
-    }
+    if (event.type !== 'next' || event.next || event.reason !== 'escape') return;
+    const run = mountedRun;
+    if (!run) return;
+    const ctx = currentContext;
+    if (!ctx) return;
+    if (!ctx.open) return;
+    requestDialogOpen(run, false, 'escape', 'keyboard');
+    if (ctx.controlled) overlay.openOverlay('controlled.sync');
   });
 
   boundary.subscribeOutside(() => {
@@ -144,21 +147,12 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     const returnFocusReason: DialogOpenFocusReason = 'pointer';
     const run = mountedRun;
     if (!run) return;
-    const ctx = run.context.read(DIALOG_CONTEXT);
+    const ctx = currentContext;
+    if (!ctx) return;
     if (!ctx.open) return;
     if (alertProp.get()) return;
 
-    if (ctx.controlled) {
-      focusScope.deactivate({ reason: returnFocusReason });
-      overlay.close('outside.press');
-      return;
-    }
-    run.context.update(DIALOG_CONTEXT, (prev: any) => ({
-      ...prev,
-      open: false,
-      openFocusReason: null,
-      returnFocusReason,
-    }));
+    requestDialogOpen(run, false, 'outside.press', returnFocusReason);
   });
 
   def.rule({
