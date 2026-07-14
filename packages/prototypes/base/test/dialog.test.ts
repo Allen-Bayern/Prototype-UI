@@ -208,6 +208,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
+    expect(content.getAttribute('role')).toBe('dialog');
+    expect(content.getAttribute('aria-modal')).toBe('true');
 
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     await Promise.resolve();
@@ -238,6 +240,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(true);
+    expect(content.getAttribute('role')).toBe('alertdialog');
+    expect(content.getAttribute('aria-modal')).toBe('true');
 
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     await Promise.resolve();

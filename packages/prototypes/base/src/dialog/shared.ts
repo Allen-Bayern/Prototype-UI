@@ -3,6 +3,7 @@ import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
 export type DialogOpenFocusReason = 'programmatic' | 'keyboard' | 'pointer';
 
 export type DialogContextValue = {
+  rootId: string;
   open: boolean;
   openFocusReason: DialogOpenFocusReason | null;
   returnFocusReason: DialogOpenFocusReason | null;
@@ -14,6 +15,20 @@ export type DialogContextValue = {
   requestFocusReason: DialogOpenFocusReason | null;
   requestVersion: number;
 };
+
+let nextDialogRootId = 0;
+
+export function createDialogRootId(): string {
+  nextDialogRootId += 1;
+  return `pui-dialog-${nextDialogRootId}`;
+}
+
+export function createDialogPartId(
+  rootId: string,
+  role: 'content' | 'title' | 'description'
+): string {
+  return `${rootId || 'pui-dialog'}-${role}`;
+}
 
 export function requestDialogOpen(
   run: any,
@@ -46,7 +61,7 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
     mask: { cardinality: { min: 0, max: 1 } },
     content: { cardinality: { min: 0, max: 1 } },
     title: { cardinality: { min: 0, max: 1 } },
-    description: { cardinality: { min: 0, max: 100 } },
+    description: { cardinality: { min: 0, max: 1 } },
     close: { cardinality: { min: 0, max: 100 } },
   },
   relations: [

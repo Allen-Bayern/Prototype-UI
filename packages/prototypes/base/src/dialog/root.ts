@@ -1,10 +1,16 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { useOpenState } from '../tools';
-import { DIALOG_CONTEXT, DIALOG_FAMILY, type DialogContextValue } from './shared';
+import {
+  createDialogRootId,
+  DIALOG_CONTEXT,
+  DIALOG_FAMILY,
+  type DialogContextValue,
+} from './shared';
 import type { DialogRootAsHookContract, DialogRootExposes, DialogRootProps } from './types';
 
 function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
   return (
+    a.rootId === b.rootId &&
     a.open === b.open &&
     a.openFocusReason === b.openFocusReason &&
     a.returnFocusReason === b.returnFocusReason &&
@@ -20,6 +26,7 @@ function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
 
 function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): void {
   def.anatomy.claim(DIALOG_FAMILY, { role: 'root' });
+  const rootId = createDialogRootId();
 
   def.props.define({
     open: { type: 'boolean', empty: 'fallback' },
@@ -34,6 +41,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   });
 
   def.context.provide(DIALOG_CONTEXT, {
+    rootId,
     open: false,
     openFocusReason: null,
     returnFocusReason: null,
@@ -53,6 +61,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   def.expose.event('openChange', { payload: 'json' });
 
   const initialContext: DialogContextValue = {
+    rootId,
     open: false,
     openFocusReason: null,
     returnFocusReason: null,

@@ -4,6 +4,7 @@ import { asTransition } from '../tools';
 import {
   DIALOG_CONTEXT,
   DIALOG_FAMILY,
+  createDialogPartId,
   requestDialogOpen,
   type DialogContextValue,
   type DialogOpenFocusReason,
@@ -37,6 +38,18 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   const alertProp = def.state.bool('alert', false);
+  const role = def.state.string('dialogRole', 'dialog', {
+    options: ['dialog', 'alertdialog'],
+  });
+  const modal = def.state.bool('dialogModal', true);
+  const contentId = def.state.string('dialogContentId', '');
+  const titleId = def.state.string('dialogTitleId', '');
+  const descriptionId = def.state.string('dialogDescriptionId', '');
+  def.a11y.id(contentId);
+  def.a11y.role(role);
+  def.a11y.state('modal', modal);
+  def.a11y.relation('labelledBy', { target: titleId });
+  def.a11y.relation('describedBy', { target: descriptionId });
 
   const overlay = asOverlay<DialogContentProps>();
   overlay.configure({
@@ -94,23 +107,35 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     }
   };
 
-  const syncAlert = (run: any) => {
-    const alert = !!run.props.get().alert;
+  const syncIdentity = (ctx: DialogContextValue) => {
+    contentId.set(createDialogPartId(ctx.rootId, 'content'), 'reason: dialog content id sync');
+    titleId.set(createDialogPartId(ctx.rootId, 'title'), 'reason: dialog title relation sync');
+    descriptionId.set(
+      createDialogPartId(ctx.rootId, 'description'),
+      'reason: dialog description relation sync'
+    );
+  };
+
+  const syncAlert = (run: any, ctx: DialogContextValue) => {
+    const alert = !!run.props.get().alert || ctx.alert;
     alertProp.set(alert, 'reason: dialog alert sync');
+    role.set(alert ? 'alertdialog' : 'dialog', 'reason: dialog semantic role sync');
   };
 
   def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
     currentContext = next;
-    syncAlert(run);
+    syncIdentity(next);
+    syncAlert(run, next);
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
     });
   });
 
   def.lifecycle.onCreated((run) => {
-    syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
     currentContext = ctx;
+    syncIdentity(ctx);
+    syncAlert(run, ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -118,9 +143,10 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   def.lifecycle.onMounted((run) => {
     mountedRun = run;
-    syncAlert(run);
     const ctx = run.context.read(DIALOG_CONTEXT);
     currentContext = ctx;
+    syncIdentity(ctx);
+    syncAlert(run, ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -129,6 +155,10 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   def.lifecycle.onUnmounted(() => {
     mountedRun = null;
     currentContext = null;
+  });
+
+  def.props.watch(['alert'], (run) => {
+    if (currentContext) syncAlert(run, currentContext);
   });
 
   overlay.open.watch((_ctx, event) => {
