@@ -9,7 +9,7 @@ const dialogMask = definePrototype<ShadcnDialogMaskProps, ShadcnDialogMaskExpose
     dialog.asTransition.configure({ enterDuration: 150, leaveDuration: 150 });
     const dialogState = dialog.stateHandles;
     const { open } = dialogState;
-    def.feedback.style.use(tw('fixed inset-0 bg-black/50'));
+    def.feedback.style.use(tw('fixed inset-0 bg-black/50 backdrop-blur-xs'));
 
     def.rule({
       when: (w) => w.state(open).eq(true),
