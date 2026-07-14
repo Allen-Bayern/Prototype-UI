@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Boundary 必须将宿主采样的传输与交互域分类分开：Event 负责监听、路由、生命周期 gating 与 callback scope，Boundary 负责将当前多 region 交互域分类为 `inside | outside | unknown`。`boundary.observe('pointer.press')` 是 setup-only 且幂等的采样请求；outside 通知只能由该共享分类结果产生，并且 stacked boundary 只允许最上层 active boundary 发布 outside。Overlay、dismiss 与 focus 是 Boundary 的消费者，Hit Participation 仍是独立能力。
 
+
   en: >-
     Boundary must separate host-sample transport from interaction-domain classification: Event owns listening, routing, lifecycle gating, and callback scope, while Boundary classifies the current multi-region interaction domain as `inside | outside | unknown`. `boundary.observe('pointer.press')` is a setup-only idempotent observation request; outside notifications may only derive from that shared classification, and stacked boundaries permit only the top-most active boundary to publish outside. Overlay, dismiss, and focus are Boundary consumers, while Hit Participation remains independent.
+
 
 criteria:
   - id: C-BOUNDARY-0001-A
@@ -36,6 +38,10 @@ criteria:
     text:
       zh-CN: view detach 时 Boundary 必须暂停 sample 消费，Proto instance 终止时必须清理 region 与 subscriber。
       en: Boundary must suspend sample consumption while the view is detached and clean up regions and subscribers when the Proto instance terminates.
+  - id: C-BOUNDARY-0001-G
+    text:
+      zh-CN: '`asBoundary()` 必须是 no-arg privileged once caller；同一 setup chain 重复调用必须返回严格相同的 handle，setup-time 配置通过 `handle.configure(patch)` 表达。'
+      en: '`asBoundary()` must be a no-argument privileged once caller; repeated calls in one setup chain must return the exact same handle, and setup-time configuration is expressed through `handle.configure(patch)`.'
 sources:
   - path: internal/contracts/interaction-boundary/interaction-boundary.v0.md
   - path: packages/core/src/boundary.ts
@@ -54,6 +60,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Defined Event-transported Boundary observation, ternary classification, weak stacking, and cleanup.
+  - version: 0.1.1
+    change: refined
+    summary: Migrated Boundary to a no-argument once caller with configuration through the returned handle.
 tags:
   - boundary
   - event

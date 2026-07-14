@@ -1,4 +1,5 @@
 import { defineAsHook, type AsHookResult, type State } from '@proto.ui/core';
+import { asBoundary } from '@proto.ui/hooks';
 
 type Props = { disabled?: boolean };
 
@@ -45,6 +46,11 @@ const asNoArgs = defineAsHook({
 asNoArgs();
 // @ts-expect-error authored asHook callers are no-arg in v0
 asNoArgs({ enabled: true });
+
+const boundary = asBoundary();
+boundary.configure({ debugLabel: 'typed-boundary' });
+// @ts-expect-error privileged Boundary configuration lives on the returned handle
+asBoundary({ debugLabel: 'legacy-parameterized-boundary' });
 
 const asCustomHandle = defineAsHook<
   Props,

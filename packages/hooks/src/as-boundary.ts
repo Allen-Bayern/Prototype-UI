@@ -1,4 +1,4 @@
-import type { BoundaryConfigPatch, BoundaryHandle } from '@proto.ui/core';
+import type { BoundaryHandle } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import { definePrivilegedAsHook } from './privileged';
 
@@ -17,10 +17,6 @@ const getBoundary = definePrivilegedAsHook<PropsBaseType, BoundaryHandle<PropsBa
   },
 });
 
-export function asBoundary<P extends PropsBaseType = PropsBaseType>(
-  patch?: BoundaryConfigPatch
-): BoundaryHandle<P> {
-  const handle = getBoundary() as BoundaryHandle<P>;
-  if (patch) handle.configure(patch);
-  return handle;
+export function asBoundary<P extends PropsBaseType = PropsBaseType>(): BoundaryHandle<P> {
+  return getBoundary() as BoundaryHandle<P>;
 }
