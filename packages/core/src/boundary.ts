@@ -2,6 +2,8 @@ import type { PropsBaseType } from '@proto.ui/types';
 
 export type BoundaryClassification = 'inside' | 'outside' | 'unknown';
 
+export type BoundaryObservation = 'pointer.press';
+
 export type BoundaryRegionRole = 'trigger' | 'anchor' | 'content' | (string & {});
 
 export type BoundaryConfigPatch = Readonly<{
@@ -39,6 +41,7 @@ export type BoundaryOutsideEvent = Readonly<{
 
 export interface BoundaryHandle<P extends PropsBaseType = PropsBaseType> {
   configure(patch: BoundaryConfigPatch): void;
+  observe(observation: BoundaryObservation): void;
   setStackActive(active: boolean): void;
   registerRegion(target: unknown, options?: BoundaryRegionOptions): () => void;
   unregisterRegion(target: unknown): void;

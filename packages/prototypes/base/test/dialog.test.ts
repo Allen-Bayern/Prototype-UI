@@ -15,6 +15,15 @@ async function flushViewReconciliation(): Promise<void> {
   await Promise.resolve();
 }
 
+async function completeTransitions(...elements: any[]): Promise<void> {
+  for (const element of elements) {
+    const exposes = element?.getExposes?.();
+    const state = exposes?.transitionState?.get?.();
+    if (state === 'entering' || state === 'leaving') exposes.controls.complete();
+  }
+  await flushViewReconciliation();
+}
+
 describe('prototypes/base: dialog', () => {
   it('uncontrolled root toggles open from trigger click and closes from close click', async () => {
     const root = document.createElement('base-dialog-root') as any;
@@ -45,6 +54,7 @@ describe('prototypes/base: dialog', () => {
 
     close.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();
+    await completeTransitions(mask, content);
 
     expect(root.getExposes().open.get()).toBe(false);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
@@ -94,10 +104,11 @@ describe('prototypes/base: dialog', () => {
 
     setElementProps(root, { open: false });
     await Promise.resolve();
+    await completeTransitions(mask, content);
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(mask, 'hidden')).toBe(true);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(mask.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();
@@ -126,7 +137,9 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
+    expect(content.getExposes().transitionState.get()).toBe('leaving');
+    await completeTransitions(mask, content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();
@@ -154,7 +167,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
+    await completeTransitions(mask, content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();
@@ -190,7 +204,8 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
 
     expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
+    await completeTransitions(mask, content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
 
     root.remove();
     await Promise.resolve();

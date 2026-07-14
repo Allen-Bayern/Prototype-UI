@@ -43,11 +43,16 @@ function setupDropdownContent(
   const focusFirst = roving.getMethod?.('focusFirst') as (() => boolean) | undefined;
   const focusLast = roving.getMethod?.('focusLast') as (() => boolean) | undefined;
 
-  const overlay = asOverlay({
+  const overlay = asOverlay<DropdownContentProps>();
+  overlay.keepMounted();
+  overlay.configure({
+    closeOnEscape: false,
+    closeOnOutsidePress: false,
     restore: 'trigger',
     entry: 'content',
   });
   const boundary = asBoundary();
+  boundary.observe('pointer.press');
   const open = def.state.bool('open', false);
   const store = (api?.store ?? {}) as {
     typeahead: string;
@@ -214,15 +219,12 @@ function setupDropdownContent(
     focusById?.(String(match.snapshot?.value ?? ''), { reason: 'keyboard' });
   });
 
-  def.event.onGlobal('host:pointerdown', (run, ev) => {
+  boundary.subscribeOutside(() => {
+    const run = store.run;
+    if (!run) return;
     const ctx = run.context.read(DROPDOWN_CONTEXT);
     if (!ctx.open || ctx.disabled || ctx.controlled) return;
-    const classification = boundary.notify({
-      type: 'pointerdown',
-      target: ev?.target,
-      nativeEvent: ev,
-    });
-    if (classification !== 'outside') return;
+    overlay.close('outside.press');
   });
 
   def.lifecycle.onUnmounted(() => {

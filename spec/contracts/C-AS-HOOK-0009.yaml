@@ -6,11 +6,11 @@ since: 0.1.0
 summary: An ordinary authored asHook may project its captured AsHookResult into one custom caller handle without changing the prototype-compatible setup return channel.
 statement:
   zh-CN: >-
-    普通 authored asHook 可以通过可选的 `projectHandle(result)`，把 runtime 捕获并完成 Borrowed state 投射后的 `AsHookResult` 转换为面向原型作者的定制 caller handle。该能力不得改变 `setup` 只返回 render function 或 void 的 prototype-compatible 契约。once 安装中投射只执行一次，重复调用必须复用严格相同的 handle；runtime 内部的组合、child result 与诊断记录仍以捕获 artifacts 为真相。
+    普通 authored asHook 可以通过可选的 `projectHandle(result)`，把 runtime 捕获并完成 Borrowed state 投射后的 `AsHookResult` 转换为面向原型作者的定制 caller handle。该能力不得改变 `setup` 只返回 render function 或 void 的 prototype-compatible 契约。once 安装中投射只执行一次，重复调用必须复用严格相同的 handle；runtime 内部的组合与诊断记录仍以捕获 artifacts 为真相。嵌套调用的 child entry 必须同时保留原始 `result` 与稳定投射后的 `handle`，供外层选择性重新导出。
 
 
   en: >-
-    An ordinary authored asHook may use optional `projectHandle(result)` to transform the runtime-captured `AsHookResult`, after borrowed-state projection, into a custom prototype-author-facing caller handle. This capability must not change the prototype-compatible setup contract of returning only a render function or void. Projection runs once for the once installation and repeated calls must reuse the exact same handle; runtime composition, child results, and diagnostic recording continue to use the captured artifacts as their source of truth.
+    An ordinary authored asHook may use optional `projectHandle(result)` to transform the runtime-captured `AsHookResult`, after borrowed-state projection, into a custom prototype-author-facing caller handle. This capability must not change the prototype-compatible setup contract of returning only a render function or void. Projection runs once for the once installation and repeated calls must reuse the exact same handle; runtime composition and diagnostic recording continue to use the captured artifacts as their source of truth. A nested call's child entry must retain both the raw `result` and the stable projected `handle` so that an outer hook can selectively re-export it.
 
 
 criteria:
@@ -30,6 +30,10 @@ criteria:
     text:
       zh-CN: runtime 组合、child result 与诊断记录必须继续保留捕获 artifacts，不得被定制 handle 替代。
       en: Runtime composition, child results, and diagnostic recording must retain captured artifacts rather than replacing them with the custom handle.
+  - id: C-AS-HOOK-0009-E
+    text:
+      zh-CN: 嵌套 child entry 必须同时保留原始 `result` 与稳定 `handle`；外层可显式投射选中的 child handle，但 runtime 不得自动摊平全部嵌套能力。
+      en: A nested child entry must retain both its raw `result` and stable `handle`; an outer hook may explicitly project selected child handles, but the runtime must not automatically flatten every nested capability.
 sources:
   - path: internal/contracts/as-hook/as-hook.v0.md
     sections:
@@ -55,6 +59,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added stable custom caller handle projection for ordinary authored asHooks.
+  - version: 0.1.1
+    change: revised
+    summary: Preserved both raw artifacts and projected handles on nested child entries for selective parent projection.
 tags:
   - as-hook
   - handle

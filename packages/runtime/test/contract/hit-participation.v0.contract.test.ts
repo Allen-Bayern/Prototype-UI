@@ -229,7 +229,8 @@ describe('runtime contract: hit participation (v0)', () => {
         const hit = asHitParticipation({ mode: 'passthrough' });
         hit.registerRegion(mask, { role: 'mask' as any });
 
-        asOverlay({
+        const overlay = asOverlay();
+        overlay.configure({
           defaultOpen: true,
           closeOnOutsidePress: false,
           modal: false,

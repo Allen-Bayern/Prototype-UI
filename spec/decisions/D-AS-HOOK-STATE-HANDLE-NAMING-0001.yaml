@@ -46,6 +46,10 @@ criteria:
     text:
       zh-CN: state name 应作为 state definition API 的第一个参数；现有 semantic 或其他 state 选项若需要与 name 分离，应进入后续参数或 options。
       en: State name should be the first argument of state definition APIs; existing semantic or other state options that need to differ from name should move to later arguments or options.
+  - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-I
+    text:
+      zh-CN: 嵌套能力不新增自动 alias、rename 或 filtering SPI；child entry 同时保留原始 result 与投射 handle，外层通过自身 `projectHandle` 选择性重新导出。
+      en: Nested capabilities do not add an automatic aliasing, renaming, or filtering SPI; child entries retain both raw results and projected handles, and outer hooks selectively re-export them through their own `projectHandle`.
 openQuestions:
   - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-Q1
     question:
@@ -68,13 +72,6 @@ openQuestions:
     blocks:
       - as-hook-state-projection
       - migration-safety
-  - id: D-AS-HOOK-STATE-HANDLE-NAMING-0001-Q4
-    question:
-      zh-CN: 在 runtime 已能自动收集 child asHook entries 的前提下，是否还需要额外的 result alias、rename 或 filtering SPI？
-      en: Given runtime-collected child asHook entries, is any additional result aliasing, renaming, or filtering SPI still needed?
-    blocks:
-      - nested-as-hook-result-structure
-      - as-hook-result-api
 relates:
   contracts:
     - C-AS-HOOK-0007
@@ -101,6 +98,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Recorded the state declaration naming direction for asHook state handle projection and the plan to remove expose-based naming.
+  - version: 0.1.1
+    change: revised
+    summary: Resolved nested result filtering through explicit parent handle projection instead of runtime flattening SPI.
 tags:
   - as-hook
   - state

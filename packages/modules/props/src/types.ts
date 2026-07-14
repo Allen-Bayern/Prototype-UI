@@ -55,7 +55,7 @@ export type PropsWatchTask<P extends PropsBaseType> =
 
 export type PropsFacade<P extends PropsBaseType> = {
   // setup-only (guarded in impl)
-  define: (decl: PropsSpecMap<P>) => void;
+  define: (decl: Partial<PropsSpecMap<P>>) => void;
   setDefaults: (partial: PropsDefaults<P>) => void;
 
   // setup-only subscriptions (module-facing callbacks; ctx is unknown)

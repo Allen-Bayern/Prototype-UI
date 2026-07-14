@@ -43,6 +43,7 @@ import {
   OVERLAY_GLOBAL_MOUNT_CAP,
   OVERLAY_LAYER_SCHEDULER_CAP,
   OVERLAY_MODAL_CAP,
+  type OverlayGlobalMount,
   type OverlayLayerScheduler,
 } from '@proto.ui/module-overlay';
 import { RAW_PROPS_SOURCE_CAP, type RawPropsSource } from '@proto.ui/module-props';
@@ -58,6 +59,7 @@ import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import type { PropsBaseType } from '@proto.ui/types';
 
 import {
+  clearProtoParentProjection,
   getLogicalParent,
   getLogicalPrototype,
   getLogicalRoot,
@@ -73,6 +75,23 @@ type VueOwnerModulesArgs<Props extends PropsBaseType> = {
   runInCallbackScope: (fn: () => void) => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 };
+
+export function createVueOverlayGlobalMount(
+  instanceToken: LogicalInstanceToken
+): OverlayGlobalMount {
+  return {
+    mount(hostEl: HTMLElement) {
+      const parentToken = getLogicalParent(instanceToken);
+      setProtoParent(hostEl, parentToken ? getLogicalRoot(parentToken) : null);
+    },
+    unmount(hostEl: HTMLElement) {
+      // Portal teardown removes only the host projection. The retained Proto
+      // instance must stay in its logical tree so context and anatomy remain
+      // live across the next L1 view epoch.
+      clearProtoParentProjection(hostEl);
+    },
+  };
+}
 
 /** Owner/instance capabilities that are valid before a host view exists. */
 export function createVueOwnerModules<Props extends PropsBaseType>(
@@ -242,22 +261,7 @@ export function createVueModules<Props extends PropsBaseType>(args: {
     ])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
-      [
-        OVERLAY_GLOBAL_MOUNT_CAP,
-        {
-          mount(hostEl: HTMLElement) {
-            if (hostEl.parentElement && hostEl.parentElement !== document.body) {
-              setProtoParent(hostEl, hostEl.parentElement);
-            }
-            if (hostEl.parentNode !== document.body) {
-              document.body.appendChild(hostEl);
-            }
-          },
-          unmount() {
-            /* Vue unmount handles cleanup */
-          },
-        },
-      ],
+      [OVERLAY_GLOBAL_MOUNT_CAP, createVueOverlayGlobalMount(instanceToken)],
       [
         OVERLAY_MODAL_CAP,
         {

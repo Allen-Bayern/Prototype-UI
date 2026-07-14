@@ -4,6 +4,7 @@ import type {
   BoundaryConfigPatch,
   BoundaryHandle,
   BoundaryOutsideEvent,
+  BoundaryObservation,
   BoundaryRegion,
   BoundaryRegionOptions,
   BoundarySample,
@@ -25,6 +26,11 @@ export type BoundaryPort = ModulePort & {
   unregisterRegion(target: unknown): void;
   classify(sample?: BoundarySample): BoundaryClassification;
   notify(sample?: BoundarySample): BoundaryClassification;
+  /**
+   * Requests one runtime-owned host pointer sample stream for this boundary.
+   * Event transports samples; Boundary remains the sole classifier.
+   */
+  observe(observation: BoundaryObservation): void;
   subscribeOutside(cb: (event: BoundaryOutsideEvent) => void): () => void;
   getConfig(): BoundaryConfig;
   getWarnings(): readonly string[];

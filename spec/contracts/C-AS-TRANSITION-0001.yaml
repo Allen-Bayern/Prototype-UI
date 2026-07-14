@@ -58,6 +58,14 @@ criteria:
     text:
       zh-CN: closed、ViewIntent detached 与 Proto instance disposed 必须保持为三个不同事实；detach 后 controls 与 expose 必须继续可用，直到 owner terminal dispose。
       en: closed, ViewIntent detached, and Proto instance disposed must remain distinct facts; controls and exposes remain available after detach until terminal owner disposal.
+  - id: C-AS-TRANSITION-0001-L
+    text:
+      zh-CN: 投射 handle 必须提供 setup-only `configure`，用于设置 appear、enterDuration、leaveDuration 与 interrupt 的 hook-owned 默认值，而不得给无参数 caller 增加 options。
+      en: The projected handle must provide setup-only `configure` for hook-owned appear, enterDuration, leaveDuration, and interrupt defaults without adding options to the no-argument caller.
+  - id: C-AS-TRANSITION-0001-M
+    text:
+      zh-CN: 显式宿主 prop 必须优先于对应的 configure 默认值；多次 setup 配置只 patch 显式字段，并以最后一次提供的值为准。
+      en: An explicit host prop must take precedence over its corresponding configured default; repeated setup configuration patches only supplied fields and the last supplied value wins.
 sources:
   - path: internal/contracts/prototype-base/transition.v0.md
   - path: packages/prototypes/base/src/transition/as-transition.ts
@@ -87,6 +95,9 @@ revisions:
   - version: 0.1.1
     change: revised
     summary: Reclassified asTransition as an ordinary authored asHook using stable custom caller handle projection.
+  - version: 0.1.2
+    change: revised
+    summary: Added setup-only transition default configuration and explicit-host-prop precedence.
 tags:
   - transition
   - as-hook

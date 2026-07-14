@@ -2,6 +2,7 @@ import { createModule, defineModule } from '@proto.ui/module-base';
 import type { ModuleFactoryArgs } from '@proto.ui/module-base';
 import type { BoundaryFacade, BoundaryPort } from './types';
 import { BoundaryModuleImpl } from './impl';
+import type { EventPort } from '@proto.ui/module-event';
 
 export function createBoundaryModule(ctx: ModuleFactoryArgs) {
   const { init, caps, deps } = ctx;
@@ -13,7 +14,11 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
     caps,
     deps,
     build: ({ init, caps }) => {
-      const impl = new BoundaryModuleImpl(caps, init.prototypeName);
+      const impl = new BoundaryModuleImpl(
+        caps,
+        init.prototypeName,
+        deps.requirePort<EventPort>('event')
+      );
 
       return {
         facade: {
@@ -30,6 +35,7 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
           unregisterRegion: (target) => impl.unregisterRegion(target),
           classify: (sample) => impl.classify(sample),
           notify: (sample) => impl.notify(sample),
+          observe: (observation) => impl.observe(observation),
           subscribeOutside: (cb) => impl.subscribeOutside(cb),
           getConfig: () => impl.getConfig(),
           getWarnings: () => impl.getWarnings(),
@@ -43,5 +49,6 @@ export function createBoundaryModule(ctx: ModuleFactoryArgs) {
 export const BoundaryModuleDef = defineModule({
   name: 'boundary',
   resourceOwnership: 'mixed',
+  deps: ['event'],
   create: createBoundaryModule,
 });

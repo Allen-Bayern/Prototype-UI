@@ -51,6 +51,7 @@ import {
   OVERLAY_GLOBAL_MOUNT_CAP,
   OVERLAY_LAYER_SCHEDULER_CAP,
   OVERLAY_MODAL_CAP,
+  type OverlayGlobalMount,
   type OverlayLayerScheduler,
 } from '@proto.ui/module-overlay';
 import { RAW_PROPS_SOURCE_CAP } from '@proto.ui/module-props';
@@ -59,6 +60,7 @@ import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import type { PropsBaseType } from '@proto.ui/types';
 
 import {
+  clearProtoParentProjection,
   getLogicalParent,
   getLogicalPrototype,
   getLogicalRoot,
@@ -74,6 +76,22 @@ type ReactOwnerModulesArgs<Props extends PropsBaseType> = {
   runInCallbackScope: (fn: () => void) => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 };
+
+export function createReactOverlayGlobalMount(
+  instanceToken: LogicalInstanceToken
+): OverlayGlobalMount {
+  return {
+    mount(hostEl: HTMLElement) {
+      const parentToken = getLogicalParent(instanceToken);
+      setProtoParent(hostEl, parentToken ? getLogicalRoot(parentToken) : null);
+    },
+    unmount(hostEl: HTMLElement) {
+      // Removing a renderer-owned portal view must not detach the retained
+      // Proto instance from its logical owner.
+      clearProtoParentProjection(hostEl);
+    },
+  };
+}
 
 /** Owner/instance capabilities that are valid before a host view exists. */
 export function createReactOwnerModules<Props extends PropsBaseType>(
@@ -243,22 +261,7 @@ export function createReactModules<Props extends PropsBaseType>(args: {
     ])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
-      [
-        OVERLAY_GLOBAL_MOUNT_CAP,
-        {
-          mount(hostEl: HTMLElement) {
-            if (hostEl.parentElement && hostEl.parentElement !== document.body) {
-              setProtoParent(hostEl, hostEl.parentElement);
-            }
-            if (hostEl.parentNode !== document.body) {
-              document.body.appendChild(hostEl);
-            }
-          },
-          unmount() {
-            /* React unmount handles cleanup */
-          },
-        },
-      ],
+      [OVERLAY_GLOBAL_MOUNT_CAP, createReactOverlayGlobalMount(instanceToken)],
       [
         OVERLAY_MODAL_CAP,
         {

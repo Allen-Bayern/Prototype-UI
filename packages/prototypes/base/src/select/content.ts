@@ -38,11 +38,16 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     | undefined;
   const focusFirst = roving.getMethod?.('focusFirst') as (() => boolean) | undefined;
   const focusLast = roving.getMethod?.('focusLast') as (() => boolean) | undefined;
-  const overlay = asOverlay({
+  const overlay = asOverlay<SelectContentProps>();
+  overlay.keepMounted();
+  overlay.configure({
+    closeOnEscape: false,
+    closeOnOutsidePress: false,
     restore: 'trigger',
     entry: 'content',
   });
   const boundary = asBoundary();
+  boundary.observe('pointer.press');
   const open = def.state.bool('open', false);
   let mountedRun: any = null;
 
@@ -180,15 +185,12 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     }));
   });
 
-  def.event.onGlobal('host:pointerdown', (run, ev) => {
+  boundary.subscribeOutside(() => {
+    const run = mountedRun;
+    if (!run) return;
     const ctx = run.context.read(SELECT_CONTEXT);
     if (!ctx.open || ctx.disabled || ctx.controlledOpen) return;
-    const classification = boundary.notify({
-      type: 'pointerdown',
-      target: ev?.target,
-      nativeEvent: ev,
-    });
-    if (classification !== 'outside') return;
+    overlay.close('outside.press');
   });
 
   def.rule({

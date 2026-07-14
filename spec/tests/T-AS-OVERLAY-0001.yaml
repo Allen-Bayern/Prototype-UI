@@ -1,0 +1,145 @@
+id: T-AS-OVERLAY-0001
+type: test
+title: Overlay logical state, Presence binding, and resource lifetime tests
+status: draft
+since: 0.1.0
+summary: Runtime and Base integration tests for no-argument Overlay installation, immediate ViewIntent projection, Transition binding, single-writer conflict diagnostics, and leaving resource retention.
+cases:
+  - id: T-AS-OVERLAY-0001-CASE-NO-ARG-ONCE
+    title: repeated no-argument asOverlay calls reuse one configurable handle
+    covers:
+      - C-AS-OVERLAY-0001-A
+    expectation: no-argument-once-overlay-handle
+  - id: T-AS-OVERLAY-0001-CASE-IMMEDIATE
+    title: unbound Overlay projects logical open directly to ViewIntent
+    covers:
+      - C-AS-OVERLAY-0001-B
+    expectation: immediate-overlay-presence-driver
+  - id: T-AS-OVERLAY-0001-CASE-BOUND
+    title: Transition-bound Overlay disables immediate presence and retains resources through leave
+    covers:
+      - C-AS-OVERLAY-0001-C
+      - C-AS-OVERLAY-0001-E
+      - C-AS-OVERLAY-0001-F
+    expectation: transition-bound-overlay-presence
+  - id: T-AS-OVERLAY-0001-CASE-KEEP-MOUNTED
+    title: keepMounted retains structural presence independently of logical open
+    covers:
+      - C-AS-OVERLAY-0001-H
+    expectation: explicit-retained-overlay-view
+  - id: T-AS-OVERLAY-0001-CASE-CONFLICT
+    title: a second competing Presence binding is rejected
+    covers:
+      - C-AS-OVERLAY-0001-D
+    expectation: single-overlay-presence-writer
+  - id: T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
+    title: Boundary dismissal and Hit Participation remain independently composable
+    covers:
+      - C-AS-OVERLAY-0001-G
+    expectation: independent-boundary-hit-composition
+  - id: T-AS-OVERLAY-0001-CASE-DISMISS
+    title: opted-in outside press and Escape policies use Boundary and Event transport
+    covers:
+      - C-AS-OVERLAY-0001-I
+    expectation: explicit-overlay-dismiss-transport
+  - id: T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+    title: React and Vue portal projection remains renderer-owned
+    covers:
+      - C-AS-OVERLAY-0001-J
+    expectation: renderer-owned-overlay-portal
+  - id: T-AS-OVERLAY-0001-CASE-PORTAL-REENTER
+    title: A detached portal view preserves logical ownership and can re-enter
+    covers:
+      - C-AS-OVERLAY-0001-K
+      - C-LIFECYCLE-0008-E
+    expectation: portaled-overlay-logical-owner-survives-detach
+implementations:
+  - id: runtime-overlay-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/overlay.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-NO-ARG-ONCE
+      - T-AS-OVERLAY-0001-CASE-IMMEDIATE
+      - T-AS-OVERLAY-0001-CASE-KEEP-MOUNTED
+      - T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
+      - T-AS-OVERLAY-0001-CASE-DISMISS
+  - id: base-overlay-transition-contract
+    kind: runtime-test
+    status: passing
+    path: packages/prototypes/base/test/as-transition.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-BOUND
+      - T-AS-OVERLAY-0001-CASE-CONFLICT
+  - id: react-overlay-portal-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/overlay-portal-ownership.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: react-dialog-portal-projection
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/dialog.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: vue-overlay-portal-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/overlay-portal-ownership.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-RENDERER-PORTAL
+  - id: vue-dialog-portal-reentry
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/previewer-dialog.demo.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-PORTAL-REENTER
+verifies:
+  contracts:
+    - id: C-AS-OVERLAY-0001
+      anchors:
+        - C-AS-OVERLAY-0001-A
+        - C-AS-OVERLAY-0001-B
+        - C-AS-OVERLAY-0001-C
+        - C-AS-OVERLAY-0001-D
+        - C-AS-OVERLAY-0001-E
+        - C-AS-OVERLAY-0001-F
+        - C-AS-OVERLAY-0001-G
+        - C-AS-OVERLAY-0001-H
+        - C-AS-OVERLAY-0001-I
+        - C-AS-OVERLAY-0001-J
+        - C-AS-OVERLAY-0001-K
+    - id: C-LIFECYCLE-0008
+      anchors:
+        - C-LIFECYCLE-0008-E
+exercises:
+  decisions:
+    - id: D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
+      role: api-surface
+      coverageImpact: exercises-test-surface
+      note: asOverlay now uses a no-argument once caller and returned configuration/binding handle.
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Added Overlay Presence coordination and resource lifetime coverage.
+  - version: 0.1.1
+    change: updated
+    summary: Added automatic Boundary outside sampling and Event Escape coverage.
+  - version: 0.1.2
+    change: updated
+    summary: Added React renderer-owned portal regression coverage.
+  - version: 0.1.3
+    change: updated
+    summary: Added Vue Dialog portal re-entry coverage for retained logical ownership.
+tags:
+  - overlay
+  - presence
+  - transition
+  - contract-test

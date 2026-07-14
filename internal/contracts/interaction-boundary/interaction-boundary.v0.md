@@ -3,7 +3,7 @@
 > **Status**: Draft - implementation-ready (contract-first)  
 > **Version**: v0
 >
-> This document defines the Proto UI **Interaction Boundary** contract: the semantics of interaction-domain ownership, multi-region registration, classification results, and the observable guarantees exposed through a future `asBoundary(...)` capability.
+> This human-readable projection describes the Proto UI **Interaction Boundary** contract. The corresponding `spec/contracts` and `spec/tests` entities are the machine-readable truth source.
 >
 > This document is **normative**.
 
@@ -165,7 +165,19 @@ The concrete API shape may vary, but its observable result must preserve:
 - `outside`
 - `unknown`
 
-### 4.2 Outside Subscription
+### 4.2 Observation API
+
+`boundary.observe('pointer.press')` is a setup-only, idempotent request for a host pointer sample stream.
+
+The layering is normative:
+
+- Event owns host registration, routing, lifecycle gating, and callback-scope delivery
+- Boundary owns region membership and the single `inside | outside | unknown` classification
+- Overlay and component protocols consume Boundary notifications and choose dismiss policy
+
+Observation does not turn region registration into a hidden listener. It requests samples for the boundary as a whole; registered regions remain pure interaction-domain membership.
+
+### 4.3 Outside Subscription
 
 The boundary capability **MUST** support subscription to outside-derived notifications.
 
@@ -178,7 +190,7 @@ This implies:
 - components **MUST NOT** need to invent their own private outside-detection logic
 - the same interaction should not be classified independently by multiple component-specific implementations
 
-### 4.3 No Fake Outside via DOM Containment
+### 4.4 No Fake Outside via DOM Containment
 
 Component protocols **MUST NOT** define outside behavior by ad-hoc DOM containment checks as their primary model.
 
@@ -278,9 +290,11 @@ But adapters **MUST** preserve the same observable guarantees:
 
 Proto UI should expose Interaction Boundary through a small number of foundational capabilities, not through many special-purpose hooks.
 
-The intended direction is:
+The current foundational capability is:
 
-- `asBoundary(...)`
+- `asBoundary()`
+- `boundary.observe('pointer.press')`
+- `boundary.subscribeOutside(...)`
 
 The following are **not** foundational boundary capabilities and should remain higher-level compositions:
 

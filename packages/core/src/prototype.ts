@@ -75,7 +75,10 @@ export type AsHookChildResult = Readonly<{
   order: number;
   privileged: boolean;
   mode?: AsHookMode;
+  /** Captured artifacts retained as the runtime truth source. */
   result: unknown;
+  /** Stable caller-facing handle projected from `result`. */
+  handle: unknown;
 }>;
 
 export type AsHookArtifacts<
@@ -99,6 +102,7 @@ export type AsHookResult<Props extends PropsBaseType = PropsBaseType, ContractIn
   getMethod?: <K extends string>(key: K) => unknown;
   asHooks?: readonly AsHookChildResult[];
   getAsHook?: (name: string) => AsHookChildResult | undefined;
+  getAsHookHandle?: <Handle = unknown>(name: string) => Handle | undefined;
   artifacts?: AsHookArtifacts<Props, ContractInput>;
   disposers?: AsHookDisposers;
   context?: unknown;
@@ -306,16 +310,19 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
 
     if (reg.action === 'skip') {
       const result = reg.state.result ?? {};
+      const handle =
+        kind === 'asHook' && Object.hasOwn(reg.state, 'callerResult')
+          ? reg.state.callerResult
+          : result;
       rt.recordAsHookResult({
         name: proto.name,
         order: reg.order,
         privileged: false,
         mode: mode ?? 'once',
         result,
+        handle,
       });
-      return kind === 'asHook' && Object.hasOwn(reg.state, 'callerResult')
-        ? reg.state.callerResult
-        : result;
+      return handle;
     }
 
     if (reg.action === 'setup') {
@@ -351,6 +358,7 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
           privileged: false,
           mode: mode ?? 'once',
           result: finalResult,
+          handle: kind === 'asHook' ? reg.state.callerResult : finalResult,
         });
         const hookProto = proto as HookPrototype<P, E, C, O>;
         if (
@@ -380,6 +388,7 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
       privileged: false,
       mode: mode ?? 'once',
       result,
+      handle: result,
     });
     return result;
   }) as AsHookCaller<P, E, C> | HookCaller<P, E, C, O>;

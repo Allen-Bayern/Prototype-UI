@@ -91,6 +91,12 @@ export function createInstanceTreeMarkers(symbolName: string) {
     else PARENT_BY_TOKEN.delete(token);
   }
 
+  /** Removes a temporary host projection without changing logical ownership. */
+  function clearProtoParentProjection(instance: HTMLElement): void {
+    PROTO_PARENT_BY_INSTANCE.delete(instance);
+    writeProtoParentMark(instance, null);
+  }
+
   function getProtoParent(instance: HTMLElement): HTMLElement | null {
     let cur: Node | null =
       readProtoParentMark(instance) ??
@@ -145,6 +151,7 @@ export function createInstanceTreeMarkers(symbolName: string) {
     markProtoInstance,
     unbindProtoInstance,
     setProtoParent,
+    clearProtoParentProjection,
     getProtoParent,
     getPrototypeByInstance,
     getLogicalParent,

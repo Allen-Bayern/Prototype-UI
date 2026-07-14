@@ -25,6 +25,9 @@ const submitKey = buttonResult.artifacts?.eventKeys?.submit;
 const exactClick: 'click' | undefined = clickKey;
 const exactSubmit: 'submit' | undefined = submitKey;
 
+const nestedHandle = buttonResult.getAsHookHandle?.<{ close(): void }>('asNested');
+nestedHandle?.close();
+
 // Legacy third generic as raw state map should keep working.
 type LegacyStateMap = {
   open: State<boolean>;

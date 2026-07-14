@@ -32,12 +32,17 @@ export type ShadcnDialogTriggerProps = DialogTriggerProps & {
 export type ShadcnDialogTriggerExposes = DialogTriggerExposes;
 export type ShadcnDialogTriggerAsHookContract = DialogTriggerAsHookContract;
 
-export type ShadcnDialogMaskProps = DialogMaskProps;
-export type ShadcnDialogMaskExposes = DialogMaskExposes;
+// Keep the translated Shadcn surface at its own public boundary. Internal
+// Transition capabilities are configured through the nested asHook handle.
+export type ShadcnDialogMaskProps = Pick<DialogMaskProps, 'passthrough'>;
+export type ShadcnDialogMaskExposes = Pick<DialogMaskExposes, 'transitionState' | 'isPresent'>;
 export type ShadcnDialogMaskAsHookContract = DialogMaskAsHookContract;
 
-export type ShadcnDialogContentProps = DialogContentProps;
-export type ShadcnDialogContentExposes = DialogContentExposes;
+export type ShadcnDialogContentProps = Pick<DialogContentProps, 'alert'>;
+export type ShadcnDialogContentExposes = Pick<
+  DialogContentExposes,
+  'open' | 'transitionState' | 'isPresent'
+>;
 export type ShadcnDialogContentAsHookContract = DialogContentAsHookContract;
 
 export type ShadcnDialogTitleProps = DialogTitleProps;

@@ -416,6 +416,8 @@ export function attachAsHookRuntime<P extends PropsBaseType>(
         const asHooks = Object.freeze(frame.asHooks.slice());
         result.asHooks = asHooks;
         result.getAsHook = (name: string) => asHooks.find((entry) => entry.name === name);
+        result.getAsHookHandle = <Handle = unknown>(name: string) =>
+          asHooks.find((entry) => entry.name === name)?.handle as Handle | undefined;
       }
       if (projectedStateHandles || eventKeys || methods || frame.asHooks.length > 0) {
         const artifacts: Record<string, unknown> = {};

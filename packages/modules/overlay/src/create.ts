@@ -4,6 +4,8 @@ import type { ModuleFactoryArgs } from '@proto.ui/module-base';
 import type { OverlayFacade, OverlayModule, OverlayPort } from './types';
 import { OverlayModuleImpl } from './impl';
 import type { BoundaryFacade } from '@proto.ui/module-boundary';
+import type { BoundaryPort } from '@proto.ui/module-boundary';
+import type { EventPort } from '@proto.ui/module-event';
 
 export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
   const { init, caps, deps } = ctx;
@@ -16,7 +18,13 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
     deps,
     build: ({ init, caps }) => {
       const boundaryFacade = deps.requireFacade<BoundaryFacade>('boundary');
-      const impl = new OverlayModuleImpl(caps, init.prototypeName, boundaryFacade.getBoundary());
+      const impl = new OverlayModuleImpl(
+        caps,
+        init.prototypeName,
+        boundaryFacade.getBoundary(),
+        deps.requirePort<BoundaryPort>('boundary'),
+        deps.requirePort<EventPort>('event')
+      );
 
       return {
         facade: {
@@ -39,6 +47,8 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
           registerTrigger: (target) => impl.registerTrigger(target),
           registerAnchor: (target) => impl.registerAnchor(target),
           registerContent: (target) => impl.registerContent(target),
+          setViewActive: (active) => impl.setViewActive(active),
+          reconcileViewResources: () => impl.reconcileViewResources(),
         },
       };
     },
@@ -48,6 +58,6 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
 export const OverlayModuleDef = defineModule({
   name: 'overlay',
   resourceOwnership: 'mixed',
-  deps: ['boundary'],
+  deps: ['boundary', 'event'],
   create: createOverlayModule,
 });

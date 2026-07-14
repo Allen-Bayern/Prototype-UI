@@ -91,7 +91,7 @@ function rangeNarrower(
 
 export function mergeSpecs<A extends PropsBaseType, B extends PropsBaseType>(
   base: PropsSpecMap<A>,
-  incoming: PropsSpecMap<B>
+  incoming: Partial<PropsSpecMap<B>>
 ): MergeResult<A & B> {
   const out: PropsSpecMap<A & B> = { ...base } as PropsSpecMap<A & B>;
   const diags: MergeDiag[] = [];

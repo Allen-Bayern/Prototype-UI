@@ -41,6 +41,12 @@ cases:
     covers:
       - C-AS-TRANSITION-0001-J
     expectation: controlled-and-uncontrolled-transition-targets
+  - id: T-AS-TRANSITION-0001-CASE-CONFIGURE
+    title: Setup configuration supplies defaults while explicit host props retain precedence
+    covers:
+      - C-AS-TRANSITION-0001-L
+      - C-AS-TRANSITION-0001-M
+    expectation: setup-only-configured-defaults-with-host-prop-precedence
 implementations:
   - id: base-transition-state-machine
     kind: runtime-test
@@ -54,6 +60,7 @@ implementations:
       - T-AS-TRANSITION-0001-CASE-DELAY
       - T-AS-TRANSITION-0001-CASE-INTERRUPT
       - T-AS-TRANSITION-0001-CASE-CONTROL
+      - T-AS-TRANSITION-0001-CASE-CONFIGURE
   - id: react-transition-view-intent
     kind: adapter-test
     status: passing

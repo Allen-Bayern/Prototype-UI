@@ -3,7 +3,8 @@ import { definePrototype, type OverlayHandle } from '@proto.ui/core';
 import { asOverlay } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
-import { BOUNDARY_HOST_BRIDGE_CAP, type BoundaryPort } from '@proto.ui/module-boundary';
+import { BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
+import { EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import type { OverlayPort } from '@proto.ui/module-overlay';
 import type { PropsBaseType } from '@proto.ui/types';
 
@@ -38,8 +39,10 @@ describe('runtime contract: overlay (v0)', () => {
     const P = definePrototype({
       name: 'x-overlay-0100',
       setup() {
-        a = asOverlay<PropsBaseType>({ placement: 'bottom', defaultOpen: true });
-        b = asOverlay<PropsBaseType>({ placement: 'top', closeOnOutsidePress: false });
+        a = asOverlay<PropsBaseType>();
+        a.configure({ placement: 'bottom', defaultOpen: true });
+        b = asOverlay<PropsBaseType>();
+        b.configure({ placement: 'top', closeOnOutsidePress: false });
         return (r) => r.el('div', 'ok');
       },
     });
@@ -54,6 +57,7 @@ describe('runtime contract: overlay (v0)', () => {
       defaultOpen: true,
       placement: 'top',
       closeOnOutsidePress: false,
+      closeOnEscape: false,
       align: 'start',
       restore: 'trigger',
     });
@@ -150,7 +154,8 @@ describe('runtime contract: overlay (v0)', () => {
     const P = definePrototype({
       name: 'x-overlay-0500',
       setup(def) {
-        overlay = asOverlay<PropsBaseType>({ closeOnOutsidePress: true, defaultOpen: true });
+        overlay = asOverlay<PropsBaseType>();
+        overlay.configure({ closeOnOutsidePress: true, defaultOpen: true });
         def.lifecycle.onMounted(() => {
           overlay.registerTrigger(document.createElement('button'));
         });
@@ -160,6 +165,7 @@ describe('runtime contract: overlay (v0)', () => {
 
     const { host } = createHost(P.name, {
       onRuntimeReady(wiring) {
+        wiring.attach('event', [[EVENT_GLOBAL_TARGET_CAP, () => outsider]]);
         wiring.attach('boundary', [
           [
             BOUNDARY_HOST_BRIDGE_CAP,
@@ -174,11 +180,79 @@ describe('runtime contract: overlay (v0)', () => {
     });
     const result = executeWithHost(P as any, host as any);
     const overlayPort = result.caps.getPort<OverlayPort>('overlay');
-    const boundaryPort = result.caps.getPort<BoundaryPort>('boundary');
 
     expect(overlayPort?.isOpen()).toBe(true);
-    expect(boundaryPort?.notify({ target: outsider })).toBe('outside');
+    outsider.dispatchEvent(new Event('host:pointerdown'));
     expect(overlayPort?.isOpen()).toBe(false);
     expect(overlayPort?.getLastReason()).toBe('outside.press');
+  });
+
+  it('OVERLAY-0550: an opted-in Escape policy closes through the runtime event transport', () => {
+    const globalTarget = new EventTarget();
+
+    const P = definePrototype({
+      name: 'x-overlay-0550',
+      setup() {
+        const overlay = asOverlay<PropsBaseType>();
+        overlay.configure({ closeOnEscape: true, defaultOpen: true });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, {
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [[EVENT_GLOBAL_TARGET_CAP, () => globalTarget]]);
+      },
+    });
+    const result = executeWithHost(P as any, host as any);
+    const overlayPort = result.caps.getPort<OverlayPort>('overlay');
+
+    expect(overlayPort?.isOpen()).toBe(true);
+    globalTarget.dispatchEvent(new CustomEvent('key.down', { detail: { key: 'Escape' } }));
+    expect(overlayPort?.isOpen()).toBe(false);
+    expect(overlayPort?.getLastReason()).toBe('escape');
+  });
+
+  it('OVERLAY-0600: unbound overlay uses one immediate ViewIntent driver', () => {
+    let overlay!: OverlayHandle<PropsBaseType>;
+
+    const P = definePrototype({
+      name: 'x-overlay-0600',
+      setup() {
+        overlay = asOverlay<PropsBaseType>();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+    result.invokeInCallbackScope(() => overlay.openOverlay('programmatic'));
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    result.invokeInCallbackScope(() => overlay.close('programmatic'));
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+  });
+
+  it('OVERLAY-0700: keepMounted preserves structural presence while logical open still changes', () => {
+    let overlay!: OverlayHandle<PropsBaseType>;
+
+    const P = definePrototype({
+      name: 'x-overlay-0700',
+      setup() {
+        overlay = asOverlay<PropsBaseType>();
+        overlay.keepMounted();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name);
+    const result = executeWithHost(P as any, host as any);
+
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    result.invokeInCallbackScope(() => overlay.openOverlay('programmatic'));
+    result.invokeInCallbackScope(() => overlay.close('programmatic'));
+    expect(overlay.isOpen()).toBe(false);
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
   });
 });

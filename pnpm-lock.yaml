@@ -463,6 +463,9 @@ importers:
       '@proto.ui/module-base':
         specifier: workspace:*
         version: link:../base
+      '@proto.ui/module-event':
+        specifier: workspace:*
+        version: link:../event
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types
@@ -598,6 +601,9 @@ importers:
       '@proto.ui/module-boundary':
         specifier: workspace:*
         version: link:../boundary
+      '@proto.ui/module-event':
+        specifier: workspace:*
+        version: link:../event
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types

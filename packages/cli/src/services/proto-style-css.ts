@@ -66,11 +66,28 @@ const staticUtilities: Record<string, string[]> = {
   'whitespace-nowrap': ['white-space: nowrap;'],
   'bg-clip-padding': ['background-clip: padding-box;'],
   'will-change-transform': ['will-change: transform;'],
+  'animate-in': [
+    'animation-name: pui-enter;',
+    'animation-duration: var(--pui-animation-duration, 150ms);',
+    'animation-timing-function: ease;',
+    'animation-fill-mode: both;',
+  ],
+  'animate-out': [
+    'animation-name: pui-exit;',
+    'animation-duration: var(--pui-animation-duration, 150ms);',
+    'animation-timing-function: ease;',
+    'animation-fill-mode: both;',
+  ],
+  'fade-in-0': ['--pui-enter-opacity: 0;'],
+  'fade-out-0': ['--pui-exit-opacity: 0;'],
+  'zoom-in-95': ['--pui-enter-scale: 0.95;'],
+  'zoom-out-95': ['--pui-exit-scale: 0.95;'],
   'transition-all': ['transition-property: all;'],
   'transition-colors': [
     'transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;',
   ],
-  'duration-200': ['transition-duration: 200ms;'],
+  'duration-150': ['transition-duration: 150ms;', '--pui-animation-duration: 150ms;'],
+  'duration-200': ['transition-duration: 200ms;', '--pui-animation-duration: 200ms;'],
   'ease-in-out': ['transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);'],
   'font-medium': ['font-weight: 500;'],
   'font-semibold': ['font-weight: 600;'],
@@ -124,6 +141,30 @@ export function renderProtoStyleTokenCss(tokens: string[]): string {
     '',
     '@layer proto-ui {',
   ];
+
+  if (
+    rules.some((rule) => {
+      const utility = splitVariants(rule.token).at(-1);
+      return utility === 'animate-in' || utility === 'animate-out';
+    })
+  ) {
+    lines.push(
+      '  @keyframes pui-enter {',
+      '    from {',
+      '      opacity: var(--pui-enter-opacity, 1);',
+      '      transform: translate(var(--pui-translate-x, 0), var(--pui-translate-y, 0)) scale(var(--pui-enter-scale, 1));',
+      '    }',
+      '  }',
+      '',
+      '  @keyframes pui-exit {',
+      '    to {',
+      '      opacity: var(--pui-exit-opacity, 1);',
+      '      transform: translate(var(--pui-translate-x, 0), var(--pui-translate-y, 0)) scale(var(--pui-exit-scale, 1));',
+      '    }',
+      '  }',
+      ''
+    );
+  }
 
   for (const rule of rules) {
     const selectors = buildSelectors(rule.token);
@@ -244,6 +285,7 @@ function renderSpacingUtility(utility: string): string[] | null {
 }
 
 function renderColorUtility(utility: string): string[] | null {
+  if (utility === 'bg-black/50') return ['background-color: rgb(0 0 0 / 0.5);'];
   if (utility === 'bg-black/80') return ['background-color: rgb(0 0 0 / 0.8);'];
 
   const colorMatch = utility.match(/^(bg|text|border|ring|ring-offset)-([a-z-]+)(?:\/(\d+))?$/);

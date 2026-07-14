@@ -205,7 +205,8 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
   };
 
   props: {
-    define(decl: PropsSpecMap<Props>): void;
+    /** Declarations may be contributed incrementally by nested asHooks. */
+    define(decl: Partial<PropsSpecMap<Props>>): void;
     setDefaults(partialDefaults: PropsDefaults<Props>): void;
     watch(keys: (keyof Props & string)[], cb: PropsWatchCallback<Props>): Unsubscribe;
     watchAll(cb: PropsWatchCallback<Props>): Unsubscribe;

@@ -16,6 +16,7 @@ import {
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
   createZIndexOverlayLayerScheduler,
+  type OverlayPort,
   type OverlayLayerScheduler,
   type OverlayZIndexLayerSchedulerOptions,
 } from '@proto.ui/module-overlay';
@@ -390,6 +391,15 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         slot: props.children,
       });
 
+      const overlayPort = ownerRef.current?.session?.caps.getPort<OverlayPort>('overlay');
+      const portalContainer =
+        shouldExist &&
+        overlayPort?.getConfig().portal === true &&
+        typeof runtime.createPortal === 'function' &&
+        typeof document !== 'undefined'
+          ? document.body
+          : null;
+
       const content = !shouldExist
         ? null
         : runtime.createElement(
@@ -405,11 +415,14 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             },
             rendered
           );
-      if (!logicalOwnerContext) return content;
+      const projectedContent = portalContainer
+        ? runtime.createPortal!(content, portalContainer)
+        : content;
+      if (!logicalOwnerContext) return projectedContent;
       return runtime.createElement(
         logicalOwnerContext.Provider,
         { value: instanceTokenRef.current },
-        content
+        projectedContent
       );
     });
 

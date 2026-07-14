@@ -1,16 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { definePrototype, type DefHandle, type Prototype } from '@proto.ui/core';
+import { HOST_ELEMENT_CAP, definePrototype, type DefHandle, type Prototype } from '@proto.ui/core';
 import type { PropsBaseType } from '@proto.ui/types';
 import type { RuntimeHost } from '@proto.ui/runtime';
 import { executeWithHost } from '@proto.ui/runtime';
 import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
 import { PRESENCE_HOST_BRIDGE_CAP } from '@proto.ui/module-presence';
 import { EVENT_EMIT_CAP } from '@proto.ui/module-event';
+import { asOverlay } from '@proto.ui/hooks';
+import { OVERLAY_GLOBAL_MOUNT_CAP, OVERLAY_MODAL_CAP } from '@proto.ui/module-overlay';
 import { asTransition, type TransitionProps, type TransitionExposes } from '../src/transition';
 
 function createHost(
   initialRaw: Partial<TransitionProps> = {},
-  opts: { bridge?: { mount?: () => void; unmount?: () => void } } = {}
+  opts: {
+    bridge?: { mount?: () => void; unmount?: () => void };
+    overlay?: {
+      hostElement: HTMLElement;
+      mount(): void;
+      unmount(): void;
+      lock(): void;
+      unlock(): void;
+    };
+  } = {}
 ) {
   let raw: Partial<TransitionProps> = { ...initialRaw };
   let exposes: any = null;
@@ -62,6 +73,13 @@ function createHost(
       wiring.attach('event', [
         [EVENT_EMIT_CAP, (key: string, payload: unknown) => emitted.push({ key, payload })],
       ]);
+      if (opts.overlay) {
+        wiring.attach('overlay', [
+          [HOST_ELEMENT_CAP, opts.overlay.hostElement],
+          [OVERLAY_GLOBAL_MOUNT_CAP, { mount: opts.overlay.mount, unmount: opts.overlay.unmount }],
+          [OVERLAY_MODAL_CAP, { lock: opts.overlay.lock, unlock: opts.overlay.unlock }],
+        ]);
+      }
     },
   };
 
@@ -604,5 +622,156 @@ describe('prototypes/base: asTransition', () => {
 
     ctx.flushDelay(1);
     expect(transition.transitionState.get()).toBe('closed');
+  });
+
+  it('AS-TRANSITION-2400: bound Overlay delegates ViewIntent and retains host resources through leave', async () => {
+    const resourceCalls: string[] = [];
+    const ctx = createHost(
+      {},
+      {
+        overlay: {
+          hostElement: document.createElement('div'),
+          mount: () => resourceCalls.push('mount'),
+          unmount: () => resourceCalls.push('unmount'),
+          lock: () => resourceCalls.push('lock'),
+          unlock: () => resourceCalls.push('unlock'),
+        },
+      }
+    );
+    let overlay!: ReturnType<typeof asOverlay>;
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2400',
+      setup() {
+        overlay = asOverlay();
+        overlay.configure({ portal: true, modal: true });
+        transition = asTransition();
+        overlay.bindPresence({
+          enter: transition.controls.enter,
+          leave: transition.controls.leave,
+          present: transition.isPresent,
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+
+    result.invokeInCallbackScope(() => overlay.openOverlay('programmatic'));
+    await Promise.resolve();
+    expect(transition.transitionState.get()).toBe('entering');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+
+    result.invokeInCallbackScope(() => transition.controls.complete());
+    expect(transition.transitionState.get()).toBe('entered');
+
+    const versionBeforeLeave = result.session.viewIntent.getSnapshot().version;
+    result.invokeInCallbackScope(() => overlay.close('programmatic'));
+    expect(transition.transitionState.get()).toBe('leaving');
+    expect(result.session.viewIntent.getSnapshot()).toMatchObject({
+      present: true,
+      version: versionBeforeLeave,
+    });
+    expect(resourceCalls).not.toContain('unlock');
+
+    result.invokeInCallbackScope(() => transition.controls.complete());
+    expect(transition.transitionState.get()).toBe('closed');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+    expect(resourceCalls).toContain('unlock');
+
+    await result.session.unmount();
+    expect(resourceCalls).toContain('unmount');
+  });
+
+  it('AS-TRANSITION-2500: Overlay accepts one Presence binding and rejects a competing writer', () => {
+    const ctx = createHost();
+    let conflict: unknown;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2500',
+      setup() {
+        const overlay = asOverlay();
+        const transition = asTransition();
+        const binding = {
+          enter: transition.controls.enter,
+          leave: transition.controls.leave,
+          present: transition.isPresent,
+        };
+        overlay.bindPresence(binding);
+        overlay.bindPresence(binding);
+        try {
+          overlay.bindPresence({ ...binding });
+        } catch (error) {
+          conflict = error;
+        }
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    mountTransition(P, ctx);
+    expect(String(conflict)).toMatch(/already bound/i);
+  });
+
+  it('AS-TRANSITION-2600: setup configuration supplies phase defaults', () => {
+    const ctx = createHost();
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2600',
+      setup() {
+        transition = asTransition();
+        transition.configure({ enterDuration: 100, leaveDuration: 80 });
+        transition.configure({ enterDuration: 120 });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.enter();
+      transition.controls.leave();
+    });
+
+    expect(ctx.getDelays().map((entry) => [entry.durationMs, entry.cancelled])).toEqual([
+      [120, true],
+      [80, false],
+    ]);
+  });
+
+  it('AS-TRANSITION-2700: explicit host props override setup configuration', () => {
+    const ctx = createHost({ enterDuration: 45, leaveDuration: 25 });
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2700',
+      setup() {
+        transition = asTransition();
+        transition.configure({ enterDuration: 120, leaveDuration: 80 });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    result.invokeInCallbackScope(() => {
+      transition.controls.enter();
+      transition.controls.leave();
+    });
+
+    expect(ctx.getDelays().map((entry) => entry.durationMs)).toEqual([45, 25]);
+  });
+
+  it('AS-TRANSITION-2800: configure is setup-only', () => {
+    const ctx = createHost();
+    let transition!: ReturnType<typeof asTransition>;
+    const P = definePrototype<TransitionProps>({
+      name: 'x-as-transition-2800',
+      setup() {
+        transition = asTransition();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const result = mountTransition(P, ctx);
+    expect(() =>
+      result.invokeInCallbackScope(() => transition.configure({ enterDuration: 100 }))
+    ).toThrow(/exec-phase violation/i);
   });
 });

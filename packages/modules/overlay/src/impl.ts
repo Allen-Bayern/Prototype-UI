@@ -4,7 +4,7 @@ import type {
   ObservedStateHandle,
   OverlayConfig,
   OverlayConfigPatch,
-  OverlayHandle,
+  OverlayModuleHandle,
   MountPhase,
   ProtoPhase,
   OverlayReason,
@@ -12,6 +12,8 @@ import type {
 } from '@proto.ui/core';
 import { illegalPhase } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
+import type { EventPort } from '@proto.ui/module-event';
+import type { BoundaryPort } from '@proto.ui/module-boundary';
 import type { StateEvent } from '@proto.ui/types';
 import { HOST_ELEMENT_CAP } from '@proto.ui/core';
 import {
@@ -25,9 +27,9 @@ import {
 
 const DEFAULT_CONFIG: OverlayConfig = Object.freeze({
   defaultOpen: false,
-  closeOnEscape: true,
-  closeOnOutsidePress: true,
-  closeOnFocusOutside: true,
+  closeOnEscape: false,
+  closeOnOutsidePress: false,
+  closeOnFocusOutside: false,
   closeOnAnchorPress: false,
   closeOnTriggerPress: false,
   placement: 'bottom',
@@ -99,6 +101,7 @@ export class OverlayModuleImpl extends ModuleBase {
   });
 
   private readonly openState = createObservedBoolHandle(false);
+  private viewActive = false;
   private globalMount: OverlayGlobalMount | null = null;
   private modalLock: OverlayModal | null = null;
   private layerScheduler: OverlayLayerScheduler | null = null;
@@ -115,8 +118,15 @@ export class OverlayModuleImpl extends ModuleBase {
     content: null,
   };
   private readonly offBoundaryOutside: (() => void) | null;
+  private escapeSamplingInstalled = false;
 
-  constructor(caps: CapsVaultView, prototypeName: string, boundary: BoundaryHandle<any>) {
+  constructor(
+    caps: CapsVaultView,
+    prototypeName: string,
+    boundary: BoundaryHandle<any>,
+    private readonly boundaryPort: BoundaryPort,
+    private readonly eventPort: EventPort
+  ) {
     super(caps);
     this.prototypeName = prototypeName;
     this.boundary = boundary;
@@ -128,6 +138,20 @@ export class OverlayModuleImpl extends ModuleBase {
     });
   }
 
+  private installDismissSampling(): void {
+    if (this.config.closeOnOutsidePress) {
+      this.boundaryPort.observe('pointer.press');
+    }
+    if (this.config.closeOnEscape && !this.escapeSamplingInstalled) {
+      this.escapeSamplingInstalled = true;
+      this.eventPort.onGlobal('key.down', (event) => {
+        if (!this.isOpen() || !this.config.closeOnEscape) return;
+        if (event?.detail?.key !== 'Escape') return;
+        this.close('escape');
+      });
+    }
+  }
+
   protected override onCapsEpoch(_epoch: number): void {
     this.refreshHostCaps();
   }
@@ -135,7 +159,7 @@ export class OverlayModuleImpl extends ModuleBase {
   override onProtoPhase(phase: ProtoPhase): void {
     super.onProtoPhase(phase);
     if (phase !== 'unmounted') return;
-    this.teardownOpenSideEffects();
+    this.teardownMountedViewSideEffects();
     this.clearBoundaryRegistrations();
     this.offBoundaryOutside?.();
   }
@@ -143,13 +167,13 @@ export class OverlayModuleImpl extends ModuleBase {
   override onMountPhase(phase: MountPhase, epoch: number): void {
     super.onMountPhase(phase, epoch);
     if (phase === 'unmounting' || phase === 'detached') {
-      this.teardownOpenSideEffects();
+      this.teardownMountedViewSideEffects();
       this.boundary.setStackActive(false);
       return;
     }
-    if (phase === 'mounted' && this.isOpen()) {
-      this.boundary.setStackActive(true);
-      this.syncOpenSideEffects();
+    if (phase === 'mounted') {
+      if (this.isOpen()) this.boundary.setStackActive(true);
+      if (this.viewActive) this.syncViewSideEffects();
     }
   }
 
@@ -240,7 +264,7 @@ export class OverlayModuleImpl extends ModuleBase {
     this.modalLocked = false;
   }
 
-  private syncOpenSideEffects(): void {
+  private syncViewSideEffects(): void {
     if (this.mountPhase !== 'mounted') return;
     const hostEl = this.resolveHostElement();
     if (hostEl) {
@@ -250,7 +274,11 @@ export class OverlayModuleImpl extends ModuleBase {
     this.lockModalIfNeeded();
   }
 
-  private teardownOpenSideEffects(): void {
+  private deactivateViewSideEffects(): void {
+    this.unlockModalIfNeeded();
+  }
+
+  private teardownMountedViewSideEffects(): void {
     this.clearLayer();
     this.unmountGlobalIfNeeded();
     this.unlockModalIfNeeded();
@@ -263,7 +291,7 @@ export class OverlayModuleImpl extends ModuleBase {
     if (Object.is(wasOpen, next)) {
       if (next) {
         this.boundary.setStackActive(true);
-        this.syncOpenSideEffects();
+        if (this.viewActive) this.syncViewSideEffects();
       } else {
         this.boundary.setStackActive(false);
       }
@@ -274,12 +302,28 @@ export class OverlayModuleImpl extends ModuleBase {
 
     if (next) {
       this.boundary.setStackActive(true);
-      this.syncOpenSideEffects();
       return;
     }
 
     this.boundary.setStackActive(false);
-    this.teardownOpenSideEffects();
+  }
+
+  setViewActive(active: boolean): void {
+    if (Object.is(this.viewActive, active)) {
+      return;
+    }
+
+    this.viewActive = active;
+    if (active) {
+      if (this.mountPhase === 'mounted') this.lockModalIfNeeded();
+      return;
+    }
+    this.deactivateViewSideEffects();
+  }
+
+  reconcileViewResources(): void {
+    if (!this.viewActive) return;
+    this.syncViewSideEffects();
   }
 
   private replaceRegistration(next: Partial<OverlayRegistration>) {
@@ -351,6 +395,8 @@ export class OverlayModuleImpl extends ModuleBase {
       });
     }
 
+    this.installDismissSampling();
+
     if (this.config.defaultOpen) {
       this.setOpen(true, 'programmatic');
     }
@@ -399,7 +445,7 @@ export class OverlayModuleImpl extends ModuleBase {
   registerContent(target: unknown): void {
     this.replaceRegistration({ content: target });
 
-    if (!this.isOpen()) return;
+    if (!this.viewActive) return;
 
     const hostEl = this.resolveHostElement();
     if (!hostEl) return;
@@ -407,7 +453,7 @@ export class OverlayModuleImpl extends ModuleBase {
     this.applyLayerIfNeeded(hostEl);
   }
 
-  readonly handle: OverlayHandle<any> = {
+  readonly handle: OverlayModuleHandle<any> = {
     open: this.openState.handle,
     isOpen: () => this.isOpen(),
     openOverlay: (reason?: OverlayReason) => this.open(reason),

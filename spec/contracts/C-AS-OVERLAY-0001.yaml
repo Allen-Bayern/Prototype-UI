@@ -1,0 +1,104 @@
+id: C-AS-OVERLAY-0001
+type: contract
+title: asOverlay coordinates logical open state with one Presence driver
+status: draft
+since: 0.1.0
+summary: asOverlay is a privileged no-argument once hook whose logical open state delegates structural view presence to exactly one immediate or bound Presence driver.
+statement:
+  zh-CN: >-
+    `asOverlay()` 必须是无参数的 privileged once hook，配置通过首次调用返回的稳定 handle 表达。Overlay 的 logical open、感知 presence、lifecycle ViewIntent 与当前 view epoch mount phase 必须保持为不同事实。未绑定外部 Presence 时，Overlay 使用即时 driver 将 logical open 投射到 `run.lifecycle.setPresent()`；绑定 Transition 等 Presence driver 后，即时 driver 必须完全停用，logical open 只驱动该 binding 的 enter/leave，binding 的 present signal 决定 Overlay 宿主资源 active 状态。一个 Proto instance 最多只能存在一个有效 binding，不得形成多个 ViewIntent writer。
+
+
+  en: >-
+    `asOverlay()` must be a privileged no-argument once hook, with configuration expressed through the stable handle returned by the first call. Overlay logical open, perceptual presence, lifecycle ViewIntent, and the current view-epoch mount phase must remain distinct facts. Without an external Presence binding, Overlay uses an immediate driver to project logical open through `run.lifecycle.setPresent()`; after binding a Presence driver such as Transition, the immediate driver must be completely disabled, logical open drives only the binding's enter/leave operations, and the binding's present signal governs active Overlay host resources. A Proto instance may have at most one effective binding and must not create multiple ViewIntent writers.
+
+
+criteria:
+  - id: C-AS-OVERLAY-0001-A
+    text:
+      zh-CN: '`asOverlay()` 必须无参数且采用 once 安装；重复调用返回严格相同的 handle，配置通过 handle.configure 表达。'
+      en: '`asOverlay()` must be no-argument and once-installed; repeated calls return the exact same handle and configuration is expressed through handle.configure.'
+  - id: C-AS-OVERLAY-0001-B
+    text:
+      zh-CN: 未绑定 Presence 时，logical open 必须由唯一的即时 driver 投射到 lifecycle ViewIntent。
+      en: Without a Presence binding, logical open must be projected to lifecycle ViewIntent by one immediate driver.
+  - id: C-AS-OVERLAY-0001-C
+    text:
+      zh-CN: 绑定 Presence 后，即时 driver 必须停用，open/close 只能调用 binding 的 enter/leave。
+      en: After Presence binding, the immediate driver must be disabled and open/close may call only the binding's enter/leave operations.
+  - id: C-AS-OVERLAY-0001-D
+    text:
+      zh-CN: 同一 binding 重复提交必须幂等，不同 binding 的竞争提交必须失败并给出冲突诊断。
+      en: Repeating the same binding must be idempotent, while a competing different binding must fail with a conflict diagnostic.
+  - id: C-AS-OVERLAY-0001-E
+    text:
+      zh-CN: logical close 不得在 binding 仍 present 的 leaving 阶段撤销 portal、layer 或 modal 资源。
+      en: Logical close must not revoke portal, layer, or modal resources while a bound Presence driver remains present during leaving.
+  - id: C-AS-OVERLAY-0001-F
+    text:
+      zh-CN: Boundary stack 跟随 logical open；portal/layer 的彻底撤销跟随 view epoch detach，modal active 跟随 binding present。
+      en: Boundary stack follows logical open; final portal/layer revocation follows view-epoch detach, while modal activity follows binding presence.
+  - id: C-AS-OVERLAY-0001-G
+    text:
+      zh-CN: Overlay 可以消费 Boundary 的 outside 分类，但不得把 Hit Participation 合并为 Overlay 自身策略。
+      en: Overlay may consume Boundary outside classification but must not absorb Hit Participation into Overlay policy.
+  - id: C-AS-OVERLAY-0001-H
+    text:
+      zh-CN: '`keepMounted()` 必须显式保留结构 view，并且不得与外部 Presence binding 同时成为有效策略。'
+      en: '`keepMounted()` must explicitly retain the structural view and must not coexist with an external Presence binding as an effective policy.'
+  - id: C-AS-OVERLAY-0001-I
+    text:
+      zh-CN: Dismiss 策略必须显式 opt-in；outside press 通过 Boundary observation/classification，Escape 直接消费 Event，Focus outside 在可靠的中立 sample 契约出现前不得伪造实现。
+      en: Dismiss policies must be explicitly opted in; outside press uses Boundary observation/classification, Escape consumes Event directly, and focus outside must not be fabricated before a reliable neutral sample contract exists.
+  - id: C-AS-OVERLAY-0001-J
+    text:
+      zh-CN: 对 React/Vue 等 renderer-owned host，portal 必须由宿主 renderer 的 portal/teleport primitive 投射；Overlay bridge 不得在 renderer 背后直接移动其拥有的 DOM node。
+      en: For renderer-owned hosts such as React and Vue, portal projection must use the host renderer's portal/teleport primitive; an Overlay bridge must not move renderer-owned DOM nodes behind the renderer's back.
+  - id: C-AS-OVERLAY-0001-K
+    text:
+      zh-CN: portal view epoch detach 只能撤销临时 host projection；被保留 Proto instance 的 logical parent、context/anatomy topology 与重新进入能力必须继续有效。
+      en: Detaching a portal view epoch may revoke only the temporary host projection; the retained Proto instance's logical parent, context/anatomy topology, and ability to re-enter must remain valid.
+sources:
+  - path: internal/contracts/overlay/as-overlay.v0.md
+  - path: packages/hooks/src/as-overlay.ts
+    sections:
+      - asOverlay
+  - path: packages/modules/overlay/src/impl.ts
+    sections:
+      - OverlayModuleImpl
+  - path: packages/adapters/react/src/adapt.ts
+    sections:
+      - AdaptToReact
+  - path: packages/adapters/base/src/platform/instance-tree.ts
+    sections:
+      - createInstanceTreeMarkers
+dependsOn:
+  contracts:
+    - C-AS-HOOK-PRIVILEGED-0001
+    - C-LIFECYCLE-0008
+    - C-AS-TRANSITION-0001
+    - C-BOUNDARY-0001
+  decisions:
+    - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
+verifies:
+  tests:
+    - T-AS-OVERLAY-0001
+revisions:
+  - version: 0.1.0
+    change: introduced
+    summary: Defined Overlay logical state and single Presence-driver coordination over lifecycle ViewIntent.
+  - version: 0.1.1
+    change: updated
+    summary: Added explicit dismiss opt-in and the Event-Boundary-Overlay sampling path.
+  - version: 0.1.2
+    change: updated
+    summary: Required renderer-owned portal projection for virtual-DOM adapters.
+  - version: 0.1.3
+    change: refined
+    summary: Required portal host-projection teardown to preserve retained Proto logical ownership across view epochs.
+tags:
+  - overlay
+  - as-hook
+  - presence
+  - lifecycle
+  - boundary

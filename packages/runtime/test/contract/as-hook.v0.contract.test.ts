@@ -781,7 +781,10 @@ describe('runtime contract: asHook (v0)', () => {
     );
 
     const recordedResult = outerResult.getAsHook('asProjected').result;
+    const recordedHandle = outerResult.getAsHook('asProjected').handle;
     expect(recordedResult).not.toBe(first);
+    expect(recordedHandle).toBe(first);
+    expect(outerResult.getAsHookHandle('asProjected')).toBe(first);
     expect(recordedResult.getState('open')).toBe(first.open);
     expect(recordedResult.getMethod('close')).toBe(first.close);
     expect((P as any).__asHooks[0]).toMatchObject({

@@ -1,4 +1,5 @@
-import { ExposeMethod, ExposeState, State } from '@proto.ui/core';
+import type { BorrowedStateHandle, ExposeMethod, ExposeState, State } from '@proto.ui/core';
+import type { TransitionExposes, TransitionHandles, TransitionProps } from '../transition/types';
 
 export interface DialogRootProps {
   open?: boolean;
@@ -42,42 +43,48 @@ export type DialogTriggerAsHookContract = {
   };
 };
 
-export interface DialogMaskProps {
+export type DialogMaskProps = TransitionProps & {
   passthrough?: boolean;
-}
-
-export type DialogMaskExposes = {
-  transitionState: ExposeState<'closed' | 'entering' | 'entered' | 'leaving'>;
-  isPresent: ExposeState<boolean>;
 };
 
+export type DialogMaskExposes = TransitionExposes;
+
 export type DialogMaskStateHandles = {
-  transitionState: State<'closed' | 'entering' | 'entered' | 'leaving'>;
-  isPresent: State<boolean>;
+  open: State<boolean>;
 };
 
 export type DialogMaskAsHookContract = {
   state: DialogMaskStateHandles;
 };
 
-export interface DialogContentProps {
-  alert?: boolean;
-}
+export type DialogMaskHandles = {
+  stateHandles: {
+    open: BorrowedStateHandle<boolean, DialogMaskProps>;
+  };
+  asTransition: TransitionHandles;
+};
 
-export type DialogContentExposes = {
+export type DialogContentProps = TransitionProps & {
+  alert?: boolean;
+};
+
+export type DialogContentExposes = TransitionExposes & {
   open: ExposeState<boolean>;
-  transitionState: ExposeState<'closed' | 'entering' | 'entered' | 'leaving'>;
-  isPresent: ExposeState<boolean>;
 };
 
 export type DialogContentStateHandles = {
   open: State<boolean>;
-  transitionState: State<'closed' | 'entering' | 'entered' | 'leaving'>;
-  isPresent: State<boolean>;
 };
 
 export type DialogContentAsHookContract = {
   state: DialogContentStateHandles;
+};
+
+export type DialogContentHandles = {
+  stateHandles: {
+    open: BorrowedStateHandle<boolean, DialogContentProps>;
+  };
+  asTransition: TransitionHandles;
 };
 
 export interface DialogTitleProps {}

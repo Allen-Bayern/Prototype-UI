@@ -8,8 +8,8 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
   <wc-base-dialog-trigger class="rounded border px-3 py-1.5 cursor-pointer select-none">
     Open Dialog
   </wc-base-dialog-trigger>
-  <wc-base-dialog-mask class="bg-black/50"></wc-base-dialog-mask>
-  <wc-base-dialog-content class="w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
+  <wc-base-dialog-mask class="base-dialog-demo-mask bg-black/50"></wc-base-dialog-mask>
+  <wc-base-dialog-content class="base-dialog-demo-content w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
     <wc-base-dialog-title class="text-lg font-semibold mb-2">Confirm Action</wc-base-dialog-title>
     <wc-base-dialog-description class="text-sm text-slate-600 mb-6">
       Are you sure you want to proceed? This action cannot be undone.
@@ -40,8 +40,8 @@ export function DemoBaseDialogDemo() {
       <BaseDialogTrigger className="rounded border px-3 py-1.5 cursor-pointer select-none">
         Open Dialog
       </BaseDialogTrigger>
-      <BaseDialogMask className="bg-black/50" />
-      <BaseDialogContent className="w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
+      <BaseDialogMask className="base-dialog-demo-mask bg-black/50" />
+      <BaseDialogContent className="base-dialog-demo-content w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
         <BaseDialogTitle className="text-lg font-semibold mb-2">Confirm Action</BaseDialogTitle>
         <BaseDialogDescription className="text-sm text-slate-600 mb-6">
           Are you sure you want to proceed? This action cannot be undone.
@@ -79,8 +79,8 @@ import {
     <BaseDialogTrigger class="rounded border px-3 py-1.5 cursor-pointer select-none">
       Open Dialog
     </BaseDialogTrigger>
-    <BaseDialogMask class="bg-black/50" />
-    <BaseDialogContent class="w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
+    <BaseDialogMask class="base-dialog-demo-mask bg-black/50" />
+    <BaseDialogContent class="base-dialog-demo-content w-full max-w-md rounded-lg border bg-white p-6 shadow-xl">
       <BaseDialogTitle class="text-lg font-semibold mb-2">Confirm Action</BaseDialogTitle>
       <BaseDialogDescription class="text-sm text-slate-600 mb-6">
         Are you sure you want to proceed? This action cannot be undone.
