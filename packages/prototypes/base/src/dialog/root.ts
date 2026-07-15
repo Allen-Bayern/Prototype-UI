@@ -4,6 +4,7 @@ import {
   createDialogRootId,
   DIALOG_CONTEXT,
   DIALOG_FAMILY,
+  requestDialogOpen,
   type DialogContextValue,
 } from './shared';
 import type { DialogRootAsHookContract, DialogRootExposes, DialogRootProps } from './types';
@@ -56,6 +57,11 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
 
   const openState = useOpenState({
     exposeOpenMethodKey: 'openDialog',
+    requestOpen(run, nextOpen, reason) {
+      const ctx = run.context.read(DIALOG_CONTEXT);
+      if (ctx.disabled) return;
+      requestDialogOpen(run, nextOpen, reason, 'programmatic');
+    },
   });
   const open = openState.getState?.('open');
   def.expose.event('openChange', { payload: 'json' });

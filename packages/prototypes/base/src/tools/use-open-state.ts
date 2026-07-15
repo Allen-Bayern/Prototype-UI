@@ -10,6 +10,7 @@ export type OpenStateOptions = {
   exposeOpenMethodKey?: string;
   exposeCloseMethodKey?: string;
   exposeToggleMethodKey?: string;
+  requestOpen?: (run: RunHandle<any>, nextOpen: boolean, reason: string) => void;
 };
 
 export type OpenStateExposes = {
@@ -80,29 +81,47 @@ export const useOpenState = defineHook<
       open.set(next, reason ?? 'reason: useOpenState.setOpen');
     };
 
+    const requestOpen = (next: boolean, reason: string) => {
+      const run = api.store.run as RunHandle<any> | undefined;
+      if (options?.requestOpen && run) {
+        options.requestOpen(run, next, reason);
+        return;
+      }
+      setOpen(next, reason);
+    };
+
     api.store.syncFromProps = syncFromProps;
     api.store.syncControlled = syncControlled;
     api.store.setOpen = setOpen;
 
     def.expose.state(exposeStateKey as keyof OpenStateExposes & string, open);
     def.expose.method(exposeOpenMethodKey as keyof OpenStateExposes & string, (reason?: string) => {
-      setOpen(true, reason ?? 'reason: useOpenState.openNow');
+      requestOpen(true, reason ?? 'reason: useOpenState.openNow');
     });
     def.expose.method(
       exposeCloseMethodKey as keyof OpenStateExposes & string,
       (reason?: string) => {
-        setOpen(false, reason ?? 'reason: useOpenState.close');
+        requestOpen(false, reason ?? 'reason: useOpenState.close');
       }
     );
     def.expose.method(
       exposeToggleMethodKey as keyof OpenStateExposes & string,
       (reason?: string) => {
-        setOpen(!open.get(), reason ?? 'reason: useOpenState.toggle');
+        requestOpen(!open.get(), reason ?? 'reason: useOpenState.toggle');
       }
     );
 
     def.lifecycle.onCreated((run) => {
+      api.store.run = run;
       syncFromProps(run);
+    });
+
+    def.lifecycle.onMounted((run) => {
+      api.store.run = run;
+    });
+
+    def.lifecycle.onUnmounted(() => {
+      api.store.run = undefined;
     });
 
     def.props.watch([prop as any, disabledProp as any], (run, next) => {

@@ -161,6 +161,44 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
   });
 
+  it('controlled root methods emit requests without replacing the owner open fact', async () => {
+    const root = document.createElement('base-dialog-root') as any;
+    const requests: any[] = [];
+    root.addEventListener('openChange', (event: Event) => {
+      requests.push((event as CustomEvent).detail);
+    });
+    setElementProps(root, { open: false });
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+
+    root.getExposes().openDialog('root.method.open');
+    expect(root.getExposes().open.get()).toBe(false);
+    expect(requests).toEqual([
+      expect.objectContaining({
+        open: true,
+        reason: 'root.method.open',
+        focusReason: 'programmatic',
+      }),
+    ]);
+
+    setElementProps(root, { open: true });
+    await Promise.resolve();
+    root.getExposes().toggle('root.method.toggle');
+
+    expect(root.getExposes().open.get()).toBe(true);
+    expect(requests.at(-1)).toEqual(
+      expect.objectContaining({
+        open: false,
+        reason: 'root.method.toggle',
+        focusReason: 'programmatic',
+      })
+    );
+
+    root.remove();
+    await Promise.resolve();
+  });
+
   it('ESC closes dialog content', async () => {
     const root = document.createElement('base-dialog-root') as any;
     const trigger = document.createElement('base-dialog-trigger') as any;
