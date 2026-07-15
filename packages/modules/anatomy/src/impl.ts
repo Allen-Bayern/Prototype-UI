@@ -33,6 +33,7 @@ import type {
   AnatomyDiagnostic,
   AnatomyOrderCallbackDispatcher,
   AnatomyOrderChangeCb,
+  AnatomyOrderCallbackCtx,
 } from './types';
 
 type HookTraceEntry = { name?: string };
@@ -288,6 +289,18 @@ export class AnatomyModuleImpl extends ModuleBase {
   has(family: AnatomyFamily, role: string): boolean {
     this.ensureRuntime('run.anatomy.has');
     return (this.partsOf(family, role) ?? []).length > 0;
+  }
+
+  subscribeParts(
+    family: AnatomyFamily,
+    role: string,
+    cb: (ctx: AnatomyOrderCallbackCtx, parts: readonly AnatomyPartView[]) => void
+  ): Unsubscribe {
+    this.ensureSetup('def.anatomy.subscribeParts');
+    return this.subscribeOrder(family, (ctx) => {
+      const parts = this.tryOrderedPartsOf(family, role) ?? [];
+      cb(ctx, parts);
+    });
   }
 
   parts(family: AnatomyFamily, options?: AnatomyQueryOptions): readonly AnatomyPartView[] | null {

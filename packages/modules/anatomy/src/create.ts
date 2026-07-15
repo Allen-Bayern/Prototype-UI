@@ -20,6 +20,7 @@ export function createAnatomyModule(ctx: ModuleFactoryArgs): AnatomyModule {
       return {
         facade: {
           claim: (family, decl) => impl.claim(family, decl),
+          subscribeParts: (family, role, cb) => impl.subscribeParts(family, role, cb),
           has: (family, role) => impl.has(family, role),
           parts: ((family, options) =>
             impl.parts(family, options as any)) as AnatomyFacade['parts'],

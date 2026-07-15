@@ -272,6 +272,11 @@ export interface DefHandle<Props extends PropsBaseType, Exposes = Record<string,
 
   anatomy: {
     claim(family: AnatomyFamily, decl: AnatomyClaimDecl): void;
+    subscribeParts(
+      family: AnatomyFamily,
+      role: string,
+      onChange: (run: RunHandle<Props>, parts: readonly AnatomyPartView[]) => void
+    ): Unsubscribe;
   };
 
   a11y: A11yDefAPI;
