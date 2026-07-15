@@ -72,7 +72,9 @@ Parameterized authored asHooks remain future governed design space.
 
 ### 2.2 Naming Rule (v0, mandatory)
 
-- asHook `name` must match `/^as[A-Z]/`.
+- `defineAsHook({ name })` records a prototype spec name and follows prototype naming rules, such as `as-dialog-content`.
+- The author-facing caller binding should use the `asXxx` form, such as `asDialogContent`.
+- Runtime cannot observe a JavaScript/TypeScript binding name, so caller-binding validation belongs to lint, CLI, generator, or TypeScript tooling rather than `defineAsHook({ name })` runtime validation.
 - Violations must throw.
 
 ---
@@ -157,6 +159,7 @@ Only `state` is required to be projected as Borrowed view.
 - runtime records child asHook calls made directly inside the current asHook setup frame
 - child entries are exposed through `asHooks` and may also be mirrored in `artifacts.asHooks`
 - every child entry retains `result` as the runtime truth source and `handle` as the stable caller-facing projection; `getAsHookHandle(name)` retrieves the latter
+- an authored asHook contract may declare an `asHooks` handle map so literal-name lookups infer the child handle type without a free generic assertion
 - child state handles stay inside the child entry result; they are not flattened into the outer `stateHandles`
 - an outer `projectHandle` may deliberately re-export selected child handles under a named field; the runtime does not automatically flatten, alias, or expose every nested capability
 - prototype authors do not declare child entries through a `def` API

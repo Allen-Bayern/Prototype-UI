@@ -17,6 +17,7 @@ function syncCurrentFromContext(
 }
 
 function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>): void {
+  // P-BASE-TABS-CONTENT-ROLE-PANEL, P-BASE-TABS-CONTENT-PROTOCOL-DEPENDENCY
   // P-BASE-TABS-CONTENT-CLAIM-ROLE, P-BASE-TABS-CONTENT-SAME-DOMAIN
   def.anatomy.claim(TABS_FAMILY, { role: 'content' });
   // P-BASE-TABS-CONTENT-CURRENT-DERIVED
@@ -32,6 +33,7 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
     disabled: true,
   });
 
+  // P-BASE-TABS-CONTENT-PROP-VALUE, P-BASE-TABS-CONTENT-PRESENCE-POLICY
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
     keepMounted: { type: 'boolean', empty: 'fallback' },
@@ -44,17 +46,19 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   let ownValue = '';
   let rootId = '';
   let keepMounted = false;
+  // P-BASE-TABS-CONTENT-CURRENT-EXPOSE
   def.expose.state('current', current);
   def.expose.state('hidden', hidden);
 
   // P-BASE-TABS-CONTENT-A11Y-ROLE, P-BASE-TABS-CONTENT-A11Y-LABELLEDBY-TARGET
-  // P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
+  // P-BASE-TABS-CONTENT-A11Y-HIDDEN, P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE
   def.a11y.id(contentId);
   def.a11y.role('tabpanel');
   def.a11y.state('hidden', hidden);
   def.a11y.relation('labelledBy', { target: triggerId });
 
   const syncIds = () => {
+    // P-BASE-TABS-A11Y-RELATIONSHIP-TARGET
     contentId.set(createTabsPartId(rootId, 'content', ownValue), 'reason: tabs content id sync');
     triggerId.set(
       createTabsPartId(rootId, 'trigger', ownValue),
@@ -66,10 +70,12 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
     next: TabsContextValue,
     lifecycle: { setPresent(present: boolean): void }
   ) => {
+    // P-BASE-TABS-CONTENT-CONTEXT-CONSUME, P-BASE-TABS-CONTENT-CURRENT-DERIVED
     rootId = next.rootId;
     syncIds();
     syncCurrentFromContext(next.value, ownValue, current, hidden, focusEntry);
     const nextCurrent = next.value === ownValue;
+    // P-BASE-TABS-CONTENT-DEFAULT-L1-DETACH, P-BASE-TABS-CONTENT-PRESENCE-POLICY
     lifecycle.setPresent(keepMounted || nextCurrent);
   };
 
@@ -106,6 +112,11 @@ function setupTabsContent(def: DefHandle<TabsContentProps, TabsContentExposes>):
   });
 }
 
+/*
+ * P-BASE-TABS-CONTENT-TABINDEX-DEFERRED is deprecated and intentionally has no implementation.
+ */
+
+// P-BASE-TABS-CONTENT-AUTHORING-ENTRIES
 export const asTabsContent = defineAsHook<
   TabsContentProps,
   TabsContentExposes,

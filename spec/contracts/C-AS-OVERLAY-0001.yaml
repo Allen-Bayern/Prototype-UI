@@ -58,6 +58,10 @@ criteria:
     text:
       zh-CN: portal view epoch detach 只能撤销临时 host projection；被保留 Proto instance 的 logical parent、context/anatomy topology 与重新进入能力必须继续有效。
       en: Detaching a portal view epoch may revoke only the temporary host projection; the retained Proto instance's logical parent, context/anatomy topology, and ability to re-enter must remain valid.
+  - id: C-AS-OVERLAY-0001-L
+    text:
+      zh-CN: Presence signal 在 runtime callback chain 内变为 active 时，Overlay host resource reconciliation 必须由 runtime/module 边界推迟到最外层 callback 完成后；author-facing hook 不得直接选择 `queueMicrotask` 或其它宿主线程调度机制。
+      en: When a Presence signal becomes active within a runtime callback chain, Overlay host-resource reconciliation must be deferred by the runtime/module boundary until the outermost callback completes; the author-facing hook must not directly choose `queueMicrotask` or another host-thread scheduling mechanism.
 sources:
   - path: internal/contracts/overlay/as-overlay.v0.md
   - path: packages/hooks/src/as-overlay.ts
@@ -96,6 +100,9 @@ revisions:
   - version: 0.1.3
     change: refined
     summary: Required portal host-projection teardown to preserve retained Proto logical ownership across view epochs.
+  - version: 0.1.4
+    change: refined
+    summary: Moved post-callback host-resource reconciliation from hook-selected microtasks into the runtime and Overlay module boundary.
 tags:
   - overlay
   - as-hook

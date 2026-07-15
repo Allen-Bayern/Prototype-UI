@@ -1,22 +1,37 @@
 import { describe, expect, it } from 'vitest';
 import { definePrototype } from '@proto.ui/core';
 
-import { DIALOG_CONTEXT, dialogContent, dialogMask } from '../../../prototypes/base/src/dialog';
+import {
+  DIALOG_CONTEXT,
+  dialogContent,
+  dialogMask,
+  type DialogContextValue,
+} from '../../../prototypes/base/src/dialog';
 import { createMountedReactAdapter } from './utils/fake-react';
+
+function dialogContext(open: boolean): DialogContextValue {
+  return {
+    rootId: 'react-adapter-dialog',
+    open,
+    openFocusReason: null,
+    returnFocusReason: null,
+    controlled: false,
+    disabled: false,
+    alert: false,
+    a11yLabel: '',
+    requestedOpen: open,
+    requestReason: null,
+    requestFocusReason: null,
+    requestVersion: 0,
+  };
+}
 
 describe('adapter-react: dialog integration', () => {
   it('renders dialog content when open and hides it when closed', () => {
     const proto = definePrototype({
       name: 'react-dialog-content-open-close',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogContent.setup(def);
         return (r) => [r.el('div', 'hello')];
       },
@@ -43,14 +58,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-transition-attrs',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogContent.setup(def);
         return (r) => [r.el('div')];
       },
@@ -75,14 +83,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-mask-transition',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: false,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(false));
         dialogMask.setup(def);
         return (r) => [r.el('div')];
       },
@@ -112,14 +113,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-layer-base',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogContent.setup(def);
         return (r) => [r.el('div', 'hello')];
       },
@@ -148,14 +142,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-renderer-owned-portal',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogContent.setup(def);
         return (r) => [r.el('div', 'hello')];
       },
@@ -186,14 +173,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-outside-pointerdown',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogContent.setup(def);
         return (r) => [r.el('div', 'hello')];
       },
@@ -217,14 +197,7 @@ describe('adapter-react: dialog integration', () => {
     const proto = definePrototype({
       name: 'react-dialog-mask-passthrough',
       setup(def) {
-        def.context.provide(DIALOG_CONTEXT, {
-          open: true,
-          openFocusReason: null,
-          returnFocusReason: null,
-          controlled: false,
-          disabled: false,
-          alert: false,
-        });
+        def.context.provide(DIALOG_CONTEXT, dialogContext(true));
         dialogMask.setup(def);
         return (r) => [r.el('div')];
       },

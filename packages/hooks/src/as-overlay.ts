@@ -13,7 +13,7 @@ type OverlayFacade = {
 
 type OverlayPort = {
   setViewActive(active: boolean): void;
-  reconcileViewResources(): void;
+  reconcileViewResourcesAfterCallback(): void;
 };
 
 const installOverlay = definePrivilegedAsHook<PropsBaseType, OverlayHandle<PropsBaseType>>({
@@ -31,17 +31,10 @@ const installOverlay = definePrivilegedAsHook<PropsBaseType, OverlayHandle<Props
     let retainedView = false;
     let offPresence: (() => void) | null = null;
     let disposed = false;
-    let viewActiveVersion = 0;
-
     const scheduleBoundViewActive = (active: boolean) => {
       port.setViewActive(active);
-      const version = ++viewActiveVersion;
       if (!active) return;
-      queueMicrotask(() => {
-        if (disposed || version !== viewActiveVersion || !presenceBinding) return;
-        if (presenceBinding.present.get() !== active) return;
-        port.reconcileViewResources();
-      });
+      port.reconcileViewResourcesAfterCallback();
     };
 
     const driveLogicalPresence = (open: boolean) => {

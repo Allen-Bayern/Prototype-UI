@@ -3,14 +3,14 @@ type: prototype
 title: Base Tabs List is the tab trigger collection and roving focus container
 status: draft
 since: 0.1.0
-summary: Base Tabs List is the optional at-most-one Tabs anatomy part that owns the trigger collection surface and roving focus methods while consuming Tabs context for orientation, selected value, and active value.
+summary: Base Tabs List is the optional at-most-one Tabs anatomy part that owns the trigger collection surface and roving focus methods while consuming Tabs context for orientation.
 statement:
   zh-CN: >-
-    Base Tabs List 是 Base Tabs anatomy family 中可选且至多一个的 list part。它承载 trigger collection 与 roving focus 方法，消费 Tabs context 中的 orientation、selected value 与 activeValue，但不拥有 selected value，也不处理 tabpanel visibility。`base-tabs-list` direct prototype 与 `asTabsList` authored asHook 是同一 Tabs list protocol 的两个 authoring entries。
+    Base Tabs List 是 Base Tabs anatomy family 中可选且至多一个的 list part。它承载 trigger collection 与 roving focus 方法，并消费 Tabs context 中的 orientation；Trigger 将 selected 与 active 成员事实发布给 Focus，因此 List 不直接读取 selected value，也不处理 tabpanel visibility。`base-tabs-list` direct prototype 与 `asTabsList` authored asHook 是同一 Tabs list protocol 的两个 authoring entries。
 
 
   en: >-
-    Base Tabs List is the optional and at-most-one list part in the Base Tabs anatomy family. It hosts the trigger collection and roving focus methods, consumes orientation, selected value, and activeValue from Tabs context, but does not own selected value or handle tabpanel visibility. The `base-tabs-list` direct prototype and the `asTabsList` authored asHook are two authoring entries of the same Tabs list protocol.
+    Base Tabs List is the optional and at-most-one list part in the Base Tabs anatomy family. It hosts the trigger collection and roving focus methods and consumes orientation from Tabs context; Trigger publishes selected and active member facts to Focus, so List does not read selected value directly or handle tabpanel visibility. The `base-tabs-list` direct prototype and the `asTabsList` authored asHook are two authoring entries of the same Tabs list protocol.
 
 
 criteria:
@@ -56,8 +56,8 @@ criteria:
         - C-CONTEXT-0002
   - id: P-BASE-TABS-LIST-CONTEXT-CONSUME
     text:
-      zh-CN: Tabs List 必须读取或订阅 Tabs context，以获得 orientation、selected value 与 activeValue。
-      en: Tabs List must read or subscribe to Tabs context to obtain orientation, selected value, and activeValue.
+      zh-CN: Tabs List 必须读取或订阅 Tabs context 以获得 orientation；Trigger 必须向 Focus module 发布 selected 与 active roving member facts，List 的 `focusSelected` 与 movement 不得自行重建成员语义。
+      en: Tabs List must read or subscribe to Tabs context to obtain orientation; Trigger must publish selected and active roving-member facts to the Focus module, and List must not reconstruct member semantics for `focusSelected` or movement.
     dependsOn:
       contracts:
         - C-CONTEXT-0006
@@ -166,6 +166,12 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added host-neutral a11yLabel as the Tabs List accessible name input.
+  - version: 0.2.0
+    change: refined
+    summary: Removed the deprecated useFocusRoving dependency and assigned active-member movement to asFocusRoving.
+  - version: 0.2.1
+    change: refined
+    summary: Removed the temporary Tabs-specific focusSelected bridge after Focus gained semantic selected and active member facts.
 tags:
   - prototype
   - base

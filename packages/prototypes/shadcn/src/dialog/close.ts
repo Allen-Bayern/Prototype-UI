@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asButton, asDialogClose } from '@proto.ui/prototypes-base';
+import { asDialogClose } from '@proto.ui/prototypes-base';
 import type { ShadcnDialogCloseExposes, ShadcnDialogCloseProps } from './types';
 
 type ShadcnDialogCloseVariant =
@@ -55,10 +55,9 @@ const dialogClose = definePrototype<ShadcnDialogCloseProps, ShadcnDialogCloseExp
       disabled: false,
     });
 
-    asDialogClose();
-    const buttonState = asButton().stateHandles;
+    const buttonState = asDialogClose().stateHandles;
     if (!buttonState) {
-      throw new Error('[shadcn-dialog-close] asButton must project Button state handles.');
+      throw new Error('[shadcn-dialog-close] Dialog Close must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 

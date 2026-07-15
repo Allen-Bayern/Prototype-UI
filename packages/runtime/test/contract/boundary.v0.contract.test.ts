@@ -31,18 +31,20 @@ const createHost = <P extends PropsBaseType>(
 };
 
 describe('runtime contract: interaction boundary (v0)', () => {
-  it('BOUNDARY-0100: repeated asBoundary(...) calls on one instance reuse one underlying boundary and merge setup-time configuration deterministically', () => {
+  it('BOUNDARY-0100: repeated no-arg asBoundary calls reuse one configurable handle', () => {
     let a!: BoundaryHandle<PropsBaseType>;
     let b!: BoundaryHandle<PropsBaseType>;
 
     const P = definePrototype({
       name: 'x-boundary-0100',
       setup() {
-        a = asBoundary<PropsBaseType>({
+        a = asBoundary<PropsBaseType>();
+        a.configure({
           debugLabel: 'alpha',
           meta: { origin: 'first' },
         });
-        b = asBoundary<PropsBaseType>({
+        b = asBoundary<PropsBaseType>();
+        b.configure({
           debugLabel: 'beta',
           meta: { step: 2 },
         });

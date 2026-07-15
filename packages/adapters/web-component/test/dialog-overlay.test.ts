@@ -196,6 +196,13 @@ describe('adapter-web-component: dialog overlay', () => {
 
     expect(styleContains(content, 'hidden')).toBe(false);
     expect(document.activeElement).toBe(cancel);
+    expect(content.getAttribute('role')).toBe('dialog');
+    expect(content.getAttribute('aria-modal')).toBe('true');
+    expect(content.getAttribute('aria-labelledby')).toBe(title.id);
+    expect(content.getAttribute('aria-describedby')).toBe(description.id);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(trigger.getAttribute('aria-controls')).toBe(content.id);
 
     cancel.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();
@@ -205,6 +212,7 @@ describe('adapter-web-component: dialog overlay', () => {
     await completeTransitions(mask, content);
     expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
     expect(document.activeElement).toBe(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
 
     root.remove();
     document.body.style.overflow = '';

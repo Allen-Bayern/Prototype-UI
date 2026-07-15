@@ -36,19 +36,29 @@ export type AsHookDisposer = () => void;
 export type AsHookContract = {
   state?: AsHookStateMap;
   event?: AsHookEventMap;
+  asHooks?: Record<string, unknown>;
 };
 
 type NormalizeAsHookContract<C> = C extends AsHookContract
   ? {
       state: C['state'] extends AsHookStateMap ? C['state'] : {};
       event: C['event'] extends AsHookEventMap ? C['event'] : {};
+      asHooks: C['asHooks'] extends Record<string, unknown> ? C['asHooks'] : {};
     }
   : C extends AsHookStateMap
-    ? { state: C; event: {} }
-    : { state: {}; event: {} };
+    ? { state: C; event: {}; asHooks: {} }
+    : { state: {}; event: {}; asHooks: {} };
 
 type AsHookStatesOf<C> = NormalizeAsHookContract<C>['state'];
 type AsHookEventsOf<C> = NormalizeAsHookContract<C>['event'];
+type AsHookHandlesOf<C> = NormalizeAsHookContract<C>['asHooks'];
+
+export type AsHookHandleLookup<ContractInput> = {
+  <K extends keyof AsHookHandlesOf<ContractInput> & string>(
+    name: K
+  ): AsHookHandlesOf<ContractInput>[K] | undefined;
+  <Handle = unknown>(name: string): Handle | undefined;
+};
 
 export type AsHookDisposers = Readonly<{
   all: readonly AsHookDisposer[];
@@ -102,7 +112,7 @@ export type AsHookResult<Props extends PropsBaseType = PropsBaseType, ContractIn
   getMethod?: <K extends string>(key: K) => unknown;
   asHooks?: readonly AsHookChildResult[];
   getAsHook?: (name: string) => AsHookChildResult | undefined;
-  getAsHookHandle?: <Handle = unknown>(name: string) => Handle | undefined;
+  getAsHookHandle?: AsHookHandleLookup<ContractInput>;
   artifacts?: AsHookArtifacts<Props, ContractInput>;
   disposers?: AsHookDisposers;
   context?: unknown;

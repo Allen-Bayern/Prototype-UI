@@ -7,6 +7,7 @@ import {
   FocusRovingConfigPatch,
   FocusRovingHandle,
   FocusRovingKey,
+  type FocusRovingMemberStatus,
   type FocusScopeConfig,
   illegalPhase,
   FocusRequestOptions,
@@ -120,6 +121,8 @@ class FocusModuleImpl extends ModuleBase {
   private readonly focusableState: ObservedStateHandle<boolean, any>;
   private readonly activeState: ObservedStateHandle<boolean, any>;
   private readonly hasFocusedState: ObservedStateHandle<boolean, any>;
+  private rovingSelected = false;
+  private rovingActive = false;
 
   private readonly focusableHandle: FocusableHandle<any>;
   private readonly entryHandle: FocusEntryHandle<any>;
@@ -164,6 +167,7 @@ class FocusModuleImpl extends ModuleBase {
       setDisabled: (disabled: boolean) => this.setDisabled(disabled),
       setNavParticipation: (navParticipation: 'auto' | 'none') =>
         this.setNavParticipation(navParticipation),
+      setRovingStatus: (status: FocusRovingMemberStatus) => this.setRovingStatus(status),
       configure: (patch: FocusableConfigPatch) => this.configureFocusable(patch),
     };
 
@@ -922,6 +926,11 @@ class FocusModuleImpl extends ModuleBase {
     this.syncCenter();
   }
 
+  setRovingStatus(status: FocusRovingMemberStatus): void {
+    if (typeof status.selected !== 'undefined') this.rovingSelected = status.selected;
+    if (typeof status.active !== 'undefined') this.rovingActive = status.active;
+  }
+
   setEntryDisabled(disabled: boolean): void {
     this.entryConfig = Object.freeze({
       ...this.entryConfig,
@@ -976,6 +985,8 @@ class FocusModuleImpl extends ModuleBase {
       focusable: this.focusableState.get(),
       active: this.activeState.get(),
       hasFocused: this.hasFocusedState.get(),
+      rovingSelected: this.rovingSelected,
+      rovingActive: this.rovingActive,
     });
   }
 
@@ -1023,6 +1034,7 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         configureScope: (patch) => impl.configureScope(patch),
         setDisabled: (disabled) => impl.setDisabled(disabled),
         setNavParticipation: (navParticipation) => impl.setNavParticipation(navParticipation),
+        setRovingStatus: (status) => impl.setRovingStatus(status),
         setEntryDisabled: (disabled) => impl.setEntryDisabled(disabled),
         requestFocus: (options) => impl.requestFocus(options),
         requestEntryFocus: (options) => impl.requestEntryFocus(options),

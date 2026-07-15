@@ -15,11 +15,20 @@ function syncNavParticipationFromContext(
   ctx: TabsContextValue,
   ownValue: string,
   disabled: { get(): boolean },
-  focusable: { setNavParticipation(value: 'auto' | 'none'): void }
+  focusable: {
+    setNavParticipation(value: 'auto' | 'none'): void;
+    setRovingStatus(status: { selected?: boolean; active?: boolean }): void;
+  }
 ): void {
+  // P-BASE-TABS-ACTIVE-VALUE, P-BASE-TABS-LIST-FOCUS-ROVING
+  // P-BASE-TABS-TRIGGER-SELECTED-DERIVED
   const activeValue = ctx.activeValue || ctx.value;
   const participates = !!ownValue && ownValue === activeValue && !disabled.get();
   focusable.setNavParticipation(participates ? 'auto' : 'none');
+  focusable.setRovingStatus({
+    selected: !!ownValue && ownValue === ctx.value,
+    active: participates,
+  });
 }
 
 function readTriggerSnapshot(part: { getExpose(key: string): unknown | null }) {
@@ -57,8 +66,10 @@ function resolveEnabledTriggerValue(run: any, candidate: string): string {
 }
 
 function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>): void {
+  // P-BASE-TABS-TRIGGER-ROLE-TAB, P-BASE-TABS-TRIGGER-PROTOCOL-DEPENDENCY
   // P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY
   // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION
+  // P-BASE-TABS-TRIGGER-KEYBOARD-ACTIVATION
   asTrigger();
   // P-BASE-TABS-TRIGGER-FOCUSABLE
   const focusable = asFocusable<TabsTriggerProps>();
@@ -67,6 +78,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   const focusVisible = focusable.focusVisible;
   // P-BASE-TABS-TRIGGER-SELECTED-DERIVED, P-BASE-TABS-TRIGGER-SELECTED-EXPOSE
   const selected = def.state.bool('selected', false);
+  // P-BASE-TABS-TRIGGER-DISABLED-EXPOSE, P-BASE-TABS-TRIGGER-INTERACTION-STATES
   const disabled = def.state.bool('disabled', false);
   const hovered = def.state.bool('hovered', false);
   const pressed = def.state.bool('pressed', false);
@@ -74,6 +86,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   const contentId = def.state.string('contentId', '');
 
   // P-BASE-TABS-TRIGGER-CLAIM-ROLE, P-BASE-TABS-TRIGGER-SAME-DOMAIN
+  // P-BASE-TABS-TRIGGER-COLLECTION-ITEM
   const collectionItem = asCollectionItem();
   collectionItem.configure({
     family: TABS_FAMILY,
@@ -87,6 +100,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
     },
   });
 
+  // P-BASE-TABS-TRIGGER-PROP-VALUE, P-BASE-TABS-TRIGGER-PROP-DISABLED
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
     disabled: { type: 'boolean', empty: 'fallback' },
@@ -99,6 +113,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   let ownValue = '';
   let rootId = '';
 
+  // P-BASE-TABS-TRIGGER-INTERACTION-STATES, P-BASE-TABS-TRIGGER-CLICK-SIGNAL
   def.expose.state('disabled', disabled);
   def.expose.state('hovered', hovered);
   def.expose.state('focused', focused);
@@ -112,7 +127,8 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   def.expose.event('click', { payload: 'void' });
 
   // P-BASE-TABS-TRIGGER-A11Y-ROLE, P-BASE-TABS-TRIGGER-A11Y-SELECTED
-  // P-BASE-TABS-TRIGGER-A11Y-CONTROLS-TARGET
+  // P-BASE-TABS-TRIGGER-A11Y-DISABLED, P-BASE-TABS-TRIGGER-A11Y-CONTROLS-TARGET
+  // P-BASE-TABS-TRIGGER-ACCESSIBLE-NAME
   def.a11y.id(triggerId);
   def.a11y.role('tab');
   def.a11y.nameFromContent();
@@ -122,6 +138,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   def.a11y.action('activate', { event: 'click' });
 
   const syncIds = () => {
+    // P-BASE-TABS-A11Y-RELATIONSHIP-TARGET
     triggerId.set(createTabsPartId(rootId, 'trigger', ownValue), 'reason: tabs trigger id sync');
     contentId.set(
       createTabsPartId(rootId, 'content', ownValue),
@@ -130,6 +147,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   const syncDisabled = (nextDisabled: boolean) => {
+    // P-BASE-TABS-TRIGGER-DISABLED-SUPPRESS-ACTIVATION
     disabled.set(nextDisabled, 'reason: tabs trigger sync disabled');
     focusable.setDisabled(nextDisabled);
     if (nextDisabled) {
@@ -139,6 +157,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   const requestSelection = (run: any, ctx: TabsContextValue) => {
+    // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION
     const nextValue = run.props.get().value ?? '';
     run.context.update(TABS_CONTEXT, {
       ...ctx,
@@ -156,6 +175,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   def.context.subscribe(TABS_CONTEXT, (_run, next) => {
+    // P-BASE-TABS-TRIGGER-CONTEXT-CONSUME, P-BASE-TABS-TRIGGER-SELECTED-DERIVED
     rootId = next.rootId;
     syncIds();
     syncSelectedFromContext(next.value, ownValue, selected);
@@ -193,6 +213,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
 
   const updateActiveValue = (run: any) => {
+    // P-BASE-TABS-ACTIVE-VALUE
     const nextValue = run.props.get().value ?? '';
     run.context.update(TABS_CONTEXT, (prev: any) => {
       if (prev.activeValue === nextValue) return prev;
@@ -201,6 +222,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   const notifyRootToValidateSelection = (run: any) => {
+    // P-BASE-TABS-SELECTION-FALLBACK
     run.context.update(TABS_CONTEXT, (prev: TabsContextValue) => ({
       ...prev,
       value: prev.controlled ? prev.value : resolveEnabledTriggerValue(run, prev.value ?? ''),
@@ -210,6 +232,8 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   };
 
   def.event.on('press.commit', (run) => {
+    // P-BASE-TABS-TRIGGER-DISABLED-SUPPRESS-ACTIVATION
+    // P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION, P-BASE-TABS-TRIGGER-CLICK-SIGNAL
     pressed.set(false, 'reason: tabs trigger press.commit => pressed');
     if (disabled.get()) return;
     const ctx = run.context.read(TABS_CONTEXT);
@@ -218,6 +242,8 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
 
   focused.watch((run, event) => {
+    // P-BASE-TABS-TRIGGER-AUTOMATIC-FOCUS-SELECTION
+    // P-BASE-TABS-TRIGGER-MANUAL-FOCUS-STABLE
     if (event.type !== 'next' || !event.next) return;
     if (disabled.get()) return;
     const nextValue = run.props.get().value ?? '';
@@ -229,6 +255,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
 
   def.event.onGlobal('key.down', (_run, ev) => {
+    // P-BASE-TABS-TRIGGER-KEYBOARD-ACTIVATION
     const detail = ev?.detail;
     if (disabled.get()) return;
     if (!focused.get()) return;
@@ -237,6 +264,7 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
 
   def.event.on('pointer.enter', () => {
+    // P-BASE-TABS-TRIGGER-INTERACTION-STATES
     if (disabled.get()) return;
     hovered.set(true, 'reason: tabs trigger pointer.enter => hovered');
   });
@@ -257,6 +285,13 @@ function setupTabsTrigger(def: DefHandle<TabsTriggerProps, TabsTriggerExposes>):
   });
 }
 
+/*
+ * P-BASE-TABS-TRIGGER criteria represented by absence or delegated ownership:
+ * - P-BASE-TABS-TRIGGER-NO-ACTIVE-EXPOSE-FIRST-PASS: no active expose is declared.
+ * - P-BASE-TABS-TRIGGER-NO-BUTTON-DEPENDENCY: command semantics use core asTrigger/asFocusable.
+ */
+
+// P-BASE-TABS-TRIGGER-AUTHORING-ENTRIES
 export const asTabsTrigger = defineAsHook<
   TabsTriggerProps,
   TabsTriggerExposes,

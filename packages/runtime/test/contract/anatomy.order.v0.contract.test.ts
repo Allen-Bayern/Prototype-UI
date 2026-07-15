@@ -5,8 +5,10 @@ import { executeWithHost } from '../../src';
 import {
   ANATOMY_GET_PROTO_CAP,
   ANATOMY_INSTANCE_TOKEN_CAP,
+  ANATOMY_ORDER_OBSERVER_CAP,
   ANATOMY_PARENT_CAP,
   ANATOMY_ROOT_TARGET_CAP,
+  type AnatomyOrderObserver,
 } from '@proto.ui/module-anatomy';
 
 type Target = {
@@ -31,6 +33,7 @@ function createHost(args: {
   instance: Target;
   getParent: (instance: unknown) => unknown | null;
   getPrototype: (instance: unknown) => Prototype<any> | null;
+  observeOrder?: AnatomyOrderObserver;
 }) {
   const host: RuntimeHost<any> = {
     prototypeName: `host-${args.instance.id}`,
@@ -47,6 +50,7 @@ function createHost(args: {
         [ANATOMY_PARENT_CAP, args.getParent],
         [ANATOMY_GET_PROTO_CAP, args.getPrototype],
         [ANATOMY_ROOT_TARGET_CAP, (instance: unknown) => instance as Target],
+        ...(args.observeOrder ? ([[ANATOMY_ORDER_OBSERVER_CAP, args.observeOrder]] as const) : []),
       ]);
     },
   };
@@ -397,5 +401,107 @@ describe('runtime contract: anatomy.order (v0)', () => {
     const read = readOrderedIds as unknown as () => unknown[];
     expect(() => read()).not.toThrow();
     expect(read()).toEqual(['a', 'b']);
+  });
+
+  /** T-ANATOMY-ORDER-0001-CASE-PARTS-SUBSCRIPTION */
+  it('ANATOMY-ORDER-RT-0500: def.anatomy.subscribeParts reports live role membership changes', async () => {
+    const family = createAnatomyFamily('rt-anatomy-parts-subscription', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 10 } },
+        other: { cardinality: { min: 0, max: 10 } },
+      },
+    });
+    const orderMap = new Map<string, number>([
+      ['root', 0],
+      ['item', 1],
+      ['other', 2],
+    ]);
+    const rootTarget = createTarget('root', orderMap);
+    const itemTarget = createTarget('item', orderMap);
+    const otherTarget = createTarget('other', orderMap);
+    const parents = new Map<unknown, unknown | null>([
+      [rootTarget, null],
+      [itemTarget, rootTarget],
+      [otherTarget, rootTarget],
+    ]);
+
+    let notifyOrder: (() => void) | null = null;
+    const seen: unknown[][] = [];
+    const Root = definePrototype({
+      name: 'x-rt-anatomy-parts-subscription-root',
+      setup(def) {
+        def.anatomy.claim(family, { role: 'root' });
+        def.anatomy.subscribeParts(family, 'item', (_run, parts) => {
+          seen.push(parts.map((part) => part.getExpose('id')));
+        });
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-rt-anatomy-parts-subscription-item',
+      setup(def) {
+        def.anatomy.claim(family, { role: 'item' });
+        def.expose.value('id' as any, 'item');
+      },
+    });
+    const Other = definePrototype({
+      name: 'x-rt-anatomy-parts-subscription-other',
+      setup(def) {
+        def.anatomy.claim(family, { role: 'other' });
+      },
+    });
+    const getPrototype = (instance: unknown) => {
+      if (instance === rootTarget) return Root;
+      if (instance === itemTarget) return Item;
+      if (instance === otherTarget) return Other;
+      return null;
+    };
+
+    executeWithHost(
+      Root as any,
+      createHost({
+        instance: rootTarget,
+        getParent: (instance) => parents.get(instance) ?? null,
+        getPrototype,
+        observeOrder: (_target, notify) => {
+          notifyOrder = notify;
+          return () => {
+            notifyOrder = null;
+          };
+        },
+      }).host as any
+    );
+    executeWithHost(
+      Other as any,
+      createHost({
+        instance: otherTarget,
+        getParent: (instance) => parents.get(instance) ?? null,
+        getPrototype,
+      }).host as any
+    );
+    expect(notifyOrder).not.toBeNull();
+    const notify = notifyOrder as unknown as () => void;
+    notify();
+    expect(seen).toEqual([]);
+
+    const itemExec = executeWithHost(
+      Item as any,
+      createHost({
+        instance: itemTarget,
+        getParent: (instance) => parents.get(instance) ?? null,
+        getPrototype,
+      }).host as any
+    );
+
+    expect(seen).toEqual([['item']]);
+    notify();
+    expect(seen).toEqual([['item']]);
+    notify();
+    expect(seen).toHaveLength(1);
+
+    await itemExec.invokeUnmounted();
+    expect(seen).toEqual([['item'], []]);
+    notify();
+    expect(seen).toEqual([['item'], []]);
   });
 });

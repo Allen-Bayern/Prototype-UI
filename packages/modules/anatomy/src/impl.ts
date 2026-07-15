@@ -33,6 +33,7 @@ import type {
   AnatomyDiagnostic,
   AnatomyOrderCallbackDispatcher,
   AnatomyOrderChangeCb,
+  AnatomyOrderCallbackCtx,
 } from './types';
 
 type HookTraceEntry = { name?: string };
@@ -210,6 +211,7 @@ function getHookNames(proto: Prototype<any> | null): Set<string> {
 }
 
 export class AnatomyModuleImpl extends ModuleBase {
+  private static readonly liveInstances = new Set<AnatomyModuleImpl>();
   private static readonly sharedOrderObservers = new Map<
     AnatomyFamily,
     Map<AnatomyInstanceToken, { off: Unsubscribe; listeners: Set<AnatomyModuleImpl> }>
@@ -232,6 +234,7 @@ export class AnatomyModuleImpl extends ModuleBase {
     super(caps);
     this.prototypeName = prototypeName;
     this.exposePort = exposePort;
+    AnatomyModuleImpl.liveInstances.add(this);
   }
 
   private ensureFamilyRegistered(family: AnatomyFamily): NormalizedFamily {
@@ -288,6 +291,22 @@ export class AnatomyModuleImpl extends ModuleBase {
   has(family: AnatomyFamily, role: string): boolean {
     this.ensureRuntime('run.anatomy.has');
     return (this.partsOf(family, role) ?? []).length > 0;
+  }
+
+  subscribeParts(
+    family: AnatomyFamily,
+    role: string,
+    cb: (ctx: AnatomyOrderCallbackCtx, parts: readonly AnatomyPartView[]) => void
+  ): Unsubscribe {
+    this.ensureSetup('def.anatomy.subscribeParts');
+    let previousSignature = this.computeRoleOrderSignature(family, role);
+    return this.subscribeOrder(family, (ctx) => {
+      const nextSignature = this.computeRoleOrderSignature(family, role);
+      if (nextSignature === previousSignature) return;
+      previousSignature = nextSignature;
+      const parts = this.tryOrderedPartsOf(family, role) ?? [];
+      cb(ctx, parts);
+    });
   }
 
   parts(family: AnatomyFamily, options?: AnatomyQueryOptions): readonly AnatomyPartView[] | null {
@@ -514,6 +533,11 @@ export class AnatomyModuleImpl extends ModuleBase {
 
   override onProtoPhase(phase: ProtoPhase): void {
     super.onProtoPhase(phase);
+    if (phase === 'mounted') {
+      for (const family of this.claimFamilies) {
+        AnatomyModuleImpl.notifyStructuralChange(family);
+      }
+    }
     if (phase === 'unmounted') this.dispose();
   }
 
@@ -541,6 +565,7 @@ export class AnatomyModuleImpl extends ModuleBase {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    AnatomyModuleImpl.liveInstances.delete(this);
     for (const family of this.observedOrderRoots.keys()) {
       this.teardownOrderObserver(family);
     }
@@ -552,6 +577,7 @@ export class AnatomyModuleImpl extends ModuleBase {
     const instance = this.caps.get(ANATOMY_INSTANCE_TOKEN_CAP) as AnatomyInstanceToken;
     for (const family of this.claimFamilies) {
       CENTER.deleteClaim(instance, family);
+      AnatomyModuleImpl.notifyStructuralChange(family);
     }
     this.claimFamilies.clear();
   }
@@ -608,6 +634,13 @@ export class AnatomyModuleImpl extends ModuleBase {
       this.orderListeners.delete(family);
       this.teardownOrderObserver(family);
     };
+  }
+
+  private static notifyStructuralChange(family: AnatomyFamily): void {
+    for (const impl of AnatomyModuleImpl.liveInstances) {
+      if (!impl.orderListeners.has(family)) continue;
+      impl.emitOrderChangeIfNeeded(family);
+    }
   }
 
   private ensureOrderObserver(family: AnatomyFamily): void {
@@ -695,6 +728,13 @@ export class AnatomyModuleImpl extends ModuleBase {
     if (!domain.rootInstance) return 'missing-domain';
     const ordered = this.sortClaims(domain.claims);
     return ordered.map((claim) => `${claim.role}:${this.getIdentityId(claim.instance)}`).join('|');
+  }
+
+  private computeRoleOrderSignature(family: AnatomyFamily, role: string): string {
+    const domain = this.resolveCurrentDomain(family, false);
+    if (!domain.rootInstance) return 'missing-domain';
+    const ordered = this.sortClaims(domain.claims.filter((claim) => claim.role === role));
+    return ordered.map((claim) => this.getIdentityId(claim.instance)).join('|');
   }
 
   private getIdentityId(value: unknown): number {

@@ -6,10 +6,12 @@ const ARIA_STATE_ATTRS: Record<string, string> = {
   checked: 'aria-checked',
   disabled: 'aria-disabled',
   expanded: 'aria-expanded',
+  hasPopup: 'aria-haspopup',
   invalid: 'aria-invalid',
   orientation: 'aria-orientation',
   pressed: 'aria-pressed',
   selected: 'aria-selected',
+  modal: 'aria-modal',
 };
 
 const ARIA_RELATION_ATTRS: Record<string, string> = {

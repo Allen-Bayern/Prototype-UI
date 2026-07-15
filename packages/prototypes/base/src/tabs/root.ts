@@ -9,6 +9,7 @@ type TriggerSnapshot = {
 };
 
 function readTriggerSnapshot(part: { getExpose(key: string): unknown | null }): TriggerSnapshot {
+  // P-BASE-TABS-SELECTION-FALLBACK
   const exposed = part.getExpose('__collectionItem');
   const disabledExpose = part.getExpose('disabled');
   const disabled =
@@ -40,11 +41,14 @@ function hasEnabledTriggerValue(run: RunHandle<TabsRootProps>, target: string): 
 }
 
 function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
-  // P-BASE-TABS-ANATOMY-FAMILY, P-BASE-TABS-ROOT-SEMANTIC-OWNER
+  // P-BASE-TABS-ROLE-SINGLE-SELECTION, P-BASE-TABS-ROOT-SEMANTIC-OWNER
   def.anatomy.claim(TABS_FAMILY, { role: 'root' });
+  // P-BASE-TABS-PROTOCOL-INDEPENDENCE
   const collection = asCollection();
   collection.configure({ family: TABS_FAMILY, itemRole: 'trigger' });
 
+  // P-BASE-TABS-PROP-VALUE, P-BASE-TABS-PROP-DEFAULT-VALUE
+  // P-BASE-TABS-PROP-ORIENTATION, P-BASE-TABS-PROP-ACTIVATION-MODE
   def.props.define({
     value: { type: 'string', empty: 'fallback' },
     defaultValue: { type: 'string', empty: 'fallback' },
@@ -57,7 +61,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
     activationMode: 'automatic',
   });
 
-  // P-BASE-TABS-VALUE-EXPOSE, P-BASE-TABS-CONTEXT-VALUE
+  // P-BASE-TABS-CONTEXT-VALUE
   def.context.provide(TABS_CONTEXT, {
     rootId: '',
     value: '',
@@ -78,16 +82,19 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   let lastRequestVersion = 0;
   let lastValidationVersion = 0;
 
+  // P-BASE-TABS-VALUE-EXPOSE, P-BASE-TABS-VALUE-CHANGE-SIGNAL
   def.expose.state('value', value);
   def.expose.event('valueChange', { payload: 'json' });
 
   const resolveSelection = (run: RunHandle<TabsRootProps>, candidate: string): string => {
+    // P-BASE-TABS-VALID-VALUE-REQUIRED, P-BASE-TABS-SELECTION-FALLBACK
     if (candidate && hasEnabledTriggerValue(run, candidate)) return candidate;
     const fallback = getEnabledTriggerValues(run)[0];
     return fallback ?? candidate ?? '';
   };
 
   const publishContext = (run: RunHandle<TabsRootProps>) => {
+    // P-BASE-TABS-CONTEXT-SYNC, P-BASE-TABS-ACTIVE-VALUE
     const next = {
       rootId,
       value: value.get(),
@@ -117,6 +124,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   };
 
   const validateSelection = (run: RunHandle<TabsRootProps>, reason: string) => {
+    // P-BASE-TABS-SELECTION-FALLBACK, P-BASE-TABS-CONTROLLED-VALUE
     const currentValue = value.get();
     const nextValue = controlled ? currentValue : resolveSelection(run, currentValue);
     if (!controlled && nextValue !== currentValue) {
@@ -129,6 +137,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   };
 
   def.context.subscribe(TABS_CONTEXT, (run, next) => {
+    // P-BASE-TABS-UNCONTROLLED-UPDATES-VALUE, P-BASE-TABS-CONTROLLED-EMITS-NEXT
     activeValue = next.activeValue ?? '';
     if (next.requestVersion !== lastRequestVersion) {
       lastRequestVersion = next.requestVersion;
@@ -155,6 +164,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   });
 
   def.lifecycle.onCreated((run) => {
+    // P-BASE-TABS-CONTROLLED-VALUE, P-BASE-TABS-PROP-DEFAULT-VALUE
     controlled = run.props.isProvided('value');
     const initialValue = controlled
       ? (run.props.get().value ?? '')
@@ -172,6 +182,7 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   });
 
   def.props.watch(['value', 'orientation', 'activationMode'], (run, next) => {
+    // P-BASE-TABS-CONTROLLED-VALUE, P-BASE-TABS-CONTEXT-SYNC
     controlled = run.props.isProvided('value');
     if (controlled) {
       value.set(next.value ?? '', 'reason: props.watch(value) => controlled tabs sync');
@@ -182,6 +193,17 @@ function setupTabsRoot(def: DefHandle<TabsRootProps, TabsRootExposes>): void {
   });
 }
 
+/*
+ * P-BASE-TABS criteria outside Tabs-root-internal prototype syntax:
+ * - P-BASE-TABS-PROP-NO-EVENT-CALLBACK: absence of event callback props is the implementation.
+ * - P-BASE-TABS-VALUE-MATCHING: implemented by Trigger and Content equality checks.
+ * - P-BASE-TABS-A11Y-ROLE-TARGETS, P-BASE-TABS-A11Y-RELATIONSHIP-TARGET: implemented by parts.
+ * - P-BASE-TABS-DEFAULT-L1-DETACH, P-BASE-TABS-PRESENCE-POLICY: implemented by Content.
+ * - P-BASE-TABS-INDICATOR-MEASUREMENT-DEFERRED: Indicator remains a context-only consumer.
+ * - P-BASE-TABS-DUPLICATE-VALUE-FALLBACK-DEFERRED: no duplicate-value policy is implemented.
+ */
+
+// P-BASE-TABS-AUTHORING-ENTRIES
 export const asTabsRoot = defineAsHook<TabsRootProps, TabsRootExposes, TabsRootAsHookContract>({
   name: 'as-tabs-root',
   setup: setupTabsRoot,

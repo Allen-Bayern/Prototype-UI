@@ -4,7 +4,9 @@ export type TabsOrientation = 'horizontal' | 'vertical';
 export type TabsActivationMode = 'automatic' | 'manual';
 
 export type TabsContextValue = {
+  // P-BASE-TABS-A11Y-RELATIONSHIP-TARGET
   rootId: string;
+  // P-BASE-TABS-CONTEXT-VALUE, P-BASE-TABS-ACTIVE-VALUE
   value: string;
   activeValue: string;
   orientation: TabsOrientation;
@@ -32,6 +34,12 @@ export function createTabsPartId(
   return `${rootId || 'pui-tabs'}-${role}-${safeValue}`;
 }
 
+// P-BASE-TABS-ANATOMY-FAMILY, P-BASE-TABS-FAMILY-ROLES
+// P-BASE-TABS-ROOT-CARDINALITY, P-BASE-TABS-LIST-CARDINALITY
+// P-BASE-TABS-TRIGGER-CARDINALITY, P-BASE-TABS-CONTENT-CARDINALITY
+// P-BASE-TABS-INDICATOR-CARDINALITY
+// P-BASE-TABS-ROOT-CONTAINS-LIST, P-BASE-TABS-LIST-CONTAINS-TRIGGER
+// P-BASE-TABS-ROOT-CONTAINS-CONTENT, P-BASE-TABS-ROOT-CONTAINS-INDICATOR
 export const TABS_FAMILY = createAnatomyFamily('base-tabs', {
   roles: {
     root: { cardinality: { min: 1, max: 1 } },
@@ -47,4 +55,5 @@ export const TABS_FAMILY = createAnatomyFamily('base-tabs', {
     { kind: 'contains', parent: 'root', child: 'indicator' },
   ],
 });
+// P-BASE-TABS-CONTEXT-KEY
 export const TABS_CONTEXT = createContextKey<TabsContextValue>('base-tabs');

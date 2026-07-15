@@ -320,14 +320,24 @@ export class FocusCenter {
     const members = this.getRovingMembers(provider);
     if (members.length === 0) return false;
 
-    const currentIndex = members.findIndex((entry) => entry.getFacts().focused);
-    if (options?.requireFocusedMember && currentIndex < 0) return false;
+    const focusedIndex = members.findIndex((entry) => entry.getFacts().focused);
+    const activeIndex = members.findIndex((entry) => entry.getFacts().rovingActive);
+    if (options?.requireFocusedMember && focusedIndex < 0) return false;
+    const currentIndex = focusedIndex >= 0 ? focusedIndex : activeIndex;
 
     const loop = provider.getRovingConfig().loop;
 
     let target: FocusCenterEntry | null = null;
-    if (op === 'first' || op === 'selected') {
+    if (op === 'first') {
       target = members[0] ?? null;
+    } else if (op === 'selected') {
+      const selected = members.filter((entry) => entry.getFacts().rovingSelected);
+      if (selected.length > 1) {
+        provider.pushWarning(
+          `[Focus] roving set has multiple selected members; focusSelected uses the first member in host order.`
+        );
+      }
+      target = selected[0] ?? members[0] ?? null;
     } else if (op === 'last') {
       target = members[members.length - 1] ?? null;
     } else if (currentIndex >= 0) {

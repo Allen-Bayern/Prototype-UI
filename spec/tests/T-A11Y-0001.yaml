@@ -5,6 +5,12 @@ status: draft
 since: 0.1.0
 summary: Contract tests for a11y semantic object IR, Button consumption, identity/relation projection, and Web adapter projection.
 cases:
+  - id: T-A11Y-0001-CASE-DYNAMIC-ROLE
+    title: A semantic role may follow a state-backed fact
+    covers:
+      - C-A11Y-0001-C
+      - C-A11Y-0001-J
+    expectation: state-backed-role-projection
   - id: T-A11Y-0001-CASE-IR
     title: A prototype can declare identity, role, name, state, action, and relation into a stable a11y IR
     covers:
@@ -42,6 +48,7 @@ implementations:
     path: packages/runtime/test/contract/a11y.v0.contract.test.ts
     required: true
     consumesCases:
+      - T-A11Y-0001-CASE-DYNAMIC-ROLE
       - T-A11Y-0001-CASE-IR
   - id: base-button-a11y-contract
     kind: module-test
@@ -70,6 +77,7 @@ verifies:
         - C-A11Y-0001-G
         - C-A11Y-0001-H
         - C-A11Y-0001-I
+        - C-A11Y-0001-J
   hostCaps:
     - id: HC-A11Y-0001
       anchors:
@@ -82,6 +90,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added coverage for dynamic a11y name projection from state-backed text facts.
+  - version: 0.1.2
+    change: refined
+    summary: Added runtime coverage for state-backed semantic role projection.
 tags:
   - a11y
   - accessibility

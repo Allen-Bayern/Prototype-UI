@@ -50,6 +50,10 @@ criteria:
     text:
       zh-CN: a11y name 与 description 可以引用字符串或 state handle；当引用 state handle 时，adapter 投射必须随 state 值变化更新。
       en: A11y name and description may reference a string or a state handle; when they reference a state handle, adapter projection must update as the state value changes.
+  - id: C-A11Y-0001-J
+    text:
+      zh-CN: a11y role 可以引用静态字符串或 state handle；当交互对象的 role 由受治理状态切换时，adapter 投射必须随 state 更新。
+      en: A11y role may reference a static string or a state handle; when an interaction object's role changes through governed state, adapter projection must update with that state.
 sources:
   - path: internal/records/2026-06-30-a11y-module-planning-for-button.zh-CN.md
   - path: packages/modules/a11y/src/types.ts
@@ -80,6 +84,9 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Allowed a11y name and description text facts to reference state handles for dynamic host-neutral labels.
+  - version: 0.1.2
+    change: refined
+    summary: Allowed semantic roles to reference state handles for governed dynamic role projection.
 tags:
   - a11y
   - accessibility

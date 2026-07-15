@@ -6,12 +6,14 @@ import {
 import type {
   ShadcnDialogContentExposes,
   ShadcnDialogContentProps,
+  ShadcnDialogRootProps,
 } from '@proto.ui/prototypes-shadcn';
 
 declare const baseProps: DialogContentProps;
 declare const baseExposes: DialogContentExposes;
 declare const shadcnProps: ShadcnDialogContentProps;
 declare const shadcnExposes: ShadcnDialogContentExposes;
+declare const shadcnRootProps: ShadcnDialogRootProps;
 
 // Base asHook types reflect capabilities injected by the nested Transition.
 baseProps.enterDuration;
@@ -28,8 +30,10 @@ dialog.asTransition.controls.complete();
 dialog.stateHandles.transitionState;
 
 // A design-language library maintains a narrower translated public API.
-shadcnProps.alert;
+shadcnRootProps.alert;
 shadcnExposes.open;
+// @ts-expect-error alert mode is owned by Dialog Root rather than Content
+shadcnProps.alert;
 // @ts-expect-error Shadcn motion policy is internal rather than a public prop
 shadcnProps.enterDuration;
 // @ts-expect-error Shadcn does not publish Transition controls in its final expose type

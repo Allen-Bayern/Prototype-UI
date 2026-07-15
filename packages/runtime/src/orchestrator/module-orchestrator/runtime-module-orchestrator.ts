@@ -41,6 +41,7 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
 
   // runtime-owned callback ctx (opaque)
   private callbackCtx: unknown = undefined;
+  private afterCallbackTasks: Array<() => void> = [];
 
   constructor(init: { prototypeName: string; getPhase: () => ExecPhase }, modules: ModuleDecl[]) {
     this.prototypeName = init.prototypeName;
@@ -96,6 +97,10 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
 
       getCallbackCtx: () => {
         return this.getExecPhase() === 'callback' ? this.callbackCtx : undefined;
+      },
+
+      deferAfterCallback: (task) => {
+        this.afterCallbackTasks.push(task);
       },
     };
 
@@ -318,6 +323,14 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
     return this.callbackCtx;
   }
 
+  __flushAfterCallbackTasks(): void {
+    while (this.afterCallbackTasks.length > 0) {
+      const tasks = this.afterCallbackTasks;
+      this.afterCallbackTasks = [];
+      for (const task of tasks) task();
+    }
+  }
+
   // -------------------------
   // lifecycle
   // -------------------------
@@ -328,6 +341,7 @@ export class RuntimeModuleOrchestrator implements ModuleOrchestrator {
 
     // best-effort clear callback ctx
     this.callbackCtx = undefined;
+    this.afterCallbackTasks = [];
 
     // dispose hooks first so modules can teardown while caps still readable
     for (const r of this.records) {

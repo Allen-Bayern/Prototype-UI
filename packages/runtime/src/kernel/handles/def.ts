@@ -349,6 +349,13 @@ export const createDefHandle = <P extends PropsBaseType, E = Record<string, unkn
         if (!anatomy) throw new Error(`[Anatomy] module unavailable`);
         anatomy.claim(family, decl);
       },
+      subscribeParts(family, role, onChange) {
+        ensureSetup('def.anatomy.subscribeParts');
+        if (!anatomy) throw new Error(`[Anatomy] module unavailable`);
+        return anatomy.subscribeParts(family, role, (ctx, parts) =>
+          onChange(ctx as RunHandle<P>, parts)
+        );
+      },
     },
 
     a11y: {

@@ -261,6 +261,14 @@ describe('prototypes/base: tabs', () => {
     expect(triggerB.tabIndex).toBe(-1);
 
     triggerA.focus();
+    // T-BASE-TABS-TRIGGER-0001-CASE-KEYBOARD
+    const spaceEvent = new KeyboardEvent('keydown', { key: ' ', cancelable: true });
+    window.dispatchEvent(spaceEvent);
+    await Promise.resolve();
+    expect(spaceEvent.defaultPrevented).toBe(true);
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: ' ' }));
+    await Promise.resolve();
+
     const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
     window.dispatchEvent(tabEvent);
     await Promise.resolve();
@@ -353,6 +361,13 @@ describe('prototypes/base: tabs', () => {
     expect(triggerA.tabIndex).toBe(-1);
     expect(triggerB.tabIndex).toBe(-1);
     expect(triggerC.tabIndex).toBe(0);
+
+    list.getExposes().focusSelected();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.activeElement).toBe(triggerA);
+    expect(root.getExposes().value.get()).toBe('a');
 
     triggerC.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();

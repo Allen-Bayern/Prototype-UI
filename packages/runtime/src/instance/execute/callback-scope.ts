@@ -22,6 +22,7 @@ import type { PropsPort, PropsWatchTask } from '@proto.ui/module-props';
  */
 export class CallbackScope<P extends PropsBaseType> {
   private delayContext: ActiveRuntimeDelayContext | undefined;
+  private depth = 0;
 
   constructor(
     private readonly getPhase: () => ExecPhase,
@@ -56,6 +57,7 @@ export class CallbackScope<P extends PropsBaseType> {
     const prevCtx = (this.moduleHub as any).__getCallbackCtx?.();
 
     this.setPhase('callback');
+    this.depth += 1;
 
     // Provide callback ctx for modules via SYS_CAP.getCallbackCtx()
     (this.moduleHub as any).__setCallbackCtx?.(ctx);
@@ -69,6 +71,8 @@ export class CallbackScope<P extends PropsBaseType> {
       if (this.delayContext) exitActiveRuntimeDelayContext();
       (this.moduleHub as any).__setCallbackCtx?.(prevCtx);
       this.setPhase(prevPhase);
+      this.depth -= 1;
+      if (this.depth === 0) (this.moduleHub as any).__flushAfterCallbackTasks?.();
     }
   }
 
@@ -82,6 +86,7 @@ export class CallbackScope<P extends PropsBaseType> {
     const prevCtx = (this.moduleHub as any).__getCallbackCtx?.();
 
     this.setPhase('callback');
+    this.depth += 1;
     (this.moduleHub as any).__setCallbackCtx?.(ctx);
     if (this.delayContext) enterActiveRuntimeDelayContext(this.delayContext);
 
@@ -92,6 +97,8 @@ export class CallbackScope<P extends PropsBaseType> {
       if (this.delayContext) exitActiveRuntimeDelayContext();
       (this.moduleHub as any).__setCallbackCtx?.(prevCtx);
       this.setPhase(prevPhase);
+      this.depth -= 1;
+      if (this.depth === 0) (this.moduleHub as any).__flushAfterCallbackTasks?.();
     }
   }
 

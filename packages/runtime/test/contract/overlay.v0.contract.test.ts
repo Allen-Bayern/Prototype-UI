@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { definePrototype, type OverlayHandle } from '@proto.ui/core';
+import {
+  definePrototype,
+  HOST_ELEMENT_CAP,
+  type ObservedStateHandle,
+  type OverlayHandle,
+} from '@proto.ui/core';
 import { asOverlay } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
 import { BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
 import { EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
-import type { OverlayPort } from '@proto.ui/module-overlay';
+import { OVERLAY_GLOBAL_MOUNT_CAP, type OverlayPort } from '@proto.ui/module-overlay';
 import type { PropsBaseType } from '@proto.ui/types';
 
 const createHost = <P extends PropsBaseType>(
@@ -254,5 +259,65 @@ describe('runtime contract: overlay (v0)', () => {
     result.invokeInCallbackScope(() => overlay.close('programmatic'));
     expect(overlay.isOpen()).toBe(false);
     expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+  });
+
+  it('OVERLAY-0800: bound host resources reconcile after the outer callback chain', () => {
+    let overlay!: OverlayHandle<PropsBaseType>;
+    let present = false;
+    const watchers = new Set<(run: unknown, event: any) => void>();
+    const presentHandle: ObservedStateHandle<boolean, PropsBaseType> = {
+      get: () => present,
+      watch(cb) {
+        watchers.add(cb as any);
+        return () => watchers.delete(cb as any);
+      },
+    };
+    const setPresent = (next: boolean) => {
+      if (next === present) return;
+      const prev = present;
+      present = next;
+      for (const watcher of [...watchers]) {
+        watcher(undefined, { type: 'next', next, prev });
+      }
+    };
+    const hostElement = document.createElement('div');
+    const mounted: HTMLElement[] = [];
+
+    const P = definePrototype({
+      name: 'x-overlay-0800',
+      setup() {
+        overlay = asOverlay<PropsBaseType>();
+        overlay.configure({ portal: true });
+        overlay.bindPresence({
+          enter: () => setPresent(true),
+          leave: () => setPresent(false),
+          present: presentHandle,
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, {
+      onRuntimeReady(wiring) {
+        wiring.attach('overlay', [
+          [HOST_ELEMENT_CAP, hostElement],
+          [
+            OVERLAY_GLOBAL_MOUNT_CAP,
+            {
+              mount: (element: HTMLElement) => mounted.push(element),
+              unmount: () => {},
+            },
+          ],
+        ]);
+      },
+    });
+    const result = executeWithHost(P as any, host as any);
+
+    result.invokeInCallbackScope(() => {
+      overlay.openOverlay('programmatic');
+      expect(mounted).toEqual([]);
+    });
+
+    expect(mounted).toEqual([hostElement]);
   });
 });

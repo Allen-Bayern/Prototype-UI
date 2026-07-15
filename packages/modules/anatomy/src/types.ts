@@ -24,6 +24,11 @@ export type AnatomyOrderChangeCb = (ctx: AnatomyOrderCallbackCtx) => void;
 
 export type AnatomyFacade = {
   claim(family: AnatomyFamily, decl: AnatomyClaimDecl): void;
+  subscribeParts(
+    family: AnatomyFamily,
+    role: string,
+    cb: (ctx: AnatomyOrderCallbackCtx, parts: readonly AnatomyPartView[]) => void
+  ): Unsubscribe;
 
   has(family: AnatomyFamily, role: string): boolean;
   parts: AnatomyQueryOrderView['parts'];

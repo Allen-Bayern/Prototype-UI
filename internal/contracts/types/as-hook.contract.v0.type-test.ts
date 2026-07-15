@@ -1,4 +1,5 @@
 import { defineAsHook, type AsHookResult, type State } from '@proto.ui/core';
+import { asBoundary } from '@proto.ui/hooks';
 
 type Props = { disabled?: boolean };
 
@@ -10,6 +11,9 @@ type ButtonContract = {
   event: {
     click: void;
     submit: { source: 'keyboard' | 'pointer' };
+  };
+  asHooks: {
+    asNested: { close(): void };
   };
 };
 
@@ -25,7 +29,7 @@ const submitKey = buttonResult.artifacts?.eventKeys?.submit;
 const exactClick: 'click' | undefined = clickKey;
 const exactSubmit: 'submit' | undefined = submitKey;
 
-const nestedHandle = buttonResult.getAsHookHandle?.<{ close(): void }>('asNested');
+const nestedHandle = buttonResult.getAsHookHandle?.('asNested');
 nestedHandle?.close();
 
 // Legacy third generic as raw state map should keep working.
@@ -45,6 +49,11 @@ const asNoArgs = defineAsHook({
 asNoArgs();
 // @ts-expect-error authored asHook callers are no-arg in v0
 asNoArgs({ enabled: true });
+
+const boundary = asBoundary();
+boundary.configure({ debugLabel: 'typed-boundary' });
+// @ts-expect-error privileged Boundary configuration lives on the returned handle
+asBoundary({ debugLabel: 'legacy-parameterized-boundary' });
 
 const asCustomHandle = defineAsHook<
   Props,

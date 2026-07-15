@@ -94,6 +94,7 @@ export class OverlayModuleImpl extends ModuleBase {
   private readonly warnings: string[] = [];
   private readonly boundary: BoundaryHandle<any>;
   private lastReason: OverlayReason | undefined = undefined;
+  private viewReconciliationVersion = 0;
   private registration: OverlayRegistration = Object.freeze({
     trigger: null,
     anchor: null,
@@ -314,6 +315,7 @@ export class OverlayModuleImpl extends ModuleBase {
     }
 
     this.viewActive = active;
+    this.viewReconciliationVersion += 1;
     if (active) {
       if (this.mountPhase === 'mounted') this.lockModalIfNeeded();
       return;
@@ -321,9 +323,18 @@ export class OverlayModuleImpl extends ModuleBase {
     this.deactivateViewSideEffects();
   }
 
-  reconcileViewResources(): void {
+  reconcileViewResourcesAfterCallback(): void {
     if (!this.viewActive) return;
-    this.syncViewSideEffects();
+    const version = this.viewReconciliationVersion;
+    const reconcile = () => {
+      if (!this.viewActive || version !== this.viewReconciliationVersion) return;
+      this.syncViewSideEffects();
+    };
+    if (this.sys.deferAfterCallback) {
+      this.sys.deferAfterCallback(reconcile);
+      return;
+    }
+    reconcile();
   }
 
   private replaceRegistration(next: Partial<OverlayRegistration>) {

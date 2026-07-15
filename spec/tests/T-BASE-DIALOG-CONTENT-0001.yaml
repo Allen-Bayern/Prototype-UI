@@ -1,0 +1,55 @@
+id: T-BASE-DIALOG-CONTENT-0001
+type: test
+title: Base Dialog Content protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Content transition presence, focus containment, dismissal requests, controlled ownership, and accessible modal semantics.
+cases:
+  - id: T-BASE-DIALOG-CONTENT-0001-CASE-SURFACE
+    title: Content coordinates presence, focus, and dismissal through Root
+    covers:
+      - P-BASE-DIALOG-CONTENT-AUTHORING-ENTRIES
+      - P-BASE-DIALOG-CONTENT-PRESENCE
+      - P-BASE-DIALOG-CONTENT-FOCUS
+      - P-BASE-DIALOG-CONTENT-DISMISS
+      - P-BASE-DIALOG-CONTENT-CONTROLLED
+    expectation: dialog-content-contains-focus-and-requests-dismissal-through-root
+  - id: T-BASE-DIALOG-CONTENT-0001-CASE-A11Y
+    title: Content projects modal role and stable title and description relationships
+    covers:
+      - P-BASE-DIALOG-CONTENT-A11Y-ROLE
+      - P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
+    expectation: dialog-content-projects-role-modal-and-naming-relations
+implementations:
+  - id: prototypes-base-dialog-content-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/dialog.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-DIALOG-CONTENT-0001-CASE-SURFACE
+      - T-BASE-DIALOG-CONTENT-0001-CASE-A11Y
+    exercises: [P-BASE-DIALOG-CONTENT]
+  - id: adapter-web-component-dialog-content-contract
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/web-component/test/dialog-overlay.test.ts
+    required: true
+    consumesCases: [T-BASE-DIALOG-CONTENT-0001-CASE-A11Y]
+    exercises: [P-BASE-DIALOG-CONTENT]
+verifies:
+  prototypes:
+    - id: P-BASE-DIALOG-CONTENT
+      anchors:
+        - P-BASE-DIALOG-CONTENT-PRESENCE
+        - P-BASE-DIALOG-CONTENT-DISMISS
+        - P-BASE-DIALOG-CONTENT-CONTROLLED
+        - P-BASE-DIALOG-CONTENT-A11Y-ROLE
+        - P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
+exercises: { prototypes: [P-BASE-DIALOG-CONTENT] }
+revisions:
+  - { version: 0.2.0, change: introduced, summary: Added Dialog Content protocol coverage. }
+  - version: 0.2.1
+    change: refined
+    summary: Added live add/remove coverage for conditional Title and Description relationships and a11yLabel fallback.
+tags: [prototype, base, dialog, content, test]

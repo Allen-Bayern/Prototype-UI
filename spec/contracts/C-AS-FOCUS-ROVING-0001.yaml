@@ -52,6 +52,20 @@ criteria:
     dependsOn:
       decisions:
         - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
+  - id: C-AS-FOCUS-ROVING-0001-I
+    text:
+      zh-CN: Focusable member 必须可以在运行期发布独立的 `selected` 与 `active` roving facts；`focusSelected()` 必须优先聚焦 selected eligible member，next/prev 在无 focused member 时可以 active member 作为起点。语义 selection 不得由 host order 或自然 Tab participation 猜测。
+      en: A focusable member must be able to publish independent runtime `selected` and `active` roving facts; `focusSelected()` must prefer the selected eligible member, and next/previous may use the active member as their starting point when no member is focused. Semantic selection must not be inferred from host order or natural Tab participation.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUSABLE-0001
+  - id: C-AS-FOCUS-ROVING-0001-J
+    text:
+      zh-CN: 共享 global keyboard target 上的 roving key event 只能由包含实际 focused member 的 roving set 消费；`active` fact 可以作为显式 next/prev request 在无焦点时的起点，但不得让未聚焦的并列实例响应同一键盘事件。
+      en: A roving key event on a shared global keyboard target may only be consumed by the roving set containing the actually focused member; the `active` fact may seed an explicit next/previous request when no member is focused, but must not make unfocused sibling instances respond to the same keyboard event.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUSABLE-0001
 sources:
   - path: internal/contracts/focus/base-text/focus-roving.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -89,6 +103,12 @@ revisions:
   - version: 0.1.4
     change: refined
     summary: Added runtime strategy synchronization methods for orientation and loop updates after setup.
+  - version: 0.1.5
+    change: refined
+    summary: Added runtime selected and active membership facts for semantic roving requests.
+  - version: 0.1.6
+    change: refined
+    summary: Restricted shared global keyboard events to the roving set that contains actual focus.
 tags:
   - focus
   - as-hook
