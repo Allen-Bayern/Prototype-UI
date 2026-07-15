@@ -322,8 +322,8 @@ export class FocusCenter {
 
     const focusedIndex = members.findIndex((entry) => entry.getFacts().focused);
     const activeIndex = members.findIndex((entry) => entry.getFacts().rovingActive);
+    if (options?.requireFocusedMember && focusedIndex < 0) return false;
     const currentIndex = focusedIndex >= 0 ? focusedIndex : activeIndex;
-    if (options?.requireFocusedMember && currentIndex < 0) return false;
 
     const loop = provider.getRovingConfig().loop;
 

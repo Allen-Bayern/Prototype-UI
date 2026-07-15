@@ -54,6 +54,11 @@ cases:
     covers:
       - C-AS-FOCUS-ROVING-0001-I
     expectation: roving-selected-and-active-status-drive-semantic-focus-requests
+  - id: T-FOCUS-ROVING-0001-CASE-MULTI-INSTANCE-ISOLATION
+    title: Shared global arrow events only move the roving instance that contains actual focus
+    covers:
+      - C-AS-FOCUS-ROVING-0001-J
+    expectation: unfocused-roving-instances-ignore-shared-global-key-events
 implementations:
   - id: runtime-focus-roving-contract
     kind: runtime-test
@@ -68,6 +73,7 @@ implementations:
       - T-FOCUS-ROVING-0001-CASE-NAV-PARTICIPATION
       - T-FOCUS-ROVING-0001-CASE-RUNTIME-STRATEGY
       - T-FOCUS-ROVING-0001-CASE-MEMBER-STATUS
+      - T-FOCUS-ROVING-0001-CASE-MULTI-INSTANCE-ISOLATION
   - id: prototypes-base-tabs-roving-tab-boundary
     kind: module-test
     status: passing
@@ -93,6 +99,7 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-G
         - C-AS-FOCUS-ROVING-0001-H
         - C-AS-FOCUS-ROVING-0001-I
+        - C-AS-FOCUS-ROVING-0001-J
   decisions:
     - id: D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
       anchors:
@@ -124,6 +131,9 @@ revisions:
   - version: 0.1.5
     change: refined
     summary: Added semantic selected and active member status coverage.
+  - version: 0.1.6
+    change: refined
+    summary: Added multi-instance isolation coverage for shared global roving key events.
 tags:
   - focus
   - focus-roving
