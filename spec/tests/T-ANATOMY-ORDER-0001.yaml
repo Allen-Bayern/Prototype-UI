@@ -38,6 +38,7 @@ cases:
       - C-ANATOMY-ORDER-0003-B
       - C-ANATOMY-ORDER-0003-C
       - C-ANATOMY-ORDER-0003-D
+      - C-ANATOMY-ORDER-0003-E
     expectation: live-role-projection-subscription
 implementations:
   - id: module-anatomy-impl-spec
@@ -88,6 +89,7 @@ verifies:
         - C-ANATOMY-ORDER-0003-B
         - C-ANATOMY-ORDER-0003-C
         - C-ANATOMY-ORDER-0003-D
+        - C-ANATOMY-ORDER-0003-E
 exercises:
   contracts:
     - id: C-ANATOMY-0005
@@ -103,6 +105,9 @@ revisions:
   - version: 0.2.0
     change: refined
     summary: Added runtime coverage for setup-time live role projection subscriptions.
+  - version: 0.2.1
+    change: refined
+    summary: Added role filtering and direct logical mount/unmount membership coverage.
 tags:
   - anatomy
   - order

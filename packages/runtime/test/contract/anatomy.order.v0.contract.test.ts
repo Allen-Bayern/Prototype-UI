@@ -409,17 +409,21 @@ describe('runtime contract: anatomy.order (v0)', () => {
       roles: {
         root: { cardinality: { min: 1, max: 1 } },
         item: { cardinality: { min: 0, max: 10 } },
+        other: { cardinality: { min: 0, max: 10 } },
       },
     });
     const orderMap = new Map<string, number>([
       ['root', 0],
       ['item', 1],
+      ['other', 2],
     ]);
     const rootTarget = createTarget('root', orderMap);
     const itemTarget = createTarget('item', orderMap);
+    const otherTarget = createTarget('other', orderMap);
     const parents = new Map<unknown, unknown | null>([
       [rootTarget, null],
       [itemTarget, rootTarget],
+      [otherTarget, rootTarget],
     ]);
 
     let notifyOrder: (() => void) | null = null;
@@ -440,9 +444,16 @@ describe('runtime contract: anatomy.order (v0)', () => {
         def.expose.value('id' as any, 'item');
       },
     });
+    const Other = definePrototype({
+      name: 'x-rt-anatomy-parts-subscription-other',
+      setup(def) {
+        def.anatomy.claim(family, { role: 'other' });
+      },
+    });
     const getPrototype = (instance: unknown) => {
       if (instance === rootTarget) return Root;
       if (instance === itemTarget) return Item;
+      if (instance === otherTarget) return Other;
       return null;
     };
 
@@ -460,6 +471,19 @@ describe('runtime contract: anatomy.order (v0)', () => {
         },
       }).host as any
     );
+    executeWithHost(
+      Other as any,
+      createHost({
+        instance: otherTarget,
+        getParent: (instance) => parents.get(instance) ?? null,
+        getPrototype,
+      }).host as any
+    );
+    expect(notifyOrder).not.toBeNull();
+    const notify = notifyOrder as unknown as () => void;
+    notify();
+    expect(seen).toEqual([]);
+
     const itemExec = executeWithHost(
       Item as any,
       createHost({
@@ -469,14 +493,14 @@ describe('runtime contract: anatomy.order (v0)', () => {
       }).host as any
     );
 
-    expect(notifyOrder).not.toBeNull();
-    const notify = notifyOrder as unknown as () => void;
+    expect(seen).toEqual([['item']]);
     notify();
     expect(seen).toEqual([['item']]);
     notify();
     expect(seen).toHaveLength(1);
 
     await itemExec.invokeUnmounted();
+    expect(seen).toEqual([['item'], []]);
     notify();
     expect(seen).toEqual([['item'], []]);
   });
