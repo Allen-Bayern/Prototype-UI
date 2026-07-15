@@ -24,12 +24,6 @@ function setupDialogDescription(
   });
 }
 
-/*
- * TODO(P-BASE-DIALOG-DESCRIPTION-ALERT): enforce the alert-only Description
- * requirement once anatomy can express conditional cardinality. Runtime
- * identity projection cannot synthesize the alert's primary message.
- */
-
 // P-BASE-DIALOG-DESCRIPTION-AUTHORING-ENTRIES
 export const asDialogDescription = defineAsHook<
   DialogDescriptionProps,

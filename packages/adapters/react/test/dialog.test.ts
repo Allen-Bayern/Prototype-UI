@@ -18,6 +18,7 @@ function dialogContext(open: boolean): DialogContextValue {
     controlled: false,
     disabled: false,
     alert: false,
+    a11yLabel: '',
     requestedOpen: open,
     requestReason: null,
     requestFocusReason: null,

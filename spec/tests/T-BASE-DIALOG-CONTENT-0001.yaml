@@ -26,7 +26,9 @@ implementations:
     status: passing
     path: packages/prototypes/base/test/dialog.test.ts
     required: true
-    consumesCases: [T-BASE-DIALOG-CONTENT-0001-CASE-SURFACE]
+    consumesCases:
+      - T-BASE-DIALOG-CONTENT-0001-CASE-SURFACE
+      - T-BASE-DIALOG-CONTENT-0001-CASE-A11Y
     exercises: [P-BASE-DIALOG-CONTENT]
   - id: adapter-web-component-dialog-content-contract
     kind: adapter-test
@@ -47,4 +49,7 @@ verifies:
 exercises: { prototypes: [P-BASE-DIALOG-CONTENT] }
 revisions:
   - { version: 0.2.0, change: introduced, summary: Added Dialog Content protocol coverage. }
+  - version: 0.2.1
+    change: refined
+    summary: Added live add/remove coverage for conditional Title and Description relationships and a11yLabel fallback.
 tags: [prototype, base, dialog, content, test]

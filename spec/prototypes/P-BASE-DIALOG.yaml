@@ -45,12 +45,12 @@ criteria:
       en: Dialog parts must not obtain core Dialog semantics by consuming Button or another Base prototype-specific authored asHook.
   - id: P-BASE-DIALOG-ROOT-OWNER
     text:
-      zh-CN: Root 必须是 open、controlled ownership、disabled、alert mode、part identity 与 request sequencing 的 semantic owner。
-      en: Root must be the semantic owner of open state, controlled ownership, disabled state, alert mode, part identity, and request sequencing.
+      zh-CN: Root 必须是 open、controlled ownership、disabled、alert mode、accessible-label fallback、part identity 与 request sequencing 的 semantic owner。
+      en: Root must be the semantic owner of open state, controlled ownership, disabled state, alert mode, the accessible-label fallback, part identity, and request sequencing.
   - id: P-BASE-DIALOG-PROPS
     text:
-      zh-CN: Root 必须接受 `open`、`defaultOpen`、`disabled` 与 `alert`；`open` 被提供时进入受控模式。
-      en: Root must accept `open`, `defaultOpen`, `disabled`, and `alert`; providing `open` selects controlled mode.
+      zh-CN: Root 必须接受 `open`、`defaultOpen`、`disabled`、`alert` 与 host-neutral `a11yLabel`；`open` 被提供时进入受控模式。
+      en: Root must accept `open`, `defaultOpen`, `disabled`, `alert`, and the host-neutral `a11yLabel`; providing `open` selects controlled mode.
   - id: P-BASE-DIALOG-OPEN-EXPOSE
     text:
       zh-CN: Root 必须 expose `open` state，以及 `openDialog`、`close`、`toggle` methods；这些 method 必须进入与交互相同的 request channel，不得绕过 controlled owner。
@@ -65,8 +65,8 @@ criteria:
       en: After a request, a controlled Dialog must retain the owner-provided open fact until a new `open` input arrives.
   - id: P-BASE-DIALOG-CONTEXT
     text:
-      zh-CN: Root 必须通过同域 Context 向 parts 发布 open、disabled、alert、focus reason、identity 与 request facts。
-      en: Root must publish open, disabled, alert, focus-reason, identity, and request facts to same-domain parts through Context.
+      zh-CN: Root 必须通过同域 Context 向 parts 发布 open、disabled、alert、a11yLabel、focus reason、identity 与 request facts。
+      en: Root must publish open, disabled, alert, a11yLabel, focus-reason, identity, and request facts to same-domain parts through Context.
   - id: P-BASE-DIALOG-ANATOMY
     text:
       zh-CN: canonical anatomy roles、cardinality 与 contains relations 必须由顶层 anatomy 字段定义。
@@ -97,4 +97,7 @@ revisions:
   - version: 0.2.1
     change: refined
     summary: Required Root methods to preserve controlled ownership through the open request channel.
+  - version: 0.2.2
+    change: refined
+    summary: Added the host-neutral a11yLabel fallback published to Content through Dialog context.
 tags: [prototype, base, dialog, modal, compound]

@@ -39,18 +39,16 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
   const modal = def.state.bool('dialogModal', true);
   const contentId = def.state.string('dialogContentId', '');
-  const titleId = def.state.string('dialogTitleId', '');
-  const descriptionId = def.state.string('dialogDescriptionId', '');
+  const accessibleLabel = def.state.string('dialogAccessibleLabel', '');
+  const labelledBy = def.state.string('dialogLabelledBy', '');
+  const describedBy = def.state.string('dialogDescribedBy', '');
   // P-BASE-DIALOG-CONTENT-A11Y-ROLE, P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
-  // TODO(P-BASE-DIALOG-CONTENT-A11Y-RELATIONS): make labelledBy/describedBy
-  // conditional on live Title/Description membership once anatomy exposes
-  // part-presence notifications; stable target IDs currently may dangle when
-  // those optional parts are absent.
   def.a11y.id(contentId);
   def.a11y.role(role);
+  def.a11y.name(accessibleLabel);
   def.a11y.state('modal', modal);
-  def.a11y.relation('labelledBy', { target: titleId });
-  def.a11y.relation('describedBy', { target: descriptionId });
+  def.a11y.relation('labelledBy', { target: labelledBy });
+  def.a11y.relation('describedBy', { target: describedBy });
 
   // P-BASE-DIALOG-CONTENT-DISMISS, P-BASE-DIALOG-CONTENT-FOCUS
   const overlay = asOverlay<DialogContentProps>();
@@ -86,6 +84,52 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
 
   let mountedRun: any = null;
   let currentContext: DialogContextValue | null = null;
+  let warnedMissingAlertDescription = false;
+
+  const hasLivePart = (run: any, role: 'title' | 'description'): boolean => {
+    try {
+      return run.anatomy.has(DIALOG_FAMILY, role);
+    } catch (error) {
+      if ((error as { code?: string })?.code === 'ANATOMY_CLAIM_INVALID') return false;
+      throw error;
+    }
+  };
+
+  const syncA11yRelations = (run: any, ctx: DialogContextValue) => {
+    // P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
+    // P-BASE-DIALOG-DESCRIPTION-ALERT
+    const hasTitle = hasLivePart(run, 'title');
+    const hasDescription = hasLivePart(run, 'description');
+    labelledBy.set(
+      hasTitle ? createDialogPartId(ctx.rootId, 'title') : '',
+      'reason: dialog live title relation sync'
+    );
+    accessibleLabel.set(
+      hasTitle ? '' : ctx.a11yLabel,
+      'reason: dialog accessible label fallback sync'
+    );
+    describedBy.set(
+      hasDescription ? createDialogPartId(ctx.rootId, 'description') : '',
+      'reason: dialog live description relation sync'
+    );
+
+    if (!mountedRun || !ctx.alert || hasDescription) {
+      warnedMissingAlertDescription = false;
+      return;
+    }
+    if (warnedMissingAlertDescription) return;
+    warnedMissingAlertDescription = true;
+    console.warn(
+      '[base-dialog-content] Alert Dialog requires a Dialog Description containing its primary message.'
+    );
+  };
+
+  def.anatomy.subscribeParts(DIALOG_FAMILY, 'title', (run) => {
+    if (currentContext) syncA11yRelations(run, currentContext);
+  });
+  def.anatomy.subscribeParts(DIALOG_FAMILY, 'description', (run) => {
+    if (currentContext) syncA11yRelations(run, currentContext);
+  });
 
   const updateOpen = (
     nextOpen: boolean,
@@ -116,11 +160,6 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   const syncIdentity = (ctx: DialogContextValue) => {
     // P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
     contentId.set(createDialogPartId(ctx.rootId, 'content'), 'reason: dialog content id sync');
-    titleId.set(createDialogPartId(ctx.rootId, 'title'), 'reason: dialog title relation sync');
-    descriptionId.set(
-      createDialogPartId(ctx.rootId, 'description'),
-      'reason: dialog description relation sync'
-    );
   };
 
   const syncAlert = (ctx: DialogContextValue) => {
@@ -134,6 +173,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     currentContext = next;
     syncIdentity(next);
     syncAlert(next);
+    syncA11yRelations(run, next);
     updateOpen(next.open, 'reason: dialog context sync => content', {
       focusReason: next.open ? next.openFocusReason : next.returnFocusReason,
     });
@@ -144,6 +184,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     currentContext = ctx;
     syncIdentity(ctx);
     syncAlert(ctx);
+    syncA11yRelations(run, ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onCreated => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });
@@ -155,6 +196,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     currentContext = ctx;
     syncIdentity(ctx);
     syncAlert(ctx);
+    syncA11yRelations(run, ctx);
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => dialog content open sync', {
       focusReason: ctx.open ? ctx.openFocusReason : ctx.returnFocusReason,
     });

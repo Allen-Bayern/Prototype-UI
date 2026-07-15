@@ -11,6 +11,7 @@ export type DialogContextValue = {
   controlled: boolean;
   disabled: boolean;
   alert: boolean;
+  a11yLabel: string;
   requestedOpen: boolean;
   requestReason: string | null;
   requestFocusReason: DialogOpenFocusReason | null;

@@ -1,12 +1,22 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { styleContains } from '../../test-utils/style';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
-import { dialogClose, dialogContent, dialogMask, dialogRoot, dialogTrigger } from '../src/dialog';
+import {
+  dialogClose,
+  dialogContent,
+  dialogDescription,
+  dialogMask,
+  dialogRoot,
+  dialogTitle,
+  dialogTrigger,
+} from '../src/dialog';
 
 AdaptToWebComponent(dialogRoot as any);
 AdaptToWebComponent(dialogTrigger as any);
 AdaptToWebComponent(dialogMask as any);
 AdaptToWebComponent(dialogContent as any);
+AdaptToWebComponent(dialogTitle as any);
+AdaptToWebComponent(dialogDescription as any);
 AdaptToWebComponent(dialogClose as any);
 
 async function flushViewReconciliation(): Promise<void> {
@@ -291,13 +301,85 @@ describe('prototypes/base: dialog', () => {
     await Promise.resolve();
   });
 
+  it('projects only live Title and Description relationships and falls back to Root a11yLabel', async () => {
+    // T-BASE-DIALOG-CONTENT-0001-CASE-A11Y
+    const root = document.createElement('base-dialog-root') as any;
+    const content = document.createElement('base-dialog-content') as any;
+    const title = document.createElement('base-dialog-title') as any;
+    const description = document.createElement('base-dialog-description') as any;
+
+    setElementProps(root, { defaultOpen: true, a11yLabel: 'Settings' });
+    root.appendChild(content);
+    document.body.appendChild(root);
+    await flushViewReconciliation();
+
+    expect(content.getAttribute('aria-label')).toBe('Settings');
+    expect(content.hasAttribute('aria-labelledby')).toBe(false);
+    expect(content.hasAttribute('aria-describedby')).toBe(false);
+
+    content.append(title, description);
+    await flushViewReconciliation();
+
+    expect({
+      label: content.getAttribute('aria-label'),
+      labelledBy: content.getAttribute('aria-labelledby'),
+      describedBy: content.getAttribute('aria-describedby'),
+    }).toEqual({
+      label: null,
+      labelledBy: title.id,
+      describedBy: description.id,
+    });
+
+    title.remove();
+    description.remove();
+    await flushViewReconciliation();
+
+    expect(content.getAttribute('aria-label')).toBe('Settings');
+    expect(content.hasAttribute('aria-labelledby')).toBe(false);
+    expect(content.hasAttribute('aria-describedby')).toBe(false);
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('diagnoses an Alert Dialog whose live anatomy has no Description', async () => {
+    // T-BASE-DIALOG-DESCRIPTION-0001-CASE-ALERT
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const root = document.createElement('base-dialog-root') as any;
+      const content = document.createElement('base-dialog-content') as any;
+      const description = document.createElement('base-dialog-description') as any;
+      setElementProps(root, { defaultOpen: true, alert: true, a11yLabel: 'Confirm action' });
+      content.appendChild(description);
+      root.appendChild(content);
+      document.body.appendChild(root);
+      await flushViewReconciliation();
+
+      expect(warn).not.toHaveBeenCalled();
+
+      description.remove();
+      await flushViewReconciliation();
+
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining('Alert Dialog requires a Dialog Description')
+      );
+
+      root.remove();
+      await Promise.resolve();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('alert=true prevents outside press from closing but ESC still closes', async () => {
     const root = document.createElement('base-dialog-root') as any;
     const trigger = document.createElement('base-dialog-trigger') as any;
     const mask = document.createElement('base-dialog-mask') as any;
     const content = document.createElement('base-dialog-content') as any;
+    const description = document.createElement('base-dialog-description') as any;
 
     setElementProps(root, { defaultOpen: true, alert: true });
+    content.appendChild(description);
     root.appendChild(trigger);
     root.appendChild(mask);
     root.appendChild(content);

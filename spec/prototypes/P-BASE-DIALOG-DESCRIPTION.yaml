@@ -18,8 +18,8 @@ criteria:
       en: Description must receive stable same-domain identity and Content must reference it through describedBy.
   - id: P-BASE-DIALOG-DESCRIPTION-ALERT
     text:
-      zh-CN: alertdialog authoring 必须包含描述主要消息的 Description。
-      en: Alert-dialog authoring must include a Description containing the primary message.
+      zh-CN: alertdialog authoring 必须包含描述主要消息的 Description；Content 在 live anatomy 中检测到 alert mode 缺少 Description 时必须发出诊断。
+      en: Alert-dialog authoring must include a Description containing the primary message; Content must emit a diagnostic when live anatomy detects alert mode without Description.
 sources:
   - path: packages/prototypes/base/src/dialog/description.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
@@ -30,4 +30,7 @@ revisions:
   - version: 0.2.0
     change: introduced
     summary: Cataloged Dialog Description relationship and alert requirement.
+  - version: 0.2.1
+    change: refined
+    summary: Required a live-anatomy diagnostic when Alert Dialog lacks Description.
 tags: [prototype, base, dialog, description]

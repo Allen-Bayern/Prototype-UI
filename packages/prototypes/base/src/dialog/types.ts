@@ -14,6 +14,7 @@ export interface DialogRootProps {
   defaultOpen?: boolean;
   disabled?: boolean;
   alert?: boolean;
+  a11yLabel?: string;
 }
 
 export type DialogRootExposes = {

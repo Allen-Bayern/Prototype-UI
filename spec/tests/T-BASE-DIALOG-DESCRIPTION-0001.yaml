@@ -16,6 +16,13 @@ cases:
     covers: [P-BASE-DIALOG-DESCRIPTION-ALERT]
     expectation: alert-dialog-description-carries-primary-message
 implementations:
+  - id: prototypes-base-dialog-description-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/dialog.test.ts
+    required: true
+    consumesCases: [T-BASE-DIALOG-DESCRIPTION-0001-CASE-ALERT]
+    exercises: [P-BASE-DIALOG-DESCRIPTION]
   - id: adapter-web-component-dialog-description-contract
     kind: adapter-test
     status: passing
@@ -23,7 +30,6 @@ implementations:
     required: true
     consumesCases:
       - T-BASE-DIALOG-DESCRIPTION-0001-CASE-RELATION
-      - T-BASE-DIALOG-DESCRIPTION-0001-CASE-ALERT
     exercises: [P-BASE-DIALOG-DESCRIPTION]
 verifies:
   prototypes:
@@ -34,4 +40,7 @@ verifies:
 exercises: { prototypes: [P-BASE-DIALOG-DESCRIPTION] }
 revisions:
   - { version: 0.2.0, change: introduced, summary: Added Dialog Description protocol coverage. }
+  - version: 0.2.1
+    change: refined
+    summary: Added runtime diagnostic coverage for Alert Dialog without Description.
 tags: [prototype, base, dialog, description, test]

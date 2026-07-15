@@ -18,6 +18,7 @@ function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
     a.controlled === b.controlled &&
     a.disabled === b.disabled &&
     a.alert === b.alert &&
+    a.a11yLabel === b.a11yLabel &&
     a.requestedOpen === b.requestedOpen &&
     a.requestReason === b.requestReason &&
     a.requestFocusReason === b.requestFocusReason &&
@@ -36,11 +37,13 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     defaultOpen: { type: 'boolean', empty: 'fallback' },
     disabled: { type: 'boolean', empty: 'fallback' },
     alert: { type: 'boolean', empty: 'fallback' },
+    a11yLabel: { type: 'string', empty: 'fallback' },
   });
   def.props.setDefaults({
     defaultOpen: false,
     disabled: false,
     alert: false,
+    a11yLabel: '',
   });
 
   // P-BASE-DIALOG-CONTEXT
@@ -52,6 +55,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     controlled: false,
     disabled: false,
     alert: false,
+    a11yLabel: '',
     requestedOpen: false,
     requestReason: null,
     requestFocusReason: null,
@@ -79,6 +83,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     controlled: false,
     disabled: false,
     alert: false,
+    a11yLabel: '',
     requestedOpen: false,
     requestReason: null,
     requestFocusReason: null,
@@ -128,16 +133,18 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
       controlled: run.props.isProvided('open'),
       disabled: !!run.props.get().disabled,
       alert: !!run.props.get().alert,
+      a11yLabel: run.props.get().a11yLabel ?? '',
     };
     syncContext(run);
   });
 
-  def.props.watch(['open', 'disabled', 'alert'], (run, next) => {
+  def.props.watch(['open', 'disabled', 'alert', 'a11yLabel'], (run, next) => {
     snapshot = {
       ...snapshot,
       controlled: run.props.isProvided('open'),
       disabled: !!next.disabled,
       alert: !!next.alert,
+      a11yLabel: next.a11yLabel ?? '',
     };
     syncContext(run);
   });
