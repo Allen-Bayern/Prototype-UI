@@ -206,6 +206,76 @@ describe('runtime contract: focus-roving (v0)', () => {
     expect(focused).toEqual(['item-a']);
   });
 
+  it('FOCUS-ROVING-0320: focusSelected uses semantic member status instead of host order', () => {
+    // T-FOCUS-ROVING-0001-CASE-MEMBER-STATUS
+    let roving!: FocusRovingHandle<PropsBaseType>;
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0320-owner',
+      setup() {
+        roving = asFocusRoving<PropsBaseType>();
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const Item = definePrototype<{ selected?: boolean; active?: boolean }>({
+      name: 'x-focus-roving-0320-item',
+      setup(def) {
+        def.props.define({
+          selected: { type: 'boolean', empty: 'fallback' },
+          active: { type: 'boolean', empty: 'fallback' },
+        });
+        const focusable = asFocusable<{ selected?: boolean; active?: boolean }>();
+        def.lifecycle.onCreated((run) => {
+          focusable.setRovingStatus({
+            selected: !!run.props.get().selected,
+            active: !!run.props.get().active,
+          });
+        });
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['item-a', 1],
+      ['item-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', new Map());
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      itemA: new FocusTarget('item-a', order),
+      itemB: new FocusTarget('item-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.itemA, targets.roving],
+      [targets.itemB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(Roving as any, createTreeHost(Roving.name, targets.roving, hostOptions) as any);
+    executeWithHost(
+      Item as any,
+      {
+        ...createTreeHost(Item.name, targets.itemA, hostOptions),
+        getRawProps: () => ({ active: true }),
+      } as any
+    );
+    executeWithHost(
+      Item as any,
+      {
+        ...createTreeHost(Item.name, targets.itemB, hostOptions),
+        getRawProps: () => ({ selected: true }),
+      } as any
+    );
+
+    roving.focusSelected();
+    expect(focused).toEqual(['item-b']);
+
+    roving.focusNext();
+    expect(focused).toEqual(['item-b', 'item-b']);
+  });
+
   it('FOCUS-ROVING-0350: arrow navigation requests default-action cancellation through event host cap', () => {
     const Roving = definePrototype({
       name: 'x-focus-roving-0350-owner',

@@ -15,12 +15,20 @@ function syncNavParticipationFromContext(
   ctx: TabsContextValue,
   ownValue: string,
   disabled: { get(): boolean },
-  focusable: { setNavParticipation(value: 'auto' | 'none'): void }
+  focusable: {
+    setNavParticipation(value: 'auto' | 'none'): void;
+    setRovingStatus(status: { selected?: boolean; active?: boolean }): void;
+  }
 ): void {
   // P-BASE-TABS-ACTIVE-VALUE, P-BASE-TABS-LIST-FOCUS-ROVING
+  // P-BASE-TABS-TRIGGER-SELECTED-DERIVED
   const activeValue = ctx.activeValue || ctx.value;
   const participates = !!ownValue && ownValue === activeValue && !disabled.get();
   focusable.setNavParticipation(participates ? 'auto' : 'none');
+  focusable.setRovingStatus({
+    selected: !!ownValue && ownValue === ctx.value,
+    active: participates,
+  });
 }
 
 function readTriggerSnapshot(part: { getExpose(key: string): unknown | null }) {

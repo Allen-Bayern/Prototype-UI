@@ -52,6 +52,13 @@ criteria:
     dependsOn:
       decisions:
         - D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
+  - id: C-AS-FOCUS-ROVING-0001-I
+    text:
+      zh-CN: Focusable member 必须可以在运行期发布独立的 `selected` 与 `active` roving facts；`focusSelected()` 必须优先聚焦 selected eligible member，next/prev 在无 focused member 时可以 active member 作为起点。语义 selection 不得由 host order 或自然 Tab participation 猜测。
+      en: A focusable member must be able to publish independent runtime `selected` and `active` roving facts; `focusSelected()` must prefer the selected eligible member, and next/previous may use the active member as their starting point when no member is focused. Semantic selection must not be inferred from host order or natural Tab participation.
+    dependsOn:
+      contracts:
+        - C-AS-FOCUSABLE-0001
 sources:
   - path: internal/contracts/focus/base-text/focus-roving.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -89,6 +96,9 @@ revisions:
   - version: 0.1.4
     change: refined
     summary: Added runtime strategy synchronization methods for orientation and loop updates after setup.
+  - version: 0.1.5
+    change: refined
+    summary: Added runtime selected and active membership facts for semantic roving requests.
 tags:
   - focus
   - as-hook

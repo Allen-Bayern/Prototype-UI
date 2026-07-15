@@ -137,6 +137,13 @@ export type FocusFacts = Readonly<{
   focusable: boolean;
   active: boolean;
   hasFocused: boolean;
+  rovingSelected: boolean;
+  rovingActive: boolean;
+}>;
+
+export type FocusRovingMemberStatus = Readonly<{
+  selected?: boolean;
+  active?: boolean;
 }>;
 
 export interface FocusableHandle<P extends PropsBaseType = PropsBaseType> {
@@ -150,6 +157,7 @@ export interface FocusableHandle<P extends PropsBaseType = PropsBaseType> {
   isFocused(): boolean;
   setDisabled(disabled: boolean): void;
   setNavParticipation(navParticipation: 'auto' | 'none'): void;
+  setRovingStatus(status: FocusRovingMemberStatus): void;
 
   configure(patch: FocusableConfigPatch): void;
 }

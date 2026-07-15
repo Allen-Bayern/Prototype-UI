@@ -7,6 +7,7 @@ import type {
   FocusRovingConfigPatch,
   FocusRovingHandle,
   FocusRovingKey,
+  FocusRovingMemberStatus,
   FocusScopeConfig,
   FocusRequestOptions,
   FocusScopeConfigPatch,
@@ -36,6 +37,7 @@ export type FocusPort = {
   configureScope(patch: FocusScopeConfigPatch): void;
   setDisabled(disabled: boolean): void;
   setNavParticipation(navParticipation: 'auto' | 'none'): void;
+  setRovingStatus(status: FocusRovingMemberStatus): void;
   setEntryDisabled(disabled: boolean): void;
   requestFocus(options?: FocusRequestOptions): void;
   requestEntryFocus(options?: FocusRequestOptions): void;

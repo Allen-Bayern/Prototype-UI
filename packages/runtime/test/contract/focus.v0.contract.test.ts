@@ -320,6 +320,8 @@ describe('runtime contract: focus (v0)', () => {
       focusable: true,
       active: true,
       hasFocused: true,
+      rovingSelected: false,
+      rovingActive: false,
     });
   });
 
@@ -462,6 +464,8 @@ describe('runtime contract: focus (v0)', () => {
       focusable: false,
       active: false,
       hasFocused: false,
+      rovingSelected: false,
+      rovingActive: false,
     });
   });
 
@@ -548,6 +552,8 @@ describe('runtime contract: focus (v0)', () => {
       focusable: true,
       active: true,
       hasFocused: true,
+      rovingSelected: false,
+      rovingActive: false,
     });
   });
 
@@ -576,6 +582,8 @@ describe('runtime contract: focus (v0)', () => {
       focusable: false,
       active: true,
       hasFocused: false,
+      rovingSelected: false,
+      rovingActive: false,
     });
   });
 
