@@ -3,6 +3,7 @@ import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
 export type DialogOpenFocusReason = 'programmatic' | 'keyboard' | 'pointer';
 
 export type DialogContextValue = {
+  // P-BASE-DIALOG-CONTEXT
   rootId: string;
   open: boolean;
   openFocusReason: DialogOpenFocusReason | null;
@@ -36,6 +37,7 @@ export function requestDialogOpen(
   reason: string,
   focusReason: DialogOpenFocusReason | null
 ): boolean {
+  // P-BASE-DIALOG-OPEN-CHANGE, P-BASE-DIALOG-CONTROLLED-OWNER
   try {
     run.context.update(DIALOG_CONTEXT, (prev: DialogContextValue) => ({
       ...prev,
@@ -54,6 +56,7 @@ export function requestDialogOpen(
   }
 }
 
+// P-BASE-DIALOG-ANATOMY
 export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
   roles: {
     root: { cardinality: { min: 1, max: 1 } },
@@ -74,4 +77,5 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
   ],
 });
 
+// P-BASE-DIALOG-CONTEXT
 export const DIALOG_CONTEXT = createContextKey<DialogContextValue>('base-dialog');

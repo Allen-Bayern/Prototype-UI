@@ -9,6 +9,7 @@ import type { DialogOpenFocusReason } from './shared';
 import type { TransitionExposes, TransitionHandles, TransitionProps } from '../transition/types';
 
 export interface DialogRootProps {
+  // P-BASE-DIALOG-PROPS
   open?: boolean;
   defaultOpen?: boolean;
   disabled?: boolean;
@@ -16,10 +17,12 @@ export interface DialogRootProps {
 }
 
 export type DialogRootExposes = {
+  // P-BASE-DIALOG-OPEN-EXPOSE
   open: ExposeState<boolean>;
   openDialog: ExposeMethod<(reason?: string) => void>;
   close: ExposeMethod<(reason?: string) => void>;
   toggle: ExposeMethod<(reason?: string) => void>;
+  // P-BASE-DIALOG-OPEN-CHANGE
   openChange: ExposeEvent<{
     open: boolean;
     reason: string | null;
@@ -36,10 +39,12 @@ export type DialogRootAsHookContract = {
 };
 
 export interface DialogTriggerProps {
+  // P-BASE-DIALOG-TRIGGER-DISABLED
   disabled?: boolean;
 }
 
 export type DialogTriggerExposes = {
+  // P-BASE-DIALOG-TRIGGER-COMMAND, P-BASE-DIALOG-TRIGGER-DISABLED
   disabled: ExposeState<boolean>;
   hovered: ExposeState<boolean>;
   focused: ExposeState<boolean>;
@@ -61,6 +66,7 @@ export type DialogCommandStateHandles = {
 };
 
 export type DialogMaskProps = TransitionProps & {
+  // P-BASE-DIALOG-MASK-PASSTHROUGH
   passthrough?: boolean;
 };
 
@@ -87,6 +93,7 @@ export type DialogMaskHandles = {
 export type DialogContentProps = TransitionProps;
 
 export type DialogContentExposes = TransitionExposes & {
+  // P-BASE-DIALOG-CONTENT-PRESENCE
   open: ExposeState<boolean>;
 };
 
@@ -121,10 +128,12 @@ export type DialogDescriptionExposes = {};
 export type DialogDescriptionAsHookContract = {};
 
 export interface DialogCloseProps {
+  // P-BASE-DIALOG-CLOSE-DISABLED
   disabled?: boolean;
 }
 
 export type DialogCloseExposes = {
+  // P-BASE-DIALOG-CLOSE-COMMAND, P-BASE-DIALOG-CLOSE-DISABLED
   disabled: ExposeState<boolean>;
   hovered: ExposeState<boolean>;
   focused: ExposeState<boolean>;

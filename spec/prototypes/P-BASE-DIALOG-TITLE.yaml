@@ -10,31 +10,21 @@ statement:
 criteria:
   - id: P-BASE-DIALOG-TITLE-AUTHORING-ENTRIES
     text:
-      {
-        zh-CN: '`base-dialog-title` 与 `asDialogTitle` 是同一 protocol 的 authoring entries。',
-        en: '`base-dialog-title` and `asDialogTitle` are authoring entries for the same protocol.',
-      }
+      zh-CN: '`base-dialog-title` 与 `asDialogTitle` 是同一 protocol 的 authoring entries。'
+      en: '`base-dialog-title` and `asDialogTitle` are authoring entries for the same protocol.'
   - id: P-BASE-DIALOG-TITLE-LABEL
     text:
-      {
-        zh-CN: Title 必须获得同域稳定 identity，Content 必须通过 labelledBy 引用它。',
-        en: Title must receive stable same-domain identity and Content must reference it through labelledBy.,
-      }
+      zh-CN: Title 必须获得同域稳定 identity，Content 必须通过 labelledBy 引用它。
+      en: Title must receive stable same-domain identity and Content must reference it through labelledBy.
   - id: P-BASE-DIALOG-TITLE-NO-BEHAVIOR
     text:
-      {
-        zh-CN: Title 不得拥有 activation、open 或 focus containment。',
-        en: Title must not own activation,
-        open state,
-        or focus containment.,
-      }
+      zh-CN: Title 不得拥有 activation、open 或 focus containment。
+      en: Title must not own activation, open state, or focus containment.
 sources: [{ path: packages/prototypes/base/src/dialog/title.ts }]
 dependsOn: { prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT], contracts: [C-A11Y-0001] }
 verifies: { tests: [T-BASE-DIALOG-TITLE-0001] }
 revisions:
-  - {
-      version: 0.2.0,
-      change: introduced,
-      summary: Cataloged Dialog Title labelling responsibility.,
-    }
+  - version: 0.2.0
+    change: introduced
+    summary: Cataloged Dialog Title labelling responsibility.
 tags: [prototype, base, dialog, title]

@@ -12,6 +12,8 @@ import type {
 function projectDialogMaskHandle(
   result: import('@proto.ui/core').AsHookResult<DialogMaskProps, DialogMaskAsHookContract>
 ): DialogMaskHandles {
+  // C-AS-HOOK-0009-E, C-AS-HOOK-0009-F: selectively re-export Transition's
+  // stable child handle without flattening its state into Dialog Mask.
   const open = result.getState?.('open');
   const asTransition = result.getAsHookHandle?.('asTransition');
   if (!open || !asTransition) {
@@ -21,7 +23,9 @@ function projectDialogMaskHandle(
 }
 
 function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): void {
+  // P-BASE-DIALOG-MASK-MODAL
   def.anatomy.claim(DIALOG_FAMILY, { role: 'mask' });
+  // P-BASE-DIALOG-MASK-PASSTHROUGH
   def.props.define({
     passthrough: { type: 'boolean', empty: 'fallback' },
   });
@@ -29,6 +33,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     passthrough: false,
   });
 
+  // P-BASE-DIALOG-MASK-MODAL, P-BASE-DIALOG-MASK-NO-DISMISS
   const overlay = asOverlay<DialogMaskProps>();
   overlay.configure({
     closeOnEscape: false,
@@ -38,6 +43,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     modal: true,
     layerRole: 'dialog-mask',
   });
+  // P-BASE-DIALOG-MASK-PASSTHROUGH
   const hitParticipation = asHitParticipation({
     debugLabel: 'dialog-mask',
     meta: {
@@ -45,6 +51,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
     },
   });
 
+  // P-BASE-DIALOG-MASK-PRESENCE
   const transition = asTransition();
   overlay.bindPresence({
     enter: transition.controls.enter,
@@ -56,6 +63,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   let hitSyncDisposed = false;
 
   const syncHitParticipation = (run: any) => {
+    // P-BASE-DIALOG-MASK-PASSTHROUGH
     if (hitSyncDisposed) return;
 
     const target = run.host?.get?.() ?? null;
@@ -75,6 +83,7 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   };
 
   const updateOpen = (nextOpen: boolean, reason?: string) => {
+    // P-BASE-DIALOG-MASK-PRESENCE
     open.set(nextOpen, reason ?? 'reason: dialog mask sync => open');
     if (nextOpen) {
       overlay.openOverlay(reason ?? 'dialog.open');
@@ -109,11 +118,13 @@ function setupDialogMask(def: DefHandle<DialogMaskProps, DialogMaskExposes>): vo
   });
 
   def.rule({
+    // P-BASE-DIALOG-MASK-PRESENCE
     when: (w) => w.state(transition.isPresent).eq(false),
     intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }
 
+// P-BASE-DIALOG-MASK-AUTHORING-ENTRIES
 export const asDialogMask = defineAsHook<
   DialogMaskProps,
   DialogMaskExposes,

@@ -10,46 +10,32 @@ statement:
 criteria:
   - id: P-BASE-DIALOG-CONTENT-AUTHORING-ENTRIES
     text:
-      {
-        zh-CN: '`base-dialog-content` 与 `asDialogContent` 是同一 protocol 的 authoring entries。',
-        en: '`base-dialog-content` and `asDialogContent` are authoring entries for the same protocol.',
-      }
+      zh-CN: '`base-dialog-content` 与 `asDialogContent` 是同一 protocol 的 authoring entries。'
+      en: '`base-dialog-content` and `asDialogContent` are authoring entries for the same protocol.'
   - id: P-BASE-DIALOG-CONTENT-PRESENCE
     text:
-      {
-        zh-CN: Content 必须经 Transition 保留 leave view，并在 closed 后执行 L1 detach。',
-        en: Content must retain the leaving view through Transition and perform L1 detach after closed.,
-      }
+      zh-CN: Content 必须经 Transition 保留 leave view，并在 closed 后执行 L1 detach。
+      en: Content must retain the leaving view through Transition and perform L1 detach after closed.
   - id: P-BASE-DIALOG-CONTENT-FOCUS
     text:
-      {
-        zh-CN: active Content 必须 trap/loop focus，关闭后按 request focus reason 恢复 Trigger。',
-        en: Active Content must trap and loop focus and restore Trigger after close according to request focus reason.,
-      }
+      zh-CN: active Content 必须 trap/loop focus，关闭后按 request focus reason 恢复 Trigger。
+      en: Active Content must trap and loop focus and restore Trigger after close according to request focus reason.
   - id: P-BASE-DIALOG-CONTENT-DISMISS
     text:
-      {
-        zh-CN: Escape 必须请求关闭；普通 Dialog 的 outside press 必须请求关闭；alert Dialog 必须拒绝 outside request。',
-        en: Escape must request close; outside press must request close for normal Dialog and be rejected for alert Dialog.,
-      }
+      zh-CN: Escape 必须请求关闭；普通 Dialog 的 outside press 必须请求关闭；alert Dialog 必须拒绝 outside request。
+      en: Escape must request close; outside press must request close for normal Dialog and be rejected for alert Dialog.
   - id: P-BASE-DIALOG-CONTENT-CONTROLLED
     text:
-      {
-        zh-CN: 受控 dismissal 只能发出 request，不得在 owner input 更新前完成 logical close。',
-        en: Controlled dismissal may only emit a request and must not complete logical close before owner input updates.,
-      }
+      zh-CN: 受控 dismissal 只能发出 request，不得在 owner input 更新前完成 logical close。
+      en: Controlled dismissal may only emit a request and must not complete logical close before owner input updates.
   - id: P-BASE-DIALOG-CONTENT-A11Y-ROLE
     text:
-      {
-        zh-CN: Content 必须按 alert fact 投射 `dialog` 或 `alertdialog`，并投射 modal=true。',
-        en: Content must project `dialog` or `alertdialog` according to the alert fact and project modal=true.,
-      }
+      zh-CN: Content 必须按 Root alert fact 投射 `dialog` 或 `alertdialog`，并投射 modal=true。
+      en: Content must project `dialog` or `alertdialog` according to the Root alert fact and project modal=true.
   - id: P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
     text:
-      {
-        zh-CN: Content 必须通过稳定同域 identity 被 Title labelled，并在 Description 存在时由其描述。',
-        en: Content must be labelled by Title through stable same-domain identity and described by Description when present.,
-      }
+      zh-CN: Content 必须通过稳定同域 identity 被 Title labelled，并在 Description 存在时由其描述。
+      en: Content must be labelled by Title through stable same-domain identity and described by Description when present.
 sources:
   - path: packages/prototypes/base/src/dialog/content.ts
   - path: packages/adapters/web-component/test/dialog-overlay.test.ts
@@ -63,9 +49,10 @@ dependsOn:
     [C-A11Y-0001, C-AS-FOCUS-SCOPE-0001, C-AS-OVERLAY-0001, C-AS-TRANSITION-0001, C-BOUNDARY-0001]
 verifies: { tests: [T-BASE-DIALOG-CONTENT-0001] }
 revisions:
-  - {
-      version: 0.2.0,
-      change: introduced,
-      summary: Cataloged Dialog Content semantics and lifecycle.,
-    }
+  - version: 0.2.0
+    change: introduced
+    summary: Cataloged Dialog Content semantics and lifecycle.
+  - version: 0.2.1
+    change: refined
+    summary: Clarified that alert mode is owned by Root context.
 tags: [prototype, base, dialog, content, accessibility]

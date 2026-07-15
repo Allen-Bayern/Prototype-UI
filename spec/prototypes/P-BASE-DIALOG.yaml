@@ -53,8 +53,8 @@ criteria:
       en: Root must accept `open`, `defaultOpen`, `disabled`, and `alert`; providing `open` selects controlled mode.
   - id: P-BASE-DIALOG-OPEN-EXPOSE
     text:
-      zh-CN: Root 必须 expose `open` state，以及 `openDialog`、`close`、`toggle` methods。
-      en: Root must expose open state and the `openDialog`, `close`, and `toggle` methods.
+      zh-CN: Root 必须 expose `open` state，以及 `openDialog`、`close`、`toggle` methods；这些 method 必须进入与交互相同的 request channel，不得绕过 controlled owner。
+      en: Root must expose open state and the `openDialog`, `close`, and `toggle` methods; these methods must enter the same request channel as interactions and must not bypass the controlled owner.
   - id: P-BASE-DIALOG-OPEN-CHANGE
     text:
       zh-CN: Trigger、Close、Escape 与 outside press 的 open request 必须通过 Root `openChange` signal 发出，并携带 requested open、reason 与 focus reason。
@@ -94,4 +94,7 @@ revisions:
   - version: 0.2.0
     change: introduced
     summary: Cataloged the Base Dialog root and compound protocol.
+  - version: 0.2.1
+    change: refined
+    summary: Required Root methods to preserve controlled ownership through the open request channel.
 tags: [prototype, base, dialog, modal, compound]

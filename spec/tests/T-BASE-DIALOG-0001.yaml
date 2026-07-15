@@ -21,6 +21,13 @@ cases:
       - P-BASE-DIALOG-OPEN-CHANGE
       - P-BASE-DIALOG-CONTROLLED-OWNER
     expectation: controlled-dialog-emits-open-change-and-retains-owner-open
+  - id: T-BASE-DIALOG-0001-CASE-CONTROLLED-METHODS
+    title: Controlled Root methods enter the request channel without replacing the owner fact
+    covers:
+      - P-BASE-DIALOG-OPEN-EXPOSE
+      - P-BASE-DIALOG-OPEN-CHANGE
+      - P-BASE-DIALOG-CONTROLLED-OWNER
+    expectation: controlled-dialog-methods-request-open-without-mutating-owner-fact
   - id: T-BASE-DIALOG-0001-CASE-AUTHORING-INDEPENDENCE
     title: Direct and authored entries share the Dialog protocol without consuming Base Button
     covers:
@@ -36,6 +43,7 @@ implementations:
     consumesCases:
       - T-BASE-DIALOG-0001-CASE-ROOT-OWNERSHIP
       - T-BASE-DIALOG-0001-CASE-CONTROLLED-REQUESTS
+      - T-BASE-DIALOG-0001-CASE-CONTROLLED-METHODS
       - T-BASE-DIALOG-0001-CASE-AUTHORING-INDEPENDENCE
     exercises: [P-BASE-DIALOG]
   - id: prototypes-shadcn-dialog-root-contract
@@ -55,9 +63,10 @@ verifies:
         - P-BASE-DIALOG-PROTOCOL-INDEPENDENCE
 exercises: { prototypes: [P-BASE-DIALOG] }
 revisions:
-  - {
-      version: 0.2.0,
-      change: introduced,
-      summary: Added Base Dialog root and compound protocol coverage.,
-    }
+  - version: 0.2.0
+    change: introduced
+    summary: Added Base Dialog root and compound protocol coverage.
+  - version: 0.2.1
+    change: refined
+    summary: Added controlled Root method request coverage.
 tags: [prototype, base, dialog, test]

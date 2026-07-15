@@ -10,22 +10,16 @@ statement:
 criteria:
   - id: P-BASE-DIALOG-DESCRIPTION-AUTHORING-ENTRIES
     text:
-      {
-        zh-CN: '`base-dialog-description` 与 `asDialogDescription` 是同一 protocol 的 authoring entries。',
-        en: '`base-dialog-description` and `asDialogDescription` are authoring entries for the same protocol.',
-      }
+      zh-CN: '`base-dialog-description` 与 `asDialogDescription` 是同一 protocol 的 authoring entries。'
+      en: '`base-dialog-description` and `asDialogDescription` are authoring entries for the same protocol.'
   - id: P-BASE-DIALOG-DESCRIPTION-RELATION
     text:
-      {
-        zh-CN: Description 必须获得同域稳定 identity，Content 必须通过 describedBy 引用它。',
-        en: Description must receive stable same-domain identity and Content must reference it through describedBy.,
-      }
+      zh-CN: Description 必须获得同域稳定 identity，Content 必须通过 describedBy 引用它。
+      en: Description must receive stable same-domain identity and Content must reference it through describedBy.
   - id: P-BASE-DIALOG-DESCRIPTION-ALERT
     text:
-      {
-        zh-CN: alertdialog authoring 必须包含描述主要消息的 Description。',
-        en: Alert-dialog authoring must include a Description containing the primary message.,
-      }
+      zh-CN: alertdialog authoring 必须包含描述主要消息的 Description。
+      en: Alert-dialog authoring must include a Description containing the primary message.
 sources:
   - path: packages/prototypes/base/src/dialog/description.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
@@ -33,9 +27,7 @@ sources:
 dependsOn: { prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT], contracts: [C-A11Y-0001] }
 verifies: { tests: [T-BASE-DIALOG-DESCRIPTION-0001] }
 revisions:
-  - {
-      version: 0.2.0,
-      change: introduced,
-      summary: Cataloged Dialog Description relationship and alert requirement.,
-    }
+  - version: 0.2.0
+    change: introduced
+    summary: Cataloged Dialog Description relationship and alert requirement.
 tags: [prototype, base, dialog, description]

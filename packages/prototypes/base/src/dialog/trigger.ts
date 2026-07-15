@@ -15,11 +15,13 @@ import type {
 } from './types';
 
 function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExposes>): void {
+  // P-BASE-DIALOG-TRIGGER-COMMAND, P-BASE-DIALOG-TRIGGER-NO-BUTTON-DEPENDENCY
   def.anatomy.claim(DIALOG_FAMILY, { role: 'trigger' });
   const command = setupDialogCommand(def, 'dialog trigger');
   const expanded = def.state.bool('dialogExpanded', false);
   const hasPopup = def.state.string('dialogHasPopup', 'dialog');
   const controls = def.state.string('dialogContentId', '');
+  // P-BASE-DIALOG-TRIGGER-A11Y
   def.a11y.state('expanded', expanded);
   def.a11y.state('hasPopup', hasPopup);
   def.a11y.relation('controls', { target: controls });
@@ -30,6 +32,7 @@ function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExpo
   };
 
   def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
+    // P-BASE-DIALOG-TRIGGER-DISABLED, P-BASE-DIALOG-TRIGGER-A11Y
     command.syncDisabled(!!run.props.get().disabled || next.disabled);
     syncDialogFacts(next);
   });
@@ -45,6 +48,7 @@ function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExpo
   });
 
   def.event.on('press.commit', (run, ev) => {
+    // P-BASE-DIALOG-TRIGGER-REQUEST, P-BASE-DIALOG-TRIGGER-DISABLED
     const ctx = run.context.read(DIALOG_CONTEXT);
     if (command.disabled.get()) return;
     const openFocusReason: DialogOpenFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
@@ -52,6 +56,7 @@ function setupDialogTrigger(def: DefHandle<DialogTriggerProps, DialogTriggerExpo
   });
 }
 
+// P-BASE-DIALOG-TRIGGER-AUTHORING-ENTRIES
 export const asDialogTrigger = defineAsHook<
   DialogTriggerProps,
   DialogTriggerExposes,

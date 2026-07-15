@@ -17,6 +17,8 @@ export function setupDialogCommand(
   def: DefHandle<DialogCommandProps, any>,
   reasonPrefix: string
 ): DialogCommand {
+  // P-BASE-DIALOG-TRIGGER-NO-BUTTON-DEPENDENCY, P-BASE-DIALOG-CLOSE-NO-BUTTON-DEPENDENCY
+  // P-BASE-DIALOG-TRIGGER-COMMAND, P-BASE-DIALOG-CLOSE-COMMAND
   asTrigger();
 
   def.props.define({
@@ -51,17 +53,20 @@ export function setupDialogCommand(
     pressed.set(false, reason);
   };
   const syncDisabled = (nextDisabled: boolean) => {
+    // P-BASE-DIALOG-TRIGGER-DISABLED, P-BASE-DIALOG-CLOSE-DISABLED
     disabled.set(nextDisabled, `reason: ${reasonPrefix} disabled sync`);
     focusable.setDisabled(nextDisabled);
     if (nextDisabled) clearTransient(`reason: ${reasonPrefix} disabled => reset interaction`);
   };
 
   def.event.onGlobal('key.down', (_run, ev) => {
+    // P-BASE-DIALOG-TRIGGER-COMMAND, P-BASE-DIALOG-CLOSE-COMMAND
     const detail = ev?.detail;
     if (disabled.get() || !focused.get() || detail?.key !== ' ') return;
     detail?.preventDefault?.();
   });
   def.event.on('pointer.enter', () => {
+    // P-BASE-DIALOG-TRIGGER-COMMAND, P-BASE-DIALOG-CLOSE-COMMAND
     if (!disabled.get()) hovered.set(true, `reason: ${reasonPrefix} pointer.enter`);
   });
   def.event.on('pointer.leave', () => clearTransient(`reason: ${reasonPrefix} pointer.leave`));

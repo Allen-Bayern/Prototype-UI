@@ -162,6 +162,7 @@ describe('prototypes/base: dialog', () => {
   });
 
   it('controlled root methods emit requests without replacing the owner open fact', async () => {
+    // T-BASE-DIALOG-0001-CASE-CONTROLLED-METHODS
     const root = document.createElement('base-dialog-root') as any;
     const requests: any[] = [];
     root.addEventListener('openChange', (event: Event) => {
@@ -194,6 +195,35 @@ describe('prototypes/base: dialog', () => {
         focusReason: 'programmatic',
       })
     );
+
+    root.remove();
+    await Promise.resolve();
+  });
+
+  it('Trigger and Close command surfaces prevent focused Space default actions', async () => {
+    // T-BASE-DIALOG-TRIGGER-0001-CASE-COMMAND
+    // T-BASE-DIALOG-CLOSE-0001-CASE-COMMAND
+    const root = document.createElement('base-dialog-root') as any;
+    const trigger = document.createElement('base-dialog-trigger') as any;
+    const content = document.createElement('base-dialog-content') as any;
+    const close = document.createElement('base-dialog-close') as any;
+    setElementProps(root, { defaultOpen: true });
+    content.appendChild(close);
+    root.append(trigger, content);
+    document.body.appendChild(root);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    trigger.focus();
+    const triggerSpace = new KeyboardEvent('keydown', { key: ' ', cancelable: true });
+    window.dispatchEvent(triggerSpace);
+    expect(triggerSpace.defaultPrevented).toBe(true);
+
+    close.focus();
+    const closeSpace = new KeyboardEvent('keydown', { key: ' ', cancelable: true });
+    window.dispatchEvent(closeSpace);
+    expect(closeSpace.defaultPrevented).toBe(true);
 
     root.remove();
     await Promise.resolve();

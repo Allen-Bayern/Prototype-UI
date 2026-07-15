@@ -26,9 +26,11 @@ function sameContext(a: DialogContextValue, b: DialogContextValue): boolean {
 }
 
 function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): void {
+  // P-BASE-DIALOG-ROLE-MODAL-WINDOW, P-BASE-DIALOG-ROOT-OWNER
   def.anatomy.claim(DIALOG_FAMILY, { role: 'root' });
   const rootId = createDialogRootId();
 
+  // P-BASE-DIALOG-PROPS
   def.props.define({
     open: { type: 'boolean', empty: 'fallback' },
     defaultOpen: { type: 'boolean', empty: 'fallback' },
@@ -41,6 +43,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     alert: false,
   });
 
+  // P-BASE-DIALOG-CONTEXT
   def.context.provide(DIALOG_CONTEXT, {
     rootId,
     open: false,
@@ -55,6 +58,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     requestVersion: 0,
   });
 
+  // P-BASE-DIALOG-OPEN-EXPOSE, P-BASE-DIALOG-CONTROLLED-OWNER
   const openState = useOpenState({
     exposeOpenMethodKey: 'openDialog',
     requestOpen(run, nextOpen, reason) {
@@ -64,6 +68,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
     },
   });
   const open = openState.getState?.('open');
+  // P-BASE-DIALOG-OPEN-CHANGE
   def.expose.event('openChange', { payload: 'json' });
 
   const initialContext: DialogContextValue = {
@@ -84,6 +89,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   let lastRequestVersion = 0;
 
   const syncContext = (run: any) => {
+    // P-BASE-DIALOG-CONTEXT
     const next = {
       ...snapshot,
       open: open?.get() ?? false,
@@ -95,6 +101,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   };
 
   def.context.subscribe(DIALOG_CONTEXT, (run, next) => {
+    // P-BASE-DIALOG-OPEN-CHANGE, P-BASE-DIALOG-CONTROLLED-OWNER
     snapshot = next;
     published = next;
     if (next.requestVersion !== lastRequestVersion) {
@@ -115,6 +122,7 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   });
 
   def.lifecycle.onCreated((run) => {
+    // P-BASE-DIALOG-ROOT-OWNER, P-BASE-DIALOG-PROPS
     snapshot = {
       ...snapshot,
       controlled: run.props.isProvided('open'),
@@ -140,6 +148,12 @@ function setupDialogRoot(def: DefHandle<DialogRootProps, DialogRootExposes>): vo
   });
 }
 
+/*
+ * P-BASE-DIALOG-PROTOCOL-INDEPENDENCE: Root consumes a protocol-neutral useOpenState helper,
+ * not another Base prototype-specific authored asHook.
+ */
+
+// P-BASE-DIALOG-AUTHORING-ENTRIES
 export const asDialogRoot = defineAsHook<
   DialogRootProps,
   DialogRootExposes,

@@ -10,18 +10,16 @@ statement:
 criteria:
   - id: P-BASE-DIALOG-TRIGGER-AUTHORING-ENTRIES
     text:
-      {
-        zh-CN: '`base-dialog-trigger` 与 `asDialogTrigger` 是同一 protocol 的 authoring entries。',
-        en: '`base-dialog-trigger` and `asDialogTrigger` are authoring entries for the same protocol.',
-      }
+      zh-CN: '`base-dialog-trigger` 与 `asDialogTrigger` 是同一 protocol 的 authoring entries。'
+      en: '`base-dialog-trigger` and `asDialogTrigger` are authoring entries for the same protocol.'
   - id: P-BASE-DIALOG-TRIGGER-NO-BUTTON-DEPENDENCY
     text:
       zh-CN: Trigger 必须直接消费 core/privileged command 能力，不得消费 `asButton`。
       en: Trigger must consume core/privileged command capabilities directly and must not consume `asButton`.
   - id: P-BASE-DIALOG-TRIGGER-COMMAND
     text:
-      zh-CN: Trigger 必须具备 button role、content-derived name、focus 与 press activation。
-      en: Trigger must provide button role, a content-derived name, focus, and press activation.
+      zh-CN: Trigger 必须具备 button role、content-derived name、keyboard/pointer press activation，并 expose disabled、hovered、focused、focusVisible、pressed 与 focusSelf command surfaces；focused Space keydown 必须阻止宿主默认滚动动作。
+      en: Trigger must provide button role, a content-derived name, keyboard/pointer press activation, and expose disabled, hovered, focused, focusVisible, pressed, and focusSelf command surfaces; focused Space keydown must prevent the host's default scrolling action.
   - id: P-BASE-DIALOG-TRIGGER-DISABLED
     text:
       zh-CN: own 或 Root disabled 为 true 时必须禁止 activation 与 focus request。
@@ -43,9 +41,10 @@ dependsOn:
   contracts: [C-A11Y-0001, C-AS-TRIGGER-0001, C-AS-FOCUSABLE-0001]
 verifies: { tests: [T-BASE-DIALOG-TRIGGER-0001] }
 revisions:
-  - {
-      version: 0.2.0,
-      change: introduced,
-      summary: Cataloged Dialog Trigger ownership and accessibility.,
-    }
+  - version: 0.2.0
+    change: introduced
+    summary: Cataloged Dialog Trigger ownership and accessibility.
+  - version: 0.2.1
+    change: refined
+    summary: Made the shared command state, focus, and keyboard surfaces explicit.
 tags: [prototype, base, dialog, trigger]

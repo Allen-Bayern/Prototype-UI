@@ -19,6 +19,8 @@ import type {
 function projectDialogContentHandle(
   result: import('@proto.ui/core').AsHookResult<DialogContentProps, DialogContentAsHookContract>
 ): DialogContentHandles {
+  // C-AS-HOOK-0009-E, C-AS-HOOK-0009-F: selectively re-export Transition's
+  // stable child handle without flattening its state into Dialog Content.
   const open = result.getState?.('open');
   const asTransition = result.getAsHookHandle?.('asTransition');
   if (!open || !asTransition) {
@@ -28,6 +30,7 @@ function projectDialogContentHandle(
 }
 
 function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExposes>): void {
+  // P-BASE-DIALOG-CONTENT-PRESENCE, P-BASE-DIALOG-CONTENT-A11Y-ROLE
   def.anatomy.claim(DIALOG_FAMILY, { role: 'content' });
 
   const alertProp = def.state.bool('alert', false);
@@ -38,12 +41,18 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   const contentId = def.state.string('dialogContentId', '');
   const titleId = def.state.string('dialogTitleId', '');
   const descriptionId = def.state.string('dialogDescriptionId', '');
+  // P-BASE-DIALOG-CONTENT-A11Y-ROLE, P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
+  // TODO(P-BASE-DIALOG-CONTENT-A11Y-RELATIONS): make labelledBy/describedBy
+  // conditional on live Title/Description membership once anatomy exposes
+  // part-presence notifications; stable target IDs currently may dangle when
+  // those optional parts are absent.
   def.a11y.id(contentId);
   def.a11y.role(role);
   def.a11y.state('modal', modal);
   def.a11y.relation('labelledBy', { target: titleId });
   def.a11y.relation('describedBy', { target: descriptionId });
 
+  // P-BASE-DIALOG-CONTENT-DISMISS, P-BASE-DIALOG-CONTENT-FOCUS
   const overlay = asOverlay<DialogContentProps>();
   overlay.configure({
     closeOnEscape: true,
@@ -56,12 +65,15 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     modal: false,
     layerRole: 'dialog-content',
   });
+  // P-BASE-DIALOG-CONTENT-DISMISS
   const boundary = asBoundary();
   boundary.observe('pointer.press');
 
+  // P-BASE-DIALOG-CONTENT-FOCUS
   const focusScope = asFocusScope<DialogContentProps>();
   focusScope.configure({ trap: true, loop: true });
 
+  // P-BASE-DIALOG-CONTENT-PRESENCE
   const transition = asTransition();
   overlay.bindPresence({
     enter: transition.controls.enter,
@@ -80,6 +92,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
     reason?: string,
     options?: { focusReason?: DialogOpenFocusReason | null }
   ) => {
+    // P-BASE-DIALOG-CONTENT-PRESENCE, P-BASE-DIALOG-CONTENT-FOCUS
     const prevOpen = open.get();
     open.set(nextOpen, reason ?? 'reason: dialog content sync => open');
     if (nextOpen) {
@@ -101,6 +114,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   };
 
   const syncIdentity = (ctx: DialogContextValue) => {
+    // P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
     contentId.set(createDialogPartId(ctx.rootId, 'content'), 'reason: dialog content id sync');
     titleId.set(createDialogPartId(ctx.rootId, 'title'), 'reason: dialog title relation sync');
     descriptionId.set(
@@ -110,6 +124,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   };
 
   const syncAlert = (ctx: DialogContextValue) => {
+    // P-BASE-DIALOG-CONTENT-A11Y-ROLE
     const alert = ctx.alert;
     alertProp.set(alert, 'reason: dialog alert sync');
     role.set(alert ? 'alertdialog' : 'dialog', 'reason: dialog semantic role sync');
@@ -151,6 +166,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   overlay.open.watch((_ctx, event) => {
+    // P-BASE-DIALOG-CONTENT-DISMISS, P-BASE-DIALOG-CONTENT-CONTROLLED
     if (event.type !== 'next' || event.next || event.reason !== 'escape') return;
     const run = mountedRun;
     if (!run) return;
@@ -162,6 +178,7 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   boundary.subscribeOutside(() => {
+    // P-BASE-DIALOG-CONTENT-DISMISS, P-BASE-DIALOG-CONTENT-CONTROLLED
     if (!overlay.isOpen()) return;
     const returnFocusReason: DialogOpenFocusReason = 'pointer';
     const run = mountedRun;
@@ -175,11 +192,13 @@ function setupDialogContent(def: DefHandle<DialogContentProps, DialogContentExpo
   });
 
   def.rule({
+    // P-BASE-DIALOG-CONTENT-PRESENCE
     when: (w) => w.state(transition.isPresent).eq(false),
     intent: (i) => i.feedback.style.use(tw('hidden')),
   });
 }
 
+// P-BASE-DIALOG-CONTENT-AUTHORING-ENTRIES
 export const asDialogContent = defineAsHook<
   DialogContentProps,
   DialogContentExposes,
