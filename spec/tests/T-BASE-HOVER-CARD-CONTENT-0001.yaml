@@ -3,7 +3,7 @@ type: test
 title: Base Hover Card Content protocol tests
 status: draft
 since: 0.2.0
-summary: Covers Content non-modal Overlay behavior, Transition presence, hover bridge, side and alignment positioning, and deferred extension boundaries.
+summary: Covers Content non-modal Overlay behavior, Transition presence, hover bridge, Trigger anchoring, collision-aware positioning, Portal escape, and deferred extension boundaries.
 cases:
   - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-PRESENCE
     title: Content retains leave view through Transition-bound Overlay presence
@@ -19,11 +19,14 @@ cases:
     covers: [P-BASE-HOVER-CARD-CONTENT-HOVER-BRIDGE]
     expectation: content-hover-keeps-hover-card-open-after-trigger-leave
   - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-POSITION
-    title: Content supports the guaranteed side and alignment surface only
+    title: Content supports side, alignment, offsets, collision policy, and resolved host projection
     covers:
       - P-BASE-HOVER-CARD-CONTENT-POSITION
+      - P-BASE-HOVER-CARD-CONTENT-ANCHOR
+      - P-BASE-HOVER-CARD-CONTENT-COLLISION
+      - P-BASE-HOVER-CARD-CONTENT-PORTAL
       - P-BASE-HOVER-CARD-CONTENT-DEFERRED-EXTENSIONS
-    expectation: hover-card-content-projects-side-align-and-omits-deferred-api
+    expectation: hover-card-content-portals-and-positions-from-trigger-with-collision-policy
 implementations:
   - id: prototypes-base-hover-card-content-contract
     kind: module-test
@@ -53,9 +56,15 @@ verifies:
         - P-BASE-HOVER-CARD-CONTENT-PRESENCE
         - P-BASE-HOVER-CARD-CONTENT-HOVER-BRIDGE
         - P-BASE-HOVER-CARD-CONTENT-POSITION
+        - P-BASE-HOVER-CARD-CONTENT-ANCHOR
+        - P-BASE-HOVER-CARD-CONTENT-COLLISION
+        - P-BASE-HOVER-CARD-CONTENT-PORTAL
 exercises: { prototypes: [P-BASE-HOVER-CARD-CONTENT] }
 revisions:
   - version: 0.2.0
     change: introduced
     summary: Added Content Overlay, Transition, hover bridge, positioning, and boundary coverage.
-tags: [prototype, base, hover-card, content, test]
+  - version: 0.2.1
+    change: extended
+    summary: Added Trigger PartView anchor, collision-aware host positioning, offsets, and Portal escape coverage.
+tags: [prototype, base, hover-card, content, positioning, portal, test]

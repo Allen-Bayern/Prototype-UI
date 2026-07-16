@@ -1,0 +1,70 @@
+id: T-ANCHORED-POSITIONING-0001
+type: test
+title: Anchored positioning contract and host integration tests
+status: draft
+since: 0.2.0
+summary: Covers host-mediated offsets, collision resolution, non-transform coordinate projection, Overlay lease lifetime, and Hover Card adapter integration.
+cases:
+  - id: T-ANCHORED-POSITIONING-0001-CASE-OFFSET
+    title: Floating UI host applies side, alignment, offsets, and non-transform coordinates
+    covers:
+      - C-ANCHORED-POSITIONING-0001-A
+      - C-ANCHORED-POSITIONING-0001-B
+      - C-ANCHORED-POSITIONING-0001-D
+    expectation: host-applies-fixed-left-top-and-categorical-placement
+  - id: T-ANCHORED-POSITIONING-0001-CASE-COLLISION
+    title: Floating UI host reports collision-resolved placement
+    covers:
+      - C-ANCHORED-POSITIONING-0001-C
+    expectation: host-flips-and-shifts-against-viewport-root-boundary
+  - id: T-ANCHORED-POSITIONING-0001-CASE-LIFETIME
+    title: Overlay creates and disposes one positioning lease with active view lifetime
+    covers:
+      - C-ANCHORED-POSITIONING-0001-E
+    expectation: anchored-host-lease-exists-only-for-live-overlay-view
+  - id: T-ANCHORED-POSITIONING-0001-CASE-PORTAL
+    title: Hover Card uses Portal separately from positioning and preserves its logical compound protocol
+    covers:
+      - C-ANCHORED-POSITIONING-0001-F
+    expectation: portaled-hover-card-escapes-previewer-clipping-with-logical-owner-intact
+implementations:
+  - id: module-positioning-floating-ui-host
+    kind: module-test
+    status: passing
+    path: packages/modules/positioning/test/floating-ui-host.test.ts
+    required: true
+    consumesCases:
+      - T-ANCHORED-POSITIONING-0001-CASE-OFFSET
+      - T-ANCHORED-POSITIONING-0001-CASE-COLLISION
+  - id: runtime-overlay-positioning-contract
+    kind: runtime-test
+    status: passing
+    path: packages/runtime/test/contract/overlay.v0.contract.test.ts
+    required: true
+    consumesCases:
+      - T-ANCHORED-POSITIONING-0001-CASE-LIFETIME
+  - id: base-hover-card-positioning-integration
+    kind: adapter-test
+    status: passing
+    path: packages/prototypes/base/test/hover-card.test.ts
+    required: true
+    consumesCases:
+      - T-ANCHORED-POSITIONING-0001-CASE-PORTAL
+verifies:
+  contracts:
+    - id: C-ANCHORED-POSITIONING-0001
+      anchors:
+        - C-ANCHORED-POSITIONING-0001-A
+        - C-ANCHORED-POSITIONING-0001-B
+        - C-ANCHORED-POSITIONING-0001-C
+        - C-ANCHORED-POSITIONING-0001-D
+        - C-ANCHORED-POSITIONING-0001-E
+        - C-ANCHORED-POSITIONING-0001-F
+exercises:
+  modules: [M-POSITIONING-0001]
+  hostCaps: [HC-ANCHORED-POSITION-0001]
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Added module, host, Overlay lifetime, and Hover Card Portal integration coverage.
+tags: [positioning, overlay, hover-card, test]

@@ -91,6 +91,7 @@ const staticUtilities: Record<string, string[]> = {
   'slide-in-from-right-2': ['--pui-translate-x: 0.5rem;'],
   'slide-in-from-top-2': ['--pui-translate-y: -0.5rem;'],
   'transition-all': ['transition-property: all;'],
+  'transition-none': ['transition-property: none;'],
   'transition-colors': [
     'transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;',
   ],

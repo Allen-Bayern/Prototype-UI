@@ -21,6 +21,7 @@ describe('proto style css renderer', () => {
       'animate-out',
       'fade-out-0',
       'zoom-out-95',
+      'transition-none',
       'duration-200',
     ]);
 
@@ -40,6 +41,7 @@ describe('proto style css renderer', () => {
     );
     expect(css).not.toContain('scale: var(--pui-enter-scale');
     expect(css).toContain('--pui-animation-duration: 200ms;');
+    expect(css).toContain('transition-property: none;');
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
 

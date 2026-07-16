@@ -53,6 +53,10 @@ import {
   OVERLAY_MODAL_CAP,
   type OverlayLayerScheduler,
 } from '@proto.ui/module-overlay';
+import {
+  ANCHORED_POSITION_HOST_CAP,
+  createFloatingUiAnchoredPositionHost,
+} from '@proto.ui/module-positioning';
 import { type RawPropsSource, RAW_PROPS_SOURCE_CAP } from '@proto.ui/module-props';
 import { RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP } from '@proto.ui/module-rule-expose-state-web';
 import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
@@ -300,6 +304,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       [HOST_ELEMENT_CAP, el],
       [BOUNDARY_HOST_BRIDGE_CAP, createWebBoundaryHostBridge()],
     ])
+    .use('positioning', [[ANCHORED_POSITION_HOST_CAP, createFloatingUiAnchoredPositionHost()]])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
       [

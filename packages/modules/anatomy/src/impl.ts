@@ -65,6 +65,8 @@ type ClaimRecord = {
   getRootTarget: AnatomyRootTargetGetter;
 };
 
+const CLAIM_BY_PART_VIEW = new WeakMap<AnatomyPartView, ClaimRecord>();
+
 const ORDER_FOLLOWING = typeof Node !== 'undefined' ? Node.DOCUMENT_POSITION_FOLLOWING : 4;
 const ORDER_PRECEDING = typeof Node !== 'undefined' ? Node.DOCUMENT_POSITION_PRECEDING : 2;
 
@@ -446,6 +448,10 @@ export class AnatomyModuleImpl extends ModuleBase {
         out.push(...this.computeDiagnostics(family));
       }
       return out;
+    },
+    resolvePartTarget: (part: AnatomyPartView): unknown | null => {
+      const claim = CLAIM_BY_PART_VIEW.get(part);
+      return claim?.getRootTarget(claim.instance) ?? null;
     },
     parts: (family: AnatomyFamily, options?: AnatomyQueryOptions) => {
       if (options?.missing === 'null') return this.tryParts(family);
@@ -984,13 +990,15 @@ export class AnatomyModuleImpl extends ModuleBase {
   }
 
   private toPartView(claim: ClaimRecord): AnatomyPartView {
-    return {
+    const part: AnatomyPartView = {
       role: claim.role,
       hasExpose: (key: string) => claim.exposePort.has(key),
       getExpose: (key: string) =>
         claim.exposePort.has(key) ? (claim.exposePort.get(key) ?? null) : null,
       hasHook: (name: string) => getHookNames(claim.prototype).has(name),
     };
+    CLAIM_BY_PART_VIEW.set(part, claim);
+    return part;
   }
 
   private ensureSetup(op: string) {

@@ -38,6 +38,8 @@ export type AnatomyFacade = {
 
 export type AnatomyPort = ModulePort & {
   getDiagnostics(): readonly AnatomyDiagnostic[];
+  /** Module-internal bridge. Never expose the returned host target to prototype authors. */
+  resolvePartTarget(part: AnatomyPartView): unknown | null;
   parts: AnatomyQueryOrderView['parts'];
   order: AnatomyQueryOrderView;
   setOrderCallbackDispatcher(dispatch: AnatomyOrderCallbackDispatcher): void;

@@ -26,7 +26,7 @@ describe('prototypes/shadcn: hover-card', () => {
     const trigger = document.createElement('shadcn-hover-card-trigger') as any;
     const content = document.createElement('shadcn-hover-card-content') as any;
     setElementProps(root, { openDelay: 0, closeDelay: 0 });
-    setElementProps(content, { side: 'right', align: 'start' });
+    setElementProps(content, { side: 'right', align: 'start', avoidCollisions: false });
     root.append(trigger, content);
     document.body.appendChild(root);
     await flush();
@@ -44,12 +44,17 @@ describe('prototypes/shadcn: hover-card', () => {
     expect(styleContains(content, 'rounded-md')).toBe(true);
     expect(styleContains(content, 'bg-popover')).toBe(true);
     expect(styleContains(content, 'shadow-md')).toBe(true);
+    expect(styleContains(content, 'transition-none')).toBe(true);
+    expect(styleContains(content, 'duration-200')).toBe(true);
     expect(styleContains(content, 'data-[open]:animate-in')).toBe(true);
     expect(styleContains(content, 'data-[open]:fade-in-0')).toBe(true);
     expect(styleContains(content, 'data-[open]:zoom-in-95')).toBe(true);
     expect(styleContains(content, 'slide-in-from-left-2')).toBe(true);
-    expect(styleContains(content, 'left-full')).toBe(true);
-    expect(styleContains(content, 'top-0')).toBe(true);
+    expect(content.style.position).toBe('fixed');
+    expect(content.dataset.side).toBe('right');
+    expect(content.dataset.align).toBe('start');
+    expect(content.style.left).toMatch(/px$/);
+    expect(content.style.top).toMatch(/px$/);
 
     content.dispatchEvent(new Event('pointerenter'));
     trigger.dispatchEvent(new Event('pointerleave'));

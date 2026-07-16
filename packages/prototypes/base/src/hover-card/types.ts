@@ -66,6 +66,10 @@ export type HoverCardContentProps = TransitionProps & {
   // P-BASE-HOVER-CARD-CONTENT-POSITION
   side?: HoverCardSide;
   align?: HoverCardAlign;
+  sideOffset?: number;
+  alignOffset?: number;
+  avoidCollisions?: boolean;
+  collisionPadding?: number;
 };
 
 export type HoverCardContentExposes = TransitionExposes & {

@@ -26,6 +26,7 @@ import { FocusModuleDef } from '@proto.ui/module-focus';
 import { BoundaryModuleDef } from '@proto.ui/module-boundary';
 import { HitParticipationModuleDef } from '@proto.ui/module-hit-participation';
 import { OverlayModuleDef } from '@proto.ui/module-overlay';
+import { PositioningModuleDef } from '@proto.ui/module-positioning';
 import { PresenceModuleDef } from '@proto.ui/module-presence';
 import { __RUN_TEST_SYS, TestSysModuleDef, type TestSysPort } from '@proto.ui/module-test-sys';
 
@@ -86,6 +87,7 @@ export function createRuntimeInstance<P extends PropsBaseType>(
     FocusModuleDef,
     BoundaryModuleDef,
     HitParticipationModuleDef,
+    PositioningModuleDef,
     OverlayModuleDef,
     PresenceModuleDef,
     TestSysModuleDef,

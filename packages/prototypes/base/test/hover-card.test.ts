@@ -194,17 +194,22 @@ describe('prototypes/base: hover-card', () => {
     expect(trigger.getExposes().disabled.get()).toBe(true);
   });
 
-  it('projects side and alignment props while exposing Transition controls', async () => {
+  it('positions from side and alignment props through the anchored host while exposing Transition controls', async () => {
     // T-BASE-HOVER-CARD-CONTENT-0001-CASE-POSITION
     vi.useFakeTimers();
     const { trigger, content } = createHoverCard({ openDelay: 0 });
-    setElementProps(content, { side: 'top', align: 'start' });
+    setElementProps(content, { side: 'top', align: 'start', avoidCollisions: false });
     await flushViewReconciliation();
 
     trigger.dispatchEvent(new Event('pointerenter'));
     await advance(0);
-    expect(styleContains(content, 'bottom-full')).toBe(true);
-    expect(styleContains(content, 'left-0')).toBe(true);
+    await flushViewReconciliation();
+    expect(content.style.position).toBe('fixed');
+    expect(content.dataset.side).toBe('top');
+    expect(content.dataset.align).toBe('start');
+    expect(content.style.left).toMatch(/px$/);
+    expect(content.style.top).toMatch(/px$/);
+    expect(styleContains(content, 'absolute')).toBe(true);
     expect(content.getExposes().transitionState.get()).toBe('entering');
     expect(typeof content.getExposes().controls.complete).toBe('function');
   });

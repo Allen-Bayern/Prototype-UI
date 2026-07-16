@@ -4,17 +4,22 @@ import type {
   ObservedStateHandle,
   OverlayConfig,
   OverlayConfigPatch,
+  OverlayPositionPatch,
   OverlayModuleHandle,
   MountPhase,
   ProtoPhase,
   OverlayReason,
   OverlayRegistration,
+  AnchoredPositionHandle,
+  AnchoredPositionSnapshot,
+  AnatomyPartView,
 } from '@proto.ui/core';
 import { illegalPhase } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
 import type { EventPort } from '@proto.ui/module-event';
 import type { BoundaryPort } from '@proto.ui/module-boundary';
 import type { StateEvent } from '@proto.ui/types';
+import type { AnatomyPort } from '@proto.ui/module-anatomy';
 import { HOST_ELEMENT_CAP } from '@proto.ui/core';
 import {
   OVERLAY_GLOBAL_MOUNT_CAP,
@@ -36,6 +41,11 @@ const DEFAULT_CONFIG: OverlayConfig = Object.freeze({
   align: 'start',
   sideOffset: 4,
   alignOffset: 0,
+  anchored: false,
+  strategy: 'absolute',
+  avoidCollisions: true,
+  collisionBoundary: 'clippingAncestors',
+  collisionPadding: 0,
   entry: 'content',
   restore: 'trigger',
   portal: false,
@@ -44,11 +54,11 @@ const DEFAULT_CONFIG: OverlayConfig = Object.freeze({
   layerOffset: 0,
 });
 
-function createObservedBoolHandle(initialValue = false) {
+function createObservedHandle<T>(initialValue: T) {
   let value = initialValue;
-  const watchers = new Set<(run: any, e: StateEvent<boolean>) => void>();
+  const watchers = new Set<(run: any, e: StateEvent<T>) => void>();
 
-  const handle: ObservedStateHandle<boolean, any> = {
+  const handle: ObservedStateHandle<T, any> = {
     get: () => value,
     watch: (cb) => {
       watchers.add(cb as any);
@@ -60,11 +70,11 @@ function createObservedBoolHandle(initialValue = false) {
 
   return {
     handle: Object.freeze(handle),
-    set(next: boolean, reason?: unknown) {
+    set(next: T, reason?: unknown) {
       if (Object.is(next, value)) return;
       const prev = value;
       value = next;
-      const event: StateEvent<boolean> = { type: 'next', next, prev, reason };
+      const event: StateEvent<T> = { type: 'next', next, prev, reason };
       for (const watcher of watchers) {
         watcher(undefined as any, event);
       }
@@ -101,12 +111,13 @@ export class OverlayModuleImpl extends ModuleBase {
     content: null,
   });
 
-  private readonly openState = createObservedBoolHandle(false);
+  private readonly openState = createObservedHandle(false);
   private viewActive = false;
   private globalMount: OverlayGlobalMount | null = null;
   private modalLock: OverlayModal | null = null;
   private layerScheduler: OverlayLayerScheduler | null = null;
   private mountedHost: HTMLElement | null = null;
+  private anchorPart: AnatomyPartView | null = null;
   private layerDetach: (() => void) | null = null;
   private layerHost: HTMLElement | null = null;
   private modalLocked = false;
@@ -126,7 +137,9 @@ export class OverlayModuleImpl extends ModuleBase {
     prototypeName: string,
     boundary: BoundaryHandle<any>,
     private readonly boundaryPort: BoundaryPort,
-    private readonly eventPort: EventPort
+    private readonly eventPort: EventPort,
+    private readonly anatomyPort: AnatomyPort,
+    private readonly anchoredPosition: AnchoredPositionHandle
   ) {
     super(caps);
     this.prototypeName = prototypeName;
@@ -272,15 +285,18 @@ export class OverlayModuleImpl extends ModuleBase {
       this.mountGlobalIfNeeded(hostEl);
       this.applyLayerIfNeeded(hostEl);
     }
+    this.syncAnchoredPosition();
     this.lockModalIfNeeded();
   }
 
   private deactivateViewSideEffects(): void {
+    this.anchoredPosition.disconnect();
     this.unlockModalIfNeeded();
   }
 
   private teardownMountedViewSideEffects(): void {
     this.clearLayer();
+    this.anchoredPosition.disconnect();
     this.unmountGlobalIfNeeded();
     this.unlockModalIfNeeded();
   }
@@ -392,6 +408,11 @@ export class OverlayModuleImpl extends ModuleBase {
     this.patchValue('align', patch.align);
     this.patchValue('sideOffset', patch.sideOffset);
     this.patchValue('alignOffset', patch.alignOffset);
+    this.patchValue('anchored', patch.anchored);
+    this.patchValue('strategy', patch.strategy);
+    this.patchValue('avoidCollisions', patch.avoidCollisions);
+    this.patchValue('collisionBoundary', patch.collisionBoundary);
+    this.patchValue('collisionPadding', patch.collisionPadding);
     this.patchValue('entry', patch.entry);
     this.patchValue('restore', patch.restore);
     this.patchValue('portal', patch.portal);
@@ -411,6 +432,22 @@ export class OverlayModuleImpl extends ModuleBase {
     if (this.config.defaultOpen) {
       this.setOpen(true, 'programmatic');
     }
+  }
+
+  updatePosition(patch: OverlayPositionPatch): void {
+    const assign = <K extends keyof OverlayConfig>(field: K, value: OverlayConfigPatch[K]) => {
+      if (typeof value === 'undefined') return;
+      this.config = Object.freeze({ ...this.config, [field]: value }) as OverlayConfig;
+    };
+    assign('placement', patch.placement);
+    assign('align', patch.align);
+    assign('sideOffset', patch.sideOffset);
+    assign('alignOffset', patch.alignOffset);
+    assign('strategy', patch.strategy);
+    assign('avoidCollisions', patch.avoidCollisions);
+    assign('collisionBoundary', patch.collisionBoundary);
+    assign('collisionPadding', patch.collisionPadding);
+    if (this.viewActive) this.syncAnchoredPosition();
   }
 
   open(reason?: OverlayReason): void {
@@ -445,12 +482,59 @@ export class OverlayModuleImpl extends ModuleBase {
     return this.registration;
   }
 
+  getPositionSnapshot(): AnchoredPositionSnapshot | null {
+    return this.anchoredPosition.getSnapshot();
+  }
+
+  private resolveAnchorTarget(): unknown | null {
+    if (this.anchorPart) {
+      const target = this.anatomyPort.resolvePartTarget(this.anchorPart);
+      if (target) return target;
+    }
+    return this.registration.anchor ?? this.registration.trigger;
+  }
+
+  private syncAnchoredPosition(): void {
+    if (!this.config.anchored || !this.viewActive || this.mountPhase !== 'mounted') {
+      this.anchoredPosition.disconnect();
+      return;
+    }
+    const anchor = this.resolveAnchorTarget();
+    const floating = this.registration.content ?? this.resolveHostElement();
+    if (!anchor || !floating) {
+      this.anchoredPosition.disconnect();
+      return;
+    }
+    this.anchoredPosition.connect({
+      anchor,
+      floating,
+      config: {
+        side: this.config.placement,
+        align: this.config.align,
+        sideOffset: this.config.sideOffset,
+        alignOffset: this.config.alignOffset,
+        strategy: this.config.strategy,
+        avoidCollisions: this.config.avoidCollisions,
+        collisionBoundary: this.config.collisionBoundary,
+        collisionPadding: this.config.collisionPadding,
+      },
+    });
+  }
+
   registerTrigger(target: unknown): void {
     this.replaceRegistration({ trigger: target });
+    if (this.viewActive) this.reconcileViewResourcesAfterCallback();
   }
 
   registerAnchor(target: unknown): void {
+    this.anchorPart = null;
     this.replaceRegistration({ anchor: target });
+    if (this.viewActive) this.reconcileViewResourcesAfterCallback();
+  }
+
+  registerAnchorPart(part: AnatomyPartView): void {
+    this.anchorPart = part;
+    if (this.viewActive) this.reconcileViewResourcesAfterCallback();
   }
 
   registerContent(target: unknown): void {
@@ -460,8 +544,7 @@ export class OverlayModuleImpl extends ModuleBase {
 
     const hostEl = this.resolveHostElement();
     if (!hostEl) return;
-    this.mountGlobalIfNeeded(hostEl);
-    this.applyLayerIfNeeded(hostEl);
+    this.reconcileViewResourcesAfterCallback();
   }
 
   readonly handle: OverlayModuleHandle<any> = {
@@ -471,8 +554,11 @@ export class OverlayModuleImpl extends ModuleBase {
     close: (reason?: OverlayReason) => this.close(reason),
     toggle: (reason?: OverlayReason) => this.toggle(reason),
     configure: (patch: OverlayConfigPatch) => this.configure(patch),
+    updatePosition: (patch: OverlayPositionPatch) => this.updatePosition(patch),
     registerTrigger: (target: unknown) => this.registerTrigger(target),
     registerAnchor: (target: unknown) => this.registerAnchor(target),
+    registerAnchorPart: (part: AnatomyPartView) => this.registerAnchorPart(part),
     registerContent: (target: unknown) => this.registerContent(target),
+    getPositionSnapshot: () => this.getPositionSnapshot(),
   };
 }
