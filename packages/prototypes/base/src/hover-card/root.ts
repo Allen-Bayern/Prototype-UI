@@ -1,14 +1,30 @@
-import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
+import {
+  defineAsHook,
+  definePrototype,
+  delay,
+  tw,
+  type DefHandle,
+  type DelayTask,
+} from '@proto.ui/core';
 import { useOpenState } from '../tools';
-import { HOVER_CARD_CONTEXT, HOVER_CARD_FAMILY, type HoverCardContextValue } from './shared';
+import {
+  deriveHoverCardInteractionOpen,
+  HOVER_CARD_CONTEXT,
+  HOVER_CARD_FAMILY,
+  requestHoverCardOpen,
+  type HoverCardContextValue,
+} from './shared';
 import type {
   HoverCardRootAsHookContract,
   HoverCardRootExposes,
   HoverCardRootProps,
 } from './types';
 
-function deriveOpen(ctx: HoverCardContextValue): boolean {
-  return ctx.triggerHovered || ctx.triggerFocused || ctx.contentHovered || ctx.contentFocused;
+const DEFAULT_OPEN_DELAY = 700;
+const DEFAULT_CLOSE_DELAY = 300;
+
+function normalizeDelay(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback;
 }
 
 function sameContext(a: HoverCardContextValue, b: HoverCardContextValue): boolean {
@@ -16,84 +32,175 @@ function sameContext(a: HoverCardContextValue, b: HoverCardContextValue): boolea
     a.open === b.open &&
     a.controlled === b.controlled &&
     a.disabled === b.disabled &&
+    a.openDelay === b.openDelay &&
+    a.closeDelay === b.closeDelay &&
     a.triggerHovered === b.triggerHovered &&
     a.triggerFocused === b.triggerFocused &&
     a.contentHovered === b.contentHovered &&
-    a.contentFocused === b.contentFocused
+    a.interactionReason === b.interactionReason &&
+    a.interactionVersion === b.interactionVersion &&
+    a.requestedOpen === b.requestedOpen &&
+    a.requestReason === b.requestReason &&
+    a.requestVersion === b.requestVersion
   );
 }
 
 function setupHoverCardRoot(def: DefHandle<HoverCardRootProps, HoverCardRootExposes>): void {
+  // P-BASE-HOVER-CARD-ROLE-LINK-PREVIEW, P-BASE-HOVER-CARD-ROOT-OWNER
   def.anatomy.claim(HOVER_CARD_FAMILY, { role: 'root' });
 
-  def.context.provide(HOVER_CARD_CONTEXT, {
-    open: false,
-    controlled: false,
+  // P-BASE-HOVER-CARD-PROPS, P-BASE-HOVER-CARD-DELAYS
+  def.props.define({
+    open: { type: 'boolean', empty: 'fallback' },
+    defaultOpen: { type: 'boolean', empty: 'fallback' },
+    disabled: { type: 'boolean', empty: 'fallback' },
+    openDelay: { type: 'number', empty: 'fallback' },
+    closeDelay: { type: 'number', empty: 'fallback' },
+  });
+  def.props.setDefaults({
+    defaultOpen: false,
     disabled: false,
-    triggerHovered: false,
-    triggerFocused: false,
-    contentHovered: false,
-    contentFocused: false,
+    openDelay: DEFAULT_OPEN_DELAY,
+    closeDelay: DEFAULT_CLOSE_DELAY,
   });
-  const openState = useOpenState({
-    exposeOpenMethodKey: 'openHoverCard',
-  });
-  const open = openState.getState?.('open');
+
   const initialContext: HoverCardContextValue = {
     open: false,
     controlled: false,
     disabled: false,
+    openDelay: DEFAULT_OPEN_DELAY,
+    closeDelay: DEFAULT_CLOSE_DELAY,
     triggerHovered: false,
     triggerFocused: false,
     contentHovered: false,
-    contentFocused: false,
+    interactionReason: null,
+    interactionVersion: 0,
+    requestedOpen: false,
+    requestReason: null,
+    requestVersion: 0,
   };
-  let snapshot: HoverCardContextValue = initialContext;
-  let published: HoverCardContextValue = initialContext;
+  // P-BASE-HOVER-CARD-CONTEXT
+  def.context.provide(HOVER_CARD_CONTEXT, initialContext);
+
+  // P-BASE-HOVER-CARD-OPEN-EXPOSE, P-BASE-HOVER-CARD-CONTROLLED-OWNER
+  const openState = useOpenState({
+    exposeOpenMethodKey: 'openHoverCard',
+    requestOpen(run, nextOpen, reason) {
+      const ctx = run.context.read(HOVER_CARD_CONTEXT);
+      if (ctx.disabled) return;
+      requestHoverCardOpen(run, nextOpen, reason);
+    },
+  });
+  const open = openState.getState?.('open');
+  // P-BASE-HOVER-CARD-OPEN-CHANGE
+  def.expose.event('openChange', { payload: 'json' });
+
+  let snapshot = initialContext;
+  let published = initialContext;
+  let lastRequestVersion = 0;
+  let lastInteractionVersion = 0;
+  let pendingIntent: boolean | null = null;
+  let pendingDelay: DelayTask | null = null;
+
+  const cancelPending = () => {
+    pendingDelay?.cancel();
+    pendingDelay = null;
+    pendingIntent = null;
+  };
 
   const syncContext = (run: any) => {
-    const next = {
-      ...snapshot,
-      open: open?.get() ?? false,
-    };
+    // P-BASE-HOVER-CARD-CONTEXT
+    const next = { ...snapshot, open: open?.get() ?? false };
     snapshot = next;
     if (sameContext(published, next)) return;
     published = next;
     run.context.update(HOVER_CARD_CONTEXT, next);
   };
 
-  def.context.subscribe(HOVER_CARD_CONTEXT, (_run, next) => {
+  const scheduleInteractionRequest = (run: any, nextOpen: boolean, reason: string) => {
+    // P-BASE-HOVER-CARD-DELAYS, P-BASE-HOVER-CARD-INTERACTION-INTENT
+    cancelPending();
+    if (snapshot.disabled || nextOpen === (open?.get() ?? false)) return;
+
+    const duration = nextOpen ? snapshot.openDelay : snapshot.closeDelay;
+    pendingIntent = nextOpen;
+    pendingDelay = delay(duration, () => {
+      if (pendingIntent !== nextOpen) return;
+      pendingDelay = null;
+      pendingIntent = null;
+      const latest = run.context.read(HOVER_CARD_CONTEXT);
+      if (latest.disabled || deriveHoverCardInteractionOpen(latest) !== nextOpen) return;
+      requestHoverCardOpen(run, nextOpen, reason);
+    });
+  };
+
+  def.context.subscribe(HOVER_CARD_CONTEXT, (run, next) => {
     snapshot = next;
     published = next;
-    if (!snapshot.controlled) {
-      open?.set(deriveOpen(snapshot), 'reason: hover-card context sync => open');
+
+    if (next.requestVersion !== lastRequestVersion) {
+      // P-BASE-HOVER-CARD-OPEN-CHANGE, P-BASE-HOVER-CARD-CONTROLLED-OWNER
+      lastRequestVersion = next.requestVersion;
+      if (!next.controlled) {
+        open?.set(next.requestedOpen, 'reason: hover-card request => uncontrolled sync');
+      }
+      run.expose.emit('openChange', {
+        open: next.requestedOpen,
+        reason: next.requestReason,
+      });
+      return;
+    }
+
+    if (next.interactionVersion !== lastInteractionVersion) {
+      lastInteractionVersion = next.interactionVersion;
+      scheduleInteractionRequest(
+        run,
+        deriveHoverCardInteractionOpen(next),
+        next.interactionReason ?? 'interaction'
+      );
     }
   });
 
   def.lifecycle.onCreated((run) => {
+    // P-BASE-HOVER-CARD-ROOT-OWNER, P-BASE-HOVER-CARD-PROPS
+    const props = run.props.get();
     snapshot = {
       ...snapshot,
       controlled: run.props.isProvided('open'),
-      disabled: !!run.props.get().disabled,
+      disabled: !!props.disabled,
+      openDelay: normalizeDelay(props.openDelay, DEFAULT_OPEN_DELAY),
+      closeDelay: normalizeDelay(props.closeDelay, DEFAULT_CLOSE_DELAY),
     };
     syncContext(run);
   });
 
-  def.props.watch(['open', 'disabled'], (run, next) => {
+  def.props.watch(['open', 'disabled', 'openDelay', 'closeDelay'], (run, next) => {
     snapshot = {
       ...snapshot,
       controlled: run.props.isProvided('open'),
       disabled: !!next.disabled,
+      openDelay: normalizeDelay(next.openDelay, DEFAULT_OPEN_DELAY),
+      closeDelay: normalizeDelay(next.closeDelay, DEFAULT_CLOSE_DELAY),
     };
+    if (snapshot.disabled) cancelPending();
     syncContext(run);
   });
 
   open?.watch((run, event) => {
     if (event.type !== 'next') return;
+    if (pendingIntent === event.next) cancelPending();
     syncContext(run);
   });
+
+  def.lifecycle.onBeforeDispose(cancelPending);
 }
 
+/*
+ * P-BASE-HOVER-CARD-PROTOCOL-INDEPENDENCE: Root consumes protocol-neutral
+ * state and runtime delay capabilities, not another Base prototype protocol.
+ */
+
+// P-BASE-HOVER-CARD-AUTHORING-ENTRIES
 export const asHoverCardRoot = defineAsHook<
   HoverCardRootProps,
   HoverCardRootExposes,

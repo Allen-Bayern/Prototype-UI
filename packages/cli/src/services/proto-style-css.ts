@@ -21,6 +21,7 @@ const spacing: Record<string, string> = {
   '9': '2.25rem',
   '10': '2.5rem',
   '11': '2.75rem',
+  '64': '16rem',
   '28': '7rem',
   '56': '14rem',
   '80': '20rem',
@@ -39,6 +40,8 @@ const colorVars = new Set([
   'muted-foreground',
   'primary',
   'primary-foreground',
+  'popover',
+  'popover-foreground',
   'ring',
   'secondary',
   'secondary-foreground',
@@ -60,6 +63,7 @@ const staticUtilities: Record<string, string[]> = {
   'shrink-0': ['flex-shrink: 0;'],
   'pointer-events-none': ['pointer-events: none;'],
   'cursor-default': ['cursor: default;'],
+  'cursor-pointer': ['cursor: pointer;'],
   'select-none': ['user-select: none;'],
   'outline-none': ['outline: 2px solid transparent;', 'outline-offset: 2px;'],
   'overflow-hidden': ['overflow: hidden;'],
@@ -82,6 +86,10 @@ const staticUtilities: Record<string, string[]> = {
   'fade-out-0': ['--pui-exit-opacity: 0;'],
   'zoom-in-95': ['--pui-enter-scale: 0.95;'],
   'zoom-out-95': ['--pui-exit-scale: 0.95;'],
+  'slide-in-from-bottom-2': ['--pui-translate-y: 0.5rem;'],
+  'slide-in-from-left-2': ['--pui-translate-x: -0.5rem;'],
+  'slide-in-from-right-2': ['--pui-translate-x: 0.5rem;'],
+  'slide-in-from-top-2': ['--pui-translate-y: -0.5rem;'],
   'transition-all': ['transition-property: all;'],
   'transition-colors': [
     'transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;',
@@ -104,6 +112,12 @@ const staticUtilities: Record<string, string[]> = {
   'border-transparent': ['border-color: transparent;'],
   'bg-transparent': ['background-color: transparent;'],
   'inset-0': ['inset: 0px;'],
+  'bottom-0': ['bottom: 0px;'],
+  'bottom-full': ['bottom: 100%;'],
+  'left-auto': ['left: auto;'],
+  'right-0': ['right: 0px;'],
+  'right-full': ['right: 100%;'],
+  'top-auto': ['top: auto;'],
   'opacity-50': ['opacity: 0.5;'],
   'ring-inset': ['--pui-ring-inset: inset;'],
   'ring-0': ['--pui-ring-width: 0px;', ...ringShadow()],
@@ -112,6 +126,10 @@ const staticUtilities: Record<string, string[]> = {
   'ring-offset-2': ['--pui-ring-offset-width: 2px;'],
   'ring-offset-background': ['--pui-ring-offset-color: var(--pui-background);'],
   'shadow-xs': ['--pui-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);', ...composedShadow()],
+  'shadow-md': [
+    '--pui-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);',
+    ...composedShadow(),
+  ],
   'shadow-lg': [
     '--pui-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);',
     ...composedShadow(),
@@ -261,7 +279,9 @@ function renderUtility(utility: string): string[] | null {
 }
 
 function renderSpacingUtility(utility: string): string[] | null {
-  const spacingMatch = utility.match(/^(gap|h|w|min-h|min-w|size|p|px|py|pl|pr|mt|top|left)-(.+)$/);
+  const spacingMatch = utility.match(
+    /^(gap|h|w|min-h|min-w|size|p|px|py|pl|pr|mt|mb|ml|mr|top|left)-(.+)$/
+  );
   if (!spacingMatch) return null;
   const [, kind, rawValue] = spacingMatch;
   const value = spacingValue(rawValue);
@@ -279,6 +299,9 @@ function renderSpacingUtility(utility: string): string[] | null {
   if (kind === 'pl') return [`padding-left: ${value};`];
   if (kind === 'pr') return [`padding-right: ${value};`];
   if (kind === 'mt') return [`margin-top: ${value};`];
+  if (kind === 'mb') return [`margin-bottom: ${value};`];
+  if (kind === 'ml') return [`margin-left: ${value};`];
+  if (kind === 'mr') return [`margin-right: ${value};`];
   if (kind === 'top') return [`top: ${value};`];
   if (kind === 'left') return [`left: ${value};`];
   return null;
@@ -317,6 +340,7 @@ function renderTransformUtility(utility: string): string[] | null {
   if (utility === '-translate-x-1/2') return ['--pui-translate-x: -50%;', transformValue()];
   if (utility === '-translate-y-1/2') return ['--pui-translate-y: -50%;', transformValue()];
   if (utility === 'translate-x-0') return ['--pui-translate-x: 0px;', transformValue()];
+  if (utility === 'translate-y-0') return ['--pui-translate-y: 0px;', transformValue()];
   if (utility === 'translate-y-px') return ['--pui-translate-y: 1px;', transformValue()];
 
   const scaleMatch = utility.match(/^scale-\[(.+)\]$/);

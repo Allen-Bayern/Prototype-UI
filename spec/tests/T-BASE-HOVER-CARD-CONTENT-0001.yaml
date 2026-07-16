@@ -1,0 +1,61 @@
+id: T-BASE-HOVER-CARD-CONTENT-0001
+type: test
+title: Base Hover Card Content protocol tests
+status: draft
+since: 0.2.0
+summary: Covers Content non-modal Overlay behavior, Transition presence, hover bridge, side and alignment positioning, and deferred extension boundaries.
+cases:
+  - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-PRESENCE
+    title: Content retains leave view through Transition-bound Overlay presence
+    covers:
+      - P-BASE-HOVER-CARD-CONTENT-AUTHORING-ENTRIES
+      - P-BASE-HOVER-CARD-CONTENT-SURFACE
+      - P-BASE-HOVER-CARD-CONTENT-OVERLAY
+      - P-BASE-HOVER-CARD-CONTENT-PRESENCE
+      - P-BASE-HOVER-CARD-CONTENT-NON-MODAL
+    expectation: hover-card-content-retains-leave-view-without-modal-focus-behavior
+  - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-HOVER-BRIDGE
+    title: Content hover bridges movement from Trigger until close delay
+    covers: [P-BASE-HOVER-CARD-CONTENT-HOVER-BRIDGE]
+    expectation: content-hover-keeps-hover-card-open-after-trigger-leave
+  - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-POSITION
+    title: Content supports the guaranteed side and alignment surface only
+    covers:
+      - P-BASE-HOVER-CARD-CONTENT-POSITION
+      - P-BASE-HOVER-CARD-CONTENT-DEFERRED-EXTENSIONS
+    expectation: hover-card-content-projects-side-align-and-omits-deferred-api
+implementations:
+  - id: prototypes-base-hover-card-content-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/hover-card.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-PRESENCE
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-HOVER-BRIDGE
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-POSITION
+    exercises: [P-BASE-HOVER-CARD-CONTENT]
+  - id: prototypes-shadcn-hover-card-content-composition
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/hover-card.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-PRESENCE
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-HOVER-BRIDGE
+      - T-BASE-HOVER-CARD-CONTENT-0001-CASE-POSITION
+    exercises: [P-BASE-HOVER-CARD-CONTENT]
+verifies:
+  prototypes:
+    - id: P-BASE-HOVER-CARD-CONTENT
+      anchors:
+        - P-BASE-HOVER-CARD-CONTENT-OVERLAY
+        - P-BASE-HOVER-CARD-CONTENT-PRESENCE
+        - P-BASE-HOVER-CARD-CONTENT-HOVER-BRIDGE
+        - P-BASE-HOVER-CARD-CONTENT-POSITION
+exercises: { prototypes: [P-BASE-HOVER-CARD-CONTENT] }
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Added Content Overlay, Transition, hover bridge, positioning, and boundary coverage.
+tags: [prototype, base, hover-card, content, test]

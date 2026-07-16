@@ -5,6 +5,9 @@ export type {
   HoverCardContentExposes,
   HoverCardContentProps,
   HoverCardContentStateHandles,
+  HoverCardContentHandles,
+  HoverCardAlign,
+  HoverCardSide,
   HoverCardRootAsHookContract,
   HoverCardRootExposes,
   HoverCardRootProps,
@@ -12,6 +15,7 @@ export type {
   HoverCardTriggerAsHookContract,
   HoverCardTriggerExposes,
   HoverCardTriggerProps,
+  HoverCardTriggerStateHandles,
 } from './types';
 export type { HoverCardContextValue } from './shared';
 

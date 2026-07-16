@@ -1,23 +1,9 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asButton, asHoverCardTrigger } from '@proto.ui/prototypes-base';
+import { asHoverCardTrigger } from '@proto.ui/prototypes-base';
 import type { ShadcnHoverCardTriggerExposes, ShadcnHoverCardTriggerProps } from './types';
 
-const TRIGGER_BASE_TOKENS = [
-  'inline-flex',
-  'items-center',
-  'rounded-md',
-  'border',
-  'border-border/60',
-  'bg-background',
-  'px-3',
-  'py-1.5',
-  'text-sm',
-  'font-medium',
-  'shadow-xs',
-  'transition-colors',
-  'outline-none',
-  'select-none',
-].join(' ');
+const TRIGGER_BASE_TOKENS =
+  'inline-flex cursor-pointer items-center text-sm font-medium underline-offset-4 outline-none';
 
 const hoverCardTrigger = definePrototype<
   ShadcnHoverCardTriggerProps,
@@ -25,28 +11,23 @@ const hoverCardTrigger = definePrototype<
 >({
   name: 'shadcn-hover-card-trigger',
   setup(def) {
-    asHoverCardTrigger();
-    const buttonState = asButton().stateHandles;
-    if (!buttonState) {
-      throw new Error('[shadcn-hover-card-trigger] asButton must project Button state handles.');
+    const hoverCard = asHoverCardTrigger();
+    const state = hoverCard.stateHandles;
+    if (!state) {
+      throw new Error('[shadcn-hover-card-trigger] missing Hover Card Trigger state handles.');
     }
-    const { disabled, hovered, focusVisible, pressed } = buttonState;
+    const { disabled, hovered, focusVisible } = state;
 
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
     def.rule({
       when: (w) => w.state(hovered).eq(true),
-      intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
+      intent: (i) => i.feedback.style.use(tw('underline')),
     });
 
     def.rule({
       when: (w) => w.state(focusVisible).eq(true),
-      intent: (i) => i.feedback.style.use(tw('ring-3 ring-ring/50 ring-offset-2')),
-    });
-
-    def.rule({
-      when: (w) => w.state(pressed).eq(true),
-      intent: (i) => i.feedback.style.use(tw('translate-y-px')),
+      intent: (i) => i.feedback.style.use(tw('ring-2 ring-ring ring-offset-2')),
     });
 
     def.rule({
