@@ -11,6 +11,10 @@ import { executeWithHost } from '../../src';
 import { BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
 import { EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import { OVERLAY_GLOBAL_MOUNT_CAP, type OverlayPort } from '@proto.ui/module-overlay';
+import {
+  ANCHORED_POSITION_HOST_CAP,
+  type AnchoredPositionHostLease,
+} from '@proto.ui/module-positioning';
 import type { PropsBaseType } from '@proto.ui/types';
 
 const createHost = <P extends PropsBaseType>(
@@ -37,6 +41,86 @@ const createHost = <P extends PropsBaseType>(
 };
 
 describe('runtime contract: overlay (v0)', () => {
+  it('OVERLAY-0050: anchored positioning is host-mediated and active only with a live view', () => {
+    let overlay!: OverlayHandle<PropsBaseType>;
+    let connection: any = null;
+    let disposed = 0;
+    const anchor = document.createElement('button');
+    const content = document.createElement('div');
+
+    const lease: AnchoredPositionHostLease = {
+      update(next) {
+        connection = next;
+      },
+      requestUpdate() {},
+      dispose() {
+        disposed += 1;
+      },
+    };
+
+    const P = definePrototype({
+      name: 'x-overlay-0050',
+      setup(def) {
+        overlay = asOverlay<PropsBaseType>();
+        overlay.configure({
+          anchored: true,
+          defaultOpen: true,
+          placement: 'right',
+          align: 'end',
+          sideOffset: 8,
+          avoidCollisions: true,
+          collisionBoundary: 'clippingAncestors',
+          collisionPadding: 6,
+        });
+        def.lifecycle.onMounted(() => {
+          overlay.registerAnchor(anchor);
+          overlay.registerContent(content);
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const { host } = createHost(P.name, {
+      onRuntimeReady(wiring) {
+        wiring.attach('positioning', [
+          [
+            ANCHORED_POSITION_HOST_CAP,
+            {
+              attach(next: any) {
+                connection = next;
+                next.onResolved?.({ side: 'left', align: 'end', strategy: 'absolute' });
+                return lease;
+              },
+            },
+          ],
+        ]);
+      },
+    });
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<OverlayPort>('overlay');
+
+    expect(connection).toMatchObject({
+      anchor,
+      floating: content,
+      config: {
+        side: 'right',
+        align: 'end',
+        sideOffset: 8,
+        avoidCollisions: true,
+        collisionBoundary: 'clippingAncestors',
+        collisionPadding: 6,
+      },
+    });
+    expect(port?.getPositionSnapshot()).toEqual({
+      side: 'left',
+      align: 'end',
+      strategy: 'absolute',
+    });
+
+    result.invokeInCallbackScope(() => overlay.close('programmatic'));
+    expect(disposed).toBeGreaterThan(0);
+  });
+
   it('OVERLAY-0100: repeated asOverlay calls reuse one handle and merge configuration', () => {
     let a!: OverlayHandle<PropsBaseType>;
     let b!: OverlayHandle<PropsBaseType>;

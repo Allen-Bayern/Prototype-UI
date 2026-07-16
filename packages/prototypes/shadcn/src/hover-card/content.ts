@@ -14,7 +14,7 @@ const hoverCardContent = definePrototype<
 
     def.feedback.style.use(
       tw(
-        'absolute z-50 w-64 rounded-md border bg-popover p-4 text-sm text-popover-foreground shadow-md outline-none duration-200'
+        'z-50 w-64 rounded-md border bg-popover p-4 text-sm text-popover-foreground shadow-md outline-none transition-none duration-200'
       )
     );
 

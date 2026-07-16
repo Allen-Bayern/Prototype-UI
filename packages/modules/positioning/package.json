@@ -1,16 +1,12 @@
 {
-  "name": "@proto.ui/module-overlay",
+  "name": "@proto.ui/module-positioning",
   "version": "0.1.0",
   "private": false,
   "type": "module",
   "dependencies": {
+    "@floating-ui/dom": "^1.7.4",
     "@proto.ui/core": "workspace:*",
-    "@proto.ui/module-base": "workspace:*",
-    "@proto.ui/module-boundary": "workspace:*",
-    "@proto.ui/module-event": "workspace:*",
-    "@proto.ui/module-anatomy": "workspace:*",
-    "@proto.ui/module-positioning": "workspace:*",
-    "@proto.ui/types": "workspace:*"
+    "@proto.ui/module-base": "workspace:*"
   },
   "exports": {
     ".": {
@@ -18,13 +14,13 @@
       "default": "./src/index.ts"
     }
   },
-  "description": "Proto UI module that provides overlay capability for adapters.",
+  "description": "Proto UI module for host-mediated anchored positioning.",
   "license": "MIT",
-  "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/modules/overlay",
+  "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/modules/positioning",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Proto-UI/Proto-UI.git",
-    "directory": "packages/modules/overlay"
+    "directory": "packages/modules/positioning"
   },
   "bugs": {
     "url": "https://github.com/Proto-UI/Proto-UI/issues"
@@ -37,6 +33,6 @@
     "proto",
     "ui",
     "module",
-    "overlay"
+    "positioning"
   ]
 }

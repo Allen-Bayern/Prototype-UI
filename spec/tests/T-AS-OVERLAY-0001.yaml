@@ -58,6 +58,13 @@ cases:
     covers:
       - C-AS-OVERLAY-0001-L
     expectation: runtime-owned-post-callback-overlay-reconciliation
+  - id: T-AS-OVERLAY-0001-CASE-ANCHORED
+    title: Anchored Overlay delegates one active-view lease to Positioning
+    covers:
+      - C-AS-OVERLAY-0001-M
+      - C-AS-OVERLAY-0001-N
+      - C-AS-OVERLAY-0001-O
+    expectation: overlay-delegates-positioning-without-exposing-anatomy-target
 implementations:
   - id: runtime-overlay-contract
     kind: runtime-test
@@ -71,6 +78,7 @@ implementations:
       - T-AS-OVERLAY-0001-CASE-BOUNDARY-HIT
       - T-AS-OVERLAY-0001-CASE-DISMISS
       - T-AS-OVERLAY-0001-CASE-POST-CALLBACK-RECONCILE
+      - T-AS-OVERLAY-0001-CASE-ANCHORED
   - id: base-overlay-transition-contract
     kind: runtime-test
     status: passing
@@ -123,6 +131,9 @@ verifies:
         - C-AS-OVERLAY-0001-J
         - C-AS-OVERLAY-0001-K
         - C-AS-OVERLAY-0001-L
+        - C-AS-OVERLAY-0001-M
+        - C-AS-OVERLAY-0001-N
+        - C-AS-OVERLAY-0001-O
     - id: C-LIFECYCLE-0008
       anchors:
         - C-LIFECYCLE-0008-E
@@ -148,8 +159,12 @@ revisions:
   - version: 0.1.4
     change: refined
     summary: Added runtime coverage for post-callback Overlay host-resource reconciliation.
+  - version: 0.2.0
+    change: extended
+    summary: Added delegated anchored positioning and active-view lease coverage.
 tags:
   - overlay
   - presence
   - transition
   - contract-test
+  - positioning

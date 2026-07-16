@@ -270,21 +270,30 @@ Routine policies such as "restore to trigger on close" should not require manual
 
 ## 9. Placement
 
-`asOverlay()` may expose host-mediated placement configuration.
+`asOverlay()` exposes an opt-in anchored policy and delegates geometry to the Positioning module and its host capability. Overlay owns orchestration and lifetime, not measurement.
 
-v0 should only require a minimal anchored model, such as:
+The anchored model includes:
 
 - `placement`
 - `align`
 - `sideOffset`
 - `alignOffset`
+- `strategy: absolute | fixed`
+- `avoidCollisions`
+- `collisionBoundary: clippingAncestors | viewport`
+- `collisionPadding`
+
+The default collision boundary is the floating target's clipping ancestors and the root boundary is the visual viewport. Collision avoidance performs flip and shift. Resolved side and alignment are host projection facts and may differ from the authored request.
+
+An author-facing `AnatomyPartView` may be submitted as an anchor identity. Resolving that identity to a host target is an internal Anatomy-to-Overlay operation and must not reveal the raw target to prototype authors.
 
 The following are explicitly non-required in v0:
 
 - arrow middleware
-- collision avoidance guarantees
 - cursor-follow placement
 - top-layer guarantees
+- custom Element collision boundaries
+- sticky and hide-when-detached policy
 
 Adapters may provide stronger behavior, but the base contract should remain conservative.
 
@@ -310,13 +319,13 @@ The contract does not require a public arbitrary overlay-query API.
 
 ---
 
-## 11. No Portal Requirement in v0
+## 11. Portal Is Independent From Collision Detection
 
-`asOverlay()` must not require portal support in v0.
+Anchored positioning must not require Portal. Inline placement uses the floating target's real containing and clipping ancestors.
 
-Inline DOM placement is the default portable model.
+Portal is a separate opt-in capability used when a floating view must escape ancestor clipping or stacking context. Moving to a Portal changes host geometry and therefore the effective clipping ancestors; it does not change logical ownership.
 
-If a host later supports portal/teleport-like mounting, that capability should be defined at the adapter/runtime level rather than as a private overlay trick.
+Portal capability is defined at the adapter/runtime level rather than as a private positioning trick.
 
 For renderer-owned hosts, portal projection must remain renderer-owned. React adapters must use `createPortal`, Vue adapters must use an equivalent renderer primitive when available, and an Overlay host bridge must not imperatively reparent a node that the renderer still owns. Logical parent links remain adapter metadata and do not authorize DOM mutation behind the renderer.
 
@@ -337,10 +346,14 @@ type OverlayHandle = {
   toggle(reason?: string): void;
 
   configure(patch: OverlayConfigPatch): void;
+  updatePosition(patch: OverlayPositionPatch): void;
 
   registerContent(target: unknown): void;
   registerAnchor(target: unknown): void;
+  registerAnchorPart(part: AnatomyPartView): void;
   registerTrigger(target: unknown): void;
+
+  getPositionSnapshot(): AnchoredPositionSnapshot | null;
 };
 ```
 
@@ -348,7 +361,9 @@ Notes:
 
 - naming may later be normalized to `open/close/toggle`
 - `configure(...)` must be setup-only
+- `updatePosition(...)` updates only runtime geometry policy and does not redefine dismiss, focus, modal, or Portal policy
 - registration targets are adapter-facing and need not be public author primitives
+- `registerAnchorPart(...)` preserves the author-facing Anatomy target-safety boundary
 
 ---
 

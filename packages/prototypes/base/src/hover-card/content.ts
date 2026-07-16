@@ -39,8 +39,19 @@ function setupHoverCardContent(
       empty: 'fallback',
       options: ['start', 'center', 'end'],
     },
+    sideOffset: { type: 'number', empty: 'fallback' },
+    alignOffset: { type: 'number', empty: 'fallback' },
+    avoidCollisions: { type: 'boolean', empty: 'fallback' },
+    collisionPadding: { type: 'number', empty: 'fallback' },
   });
-  def.props.setDefaults({ side: 'bottom', align: 'center' });
+  def.props.setDefaults({
+    side: 'bottom',
+    align: 'center',
+    sideOffset: 4,
+    alignOffset: 0,
+    avoidCollisions: true,
+    collisionPadding: 0,
+  });
 
   // P-BASE-HOVER-CARD-CONTENT-OVERLAY
   const overlay = asOverlay<HoverCardContentProps>();
@@ -53,6 +64,13 @@ function setupHoverCardContent(
     placement: 'bottom',
     align: 'center',
     sideOffset: 4,
+    alignOffset: 0,
+    anchored: true,
+    strategy: 'fixed',
+    avoidCollisions: true,
+    collisionBoundary: 'clippingAncestors',
+    collisionPadding: 0,
+    portal: true,
     modal: false,
     layerRole: 'hover-card-content',
     meta: { overlayKind: 'hover-card' },
@@ -76,14 +94,39 @@ function setupHoverCardContent(
     else overlay.close(reason);
   };
 
+  const syncPosition = (run: any) => {
+    // P-BASE-HOVER-CARD-CONTENT-POSITION, P-BASE-HOVER-CARD-CONTENT-COLLISION
+    const props = run.props.get();
+    overlay.updatePosition({
+      placement: props.side,
+      align: props.align,
+      sideOffset: props.sideOffset,
+      alignOffset: props.alignOffset,
+      avoidCollisions: props.avoidCollisions,
+      collisionPadding: props.collisionPadding,
+      strategy: 'fixed',
+      collisionBoundary: 'clippingAncestors',
+    });
+  };
+
+  def.props.watch(
+    ['side', 'align', 'sideOffset', 'alignOffset', 'avoidCollisions', 'collisionPadding'],
+    (run) => syncPosition(run)
+  );
+
   def.context.subscribe(HOVER_CARD_CONTEXT, (_run, next) => {
     updateOpen(next.open, 'reason: hover-card context sync => content open');
   });
   def.lifecycle.onCreated((run) => {
+    syncPosition(run);
     const ctx = run.context.read(HOVER_CARD_CONTEXT);
     updateOpen(ctx.open, 'reason: lifecycle.onCreated => hover-card content open sync');
   });
   def.lifecycle.onMounted((run) => {
+    // P-BASE-HOVER-CARD-CONTENT-ANCHOR, P-BASE-HOVER-CARD-CONTENT-PORTAL
+    const trigger = run.anatomy.partsOf(HOVER_CARD_FAMILY, 'trigger')[0] ?? null;
+    if (trigger) overlay.registerAnchorPart(trigger);
+    syncPosition(run);
     const ctx = run.context.read(HOVER_CARD_CONTEXT);
     updateOpen(ctx.open, 'reason: lifecycle.onMounted => hover-card content open sync');
   });
@@ -106,63 +149,13 @@ function setupHoverCardContent(
     when: (w) => w.state(transition.isPresent).eq(false),
     intent: (i) => i.feedback.style.use(tw('hidden')),
   });
-
-  // P-BASE-HOVER-CARD-CONTENT-POSITION
-  def.rule({
-    when: (w) => w.prop('side').eq('bottom'),
-    intent: (i) => i.feedback.style.use(tw('left-1/2 top-full mt-1 -translate-x-1/2')),
-  });
-  def.rule({
-    when: (w) => w.prop('side').eq('top'),
-    intent: (i) => i.feedback.style.use(tw('bottom-full left-1/2 mb-1 -translate-x-1/2')),
-  });
-  def.rule({
-    when: (w) => w.prop('side').eq('right'),
-    intent: (i) => i.feedback.style.use(tw('left-full top-1/2 ml-1 -translate-y-1/2')),
-  });
-  def.rule({
-    when: (w) => w.prop('side').eq('left'),
-    intent: (i) => i.feedback.style.use(tw('right-full top-1/2 mr-1 -translate-y-1/2')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('start'), w.prop('side').eq('bottom')),
-    intent: (i) => i.feedback.style.use(tw('left-0 translate-x-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('start'), w.prop('side').eq('top')),
-    intent: (i) => i.feedback.style.use(tw('left-0 translate-x-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('end'), w.prop('side').eq('bottom')),
-    intent: (i) => i.feedback.style.use(tw('left-auto right-0 translate-x-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('end'), w.prop('side').eq('top')),
-    intent: (i) => i.feedback.style.use(tw('left-auto right-0 translate-x-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('start'), w.prop('side').eq('left')),
-    intent: (i) => i.feedback.style.use(tw('top-0 translate-y-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('start'), w.prop('side').eq('right')),
-    intent: (i) => i.feedback.style.use(tw('top-0 translate-y-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('end'), w.prop('side').eq('left')),
-    intent: (i) => i.feedback.style.use(tw('bottom-0 top-auto translate-y-0')),
-  });
-  def.rule({
-    when: (w) => w.all(w.prop('align').eq('end'), w.prop('side').eq('right')),
-    intent: (i) => i.feedback.style.use(tw('bottom-0 top-auto translate-y-0')),
-  });
 }
 
 /*
  * P-BASE-HOVER-CARD-CONTENT-NON-MODAL: no focus scope, outside dismissal,
  * Escape dismissal, or dialog semantics are authored by Content.
- * P-BASE-HOVER-CARD-CONTENT-DEFERRED-EXTENSIONS: portal, collision geometry,
- * Arrow, forceMount, and numeric offsets remain downstream extensions.
+ * P-BASE-HOVER-CARD-CONTENT-DEFERRED-EXTENSIONS: Arrow, forceMount, custom
+ * collision boundary elements, sticky positioning, and detached-anchor hiding remain extensions.
  */
 
 // P-BASE-HOVER-CARD-CONTENT-AUTHORING-ENTRIES

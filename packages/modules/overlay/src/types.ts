@@ -3,6 +3,7 @@ import type {
   OverlayConfig,
   OverlayConfigPatch,
   OverlayModuleHandle,
+  OverlayPositionPatch,
   OverlayReason,
   OverlayRegistration,
 } from '@proto.ui/core';
@@ -29,9 +30,12 @@ export type OverlayPort = {
   getWarnings(): readonly string[];
   getLastReason(): OverlayReason | undefined;
   getRegistration(): OverlayRegistration;
+  getPositionSnapshot(): import('@proto.ui/core').AnchoredPositionSnapshot | null;
   registerTrigger(target: unknown): void;
   registerAnchor(target: unknown): void;
+  registerAnchorPart(part: import('@proto.ui/core').AnatomyPartView): void;
   registerContent(target: unknown): void;
+  updatePosition(patch: OverlayPositionPatch): void;
   setViewActive(active: boolean): void;
   reconcileViewResourcesAfterCallback(): void;
 };

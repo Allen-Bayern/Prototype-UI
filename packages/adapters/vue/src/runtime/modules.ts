@@ -46,6 +46,10 @@ import {
   type OverlayGlobalMount,
   type OverlayLayerScheduler,
 } from '@proto.ui/module-overlay';
+import {
+  ANCHORED_POSITION_HOST_CAP,
+  createFloatingUiAnchoredPositionHost,
+} from '@proto.ui/module-positioning';
 import { RAW_PROPS_SOURCE_CAP, type RawPropsSource } from '@proto.ui/module-props';
 import {
   createExposeStateWebNameMap,
@@ -259,6 +263,7 @@ export function createVueModules<Props extends PropsBaseType>(args: {
       [HOST_ELEMENT_CAP, el],
       [BOUNDARY_HOST_BRIDGE_CAP, createWebBoundaryHostBridge()],
     ])
+    .use('positioning', [[ANCHORED_POSITION_HOST_CAP, createFloatingUiAnchoredPositionHost()]])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
       [OVERLAY_GLOBAL_MOUNT_CAP, createVueOverlayGlobalMount(instanceToken)],

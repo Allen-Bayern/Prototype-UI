@@ -16,6 +16,7 @@ export * from './focus';
 export * from './boundary';
 export * from './hit-participation';
 export * from './overlay';
+export * from './positioning';
 export * from './collection';
 export * from './delay';
 

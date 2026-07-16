@@ -1,5 +1,11 @@
 import type { PropsBaseType } from '@proto.ui/types';
+import type { AnatomyPartView } from './anatomy';
 import type { ObservedStateHandle } from './state';
+import type {
+  AnchoredCollisionBoundary,
+  AnchoredPositionSnapshot,
+  AnchoredPositionStrategy,
+} from './positioning';
 
 export type OverlayPlacement = 'top' | 'right' | 'bottom' | 'left';
 export type OverlayAlign = 'start' | 'center' | 'end';
@@ -31,6 +37,11 @@ export type OverlayConfigPatch = Readonly<{
   align?: OverlayAlign;
   sideOffset?: number;
   alignOffset?: number;
+  anchored?: boolean;
+  strategy?: AnchoredPositionStrategy;
+  avoidCollisions?: boolean;
+  collisionBoundary?: AnchoredCollisionBoundary;
+  collisionPadding?: number;
   entry?: OverlayFocusEntry;
   restore?: OverlayFocusRestore;
   portal?: boolean;
@@ -51,6 +62,11 @@ export type OverlayConfig = Readonly<{
   align: OverlayAlign;
   sideOffset: number;
   alignOffset: number;
+  anchored: boolean;
+  strategy: AnchoredPositionStrategy;
+  avoidCollisions: boolean;
+  collisionBoundary: AnchoredCollisionBoundary;
+  collisionPadding: number;
   entry: OverlayFocusEntry;
   restore: OverlayFocusRestore;
   portal: boolean;
@@ -59,6 +75,20 @@ export type OverlayConfig = Readonly<{
   layerOffset: number;
   meta?: Readonly<Record<string, unknown>>;
 }>;
+
+export type OverlayPositionPatch = Readonly<
+  Pick<
+    OverlayConfigPatch,
+    | 'placement'
+    | 'align'
+    | 'sideOffset'
+    | 'alignOffset'
+    | 'strategy'
+    | 'avoidCollisions'
+    | 'collisionBoundary'
+    | 'collisionPadding'
+  >
+>;
 
 export type OverlayRegistration = Readonly<{
   trigger: unknown | null;
@@ -86,10 +116,13 @@ export interface OverlayModuleHandle<P extends PropsBaseType = PropsBaseType> {
   toggle(reason?: OverlayReason): void;
 
   configure(patch: OverlayConfigPatch): void;
+  updatePosition(patch: OverlayPositionPatch): void;
 
   registerTrigger(target: unknown): void;
   registerAnchor(target: unknown): void;
+  registerAnchorPart(part: AnatomyPartView): void;
   registerContent(target: unknown): void;
+  getPositionSnapshot(): AnchoredPositionSnapshot | null;
 }
 
 export interface OverlayHandle<

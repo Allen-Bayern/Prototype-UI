@@ -6,6 +6,8 @@ import { OverlayModuleImpl } from './impl';
 import type { BoundaryFacade } from '@proto.ui/module-boundary';
 import type { BoundaryPort } from '@proto.ui/module-boundary';
 import type { EventPort } from '@proto.ui/module-event';
+import type { AnatomyPort } from '@proto.ui/module-anatomy';
+import type { PositioningFacade } from '@proto.ui/module-positioning';
 
 export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
   const { init, caps, deps } = ctx;
@@ -23,7 +25,9 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
         init.prototypeName,
         boundaryFacade.getBoundary(),
         deps.requirePort<BoundaryPort>('boundary'),
-        deps.requirePort<EventPort>('event')
+        deps.requirePort<EventPort>('event'),
+        deps.requirePort<AnatomyPort>('anatomy'),
+        deps.requireFacade<PositioningFacade>('positioning').getAnchoredPosition()
       );
 
       return {
@@ -44,9 +48,12 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
           getWarnings: () => impl.getWarnings(),
           getLastReason: () => impl.getLastReason(),
           getRegistration: () => impl.getRegistration(),
+          getPositionSnapshot: () => impl.getPositionSnapshot(),
           registerTrigger: (target) => impl.registerTrigger(target),
           registerAnchor: (target) => impl.registerAnchor(target),
+          registerAnchorPart: (part) => impl.registerAnchorPart(part),
           registerContent: (target) => impl.registerContent(target),
+          updatePosition: (patch) => impl.updatePosition(patch),
           setViewActive: (active) => impl.setViewActive(active),
           reconcileViewResourcesAfterCallback: () => impl.reconcileViewResourcesAfterCallback(),
         },
@@ -58,6 +65,6 @@ export function createOverlayModule(ctx: ModuleFactoryArgs): OverlayModule {
 export const OverlayModuleDef = defineModule({
   name: 'overlay',
   resourceOwnership: 'mixed',
-  deps: ['boundary', 'event'],
+  deps: ['boundary', 'event', 'anatomy', 'positioning'],
   create: createOverlayModule,
 });

@@ -223,6 +223,9 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
+      '@proto.ui/module-positioning':
+        specifier: workspace:*
+        version: link:../../modules/positioning
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -290,6 +293,9 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
+      '@proto.ui/module-positioning':
+        specifier: workspace:*
+        version: link:../../modules/positioning
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -357,6 +363,9 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../../modules/overlay
+      '@proto.ui/module-positioning':
+        specifier: workspace:*
+        version: link:../../modules/positioning
       '@proto.ui/module-props':
         specifier: workspace:*
         version: link:../../modules/props
@@ -595,6 +604,9 @@ importers:
       '@proto.ui/core':
         specifier: workspace:*
         version: link:../../core
+      '@proto.ui/module-anatomy':
+        specifier: workspace:*
+        version: link:../anatomy
       '@proto.ui/module-base':
         specifier: workspace:*
         version: link:../base
@@ -604,9 +616,24 @@ importers:
       '@proto.ui/module-event':
         specifier: workspace:*
         version: link:../event
+      '@proto.ui/module-positioning':
+        specifier: workspace:*
+        version: link:../positioning
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types
+
+  packages/modules/positioning:
+    dependencies:
+      '@floating-ui/dom':
+        specifier: ^1.7.4
+        version: 1.8.0
+      '@proto.ui/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@proto.ui/module-base':
+        specifier: workspace:*
+        version: link:../base
 
   packages/modules/presence:
     dependencies:
@@ -856,6 +883,9 @@ importers:
       '@proto.ui/module-overlay':
         specifier: workspace:*
         version: link:../modules/overlay
+      '@proto.ui/module-positioning':
+        specifier: workspace:*
+        version: link:../modules/positioning
       '@proto.ui/module-presence':
         specifier: workspace:*
         version: link:../modules/presence
@@ -1483,6 +1513,15 @@ packages:
 
   '@expressive-code/plugin-text-markers@0.41.7':
     resolution: {integrity: sha512-Ewpwuc5t6eFdZmWlFyeuy3e1PTQC0jFvw2Q+2bpcWXbOZhPLsT7+h8lsSIJxb5mS7wZko7cKyQ2RLYDyK6Fpmw==}
+
+  '@floating-ui/core@1.8.0':
+    resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
+
+  '@floating-ui/dom@1.8.0':
+    resolution: {integrity: sha512-yXSrzeHZBTZadLOlfyhCkJHNeLJnHRnRInwdZ40L7ZiaAtrBwoYlsDrX3v5zB1Utk7CLfzcOVnVVWoXEky7Ceg==}
+
+  '@floating-ui/utils@0.2.12':
+    resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -4387,6 +4426,17 @@ snapshots:
   '@expressive-code/plugin-text-markers@0.41.7':
     dependencies:
       '@expressive-code/core': 0.41.7
+
+  '@floating-ui/core@1.8.0':
+    dependencies:
+      '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/dom@1.8.0':
+    dependencies:
+      '@floating-ui/core': 1.8.0
+      '@floating-ui/utils': 0.2.12
+
+  '@floating-ui/utils@0.2.12': {}
 
   '@img/colour@1.1.0': {}
 

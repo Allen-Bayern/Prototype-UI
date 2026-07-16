@@ -232,6 +232,7 @@ export const SHADCN_STYLE_TOKENS = [
   'tracking-tight',
   'transition-all',
   'transition-colors',
+  'transition-none',
   'translate-x-0',
   'translate-y-0',
   'translate-y-px',
