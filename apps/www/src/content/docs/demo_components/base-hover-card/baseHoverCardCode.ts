@@ -5,11 +5,11 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
   wc: {
     'demo-base-hover-card': formatCode(`
 <wc-base-hover-card-root class="relative inline-flex items-start">
-  <wc-base-hover-card-trigger class="rounded border px-3 py-1.5">
+<wc-base-hover-card-trigger class="cursor-pointer rounded border px-3 py-1.5">
     Hover me
   </wc-base-hover-card-trigger>
-  <wc-base-hover-card-content class="mt-3 w-72 rounded border bg-white p-3 shadow">
-    Base hover-card content. Move pointer between trigger and content to keep it open.
+  <wc-base-hover-card-content class="w-72 rounded border bg-white p-3 shadow">
+    Base hover-card content. Pointer and focus intent use cancellable delays.
   </wc-base-hover-card-content>
 </wc-base-hover-card-root>
     `),
@@ -24,12 +24,12 @@ import {
 
 export function DemoBaseHoverCardDemo() {
   return (
-    <BaseHoverCardRoot className="relative inline-flex items-start">
-      <BaseHoverCardTrigger className="rounded border px-3 py-1.5">
+    <BaseHoverCardRoot openDelay={150} closeDelay={300} className="relative inline-flex items-start">
+      <BaseHoverCardTrigger className="cursor-pointer rounded border px-3 py-1.5">
         Hover me
       </BaseHoverCardTrigger>
-      <BaseHoverCardContent className="mt-3 w-72 rounded border bg-white p-3 shadow">
-        Base hover-card content. Move pointer between trigger and content to keep it open.
+      <BaseHoverCardContent side="bottom" align="center" className="w-72 rounded border bg-white p-3 shadow">
+        Base hover-card content. Pointer and focus intent use cancellable delays.
       </BaseHoverCardContent>
     </BaseHoverCardRoot>
   );
@@ -47,12 +47,12 @@ import {
 </script>
 
 <template>
-  <BaseHoverCardRoot class="relative inline-flex items-start">
-    <BaseHoverCardTrigger class="rounded border px-3 py-1.5">
+  <BaseHoverCardRoot :open-delay="150" :close-delay="300" class="relative inline-flex items-start">
+    <BaseHoverCardTrigger class="cursor-pointer rounded border px-3 py-1.5">
       Hover me
     </BaseHoverCardTrigger>
-    <BaseHoverCardContent class="mt-3 w-72 rounded border bg-white p-3 shadow">
-      Base hover-card content. Move pointer between trigger and content to keep it open.
+    <BaseHoverCardContent side="bottom" align="center" class="w-72 rounded border bg-white p-3 shadow">
+      Base hover-card content. Pointer and focus intent use cancellable delays.
     </BaseHoverCardContent>
   </BaseHoverCardRoot>
 </template>

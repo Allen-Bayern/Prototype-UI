@@ -1,7 +1,6 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { asFocusable } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { HOVER_CARD_CONTEXT, HOVER_CARD_FAMILY } from './shared';
+import { HOVER_CARD_CONTEXT, HOVER_CARD_FAMILY, updateHoverCardInteraction } from './shared';
 import type {
   HoverCardTriggerAsHookContract,
   HoverCardTriggerExposes,
@@ -11,55 +10,70 @@ import type {
 function setupHoverCardTrigger(
   def: DefHandle<HoverCardTriggerProps, HoverCardTriggerExposes>
 ): void {
+  // P-BASE-HOVER-CARD-TRIGGER-ROLE, P-BASE-HOVER-CARD-TRIGGER-NO-BUTTON-DEPENDENCY
   def.anatomy.claim(HOVER_CARD_FAMILY, { role: 'trigger' });
-  const button = asButton();
-  const buttonState = button.stateHandles;
-  if (!buttonState) {
-    throw new Error('[base-hover-card-trigger] asButton must project Button state handles.');
-  }
 
-  def.props.define({
-    disabled: { type: 'boolean', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    disabled: false,
-  });
+  def.props.define({ disabled: { type: 'boolean', empty: 'fallback' } });
+  def.props.setDefaults({ disabled: false });
 
-  def.context.subscribe(HOVER_CARD_CONTEXT);
-  const hovered = buttonState.hovered;
+  // P-BASE-HOVER-CARD-TRIGGER-INTERACTION
+  const disabled = def.state.bool('disabled', false);
+  const hovered = def.state.bool('hovered', false);
   const focusable = asFocusable<HoverCardTriggerProps>();
+  focusable.configure({ disabled: false });
   const focused = focusable.focused;
+  const focusVisible = focusable.focusVisible;
 
-  const updateFlags = (
-    run: any,
-    patch: Partial<{
-      triggerHovered: boolean;
-      triggerFocused: boolean;
-    }>
-  ) => {
-    const ownDisabled = !!run.props.get().disabled;
+  def.expose.state('disabled', disabled);
+  def.expose.state('hovered', hovered);
+  def.expose.state('focused', focused);
+  def.expose.state('focusVisible', focusVisible);
+  def.expose.method('focusSelf', (options) => {
+    if (!disabled.get()) focusable.focusSelf(options);
+  });
+
+  const syncDisabled = (run: any) => {
+    // P-BASE-HOVER-CARD-TRIGGER-DISABLED
     const ctx = run.context.read(HOVER_CARD_CONTEXT);
-    if (ownDisabled || ctx.disabled) {
-      run.context.update(HOVER_CARD_CONTEXT, (prev: any) => ({
-        ...prev,
-        triggerHovered: false,
-        triggerFocused: false,
-      }));
-      return;
-    }
-    run.context.update(HOVER_CARD_CONTEXT, (prev: any) => ({ ...prev, ...patch }));
+    const nextDisabled = !!run.props.get().disabled || ctx.disabled;
+    disabled.set(nextDisabled, 'reason: hover-card trigger disabled sync');
+    focusable.setDisabled(nextDisabled);
+    if (!nextDisabled) return;
+    hovered.set(false, 'reason: hover-card trigger disabled => hovered false');
+    if (!ctx.triggerHovered && !ctx.triggerFocused) return;
+    updateHoverCardInteraction(
+      run,
+      { triggerHovered: false, triggerFocused: false },
+      'trigger.pointerleave'
+    );
   };
 
-  hovered.watch((run, event) => {
-    if (event.type !== 'next') return;
-    updateFlags(run, { triggerHovered: event.next });
+  def.context.subscribe(HOVER_CARD_CONTEXT, (run) => syncDisabled(run));
+  def.props.watch(['disabled'], (run) => syncDisabled(run));
+  def.lifecycle.onCreated((run) => syncDisabled(run));
+
+  def.event.on('pointer.enter', (run) => {
+    if (disabled.get()) return;
+    hovered.set(true, 'reason: hover-card trigger pointer.enter');
+    updateHoverCardInteraction(run, { triggerHovered: true }, 'trigger.pointerenter');
   });
+  def.event.on('pointer.leave', (run) => {
+    hovered.set(false, 'reason: hover-card trigger pointer.leave');
+    updateHoverCardInteraction(run, { triggerHovered: false }, 'trigger.pointerleave');
+  });
+
   focused.watch((run, event) => {
     if (event.type !== 'next') return;
-    updateFlags(run, { triggerFocused: event.next });
+    updateHoverCardInteraction(run, { triggerFocused: event.next }, 'trigger.focus');
   });
 }
 
+/*
+ * P-BASE-HOVER-CARD-TRIGGER-NO-ACTIVATION: no click/press action is authored;
+ * an application-provided link keeps ownership of navigation activation.
+ */
+
+// P-BASE-HOVER-CARD-TRIGGER-AUTHORING-ENTRIES
 export const asHoverCardTrigger = defineAsHook<
   HoverCardTriggerProps,
   HoverCardTriggerExposes,

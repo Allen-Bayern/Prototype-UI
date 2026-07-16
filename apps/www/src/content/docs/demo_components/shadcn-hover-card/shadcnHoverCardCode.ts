@@ -6,8 +6,8 @@ export const codeMap: Record<RuntimeId, Record<string, string>> = {
     'demo-shadcn-hover-card': formatCode(`
 <wc-shadcn-hover-card-root class="relative inline-flex items-start">
   <wc-shadcn-hover-card-trigger>@proto-ui</wc-shadcn-hover-card-trigger>
-  <wc-shadcn-hover-card-content class="mt-3">
-    Build headless protocols once, then skin them per host.
+  <wc-shadcn-hover-card-content>
+    Host-neutral interaction protocols for adaptable UI components.
   </wc-shadcn-hover-card-content>
 </wc-shadcn-hover-card-root>
     `),
@@ -22,10 +22,10 @@ import {
 
 export function DemoShadcnHoverCardDemo() {
   return (
-    <ShadcnHoverCardRoot className="relative inline-flex items-start">
+    <ShadcnHoverCardRoot openDelay={150} closeDelay={300} className="relative inline-flex items-start">
       <ShadcnHoverCardTrigger>@proto-ui</ShadcnHoverCardTrigger>
-      <ShadcnHoverCardContent className="mt-3">
-        Build headless protocols once, then skin them per host.
+      <ShadcnHoverCardContent side="bottom" align="center">
+        Host-neutral interaction protocols for adaptable UI components.
       </ShadcnHoverCardContent>
     </ShadcnHoverCardRoot>
   );
@@ -43,10 +43,10 @@ import {
 </script>
 
 <template>
-  <ShadcnHoverCardRoot class="relative inline-flex items-start">
+  <ShadcnHoverCardRoot :open-delay="150" :close-delay="300" class="relative inline-flex items-start">
     <ShadcnHoverCardTrigger>@proto-ui</ShadcnHoverCardTrigger>
-    <ShadcnHoverCardContent class="mt-3">
-      Build headless protocols once, then skin them per host.
+    <ShadcnHoverCardContent side="bottom" align="center">
+      Host-neutral interaction protocols for adaptable UI components.
     </ShadcnHoverCardContent>
   </ShadcnHoverCardRoot>
 </template>

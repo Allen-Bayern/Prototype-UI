@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { loadPrototypes } from '../../../../apps/www/src/components/PrototypePreviewer/prototype-modules';
 import { renderDemo } from '../../../../apps/www/src/components/PrototypePreviewer/demo-renderer';
 import demo from '../../../../apps/www/src/content/docs/demo_components/tabs/demo-shadcn-tabs.demo';
 import baseDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-dialog.demo';
 import shadcnDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-shadcn-dialog.demo';
+import baseHoverCardDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-hover-card.demo';
 
 function styleContains(el: Element | null, token: string): boolean {
   return (el?.getAttribute('data-pui-style') ?? '').split(/\s+/).includes(token);
@@ -25,6 +26,37 @@ async function completeTransitions(...elements: Array<HTMLElement | null>): Prom
 }
 
 describe('PrototypePreviewer demo-renderer / wc', () => {
+  it('passes Hover Card delay props through the demo renderer', async () => {
+    vi.useFakeTimers();
+    await loadPrototypes([
+      'base-hover-card-root',
+      'base-hover-card-trigger',
+      'base-hover-card-content',
+    ]);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const session = await renderDemo({ runtime: 'wc', demo: baseHoverCardDemo as any, host });
+    await settle();
+
+    try {
+      const root = host.querySelector('wc-base-hover-card-root') as any;
+      const trigger = host.querySelector('wc-base-hover-card-trigger') as HTMLElement | null;
+      expect(root?.getExposes().open.get()).toBe(false);
+
+      trigger?.focus();
+      await vi.advanceTimersByTimeAsync(149);
+      expect(root?.getExposes().open.get()).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(root?.getExposes().open.get()).toBe(true);
+    } finally {
+      await session.destroy();
+      host.remove();
+      vi.useRealTimers();
+    }
+  });
+
   it('renders shadcn tabs parts with host styles in demo wc mode', async () => {
     await loadPrototypes([
       'shadcn-button',

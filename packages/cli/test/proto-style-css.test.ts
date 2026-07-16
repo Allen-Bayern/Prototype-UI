@@ -42,4 +42,30 @@ describe('proto style css renderer', () => {
     expect(css).toContain('--pui-animation-duration: 200ms;');
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
+
+  it('renders Hover Card positioning, popover, shadow, and directional motion utilities', () => {
+    const css = renderProtoStyleTokenCss([
+      'bg-popover',
+      'text-popover-foreground',
+      'w-64',
+      'shadow-md',
+      'bottom-full',
+      'right-full',
+      'mb-1',
+      'translate-y-0',
+      'slide-in-from-left-2',
+      'slide-in-from-top-2',
+    ]);
+
+    expect(css).toContain('background-color: var(--pui-popover);');
+    expect(css).toContain('color: var(--pui-popover-foreground);');
+    expect(css).toContain('width: 16rem;');
+    expect(css).toContain('bottom: 100%;');
+    expect(css).toContain('right: 100%;');
+    expect(css).toContain('margin-bottom: 0.25rem;');
+    expect(css).toContain('--pui-shadow: 0 4px 6px -1px');
+    expect(css).toContain('--pui-translate-x: -0.5rem;');
+    expect(css).toContain('--pui-translate-y: -0.5rem;');
+    expect(css).not.toContain('Unsupported Proto UI style tokens');
+  });
 });

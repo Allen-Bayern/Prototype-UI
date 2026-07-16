@@ -1,0 +1,62 @@
+id: P-BASE-HOVER-CARD-CONTENT
+type: prototype
+title: Base Hover Card Content is a transitional non-modal preview surface
+status: draft
+since: 0.2.0
+summary: Hover Card Content consumes Root open through Overlay and Transition, retains the hover bridge, and provides minimal side and alignment positioning without becoming an interactive modal surface.
+statement:
+  zh-CN: Hover Card Content 是至多一个的 non-modal preview surface。它从 Root open 派生 Overlay/Transition presence，在 leave 完成前保留当前 view，并通过自身 hover 延续 Trigger 与 Content 间的 pointer bridge。Content 不建立 focus scope、outside/Escape dismissal 或 dialog semantics；当前 Base 定位只保证 side/align，portal、collision geometry、Arrow、forceMount 与数值 offset 明确延期。
+  en: Hover Card Content is an optional, at-most-one non-modal preview surface. It derives Overlay and Transition presence from Root open, retains the current view until leave completes, and extends the pointer bridge between Trigger and Content through its own hover. Content establishes no focus scope, outside or Escape dismissal, or dialog semantics; current Base positioning guarantees only side and align, while portal, collision geometry, Arrow, forceMount, and numeric offsets are explicitly deferred.
+criteria:
+  - id: P-BASE-HOVER-CARD-CONTENT-AUTHORING-ENTRIES
+    text:
+      zh-CN: '`base-hover-card-content` 与 `asHoverCardContent` 必须是同一 Content protocol 的 authoring entries。'
+      en: '`base-hover-card-content` and `asHoverCardContent` must be authoring entries for the same Content protocol.'
+  - id: P-BASE-HOVER-CARD-CONTENT-SURFACE
+    text:
+      zh-CN: Content 必须是 Root 同域中至多一个的 supplementary preview surface，并只从 Root open 派生 visibility。
+      en: Content must be an optional, at-most-one supplementary preview surface in the Root domain and derive visibility only from Root open.
+  - id: P-BASE-HOVER-CARD-CONTENT-OVERLAY
+    text:
+      zh-CN: Content 必须消费 non-modal Overlay，禁用 Escape、outside press 与 focus-outside dismissal，且不得自动移动或恢复焦点。
+      en: Content must consume a non-modal Overlay with Escape, outside-press, and focus-outside dismissal disabled and must not automatically move or restore focus.
+  - id: P-BASE-HOVER-CARD-CONTENT-PRESENCE
+    text:
+      zh-CN: Content 必须以 `asTransition` 作为 Overlay 的唯一 Presence driver，在 logical close 后保留 leave view，并只在 closed 后执行 L1 detach。
+      en: Content must bind `asTransition` as the sole Overlay Presence driver, retain the leaving view after logical close, and perform L1 detach only after closed.
+    dependsOn:
+      contracts:
+        - id: C-AS-OVERLAY-0001
+          anchors: [C-AS-OVERLAY-0001-D, C-AS-OVERLAY-0001-E]
+        - id: C-AS-TRANSITION-0001
+          anchors: [C-AS-TRANSITION-0001-C, C-AS-TRANSITION-0001-D]
+  - id: P-BASE-HOVER-CARD-CONTENT-HOVER-BRIDGE
+    text:
+      zh-CN: Content pointer enter 必须发布 content-hovered intent，pointer leave 必须撤销该 intent，使 Trigger 与 Content 间短暂移动由 Root close delay 衔接。
+      en: Content pointer enter must publish content-hovered intent and pointer leave must withdraw it so Root close delay bridges brief movement between Trigger and Content.
+  - id: P-BASE-HOVER-CARD-CONTENT-NON-MODAL
+    text:
+      zh-CN: Content 不得建立 focus trap/entry、modal lock、dialog role 或需要键盘用户完成任务的交互。
+      en: Content must not establish focus trapping or entry, a modal lock, a dialog role, or interaction required for keyboard users to complete a task.
+  - id: P-BASE-HOVER-CARD-CONTENT-POSITION
+    text:
+      zh-CN: Content 必须接受 `side=top|right|bottom|left` 与 `align=start|center|end`，默认分别为 bottom 与 center，并在 Root-relative Base layout 中投射对应方向与对齐。
+      en: Content must accept `side=top|right|bottom|left` and `align=start|center|end`, defaulting to bottom and center respectively, and project the corresponding direction and alignment in the Root-relative Base layout.
+  - id: P-BASE-HOVER-CARD-CONTENT-DEFERRED-EXTENSIONS
+    text:
+      zh-CN: portal、collision geometry、Arrow、forceMount、sideOffset 与 alignOffset 不属于当前 Base Content 保证；下游原型不得把缺失能力宣称为兼容。
+      en: Portal, collision geometry, Arrow, forceMount, sideOffset, and alignOffset are not current Base Content guarantees; downstream prototypes must not claim compatibility for missing capabilities.
+sources:
+  - path: packages/prototypes/base/src/hover-card/content.ts
+  - path: packages/prototypes/base/test/hover-card.test.ts
+  - path: https://www.radix-ui.com/primitives/docs/components/hover-card#content
+    label: Radix Hover Card Content
+dependsOn:
+  prototypes: [P-BASE-HOVER-CARD]
+  contracts: [C-AS-OVERLAY-0001, C-AS-TRANSITION-0001, C-LIFECYCLE-0008]
+verifies: { tests: [T-BASE-HOVER-CARD-CONTENT-0001] }
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Cataloged non-modal Content presence, hover bridge, positioning, and deferred extensions.
+tags: [prototype, base, hover-card, content, overlay, transition]
