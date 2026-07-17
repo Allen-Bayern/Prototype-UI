@@ -53,7 +53,7 @@ function callInScope(inst: DemoInstance, fn: () => void) {
   return fn();
 }
 
-function renderDemoNodeWc(node: DemoChild, parent: HTMLElement) {
+function renderDemoNodeWc(node: DemoChild, parent: HTMLElement, instances: HTMLElement[]) {
   if (typeof node === 'string') {
     parent.appendChild(document.createTextNode(node));
     return;
@@ -68,7 +68,7 @@ function renderDemoNodeWc(node: DemoChild, parent: HTMLElement) {
     if (node.ref) el.setAttribute('data-demo-ref', node.ref);
     parent.appendChild(el);
     const kids = node.children ?? [];
-    for (const child of kids) renderDemoNodeWc(child, el);
+    for (const child of kids) renderDemoNodeWc(child, el, instances);
     return;
   }
 
@@ -76,13 +76,14 @@ function renderDemoNodeWc(node: DemoChild, parent: HTMLElement) {
   const wcName = ensurePreviewWcRegistered(node.prototypeId, proto);
 
   const el = document.createElement(wcName);
+  instances.push(el);
   if (node.className) el.className = node.className;
   if (node.ref) el.setAttribute('data-demo-ref', node.ref);
   if (node.props) setElementProps(el, node.props);
   parent.appendChild(el);
 
   const kids = node.children ?? [];
-  for (const child of kids) renderDemoNodeWc(child, el);
+  for (const child of kids) renderDemoNodeWc(child, el, instances);
 }
 
 function collectDemoRefs(host: HTMLElement): Record<string, HTMLElement> {
@@ -106,7 +107,8 @@ function resolvePath(obj: unknown, path: string): unknown {
 async function renderDemoWc(opt: DemoRenderOptions): Promise<DemoRenderResult> {
   const { host, demo } = opt;
   host.innerHTML = '';
-  renderDemoNodeWc(demo.root, host);
+  const instances: HTMLElement[] = [];
+  renderDemoNodeWc(demo.root, host, instances);
 
   const refs = collectDemoRefs(host);
   const api: DemoRuntimeApi = {
@@ -136,6 +138,12 @@ async function renderDemoWc(opt: DemoRenderOptions): Promise<DemoRenderResult> {
   return {
     destroy: () => {
       if (typeof cleanup === 'function') cleanup();
+      // A globally mounted overlay is no longer a physical descendant of the
+      // preview host. Remove every rendered instance explicitly so portaled
+      // parts disconnect and dispose together with their logical demo tree.
+      for (let index = instances.length - 1; index >= 0; index -= 1) {
+        instances[index]?.remove();
+      }
       host.innerHTML = '';
     },
   };

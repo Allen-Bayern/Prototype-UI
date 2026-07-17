@@ -8,6 +8,7 @@ import {
   FocusRovingHandle,
   FocusRovingKey,
   type FocusRovingMemberStatus,
+  type FocusRovingEntryRequestOptions,
   type FocusScopeConfig,
   illegalPhase,
   FocusRequestOptions,
@@ -17,6 +18,7 @@ import {
   type OwnedStateHandle,
   type FocusableConfig,
   FocusableConfigPatch,
+  type InstancePhase,
   type MountPhase,
   FocusableHandle,
   ObservedStateHandle,
@@ -38,8 +40,14 @@ import {
   FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_ENTRY_FOCUSABLE_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
+  FOCUS_TARGET_READY_CAP,
 } from './caps';
-import { FOCUS_CENTER, type FocusCenterEntry, type FocusRequestBehavior } from './center';
+import {
+  FOCUS_CENTER,
+  type FocusCenterEntry,
+  type FocusRequestBehavior,
+  type FocusRequestOutcome,
+} from './center';
 
 const DEFAULT_FOCUSABLE_CONFIG: FocusableConfig = Object.freeze({
   autoFocus: false,
@@ -109,6 +117,8 @@ class FocusModuleImpl extends ModuleBase {
   private hostEventsWired = false;
   private scopeEventsWired = false;
   private rovingEventsWired = false;
+  private pendingFocusRequest: { options?: FocusRequestOptions; syncFacts: boolean } | undefined;
+  private offTargetReady: (() => void) | undefined;
 
   private readonly focusedOwned: OwnedStateHandle<boolean>;
   private readonly focusVisibleOwned: OwnedStateHandle<boolean>;
@@ -196,16 +206,44 @@ class FocusModuleImpl extends ModuleBase {
     this.rovingHandle = {
       active: this.activeState,
       hasFocused: this.hasFocusedState,
-      focusFirst: () => this.focusFirst(),
-      focusLast: () => this.focusLast(),
+      focusFirst: (options?: FocusRovingEntryRequestOptions) => this.focusFirst(options),
+      focusLast: (options?: FocusRovingEntryRequestOptions) => this.focusLast(options),
       focusNext: () => this.focusNext(),
       focusPrev: () => this.focusPrev(),
-      focusSelected: () => this.focusSelected(),
+      focusSelected: (options?: FocusRovingEntryRequestOptions) => this.focusSelected(options),
       configure: (patch: FocusRovingConfigPatch) => this.configureRoving(patch),
       setLoop: (loop: boolean) => this.setRovingLoop(loop),
       setOrientation: (orientation: FocusRovingConfig['orientation']) =>
         this.setRovingOrientation(orientation),
     };
+
+    this.syncTargetReadySubscription();
+  }
+
+  protected override onCapsEpoch(): void {
+    this.syncTargetReadySubscription();
+  }
+
+  private syncTargetReadySubscription(): void {
+    this.offTargetReady?.();
+    this.offTargetReady = undefined;
+    if (!this.caps.has(FOCUS_TARGET_READY_CAP)) return;
+    this.offTargetReady = this.caps.get(FOCUS_TARGET_READY_CAP)(() => {
+      this.runInCallbackScope(() => {
+        this.syncCenter();
+        this.syncHostFocusable();
+        this.syncHostEntry();
+        if (this.fulfillPendingFocus()) return;
+        // A portal or retained view epoch can replace/move the native target
+        // after logical focus was already granted. Re-project that established
+        // owner without synthesizing or changing the semantic focus facts.
+        if (this.focusedState.get()) {
+          this.requestNativeFocus({
+            reason: this.focusVisibleState.get() ? 'keyboard' : 'programmatic',
+          });
+        }
+      });
+    });
   }
 
   private ensureSetup(op: string) {
@@ -275,14 +313,17 @@ class FocusModuleImpl extends ModuleBase {
       getFacts: () => this.getFacts(),
       getRootTarget: () => this.getRootTarget(),
       requestFocus: (options?: FocusRequestOptions, behavior?: FocusRequestBehavior) => {
+        let outcome: FocusRequestOutcome = 'rejected';
         this.runInCallbackScope(() => {
           if (behavior?.syncFacts === false) {
-            this.requestNativeFocusDirect(options);
+            outcome = this.requestNativeFocusDirect(options);
             return;
           }
-          this.requestFocusDirect(options);
+          outcome = this.requestFocusDirect(options);
         });
+        return outcome;
       },
+      hasPendingFocus: () => !!this.pendingFocusRequest,
       clearFocus: (reason: unknown) => {
         this.runInCallbackScope(() => this.clearFocus(reason));
       },
@@ -747,19 +788,45 @@ class FocusModuleImpl extends ModuleBase {
     this.syncCenter();
   }
 
-  private requestFocusDirect(options?: FocusRequestOptions): void {
-    if (!this.focusableDeclared || this.focusableConfig.disabled) return;
+  private queuePendingFocus(options: FocusRequestOptions | undefined, syncFacts: boolean) {
+    this.pendingFocusRequest = { options, syncFacts };
+  }
+
+  private clearPendingFocus(): void {
+    this.pendingFocusRequest = undefined;
+  }
+
+  private fulfillPendingFocus(): boolean {
+    const pending = this.pendingFocusRequest;
+    if (!pending || !this.getRootTarget() || !this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) return false;
+    this.pendingFocusRequest = undefined;
+    if (pending.syncFacts) this.requestFocus(pending.options);
+    else this.requestNativeFocus(pending.options);
+    return true;
+  }
+
+  private requestFocusDirect(options?: FocusRequestOptions): FocusRequestOutcome {
+    if (!this.focusableDeclared || this.focusableConfig.disabled) return 'rejected';
     const target = this.getRootTarget();
-    if (target && this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
-      this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
+    if (!target || !this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
+      this.queuePendingFocus(options, true);
+      return 'pending';
+    }
+    this.clearPendingFocus();
+    const applied = this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
+    if (applied === false) {
+      this.queuePendingFocus(options, true);
+      return 'pending';
     }
     this.setFocusState(this.focusedOwned, true, options?.reason ?? 'programmatic');
     this.setFocusState(this.focusVisibleOwned, options?.reason === 'keyboard', options?.reason);
     this.setFocusState(this.activeOwned, true, options?.reason ?? 'programmatic');
     this.setFocusState(this.hasFocusedOwned, true, options?.reason ?? 'programmatic');
+    return 'applied';
   }
 
   private clearFocus(reason: unknown): void {
+    this.clearPendingFocus();
     this.setFocusState(this.focusedOwned, false, reason);
     this.setFocusState(this.focusVisibleOwned, false, reason);
     this.setFocusState(this.activeOwned, false, reason);
@@ -789,12 +856,20 @@ class FocusModuleImpl extends ModuleBase {
     this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(resolved, options);
   }
 
-  private requestNativeFocusDirect(options?: FocusRequestOptions): void {
-    if (!this.focusableDeclared || this.focusableConfig.disabled) return;
+  private requestNativeFocusDirect(options?: FocusRequestOptions): FocusRequestOutcome {
+    if (!this.focusableDeclared || this.focusableConfig.disabled) return 'rejected';
     const target = this.getRootTarget();
-    if (target && this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
-      this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
+    if (!target || !this.caps.has(FOCUS_REQUEST_FOCUS_CAP)) {
+      this.queuePendingFocus(options, false);
+      return 'pending';
     }
+    this.clearPendingFocus();
+    const applied = this.caps.get(FOCUS_REQUEST_FOCUS_CAP)(target, options);
+    if (applied === false) {
+      this.queuePendingFocus(options, false);
+      return 'pending';
+    }
+    return 'applied';
   }
 
   private requestNativeFocus(options?: FocusRequestOptions): void {
@@ -808,6 +883,7 @@ class FocusModuleImpl extends ModuleBase {
   }
 
   blur(): void {
+    this.clearPendingFocus();
     const target = this.getRootTarget();
     if (target && this.caps.has(FOCUS_BLUR_CAP)) {
       this.caps.get(FOCUS_BLUR_CAP)(target);
@@ -817,10 +893,10 @@ class FocusModuleImpl extends ModuleBase {
     this.setFocusState(this.activeOwned, false, 'blur');
   }
 
-  focusFirst(): void {
+  focusFirst(options?: FocusRovingEntryRequestOptions): void {
     const entry = this.createCenterEntry();
     if (entry && this.rovingDeclared) {
-      FOCUS_CENTER.focusInRoving(entry, 'first');
+      FOCUS_CENTER.focusInRoving(entry, 'first', { entryRequest: options });
       return;
     }
     if (this.focusableConfig.disabled) return;
@@ -834,10 +910,10 @@ class FocusModuleImpl extends ModuleBase {
     this.requestFocus({ reason: 'programmatic' });
   }
 
-  focusLast(): void {
+  focusLast(options?: FocusRovingEntryRequestOptions): void {
     const entry = this.createCenterEntry();
     if (entry && this.rovingDeclared) {
-      FOCUS_CENTER.focusInRoving(entry, 'last');
+      FOCUS_CENTER.focusInRoving(entry, 'last', { entryRequest: options });
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
@@ -861,10 +937,10 @@ class FocusModuleImpl extends ModuleBase {
     this.requestFocus({ reason: 'programmatic' });
   }
 
-  focusSelected(): void {
+  focusSelected(options?: FocusRovingEntryRequestOptions): void {
     const entry = this.createCenterEntry();
     if (entry && this.rovingDeclared) {
-      FOCUS_CENTER.focusInRoving(entry, 'selected');
+      FOCUS_CENTER.focusInRoving(entry, 'selected', { entryRequest: options });
       return;
     }
     this.requestFocus({ reason: 'programmatic' });
@@ -943,6 +1019,15 @@ class FocusModuleImpl extends ModuleBase {
     this.syncCenter();
     this.syncHostFocusable();
     this.syncHostEntry();
+    const hadPendingFocus = !!this.pendingFocusRequest;
+    // During the initial adapter commit host events are wired, but the runtime
+    // still rejects them until mountPhase becomes `mounted`. Keep native focus
+    // pending until that boundary so the resulting host focus event is observed.
+    if (this.mountPhase !== 'mounting') this.fulfillPendingFocus();
+    if (hadPendingFocus) {
+      this.didAutoFocus = true;
+      return;
+    }
     if (this.didAutoFocus) return;
     this.didAutoFocus = true;
     if (
@@ -994,19 +1079,35 @@ class FocusModuleImpl extends ModuleBase {
     return Object.freeze(this.warnings.slice());
   }
 
-  onProtoPhase(phase: any): void {
-    super.onProtoPhase(phase);
-    if (phase === 'unmounted') {
+  override onInstancePhase(phase: InstancePhase): void {
+    super.onInstancePhase(phase);
+    if (phase === 'disposing') {
+      this.clearPendingFocus();
       const self = this.getSelfToken();
       if (self) FOCUS_CENTER.remove(self);
+    }
+    if (phase === 'disposed') {
+      this.offTargetReady?.();
+      this.offTargetReady = undefined;
     }
   }
 
   override onMountPhase(phase: MountPhase, epoch: number): void {
     super.onMountPhase(phase, epoch);
+    if (phase === 'mounted') {
+      this.syncCenter();
+      this.syncHostFocusable();
+      this.syncHostEntry();
+      this.fulfillPendingFocus();
+      return;
+    }
     if (phase !== 'detached') return;
     const self = this.getSelfToken();
-    if (self) FOCUS_CENTER.remove(self);
+    if (self) FOCUS_CENTER.detach(self);
+    // `detached` ends only the current host view epoch. Keep the latest
+    // logical focus request so a retained React/Vue owner can fulfill it when
+    // its replacement target mounts. Terminal unmount/dispose, blur, disabled,
+    // or a newer request still cancel or replace the pending intent.
   }
 }
 
@@ -1039,11 +1140,11 @@ export function createFocusModule(ctx: ModuleFactoryArgs): FocusModule {
         requestFocus: (options) => impl.requestFocus(options),
         requestEntryFocus: (options) => impl.requestEntryFocus(options),
         blur: () => impl.blur(),
-        focusFirst: () => impl.focusFirst(),
-        focusLast: () => impl.focusLast(),
+        focusFirst: (options) => impl.focusFirst(options),
+        focusLast: (options) => impl.focusLast(options),
         focusNext: () => impl.focusNext(),
         focusPrev: () => impl.focusPrev(),
-        focusSelected: () => impl.focusSelected(),
+        focusSelected: (options) => impl.focusSelected(options),
         restoreFocus: () => impl.restoreFocus(),
         activateScope: (options) => impl.activateScope(options),
         deactivateScope: (options) => impl.deactivateScope(options),

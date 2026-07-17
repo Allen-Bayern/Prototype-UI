@@ -278,6 +278,9 @@ export function createWebProtoEventRouter(opt: {
     listen(globalEl, 'keydown', (e: KeyboardEvent) => {
       if (!opt.isEnabled()) return;
       emit(protoGlobalBus, 'key.down', e);
+      if (shouldRouteToCurrentRoot(e)) {
+        emit(protoRootBus, 'key.down', e);
+      }
       if (!isCommitKey(e.key)) {
         suppressFollowupDirectClick = false;
         return;
@@ -304,6 +307,9 @@ export function createWebProtoEventRouter(opt: {
     listen(globalEl, 'keyup', (e: KeyboardEvent) => {
       if (!opt.isEnabled()) return;
       emit(protoGlobalBus, 'key.up', e);
+      if (shouldRouteToCurrentRoot(e)) {
+        emit(protoRootBus, 'key.up', e);
+      }
     })
   );
 

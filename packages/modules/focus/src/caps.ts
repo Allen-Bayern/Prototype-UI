@@ -5,12 +5,16 @@ export type FocusInstanceToken = unknown;
 export type FocusParentGetter = (instance: FocusInstanceToken) => FocusInstanceToken | null;
 
 export type FocusRootTargetGetter = () => HTMLElement | null;
+export type FocusTargetReadySubscriber = (listener: () => void) => () => void;
 
 export type FocusIsNativelyFocusable = (target: HTMLElement) => boolean;
 
 export type FocusSetFocusable = (target: HTMLElement, enabled: boolean) => void;
 
-export type FocusRequestFocus = (target: HTMLElement, options?: FocusRequestOptions) => void;
+export type FocusRequestFocus = (
+  target: HTMLElement,
+  options?: FocusRequestOptions
+) => void | boolean;
 
 export type FocusBlur = (target: HTMLElement) => void;
 
@@ -28,6 +32,9 @@ export type FocusSetEntryFocusable = (
 export type FocusRunInCallback = (fn: () => void) => void;
 
 export const FOCUS_ROOT_TARGET_CAP = cap<FocusRootTargetGetter>('@proto.ui/focus/getRootTarget');
+export const FOCUS_TARGET_READY_CAP = cap<FocusTargetReadySubscriber>(
+  '@proto.ui/focus/subscribeTargetReady'
+);
 export const FOCUS_INSTANCE_TOKEN_CAP = cap<FocusInstanceToken>('@proto.ui/focus/instanceToken');
 export const FOCUS_PARENT_CAP = cap<FocusParentGetter>('@proto.ui/focus/getParent');
 

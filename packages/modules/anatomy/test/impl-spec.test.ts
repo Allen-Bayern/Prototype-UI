@@ -308,6 +308,58 @@ describe('AnatomyModuleImpl', () => {
     expect(itemImplA.nextOfSelf(family, 'item')).toBeNull();
   });
 
+  it('binds exposed PartView method calls to the target part callback dispatcher', () => {
+    const family = createAnatomyFamily('part-method-binding', {
+      roles: {
+        root: { cardinality: { min: 1, max: 1 } },
+        item: { cardinality: { min: 0, max: 1 } },
+      },
+    });
+    const root = {};
+    const item = {};
+    const parents = new Map<unknown, unknown | null>([
+      [root, null],
+      [item, root],
+    ]);
+    const make = (instance: unknown) =>
+      makeCaps({
+        instance,
+        getParent: (candidate) => parents.get(candidate) ?? null,
+        getPrototype: () => makeProto([]),
+      });
+    const rootCaps = make(root);
+    const itemCaps = make(item);
+    let inItemCallback = false;
+    const itemImpl = new AnatomyModuleImpl(
+      itemCaps,
+      'item',
+      makeExposePort({
+        request(value: string) {
+          expect(inItemCallback).toBe(true);
+          return `accepted:${value}`;
+        },
+      })
+    );
+    const rootImpl = new AnatomyModuleImpl(rootCaps, 'root', makeExposePort());
+    rootImpl.claim(family, { role: 'root' });
+    itemImpl.claim(family, { role: 'item' });
+    itemImpl.port.setOrderCallbackDispatcher((fn) => {
+      inItemCallback = true;
+      try {
+        fn('item-run');
+      } finally {
+        inItemCallback = false;
+      }
+    });
+    rootCaps.__sys.__setExecPhase('callback');
+
+    const request = rootImpl.partsOf(family, 'item')?.[0]?.getExpose('request') as
+      | ((value: string) => string)
+      | null;
+    expect(request?.('open')).toBe('accepted:open');
+    expect(inItemCallback).toBe(false);
+  });
+
   it('dispatches order subscriptions through callback dispatcher', () => {
     const family = createAnatomyFamily('ordered-subscribe', {
       roles: {

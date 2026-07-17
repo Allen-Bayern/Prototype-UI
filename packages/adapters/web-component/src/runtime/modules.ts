@@ -42,6 +42,7 @@ import {
   FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_ENTRY_FOCUSABLE_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
+  FOCUS_TARGET_READY_CAP,
 } from '@proto.ui/module-focus';
 import {
   createWebHitParticipationHostBridge,
@@ -79,6 +80,9 @@ type WebComponentOwnerModulesArgs<Props extends PropsBaseType> = {
   };
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
+  isViewReady: () => boolean;
+  subscribeTargetReady: (listener: () => void) => () => void;
+  retryTargetReady: () => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 };
 
@@ -222,7 +226,14 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
       [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
-      [FOCUS_ROOT_TARGET_CAP, () => getLogicalRoot(instanceToken)],
+      [FOCUS_TARGET_READY_CAP, args.subscribeTargetReady],
+      [
+        FOCUS_ROOT_TARGET_CAP,
+        () => {
+          const target = getLogicalRoot(instanceToken);
+          return args.isViewReady() && target?.isConnected ? target : null;
+        },
+      ],
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, (target: HTMLElement) => isNativelyFocusable(target)],
       [
         FOCUS_SET_FOCUSABLE_CAP,
@@ -250,6 +261,9 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
         FOCUS_REQUEST_FOCUS_CAP,
         (target: HTMLElement) => {
           target.focus();
+          const applied = target.ownerDocument.activeElement === target;
+          if (!applied) args.retryTargetReady();
+          return applied;
         },
       ],
       [FOCUS_RUN_IN_CALLBACK_CAP, args.runInCallbackScope],

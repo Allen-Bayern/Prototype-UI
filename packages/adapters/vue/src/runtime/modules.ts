@@ -34,6 +34,7 @@ import {
   FOCUS_ROOT_TARGET_CAP,
   FOCUS_RUN_IN_CALLBACK_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
+  FOCUS_TARGET_READY_CAP,
 } from '@proto.ui/module-focus';
 import {
   createWebHitParticipationHostBridge,
@@ -163,6 +164,10 @@ export function createVueModules<Props extends PropsBaseType>(args: {
   exposeStateWebMode?: ExposeStateWebMode;
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
+  isViewReady: () => boolean;
+  getCurrentElement: () => HTMLElement | null;
+  subscribeTargetReady: (listener: () => void) => () => void;
+  retryTargetReady: () => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 }) {
   const {
@@ -197,7 +202,14 @@ export function createVueModules<Props extends PropsBaseType>(args: {
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
       [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
-      [FOCUS_ROOT_TARGET_CAP, () => getLogicalRoot(instanceToken)],
+      [FOCUS_TARGET_READY_CAP, args.subscribeTargetReady],
+      [
+        FOCUS_ROOT_TARGET_CAP,
+        () => {
+          const target = args.getCurrentElement();
+          return args.isViewReady() && target?.isConnected ? target : null;
+        },
+      ],
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, isNativelyFocusable],
       [
         FOCUS_SET_FOCUSABLE_CAP,
@@ -207,15 +219,21 @@ export function createVueModules<Props extends PropsBaseType>(args: {
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (target: HTMLElement) => {
-          target.focus();
+        (_target: HTMLElement) => {
+          const current = args.getCurrentElement();
+          if (!current?.isConnected) return false;
+          current.focus();
+          const projected = args.getCurrentElement();
+          const applied = !!projected && projected.ownerDocument.activeElement === projected;
+          if (!applied) args.retryTargetReady();
+          return applied;
         },
       ],
       [FOCUS_RUN_IN_CALLBACK_CAP, args.runInCallbackScope],
       [
         FOCUS_BLUR_CAP,
-        (target: HTMLElement) => {
-          target.blur();
+        (_target: HTMLElement) => {
+          args.getCurrentElement()?.blur();
         },
       ],
     ])

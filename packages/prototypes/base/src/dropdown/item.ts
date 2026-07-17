@@ -1,20 +1,17 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollectionItem, asFocusable } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
+import { asCollectionItem } from '@proto.ui/hooks';
+import { setupDropdownCommand } from './command';
+import {
+  DROPDOWN_CONTEXT,
+  DROPDOWN_FAMILY,
+  requestDropdownOpen,
+  type DropdownFocusReason,
+} from './shared';
 import type { DropdownItemAsHookContract, DropdownItemExposes, DropdownItemProps } from './types';
 
-const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
-
 function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes>): void {
-  const button = asButton();
-  const buttonState = button.stateHandles;
-  if (!buttonState) {
-    throw new Error('[base-dropdown-item] asButton must project Button state handles.');
-  }
-  const focusable = asFocusable<DropdownItemProps>();
-  const hovered = buttonState.hovered;
-  const focused = focusable.focused;
+  // P-BASE-DROPDOWN-MENU-ITEM-DISABLED: disabled menu items remain focusable.
+  const command = setupDropdownCommand(def, 'dropdown item', { focusableWhenDisabled: true });
   const active = def.state.bool('active', false);
   const collectionItem = asCollectionItem();
   collectionItem.configure({
@@ -35,110 +32,83 @@ function setupDropdownItem(def: DefHandle<DropdownItemProps, DropdownItemExposes
     textValue: { type: 'string', empty: 'fallback' },
     closeOnCommit: { type: 'boolean', empty: 'fallback' },
   });
-  def.props.setDefaults({
-    disabled: false,
-    value: '',
-    textValue: '',
-  });
+  def.props.setDefaults({ disabled: false, value: '', textValue: '' });
 
-  const syncActive = (ctx: { activeValue?: string }, ownValue: string) => {
-    active.set(!!ownValue && ownValue === (ctx.activeValue ?? ''), 'reason: dropdown active sync');
-  };
-
+  // P-BASE-DROPDOWN-MENU-ITEM-A11Y
+  def.a11y.role('menuitem');
+  def.a11y.nameFromContent();
+  def.a11y.state('disabled', command.disabled);
+  def.a11y.action('activate', { event: 'select' });
   def.expose.state('active', active);
+  def.expose.event('select', { payload: 'json' });
+
+  const syncDisabled = (run: any) => {
+    const ctx = run.context.read(DROPDOWN_CONTEXT);
+    command.syncDisabled(!!run.props.get().disabled || ctx.disabled);
+  };
+  const syncActive = (ctx: { open?: boolean; activeValue?: string }, ownValue: string) => {
+    const nextActive =
+      ctx.open !== false &&
+      (command.focused.get() || (!!ownValue && ownValue === (ctx.activeValue ?? '')));
+    active.set(nextActive, 'reason: dropdown active sync');
+    command.setRovingStatus({ active: nextActive });
+  };
   def.context.subscribe(DROPDOWN_CONTEXT, (run, next) => {
+    syncDisabled(run);
     syncActive(next, run.props.get().value ?? '');
   });
-
   def.lifecycle.onMounted((run) => {
-    syncActive(run.context.read(DROPDOWN_CONTEXT), run.props.get().value ?? '');
+    syncDisabled(run);
+    const currentRun = run as any;
+    syncActive(currentRun.context.read(DROPDOWN_CONTEXT), currentRun.props.get().value ?? '');
   });
-  def.props.watch(['value'], (run, next) => {
+  def.props.watch(['value', 'disabled'], (run, next) => {
+    syncDisabled(run);
     syncActive(run.context.read(DROPDOWN_CONTEXT), next.value ?? '');
   });
 
   const updateActiveValue = (run: any) => {
     const ownValue = run.props.get().value ?? '';
     if (!ownValue) return;
-    run.context.update(DROPDOWN_CONTEXT, (prev: any) => {
-      if (prev.activeValue === ownValue) return prev;
-      return { ...prev, activeValue: ownValue };
-    });
+    active.set(true, 'reason: dropdown item interaction => active');
+    command.setRovingStatus({ active: true });
+    run.context.update(DROPDOWN_CONTEXT, (prev: any) =>
+      prev.activeValue === ownValue ? prev : { ...prev, activeValue: ownValue }
+    );
   };
 
-  def.event.on('press.commit', (run) => {
-    const ownDisabled = !!run.props.get().disabled;
+  def.event.on('press.commit', (run, ev) => {
+    // P-BASE-DROPDOWN-MENU-ITEM-SELECT, P-BASE-DROPDOWN-MENU-ITEM-DISABLED
+    if (command.disabled.get()) return;
     const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
+    const reason: DropdownFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
+    const value = run.props.get().value ?? '';
     updateActiveValue(run);
-    if (ctx.controlled) return;
+    run.expose.emit('select', { value, reason });
     const closeOnCommit = run.props.isProvided('closeOnCommit')
       ? !!run.props.get().closeOnCommit
-      : !!ctx.closeOnItemCommit;
-    if (!closeOnCommit) return;
-    run.context.update(DROPDOWN_CONTEXT, (prev: any) => ({
-      ...prev,
-      open: false,
-      activeValue: '',
-    }));
+      : ctx.closeOnItemCommit;
+    if (closeOnCommit) requestDropdownOpen(run, false, 'item.select', reason);
   });
 
-  focused.watch((run, event) => {
-    if (event.type !== 'next' || !event.next) return;
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
+  command.focused.watch((run, event) => {
+    if (event.type !== 'next') return;
+    if (event.next) {
+      // Disabled items are intentionally included in menu focus navigation.
+      updateActiveValue(run);
+      return;
+    }
+    const currentRun = run as any;
+    syncActive(currentRun.context.read(DROPDOWN_CONTEXT), currentRun.props.get().value ?? '');
+  });
+  def.event.on('pointer.enter', (run) => {
+    if (command.disabled.get()) return;
+    if (!run.context.read(DROPDOWN_CONTEXT).open) return;
     updateActiveValue(run);
-  });
-  hovered.watch((run, event) => {
-    if (event.type !== 'next' || !event.next) return;
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled || !ctx.open) return;
-    updateActiveValue(run);
-  });
-
-  def.event.onGlobal('key.down', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
-    if (!focusable.isFocused()) return;
-    // Keep one roving move per keyboard event without depending on propagation phase semantics.
-    if ((ev?.detail as any)?.[DROPDOWN_ROVING_HANDLED]) return;
-
-    const key = ev?.detail?.key;
-    const content = run.anatomy.partsOf(DROPDOWN_FAMILY, 'content')[0] ?? null;
-    const focusFirst = content?.getExpose('focusFirst') as (() => void) | null;
-    const focusLast = content?.getExpose('focusLast') as (() => void) | null;
-    const focusNext = content?.getExpose('focusNext') as (() => void) | null;
-    const focusPrev = content?.getExpose('focusPrev') as (() => void) | null;
-
-    if (key === 'Home') {
-      if (ev?.detail) (ev.detail as any)[DROPDOWN_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusFirst?.();
-      return;
-    }
-    if (key === 'End') {
-      if (ev?.detail) (ev.detail as any)[DROPDOWN_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusLast?.();
-      return;
-    }
-    if (key === 'ArrowDown') {
-      if (ev?.detail) (ev.detail as any)[DROPDOWN_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusNext?.();
-      return;
-    }
-    if (key === 'ArrowUp') {
-      if (ev?.detail) (ev.detail as any)[DROPDOWN_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusPrev?.();
-    }
   });
 }
 
+// P-BASE-DROPDOWN-MENU-ITEM-AUTHORING-ENTRIES
 export const asDropdownItem = defineAsHook<
   DropdownItemProps,
   DropdownItemExposes,

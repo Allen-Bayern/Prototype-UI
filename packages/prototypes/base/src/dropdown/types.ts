@@ -1,21 +1,21 @@
-import { ExposeEvent, ExposeMethod, ExposeState, FocusRequestOptions, State } from '@proto.ui/core';
+import type {
+  BorrowedStateHandle,
+  ExposeEvent,
+  ExposeMethod,
+  ExposeState,
+  FocusRequestOptions,
+  State,
+} from '@proto.ui/core';
 import type {
   CollectionExposes,
   CollectionItemExposes,
   CollectionItemSnapshotExposed as CollectionItemSnapshot,
 } from '@proto.ui/core';
+import type { DropdownFocusReason, DropdownOpenRequest } from './shared';
+import type { TransitionExposes, TransitionHandles, TransitionProps } from '../transition/types';
 
-/**
- * Boundary:
- * - base dropdown models an overlay-backed, menu-like collection shell
- * - it owns open/close, active item, roving focus, and typeahead
- * - item commit close behavior and open-entry behavior are exposed as narrow policy surfaces
- * - transient active navigation state remains internal unless a stable consumer emerges
- * - it does not define persistent selection, checked/radio semantics, or submenu structure
- * - TODO: if layered submenu interaction proves reusable across dropdown-menu and context-menu,
- *   extract a non-privileged coordination hook tentatively named `asNestedMenuLayer`
- */
 export interface DropdownRootProps {
+  // P-BASE-DROPDOWN-MENU-PROPS
   open?: boolean;
   defaultOpen?: boolean;
   disabled?: boolean;
@@ -25,19 +25,21 @@ export interface DropdownRootProps {
 }
 
 export type DropdownRootExposes = {
+  // P-BASE-DROPDOWN-MENU-REQUESTS
   open: ExposeState<boolean>;
   openDropdown: ExposeMethod<(reason?: string) => void>;
   close: ExposeMethod<(reason?: string) => void>;
   toggle: ExposeMethod<(reason?: string) => void>;
+  requestOpen: ExposeMethod<(request: DropdownOpenRequest) => boolean>;
+  openChange: ExposeEvent<{
+    open: boolean;
+    reason: string | null;
+    focusReason: DropdownFocusReason | null;
+  }>;
 } & CollectionExposes;
 
-export type DropdownRootStateHandles = {
-  open: State<boolean>;
-};
-
-export type DropdownRootAsHookContract = {
-  state: DropdownRootStateHandles;
-};
+export type DropdownRootStateHandles = { open: State<boolean> };
+export type DropdownRootAsHookContract = { state: DropdownRootStateHandles };
 
 export interface DropdownTriggerProps {
   disabled?: boolean;
@@ -50,18 +52,29 @@ export type DropdownTriggerExposes = {
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
-  click: ExposeEvent<void>;
 };
 
-export type DropdownTriggerAsHookContract = {
-  event: {
-    click: void;
-  };
+export type DropdownCommandStateHandles = {
+  disabled: State<boolean>;
+  hovered: State<boolean>;
+  focused: State<boolean>;
+  focusVisible: State<boolean>;
+  pressed: State<boolean>;
 };
 
-export interface DropdownContentProps {}
+export type DropdownTriggerAsHookContract = { state: DropdownCommandStateHandles };
 
-export type DropdownContentExposes = {
+export type DropdownContentProps = TransitionProps & {
+  // P-BASE-DROPDOWN-MENU-CONTENT-POSITION
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  sideOffset?: number;
+  alignOffset?: number;
+  avoidCollisions?: boolean;
+  collisionPadding?: number;
+};
+
+export type DropdownContentExposes = TransitionExposes & {
   open: ExposeState<boolean>;
   focusFirst: ExposeMethod<() => void>;
   focusLast: ExposeMethod<() => void>;
@@ -69,12 +82,14 @@ export type DropdownContentExposes = {
   focusPrev: ExposeMethod<() => void>;
 };
 
-export type DropdownContentStateHandles = {
-  open: State<boolean>;
-};
-
+export type DropdownContentStateHandles = { open: State<boolean> };
 export type DropdownContentAsHookContract = {
   state: DropdownContentStateHandles;
+  asHooks: { asTransition: TransitionHandles };
+};
+export type DropdownContentHandles = {
+  stateHandles: { open: BorrowedStateHandle<boolean, DropdownContentProps> };
+  asTransition: TransitionHandles;
 };
 
 export interface DropdownItemProps {
@@ -92,20 +107,15 @@ export type DropdownItemExposes = {
   pressed: ExposeState<boolean>;
   active: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
-  click: ExposeEvent<void>;
+  // P-BASE-DROPDOWN-MENU-ITEM-SELECT
+  select: ExposeEvent<{ value: string; reason: DropdownFocusReason }>;
 } & CollectionItemExposes;
 
 export type DropdownItemAsHookContract = {
-  event: {
-    click: void;
-  };
+  state: DropdownCommandStateHandles & { active: State<boolean> };
 };
 
 export type DropdownOpenEntry = 'active-or-first' | 'first' | 'last' | 'value-or-first';
 
 export type DropdownMenuItemSnapshot = CollectionItemSnapshot &
-  Readonly<{
-    value: string;
-    textValue: string;
-    disabled: boolean;
-  }>;
+  Readonly<{ value: string; textValue: string; disabled: boolean }>;

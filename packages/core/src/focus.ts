@@ -47,6 +47,11 @@ export type FocusRequestOptions = Readonly<{
   reason?: 'programmatic' | 'keyboard' | 'pointer';
 }>;
 
+export type FocusRovingEntryRequestOptions = FocusRequestOptions &
+  Readonly<{
+    defer?: boolean;
+  }>;
+
 export type FocusableConfigPatch = Readonly<{
   scopeKey?: FocusScopeKey;
   groupKey?: FocusRovingKey;
@@ -190,11 +195,11 @@ export interface FocusRovingHandle<P extends PropsBaseType = PropsBaseType> {
   active: ObservedStateHandle<boolean, P>;
   hasFocused: ObservedStateHandle<boolean, P>;
 
-  focusFirst(): void;
-  focusLast(): void;
+  focusFirst(options?: FocusRovingEntryRequestOptions): void;
+  focusLast(options?: FocusRovingEntryRequestOptions): void;
   focusNext(): void;
   focusPrev(): void;
-  focusSelected(): void;
+  focusSelected(options?: FocusRovingEntryRequestOptions): void;
 
   configure(patch: FocusRovingConfigPatch): void;
   setLoop(loop: boolean): void;

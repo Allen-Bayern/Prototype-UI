@@ -8,4 +8,5 @@ export * from './host/view-epoch-owner';
 export * from './host/view-visibility';
 export * from './events/web-event-router';
 export * from './platform/instance-tree';
+export * from './platform/layout-ready';
 export * from './types';

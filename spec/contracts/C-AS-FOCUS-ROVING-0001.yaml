@@ -66,6 +66,10 @@ criteria:
     dependsOn:
       contracts:
         - C-AS-FOCUSABLE-0001
+  - id: C-AS-FOCUS-ROVING-0001-K
+    text:
+      zh-CN: roving handle 必须允许 first、last 或 selected entry request 显式选择在 eligible member 尚未加入或已加入 member 的 host focus 尚未实际 applied 时保持 pending；最新请求替换旧请求，并且只有 host focus applied 才能消费该 entry intent。pending 重试必须按已尝试 member 合并，避免无关 member/state upsert 造成重入重复；retained logical owner 的 view detach 必须保留请求，只有 terminal remove/dispose 或新 entry request 才能取消或取代旧请求。普通 next/prev movement 不得隐式创建 pending entry request。
+      en: The roving handle must allow first, last, or selected entry requests to explicitly remain pending while no eligible member has joined or while an eligible member's host focus has not actually been applied; the latest request replaces the previous request, and only applied host focus may consume the entry intent. Pending retries must be coalesced by the attempted member so unrelated member or state upserts cannot cause reentrant repetition; a retained logical owner's view detachment must preserve the request, and only terminal removal or disposal, or a newer entry request, may cancel or replace it. Ordinary next/previous movement must not implicitly create a pending entry request.
 sources:
   - path: internal/contracts/focus/base-text/focus-roving.v0.md
   - path: internal/contracts/focus/base-text/focus-model.v0.md
@@ -109,6 +113,15 @@ revisions:
   - version: 0.1.6
     change: refined
     summary: Restricted shared global keyboard events to the roving set that contains actual focus.
+  - version: 0.1.7
+    change: refined
+    summary: Added explicit deferred entry requests for roving sets whose members join after the request.
+  - version: 0.1.8
+    change: refined
+    summary: Distinguished retained view detachment from terminal provider removal for deferred entry ownership.
+  - version: 0.1.9
+    change: refined
+    summary: Required deferred entry ownership to persist until host focus is applied and coalesced transient retries.
 tags:
   - focus
   - as-hook

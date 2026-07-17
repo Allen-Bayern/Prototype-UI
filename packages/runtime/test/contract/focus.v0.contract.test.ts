@@ -8,7 +8,7 @@ import {
 } from '@proto.ui/core';
 import { asFocusable, asFocusEntry, asFocusScope } from '@proto.ui/hooks';
 import type { RuntimeHost } from '../../src';
-import { executeWithHost } from '../../src';
+import { createRuntimeSession, executeWithHost } from '../../src';
 import { EVENT_GLOBAL_TARGET_CAP, EVENT_ROOT_TARGET_CAP } from '@proto.ui/module-event';
 import {
   FOCUS_INSTANCE_TOKEN_CAP,
@@ -16,6 +16,7 @@ import {
   FOCUS_REQUEST_FOCUS_CAP,
   FOCUS_ROOT_TARGET_CAP,
   FOCUS_SET_FOCUSABLE_CAP,
+  FOCUS_TARGET_READY_CAP,
   type FocusPort,
 } from '@proto.ui/module-focus';
 import type { PropsBaseType } from '@proto.ui/types';
@@ -67,6 +68,10 @@ const createHost = <P extends PropsBaseType>(
       wiring.attach('event', [
         [EVENT_ROOT_TARGET_CAP, () => rootTarget ?? null],
         [EVENT_GLOBAL_TARGET_CAP, () => globalTarget ?? null],
+      ]);
+      wiring.attach('focus', [
+        [FOCUS_ROOT_TARGET_CAP, () => rootTarget as any],
+        [FOCUS_REQUEST_FOCUS_CAP, () => undefined],
       ]);
     },
   };
@@ -323,6 +328,323 @@ describe('runtime contract: focus (v0)', () => {
       rovingSelected: false,
       rovingActive: false,
     });
+  });
+
+  it('FOCUS-0410: pre-commit focus retains only the latest request until its host target exists', () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    let target: FocusTarget | null = null;
+    const order = new Map([['target', 0]]);
+    const resolvedTarget = new FocusTarget('target', order);
+    const globalTarget = new FocusTarget('global', order);
+    const instanceToken = {};
+    const focused: Array<{ id: string; reason?: string }> = [];
+    let focusedBeforeCommit = true;
+
+    const P = definePrototype({
+      name: 'x-focus-0410',
+      setup(def) {
+        focusable = asFocusable<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          focusable.focus({ reason: 'keyboard' });
+          focusable.focus({ reason: 'pointer' });
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        focusedBeforeCommit = focusable.focused.get();
+        target = resolvedTarget;
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => globalTarget],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
+          [FOCUS_PARENT_CAP, () => null],
+          [FOCUS_ROOT_TARGET_CAP, () => target as any],
+          [
+            FOCUS_REQUEST_FOCUS_CAP,
+            (nextTarget: FocusTarget, options?: { reason?: string }) => {
+              focused.push({ id: nextTarget.id, reason: options?.reason });
+            },
+          ],
+        ]);
+      },
+    };
+
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focusedBeforeCommit).toBe(false);
+    expect(focused).toEqual([{ id: 'target', reason: 'pointer' }]);
+    expect(port?.getFacts()).toMatchObject({
+      focused: true,
+      focusVisible: false,
+      active: true,
+    });
+  });
+
+  it('FOCUS-0415: pre-commit focusSelf waits for mounted host readiness without fabricating facts', () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    let target: FocusTarget | null = null;
+    const order = new Map([['target', 0]]);
+    const resolvedTarget = new FocusTarget('target', order);
+    const globalTarget = new FocusTarget('global', order);
+    const focused: Array<{ id: string; reason?: string }> = [];
+
+    const P = definePrototype({
+      name: 'x-focus-0415',
+      setup(def) {
+        focusable = asFocusable<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          focusable.focusSelf({ reason: 'keyboard' });
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        target = resolvedTarget;
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => target],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_INSTANCE_TOKEN_CAP, {}],
+          [FOCUS_PARENT_CAP, () => null],
+          [FOCUS_ROOT_TARGET_CAP, () => target as any],
+          [
+            FOCUS_REQUEST_FOCUS_CAP,
+            (nextTarget: FocusTarget, options?: { reason?: string }) => {
+              focused.push({ id: nextTarget.id, reason: options?.reason });
+            },
+          ],
+        ]);
+      },
+    };
+
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focused).toEqual([{ id: 'target', reason: 'keyboard' }]);
+    expect(port?.getFacts()).toMatchObject({ focused: false, focusVisible: false, active: false });
+  });
+
+  it('FOCUS-0417: host target-readiness fulfills pending focus and reprojects an established owner', () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    let target: FocusTarget | null = null;
+    let ready = false;
+    let acceptsFocus = false;
+    let targetReadyListener: (() => void) | undefined;
+    const order = new Map([['target', 0]]);
+    const resolvedTarget = new FocusTarget('target', order);
+    const globalTarget = new FocusTarget('global', order);
+    const focused: Array<{ id: string; reason?: string }> = [];
+
+    const P = definePrototype({
+      name: 'x-focus-0417',
+      setup(def) {
+        focusable = asFocusable<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          focusable.focus({ reason: 'keyboard' });
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        target = resolvedTarget;
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => target],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_INSTANCE_TOKEN_CAP, {}],
+          [FOCUS_PARENT_CAP, () => null],
+          [FOCUS_ROOT_TARGET_CAP, () => (ready ? (target as any) : null)],
+          [
+            FOCUS_TARGET_READY_CAP,
+            (listener: () => void) => {
+              targetReadyListener = listener;
+              return () => {
+                if (targetReadyListener === listener) targetReadyListener = undefined;
+              };
+            },
+          ],
+          [
+            FOCUS_REQUEST_FOCUS_CAP,
+            (nextTarget: FocusTarget, options?: { reason?: string }) => {
+              if (!acceptsFocus) return false;
+              focused.push({ id: nextTarget.id, reason: options?.reason });
+              return true;
+            },
+          ],
+        ]);
+      },
+    };
+
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focused).toEqual([]);
+    expect(port?.getFacts()).toMatchObject({ focused: false, focusVisible: false, active: false });
+
+    ready = true;
+    targetReadyListener?.();
+
+    expect(focused).toEqual([]);
+    expect(port?.getFacts()).toMatchObject({ focused: false, focusVisible: false, active: false });
+
+    acceptsFocus = true;
+    targetReadyListener?.();
+
+    expect(focused).toEqual([{ id: 'target', reason: 'keyboard' }]);
+    expect(port?.getFacts()).toMatchObject({ focused: true, focusVisible: true, active: true });
+
+    targetReadyListener?.();
+    expect(focused).toEqual([
+      { id: 'target', reason: 'keyboard' },
+      { id: 'target', reason: 'keyboard' },
+    ]);
+    expect(port?.getFacts()).toMatchObject({ focused: true, focusVisible: true, active: true });
+  });
+
+  it('FOCUS-0418: retained view detachment preserves pending focus for the replacement target', async () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    let target: FocusTarget | null = null;
+    const order = new Map([['target', 0]]);
+    const resolvedTarget = new FocusTarget('target', order);
+    const globalTarget = new FocusTarget('global', order);
+    const focused: Array<{ id: string; reason?: string }> = [];
+    const instanceToken = {};
+
+    const P = definePrototype({
+      name: 'x-focus-0418',
+      setup() {
+        focusable = asFocusable<PropsBaseType>();
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => globalTarget],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
+          [FOCUS_PARENT_CAP, () => null],
+          [FOCUS_ROOT_TARGET_CAP, () => target as any],
+          [
+            FOCUS_REQUEST_FOCUS_CAP,
+            (nextTarget: FocusTarget, options?: { reason?: string }) => {
+              focused.push({ id: nextTarget.id, reason: options?.reason });
+              return true;
+            },
+          ],
+        ]);
+      },
+    };
+
+    const session = createRuntimeSession(P as any, host as any);
+    await session.mount();
+    focusable.focus({ reason: 'keyboard' });
+    expect(focused).toEqual([]);
+
+    await session.unmount();
+    target = resolvedTarget;
+    await session.mount();
+
+    expect(focused).toEqual([{ id: 'target', reason: 'keyboard' }]);
+    await session.dispose();
+  });
+
+  it('FOCUS-0420: blur cancels a pre-commit pending focus request', () => {
+    let focusable!: FocusableHandle<PropsBaseType>;
+    let target: FocusTarget | null = null;
+    const order = new Map([['target', 0]]);
+    const resolvedTarget = new FocusTarget('target', order);
+    const globalTarget = new FocusTarget('global', order);
+    const focused: string[] = [];
+
+    const P = definePrototype({
+      name: 'x-focus-0420',
+      setup(def) {
+        focusable = asFocusable<PropsBaseType>();
+        def.lifecycle.onCreated(() => {
+          focusable.focus({ reason: 'keyboard' });
+          focusable.blur();
+        });
+        return (r) => r.el('div', 'ok');
+      },
+    });
+
+    const host: RuntimeHost<PropsBaseType> = {
+      prototypeName: P.name,
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        target = resolvedTarget;
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+      onRuntimeReady(wiring) {
+        wiring.attach('event', [
+          [EVENT_ROOT_TARGET_CAP, () => target],
+          [EVENT_GLOBAL_TARGET_CAP, () => globalTarget],
+        ]);
+        wiring.attach('focus', [
+          [FOCUS_INSTANCE_TOKEN_CAP, {}],
+          [FOCUS_PARENT_CAP, () => null],
+          [FOCUS_ROOT_TARGET_CAP, () => target as any],
+          [FOCUS_REQUEST_FOCUS_CAP, (nextTarget: FocusTarget) => focused.push(nextTarget.id)],
+        ]);
+      },
+    };
+
+    const result = executeWithHost(P as any, host as any);
+    const port = result.caps.getPort<FocusPort>('focus');
+
+    expect(focused).toEqual([]);
+    expect(port?.getFacts()).toMatchObject({ focused: false, focusVisible: false, active: false });
   });
 
   it('FOCUS-0450: host focus events update focus-owned observed facts', () => {

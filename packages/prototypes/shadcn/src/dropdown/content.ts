@@ -5,13 +5,41 @@ import type { ShadcnDropdownContentExposes, ShadcnDropdownContentProps } from '.
 const dropdownContent = definePrototype<ShadcnDropdownContentProps, ShadcnDropdownContentExposes>({
   name: 'shadcn-dropdown-content',
   setup(def) {
-    asDropdownContent();
+    const dropdown = asDropdownContent();
+    dropdown.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
+    const { open } = dropdown.stateHandles;
+    const { transitionState } = dropdown.asTransition;
 
     def.feedback.style.use(
       tw(
-        'absolute left-0 top-full z-40 mt-2 block min-w-56 overflow-hidden rounded-xl border border-border/60 bg-background p-1 text-sm shadow-lg'
+        'z-50 max-h-[var(--proto-ui-available-height)] min-w-32 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none duration-150'
       )
     );
+    def.rule({
+      when: (w) =>
+        w.any(w.state(transitionState).eq('entering'), w.state(transitionState).eq('entered')),
+      intent: (i) => i.feedback.style.use(tw('animate-in fade-in-0 zoom-in-95')),
+    });
+    def.rule({
+      when: (w) => w.state(open).eq(false),
+      intent: (i) => i.feedback.style.use(tw('animate-out fade-out-0 zoom-out-95')),
+    });
+    def.rule({
+      when: (w) => w.all(w.state(open).eq(true), w.prop('side').eq('bottom')),
+      intent: (i) => i.feedback.style.use(tw('slide-in-from-top-2')),
+    });
+    def.rule({
+      when: (w) => w.all(w.state(open).eq(true), w.prop('side').eq('top')),
+      intent: (i) => i.feedback.style.use(tw('slide-in-from-bottom-2')),
+    });
+    def.rule({
+      when: (w) => w.all(w.state(open).eq(true), w.prop('side').eq('left')),
+      intent: (i) => i.feedback.style.use(tw('slide-in-from-right-2')),
+    });
+    def.rule({
+      when: (w) => w.all(w.state(open).eq(true), w.prop('side').eq('right')),
+      intent: (i) => i.feedback.style.use(tw('slide-in-from-left-2')),
+    });
   },
 });
 

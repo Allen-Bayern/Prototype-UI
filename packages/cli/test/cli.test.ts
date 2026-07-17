@@ -134,6 +134,11 @@ describe('@proto.ui/cli', () => {
     );
     expect(tokensCss).not.toContain(`aria-checked:bg-muted"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
+    expect(tokensCss).toContain(`[data-pui-style~="rounded-sm"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="min-w-32"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="overflow-x-hidden"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="overflow-y-auto"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="max-h-[var(--proto-ui-available-height)]"]`);
   }, 30_000);
 
   it('rejects the removed tailwindcss command with an explicit migration message', () => {

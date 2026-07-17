@@ -3,7 +3,6 @@ export default {
   root: {
     kind: 'proto',
     prototypeId: 'shadcn-dropdown-root',
-    className: 'relative inline-flex items-start',
     children: [
       {
         kind: 'proto',
@@ -13,6 +12,7 @@ export default {
       {
         kind: 'proto',
         prototypeId: 'shadcn-dropdown-content',
+        props: { align: 'start' },
         children: [
           {
             kind: 'proto',

@@ -81,6 +81,11 @@ function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): vo
     ownTextValue = run.props.get().textValue ?? '';
     syncFromContext(run.context.read(SELECT_CONTEXT));
     publishSelectedText(run);
+    const content = run.anatomy.partsOf(SELECT_FAMILY, 'content')[0] ?? null;
+    const resolveEntryFocus = content?.getExpose('__resolveSelectEntryFocus') as
+      | (() => boolean)
+      | null;
+    resolveEntryFocus?.();
   });
 
   def.props.watch(['value', 'textValue'], (run, next) => {

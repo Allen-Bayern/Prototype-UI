@@ -59,7 +59,19 @@ cases:
     covers:
       - C-AS-FOCUS-ROVING-0001-J
     expectation: unfocused-roving-instances-ignore-shared-global-key-events
+  - id: T-FOCUS-ROVING-0001-CASE-DEFERRED-ENTRY
+    title: Explicit roving entry request survives empty membership and transient host-focus pending outcomes
+    covers:
+      - C-AS-FOCUS-ROVING-0001-K
+    expectation: latest-deferred-entry-is-consumed-only-after-member-host-focus-applies
 implementations:
+  - id: module-focus-center-retained-owner
+    kind: module-test
+    status: passing
+    path: packages/modules/focus/test/center.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-ROVING-0001-CASE-DEFERRED-ENTRY
   - id: runtime-focus-roving-contract
     kind: runtime-test
     status: passing
@@ -74,6 +86,7 @@ implementations:
       - T-FOCUS-ROVING-0001-CASE-RUNTIME-STRATEGY
       - T-FOCUS-ROVING-0001-CASE-MEMBER-STATUS
       - T-FOCUS-ROVING-0001-CASE-MULTI-INSTANCE-ISOLATION
+      - T-FOCUS-ROVING-0001-CASE-DEFERRED-ENTRY
   - id: prototypes-base-tabs-roving-tab-boundary
     kind: module-test
     status: passing
@@ -100,6 +113,7 @@ verifies:
         - C-AS-FOCUS-ROVING-0001-H
         - C-AS-FOCUS-ROVING-0001-I
         - C-AS-FOCUS-ROVING-0001-J
+        - C-AS-FOCUS-ROVING-0001-K
   decisions:
     - id: D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001
       anchors:
@@ -134,6 +148,15 @@ revisions:
   - version: 0.1.6
     change: refined
     summary: Added multi-instance isolation coverage for shared global roving key events.
+  - version: 0.1.7
+    change: refined
+    summary: Added coverage for explicit deferred entry focus when roving members join late.
+  - version: 0.1.8
+    change: refined
+    summary: Added retained provider view-detach coverage before late member and provider reattachment.
+  - version: 0.1.9
+    change: refined
+    summary: Added deferred entry persistence across a pending member focus and replacement member application.
 tags:
   - focus
   - focus-roving

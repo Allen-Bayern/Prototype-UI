@@ -50,6 +50,7 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   boundary.observe('pointer.press');
   const open = def.state.bool('open', false);
   let mountedRun: any = null;
+  let entryFocusRequested = false;
 
   const resolveBoundaryValue = (run: any, boundary: 'first' | 'last' = 'first') => {
     const items = run.anatomy.partsOf(SELECT_FAMILY, 'item');
@@ -66,8 +67,15 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
   };
 
   const resolveOpenFocusAction = (run: any, ctx: { activeValue?: string; value?: string }) => {
-    if (focusById?.(ctx.value ?? '', { reason: 'keyboard' })) return;
-    if (focusById?.(ctx.activeValue ?? '', { reason: 'keyboard' })) return;
+    const preferredValues = [ctx.value, ctx.activeValue].filter(
+      (value): value is string => typeof value === 'string' && value.length > 0
+    );
+    for (const value of preferredValues) {
+      if (focusById?.(value, { reason: 'keyboard' })) return true;
+    }
+    // A preferred Item may join later in the same adapter projection. Do not
+    // prematurely lock entry focus to the first partial Anatomy snapshot.
+    if (preferredValues.length > 0) return false;
     const boundaryValue = resolveBoundaryValue(run, 'first');
     if (boundaryValue) {
       activeValue = boundaryValue;
@@ -77,19 +85,30 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
           activeValue: boundaryValue,
         }));
       }
-      focusById?.(boundaryValue, { reason: 'keyboard' });
-      return;
+      return focusById?.(boundaryValue, { reason: 'keyboard' }) ?? false;
     }
-    focusFirst?.();
+    return focusFirst?.() ?? false;
   };
 
-  const scheduleOpenFocusAction = (run: any) => {
-    globalThis.queueMicrotask(() => {
-      const ctx = run.context.read(SELECT_CONTEXT);
-      if (!ctx.open) return;
-      resolveOpenFocusAction(run, ctx);
-    });
-  };
+  // Structural readiness comes from Anatomy; Focus bridges the remaining gap
+  // until the selected Item's host target is committed by its adapter.
+  def.anatomy.subscribeParts(SELECT_FAMILY, 'item', (run, parts) => {
+    if (parts.length === 0 || !open.get() || entryFocusRequested) return;
+    const ctx = run.context.read(SELECT_CONTEXT);
+    if (!ctx.open) return;
+    entryFocusRequested = resolveOpenFocusAction(run, ctx);
+  });
+
+  // Collection metadata becomes semantic-ready in each Item's mounted callback,
+  // which is intentionally distinct from its earlier Anatomy claim.
+  def.expose.method('__resolveSelectEntryFocus' as any, () => {
+    const run = mountedRun;
+    if (!run || !open.get() || entryFocusRequested) return false;
+    const ctx = run.context.read(SELECT_CONTEXT);
+    if (!ctx.open) return false;
+    entryFocusRequested = resolveOpenFocusAction(run, ctx);
+    return entryFocusRequested;
+  });
 
   const focusSelectedOrBoundary = (run: any, boundary: 'first' | 'last' = 'first') => {
     if (focusById?.(run.context.read(SELECT_CONTEXT).value ?? '', { reason: 'keyboard' })) {
@@ -115,14 +134,17 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
       if (!wasOpen) {
         overlay.openOverlay('controlled.sync');
         focusScope.activate();
-        resolveOpenFocusAction(run, next);
-        scheduleOpenFocusAction(run);
+        entryFocusRequested = resolveOpenFocusAction(run, next);
       }
       if (wasOpen && selectedValue && selectedValue !== previousSelectedValue) {
-        resolveOpenFocusAction(run, { value: selectedValue, activeValue: '' });
+        entryFocusRequested = resolveOpenFocusAction(run, {
+          value: selectedValue,
+          activeValue: '',
+        });
       }
       return;
     }
+    entryFocusRequested = false;
     if (wasOpen) {
       focusScope.deactivate();
       overlay.close('controlled.sync');
@@ -138,9 +160,9 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     if (ctx.open) {
       overlay.openOverlay('controlled.sync');
       focusScope.activate();
-      resolveOpenFocusAction(run, ctx);
-      scheduleOpenFocusAction(run);
+      entryFocusRequested = resolveOpenFocusAction(run, ctx);
     } else {
+      entryFocusRequested = false;
       focusScope.deactivate();
       overlay.close('controlled.sync');
     }
@@ -202,6 +224,7 @@ function setupSelectContent(def: DefHandle<SelectContentProps, SelectContentExpo
     mountedRun = null;
     activeValue = '';
     selectedValue = '';
+    entryFocusRequested = false;
   });
 }
 

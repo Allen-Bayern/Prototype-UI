@@ -5,7 +5,7 @@ import {
   type TemplateChildren,
   tw,
 } from '@proto.ui/core';
-import { asButton, asDropdownTrigger } from '@proto.ui/prototypes-base';
+import { asDropdownTrigger } from '@proto.ui/prototypes-base';
 import type { ShadcnDropdownTriggerExposes, ShadcnDropdownTriggerProps } from './types';
 
 const TRIGGER_BASE_TOKENS = [
@@ -84,16 +84,15 @@ const dropdownTrigger = definePrototype<ShadcnDropdownTriggerProps, ShadcnDropdo
     });
     def.props.setDefaults({
       disabled: false,
-      indicator: true,
+      indicator: false,
       indicatorIcon: DEFAULT_INDICATOR_ICON,
       indicatorSize: DEFAULT_INDICATOR_SIZE,
       indicatorStrokeWidth: DEFAULT_INDICATOR_STROKE_WIDTH,
     });
 
-    asDropdownTrigger();
-    const buttonState = asButton().stateHandles;
+    const buttonState = asDropdownTrigger().stateHandles;
     if (!buttonState) {
-      throw new Error('[shadcn-dropdown-trigger] asButton must project Button state handles.');
+      throw new Error('[shadcn-dropdown-trigger] Dropdown Trigger must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 

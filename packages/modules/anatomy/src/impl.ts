@@ -63,6 +63,7 @@ type ClaimRecord = {
   prototype: Prototype<any> | null;
   exposePort: ExposePort;
   getRootTarget: AnatomyRootTargetGetter;
+  invoke: AnatomyOrderCallbackDispatcher;
 };
 
 const CLAIM_BY_PART_VIEW = new WeakMap<AnatomyPartView, ClaimRecord>();
@@ -286,6 +287,7 @@ export class AnatomyModuleImpl extends ModuleBase {
       prototype: this.getPrototypeGetter()(instance),
       exposePort: this.exposePort,
       getRootTarget: this.getRootTargetGetter(),
+      invoke: (fn) => this.orderDispatch(fn),
     });
     this.claimFamilies.add(family);
   }
@@ -993,8 +995,24 @@ export class AnatomyModuleImpl extends ModuleBase {
     const part: AnatomyPartView = {
       role: claim.role,
       hasExpose: (key: string) => claim.exposePort.has(key),
-      getExpose: (key: string) =>
-        claim.exposePort.has(key) ? (claim.exposePort.get(key) ?? null) : null,
+      getExpose: (key: string) => {
+        if (!claim.exposePort.has(key)) return null;
+        const exposed = claim.exposePort.get(key) ?? null;
+        if (typeof exposed !== 'function') return exposed;
+        return (...args: unknown[]) => {
+          let result: unknown;
+          let thrown: unknown;
+          claim.invoke(() => {
+            try {
+              result = exposed(...args);
+            } catch (error) {
+              thrown = error;
+            }
+          });
+          if (thrown) throw thrown;
+          return result;
+        };
+      },
       hasHook: (name: string) => getHookNames(claim.prototype).has(name),
     };
     CLAIM_BY_PART_VIEW.set(part, claim);

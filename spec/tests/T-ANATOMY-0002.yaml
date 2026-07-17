@@ -29,6 +29,11 @@ cases:
       - C-ANATOMY-0009-C
       - C-ANATOMY-0009-D
     expectation: safe-part-view-expose-read
+  - id: T-ANATOMY-0002-CASE-PARTVIEW-METHOD-BINDING
+    title: PartView exposed methods run in the target part callback scope
+    covers:
+      - C-ANATOMY-0009-E
+    expectation: target-bound-part-view-method-invocation
 implementations:
   - id: module-anatomy-impl-spec
     kind: module-test
@@ -39,6 +44,7 @@ implementations:
       - T-ANATOMY-0002-CASE-DOMAIN-RESOLUTION
       - T-ANATOMY-0002-CASE-RUNTIME-PART-QUERY
       - T-ANATOMY-0002-CASE-PARTVIEW-SAFETY
+      - T-ANATOMY-0002-CASE-PARTVIEW-METHOD-BINDING
   - id: adapter-web-component-anatomy-runtime-access
     kind: adapter-test
     status: passing
@@ -74,10 +80,14 @@ verifies:
         - C-ANATOMY-0009-B
         - C-ANATOMY-0009-C
         - C-ANATOMY-0009-D
+        - C-ANATOMY-0009-E
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Added anatomy domain, runtime query, expose-read, and PartView safety test mapping.
+  - version: 0.1.1
+    change: refined
+    summary: Added target callback binding coverage for exposed PartView methods.
 tags:
   - anatomy
   - domain

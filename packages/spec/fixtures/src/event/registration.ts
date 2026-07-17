@@ -2,6 +2,7 @@ export type EventRegistrationExpectation =
   | 'setup-registration-only'
   | 'runtime-callback-dispatch'
   | 'target-binding'
+  | 'adapter-owned-root-semantic-routing'
   | 'empty-registration-noop'
   | 'no-registration-dedup'
   | 'token-precise-removal'
@@ -45,6 +46,15 @@ export const EVENT_REGISTRATION_CASES = [
     eventType: 'key.down',
     scope: 'global',
     expectation: 'target-binding',
+  },
+  {
+    id: 'event-root-semantic-ownership',
+    title: 'adapter routes semantic keyboard events only to the owning component root',
+    specCase: 'T-EVENT-0001-CASE-ROOT-SEMANTIC-OWNERSHIP',
+    covers: ['C-EVENT-0003-A', 'C-EVENT-0003-D', 'C-EVENT-0003-E'],
+    eventType: 'key.down',
+    scope: 'root',
+    expectation: 'adapter-owned-root-semantic-routing',
   },
   {
     id: 'event-empty-registration-noop',

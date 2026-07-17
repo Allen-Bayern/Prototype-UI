@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { styleContains } from '../../test-utils/style';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
 import { dropdownContent, dropdownItem, dropdownRoot, dropdownTrigger } from '../src/dropdown';
@@ -8,105 +8,94 @@ AdaptToWebComponent(dropdownTrigger as any);
 AdaptToWebComponent(dropdownContent as any);
 AdaptToWebComponent(dropdownItem as any);
 
-describe('prototypes/shadcn: dropdown', () => {
-  it('styles and opens a dropdown-menu compound prototype', async () => {
-    const root = document.createElement('shadcn-dropdown-root') as any;
-    const trigger = document.createElement('shadcn-dropdown-trigger') as any;
-    const content = document.createElement('shadcn-dropdown-content') as any;
-    const itemA = document.createElement('shadcn-dropdown-item') as any;
-    const itemB = document.createElement('shadcn-dropdown-item') as any;
+async function flush() {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
 
-    setElementProps(itemA, { value: 'new', textValue: 'New File' });
-    setElementProps(itemB, { value: 'share', textValue: 'Share', disabled: true });
+async function settle() {
+  await vi.advanceTimersByTimeAsync(0);
+  await flush();
+}
 
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
+function createDropdown(triggerProps: Record<string, unknown> = {}) {
+  const root = document.createElement('shadcn-dropdown-root') as any;
+  const trigger = document.createElement('shadcn-dropdown-trigger') as any;
+  const content = document.createElement('shadcn-dropdown-content') as any;
+  const item = document.createElement('shadcn-dropdown-item') as any;
+  const destructive = document.createElement('shadcn-dropdown-item') as any;
+  trigger.textContent = 'Actions';
+  setElementProps(trigger, triggerProps);
+  item.textContent = 'Profile';
+  destructive.textContent = 'Delete';
+  setElementProps(item, { value: 'profile', textValue: 'Profile' });
+  setElementProps(destructive, {
+    value: 'delete',
+    textValue: 'Delete',
+    variant: 'destructive',
+  });
+  content.append(item, destructive);
+  root.append(trigger, content);
+  document.body.appendChild(root);
+  return { root, trigger, content, item, destructive };
+}
 
-    await Promise.resolve();
-    await Promise.resolve();
+afterEach(async () => {
+  document.body.replaceChildren();
+  await flush();
+  vi.useRealTimers();
+});
+
+describe('prototypes/shadcn: dropdown-menu', () => {
+  it('composes official-style Content and Item tokens over Base behavior', async () => {
+    vi.useFakeTimers();
+    const { root, trigger, content, item, destructive } = createDropdown();
+    await flush();
 
     expect(styleContains(trigger, 'rounded-md')).toBe(true);
+    expect(trigger.querySelector('svg')).toBeNull();
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+    expect(styleContains(item, 'rounded-sm')).toBe(true);
+    expect(styleContains(destructive, 'text-destructive')).toBe(true);
+
+    trigger.click();
+    await settle();
+    expect(root.getExposes().open.get()).toBe(true);
+    expect(content.parentElement).toBe(document.body);
+    expect(styleContains(content, 'rounded-md')).toBe(true);
+    expect(styleContains(content, 'bg-popover')).toBe(true);
+    expect(styleContains(content, 'animate-in')).toBe(true);
+    expect(document.activeElement).toBe(item);
+  });
+
+  it('retains the leaving portaled surface for the configured shadcn transition', async () => {
+    vi.useFakeTimers();
+    const { root, trigger, content, item } = createDropdown();
+    await flush();
+    trigger.click();
+    await settle();
+    content.getExposes().controls.complete();
+    await flush();
+
+    item.click();
+    await settle();
+    expect(root.getExposes().open.get()).toBe(false);
+    expect(content.getExposes().transitionState.get()).toBe('leaving');
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(false);
+    expect(styleContains(content, 'animate-out')).toBe(true);
+
+    await vi.advanceTimersByTimeAsync(100);
+    await flush();
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+  });
+
+  it('keeps the legacy indicator extension opt-in', async () => {
+    vi.useFakeTimers();
+    const { trigger } = createDropdown({ indicator: true, indicatorIcon: 'chevron-down' });
+    await flush();
     const indicator = trigger.querySelector('svg');
     expect(indicator?.getAttribute('viewBox')).toBe('0 0 24 24');
     expect(indicator?.querySelector('path')?.getAttribute('d')).toBe('m6 9 6 6 6-6');
-    expect(styleContains(content, 'hidden')).toBe(true);
-    expect(styleContains(itemA, 'rounded-lg')).toBe(true);
-
-    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(true);
-    expect(styleContains(content, 'rounded-xl')).toBe(true);
-    expect(styleContains(content, 'shadow-lg')).toBe(true);
-    expect(styleContains(content, 'hidden')).toBe(false);
-    expect(document.activeElement).toBe(itemA);
-    expect(styleContains(itemB, 'data-[disabled]:opacity-50')).toBe(true);
-
-    itemA.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(false);
-
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('closes on outside pointerdown via inherited boundary behavior', async () => {
-    const root = document.createElement('shadcn-dropdown-root') as any;
-    const trigger = document.createElement('shadcn-dropdown-trigger') as any;
-    const content = document.createElement('shadcn-dropdown-content') as any;
-    const item = document.createElement('shadcn-dropdown-item') as any;
-
-    setElementProps(item, { value: 'new', textValue: 'New File' });
-
-    content.appendChild(item);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(true);
-    expect(styleContains(content, 'hidden')).toBe(false);
-
-    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('allows disabling built-in indicator icon on trigger', async () => {
-    const root = document.createElement('shadcn-dropdown-root') as any;
-    const trigger = document.createElement('shadcn-dropdown-trigger') as any;
-    const content = document.createElement('shadcn-dropdown-content') as any;
-
-    setElementProps(trigger, { indicator: false });
-
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(trigger.querySelector('svg')).toBeNull();
-
-    root.remove();
-    await Promise.resolve();
   });
 });

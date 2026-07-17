@@ -5,6 +5,7 @@ import demo from '../../../../apps/www/src/content/docs/demo_components/tabs/dem
 import baseDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-dialog.demo';
 import shadcnDialogDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-shadcn-dialog.demo';
 import baseHoverCardDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-hover-card.demo';
+import baseDropdownDemo from '../../../../apps/www/src/content/docs/zh-cn/demo-base-dropdown-menu.demo';
 
 function styleContains(el: Element | null, token: string): boolean {
   return (el?.getAttribute('data-pui-style') ?? '').split(/\s+/).includes(token);
@@ -26,6 +27,42 @@ async function completeTransitions(...elements: Array<HTMLElement | null>): Prom
 }
 
 describe('PrototypePreviewer demo-renderer / wc', () => {
+  it('renders the Base Dropdown demo with keyboard focus entry and portaled positioning', async () => {
+    vi.useFakeTimers();
+    await loadPrototypes([
+      'base-dropdown-root',
+      'base-dropdown-trigger',
+      'base-dropdown-content',
+      'base-dropdown-item',
+    ]);
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const session = await renderDemo({ runtime: 'wc', demo: baseDropdownDemo as any, host });
+    await settle();
+
+    try {
+      const root = host.querySelector('wc-base-dropdown-root') as any;
+      const trigger = host.querySelector('wc-base-dropdown-trigger') as HTMLElement | null;
+      const content = host.querySelector('wc-base-dropdown-content') as HTMLElement | null;
+      const firstItem = host.querySelector('wc-base-dropdown-item') as HTMLElement | null;
+      expect(root?.getExposes().open.get()).toBe(false);
+
+      trigger?.focus();
+      trigger?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      await vi.advanceTimersByTimeAsync(0);
+      await settle();
+
+      expect(root?.getExposes().open.get()).toBe(true);
+      expect(content?.parentElement).toBe(document.body);
+      expect(content?.style.position).toBe('fixed');
+      expect(document.activeElement).toBe(firstItem);
+    } finally {
+      await session.destroy();
+      host.remove();
+      vi.useRealTimers();
+    }
+  });
+
   it('passes Hover Card delay props through the demo renderer', async () => {
     vi.useFakeTimers();
     await loadPrototypes([
