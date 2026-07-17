@@ -45,6 +45,7 @@ export function createFocusGroupKey(meta?: FocusGroupMeta): FocusGroupKey {
 
 export type FocusRequestOptions = Readonly<{
   reason?: 'programmatic' | 'keyboard' | 'pointer';
+  preventScroll?: boolean;
 }>;
 
 export type FocusRovingEntryRequestOptions = FocusRequestOptions &

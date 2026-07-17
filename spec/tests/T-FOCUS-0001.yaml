@@ -80,6 +80,7 @@ cases:
       - A later target-readiness signal re-projects an established logical owner after portal or retained-view target replacement without changing facts.
       - A retained view detach preserves the latest pending logical request until the replacement target mounts.
       - Web adapters publish a bounded post-layout readiness retry from the target realm when a connected target temporarily rejects focus before layout.
+      - Web adapters project preventScroll requests to native focus without changing logical focus semantics.
       - Blur cancels the pending request before projection completes.
   - id: T-FOCUS-0001-CASE-SCOPE-CONTAINER
     title: Scope emptyPolicy=container activates boundary without node focus
@@ -200,6 +201,9 @@ revisions:
   - version: 0.1.10
     change: refined
     summary: Added target-realm post-layout readiness scheduling coverage for Web adapters.
+  - version: 0.1.11
+    change: refined
+    summary: Added native projection coverage for scroll-preserving focus requests.
 tags:
   - focus
   - as-focusable

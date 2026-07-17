@@ -219,10 +219,14 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (_target: HTMLElement) => {
+        (_target: HTMLElement, options) => {
           const current = args.getCurrentElement();
           if (!current?.isConnected) return false;
-          current.focus();
+          current.focus(
+            typeof options?.preventScroll === 'boolean'
+              ? { preventScroll: options.preventScroll }
+              : undefined
+          );
           const projected = args.getCurrentElement();
           const applied = !!projected && projected.ownerDocument.activeElement === projected;
           if (!applied) args.retryTargetReady();

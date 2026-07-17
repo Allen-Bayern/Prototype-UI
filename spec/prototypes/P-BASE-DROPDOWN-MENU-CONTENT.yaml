@@ -14,24 +14,24 @@ criteria:
       en: '`base-dropdown-content` and `asDropdownContent` must be authoring entries for the same Content protocol and selectively provide the Transition handle downstream.'
   - id: P-BASE-DROPDOWN-MENU-CONTENT-A11Y
     text:
-      zh-CN: Content 必须投射 menu role、vertical orientation 与稳定 identity，并在 open 时通过 Focus roving entry request 把焦点进入一个 menu item；eligible Item 尚未加入或 target 尚未投影时，该请求必须由 Focus 与 adapter capability 保留。若 open fact 在 detached view epoch 已建立，Content 可以在公开的 mounted checkpoint 幂等重放同一 entry intent，但不得通过私有 expose handshake 或零延迟任务补偿 readiness。
-      en: Content must project a menu role, vertical orientation, and stable identity, and must move focus into one menu item through a Focus roving entry request when opened; when no eligible Item has joined or its target has not been projected, Focus and the adapter capability must retain that request. If the open fact was established during a detached view epoch, Content may idempotently replay the same entry intent at the public mounted checkpoint, but must not compensate readiness through a private expose handshake or zero-delay task.
+      zh-CN: Content 必须投射 menu role、vertical orientation 与稳定 identity，并在 open 时通过 Focus roving entry request 把焦点进入一个 menu item；entry request 必须要求宿主保持当前滚动位置，以免 renderer-owned Portal 在 positioning 投射完成前因原生 focus scroll 移动页面。eligible Item 尚未加入或 target 尚未投影时，该请求必须由 Focus 与 adapter capability 保留。若 open fact 在 detached view epoch 已建立，Content 可以在公开的 mounted checkpoint 幂等重放同一 entry intent，但不得通过私有 expose handshake 或零延迟任务补偿 readiness。
+      en: Content must project a menu role, vertical orientation, and stable identity, and must move focus into one menu item through a Focus roving entry request when opened; the entry request must ask the host to preserve the current scroll position so native focus scrolling cannot move the page before the renderer-owned portal has received its positioning projection. When no eligible Item has joined or its target has not been projected, Focus and the adapter capability must retain that request. If the open fact was established during a detached view epoch, Content may idempotently replay the same entry intent at the public mounted checkpoint, but must not compensate readiness through a private expose handshake or zero-delay task.
   - id: P-BASE-DROPDOWN-MENU-CONTENT-OVERLAY
     text:
       zh-CN: Content 必须消费 non-modal Overlay，启用 Escape 与 outside press dismissal、Trigger focus restore、Portal 和 anchored positioning；Overlay 不得直接改写 Root open fact。
       en: Content must consume a non-modal Overlay with Escape and outside-press dismissal, Trigger focus restoration, Portal, and anchored positioning; Overlay must not directly rewrite the Root open fact.
   - id: P-BASE-DROPDOWN-MENU-CONTENT-PRESENCE
     text:
-      zh-CN: Content 必须以 `asTransition` 作为 Overlay 的唯一 Presence driver，在 logical close 后保留 leave view，并只在 closed 后执行 L1 detach。
-      en: Content must bind `asTransition` as the sole Overlay Presence driver, retain the leaving view after logical close, and perform L1 detach only after closed.
+      zh-CN: Content 必须以 `asTransition` 作为 Overlay 的唯一 Presence driver，在 logical close 后保留 leave view，并只在 closed 后执行 L1 detach；感知 enter/leave 动画不得插值 Overlay positioning 写入的几何属性。
+      en: Content must bind `asTransition` as the sole Overlay Presence driver, retain the leaving view after logical close, and perform L1 detach only after closed; perceptual enter and leave animation must not interpolate geometric properties written by Overlay positioning.
   - id: P-BASE-DROPDOWN-MENU-CONTENT-POSITION
     text:
       zh-CN: Content 必须接受 side、align、sideOffset、alignOffset、avoidCollisions 与 collisionPadding；默认 bottom、center、4、0、true、0，并把运行时更新提交给 Overlay positioning policy。
       en: Content must accept side, align, sideOffset, alignOffset, avoidCollisions, and collisionPadding; defaults are bottom, center, 4, 0, true, and 0, and runtime updates must be submitted to Overlay positioning policy.
   - id: P-BASE-DROPDOWN-MENU-CONTENT-ANCHOR-PORTAL
     text:
-      zh-CN: Content mounted 后必须注册同域 Trigger PartView，使用 clipping-ancestor collision boundary、visual viewport root、flip/shift、fixed strategy 与 renderer-owned Portal，同时保持 logical Context/Anatomy ownership。
-      en: After mounting, Content must register the same-domain Trigger PartView and use a clipping-ancestor collision boundary, visual viewport root, flip and shift, fixed strategy, and a renderer-owned Portal while preserving logical Context and Anatomy ownership.
+      zh-CN: Content mounted 后必须注册同域 Trigger PartView；Overlay 必须把解析出的当前 Trigger target 同时用作 position anchor 与 inside Boundary region，使一次 Trigger pointer activation 只产生一次 toggle request。Content 使用 clipping-ancestor collision boundary、visual viewport root、flip/shift、fixed strategy 与 renderer-owned Portal，同时保持 logical Context/Anatomy ownership。
+      en: After mounting, Content must register the same-domain Trigger PartView; Overlay must use its current resolved Trigger target as both the positioning anchor and an inside Boundary region so one Trigger pointer activation produces only one toggle request. Content uses a clipping-ancestor collision boundary, visual viewport root, flip and shift, fixed strategy, and a renderer-owned Portal while preserving logical Context and Anatomy ownership.
   - id: P-BASE-DROPDOWN-MENU-CONTENT-KEYBOARD
     text:
       zh-CN: Content 必须支持 ArrowDown/ArrowUp、Home/End 与 printable-character typeahead；typeahead buffer 的过期必须通过 runtime delay policy 表达，不得直接选择宿主计时 API；方向键可不 wrap，disabled item 仍可获得菜单内焦点但必须不能激活。
@@ -78,4 +78,10 @@ revisions:
   - version: 0.2.5
     change: refined
     summary: Allowed idempotent entry-intent replay at the public mounted checkpoint across detached view epochs.
+  - version: 0.2.6
+    change: refined
+    summary: Required entry focus to preserve host scroll until portal positioning is projected.
+  - version: 0.2.7
+    change: refined
+    summary: Kept perceptual animation independent from positioning geometry and made the resolved Trigger anchor an inside Boundary region.
 tags: [prototype, base, dropdown-menu, content, overlay, transition, positioning, a11y]

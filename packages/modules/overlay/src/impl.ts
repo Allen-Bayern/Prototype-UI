@@ -280,6 +280,7 @@ export class OverlayModuleImpl extends ModuleBase {
 
   private syncViewSideEffects(): void {
     if (this.mountPhase !== 'mounted') return;
+    this.syncAnchorPartRegistration();
     const hostEl = this.resolveHostElement();
     if (hostEl) {
       this.mountGlobalIfNeeded(hostEl);
@@ -494,6 +495,12 @@ export class OverlayModuleImpl extends ModuleBase {
     return this.registration.anchor ?? this.registration.trigger;
   }
 
+  private syncAnchorPartRegistration(): void {
+    if (!this.anchorPart) return;
+    const target = this.anatomyPort.resolvePartTarget(this.anchorPart);
+    this.replaceRegistration({ anchor: target ?? null });
+  }
+
   private syncAnchoredPosition(): void {
     if (!this.config.anchored || !this.viewActive || this.mountPhase !== 'mounted') {
       this.anchoredPosition.disconnect();
@@ -534,6 +541,7 @@ export class OverlayModuleImpl extends ModuleBase {
 
   registerAnchorPart(part: AnatomyPartView): void {
     this.anchorPart = part;
+    this.syncAnchorPartRegistration();
     if (this.viewActive) this.reconcileViewResourcesAfterCallback();
   }
 

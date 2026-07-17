@@ -6,11 +6,11 @@ since: 0.2.0
 summary: Covers menu semantics, Transition-bound Overlay presence, positioned Portal ownership, focus navigation, typeahead, and dismissal.
 cases:
   - id: T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-A11Y-FOCUS
-    title: Open Content projects menu semantics and retains deferred item entry focus
+    title: Open Content projects menu semantics and retains scroll-preserving deferred item entry focus
     covers: [P-BASE-DROPDOWN-MENU-CONTENT-AUTHORING-ENTRIES, P-BASE-DROPDOWN-MENU-CONTENT-A11Y]
-    expectation: dropdown-content-is-vertical-menu-with-policy-driven-focus-entry
+    expectation: dropdown-content-is-vertical-menu-with-scroll-preserving-policy-driven-focus-entry
   - id: T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-PRESENCE-POSITION
-    title: Content retains leave view and portals a collision-aware anchored surface
+    title: Content retains leave view and portals a stable collision-aware anchored surface
     covers:
       [
         P-BASE-DROPDOWN-MENU-CONTENT-OVERLAY,
@@ -18,15 +18,15 @@ cases:
         P-BASE-DROPDOWN-MENU-CONTENT-POSITION,
         P-BASE-DROPDOWN-MENU-CONTENT-ANCHOR-PORTAL,
       ]
-    expectation: dropdown-content-transitions-and-positions-from-portaled-trigger-anchor
+    expectation: dropdown-content-animates-without-interpolating-position-from-inside-trigger-anchor
   - id: T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-KEYBOARD
     title: Content supports menu navigation, boundaries, runtime-delayed typeahead, and focusable disabled items
     covers: [P-BASE-DROPDOWN-MENU-CONTENT-KEYBOARD]
     expectation: menu-keyboard-navigation-includes-disabled-without-activation
   - id: T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-DISMISS
-    title: Escape, Item action, Tab, and outside press close with non-stealing focus behavior
+    title: Escape, Item action, Tab, and genuine outside press close while Trigger activation toggles once
     covers: [P-BASE-DROPDOWN-MENU-CONTENT-DISMISS]
-    expectation: dropdown-dismiss-paths-request-owner-close-and-preserve-host-tab-navigation
+    expectation: dropdown-dismiss-paths-request-owner-close-with-single-trigger-toggle-and-host-tab-navigation
 implementations:
   - id: prototypes-base-dropdown-content-contract
     kind: module-test
@@ -85,4 +85,10 @@ revisions:
   - version: 0.2.5
     change: refined
     summary: Added mounted-checkpoint replay coverage for entry intent established while the Content view was detached.
+  - version: 0.2.6
+    change: refined
+    summary: Added entry-focus host scroll preservation coverage before portal positioning settles.
+  - version: 0.2.7
+    change: refined
+    summary: Added stable animation geometry and Trigger-anchor inside-boundary regression coverage.
 tags: [prototype, base, dropdown-menu, content, overlay, transition, positioning, test]

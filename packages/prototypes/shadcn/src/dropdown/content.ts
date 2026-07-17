@@ -12,7 +12,7 @@ const dropdownContent = definePrototype<ShadcnDropdownContentProps, ShadcnDropdo
 
     def.feedback.style.use(
       tw(
-        'z-50 max-h-[var(--proto-ui-available-height)] min-w-32 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none duration-150'
+        'z-50 max-h-[var(--proto-ui-available-height)] min-w-32 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none transition-none duration-150'
       )
     );
     def.rule({

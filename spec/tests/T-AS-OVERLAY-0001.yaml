@@ -59,12 +59,12 @@ cases:
       - C-AS-OVERLAY-0001-L
     expectation: runtime-owned-post-callback-overlay-reconciliation
   - id: T-AS-OVERLAY-0001-CASE-ANCHORED
-    title: Anchored Overlay delegates one active-view lease to Positioning
+    title: Anchored Overlay delegates one active-view lease and shares resolved anchors with Boundary
     covers:
       - C-AS-OVERLAY-0001-M
       - C-AS-OVERLAY-0001-N
       - C-AS-OVERLAY-0001-O
-    expectation: overlay-delegates-positioning-without-exposing-anatomy-target
+    expectation: overlay-delegates-positioning-and-boundary-classification-without-exposing-anatomy-target
 implementations:
   - id: runtime-overlay-contract
     kind: runtime-test
@@ -87,6 +87,13 @@ implementations:
     consumesCases:
       - T-AS-OVERLAY-0001-CASE-BOUND
       - T-AS-OVERLAY-0001-CASE-CONFLICT
+  - id: base-dropdown-overlay-anchor-boundary-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/dropdown.test.ts
+    required: true
+    consumesCases:
+      - T-AS-OVERLAY-0001-CASE-ANCHORED
   - id: react-overlay-portal-contract
     kind: adapter-test
     status: passing
@@ -162,6 +169,9 @@ revisions:
   - version: 0.2.0
     change: extended
     summary: Added delegated anchored positioning and active-view lease coverage.
+  - version: 0.2.1
+    change: refined
+    summary: Added resolved Anatomy anchor sharing between Positioning and Boundary classification.
 tags:
   - overlay
   - presence

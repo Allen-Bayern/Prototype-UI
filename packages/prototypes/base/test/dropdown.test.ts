@@ -187,6 +187,36 @@ describe('prototypes/base: dropdown-menu', () => {
     expect(document.activeElement).toBe(item);
   });
 
+  it('preserves host scroll while entry focus waits for positioned portal layout', async () => {
+    // T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-A11Y-FOCUS
+    vi.useFakeTimers();
+    const { trigger, items } = createMenu();
+    await flush();
+    const focus = vi.spyOn(items[0]!, 'focus');
+
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await settle();
+
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(document.activeElement).toBe(items[0]);
+  });
+
+  it('preserves host scroll when open entry resolves an existing value', async () => {
+    // T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-A11Y-FOCUS
+    vi.useFakeTimers();
+    const { trigger, items } = createMenu({
+      root: { openEntry: 'value-or-first', openEntryValue: 'beta' },
+    });
+    await flush();
+    const focus = vi.spyOn(items[1]!, 'focus');
+
+    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await settle();
+
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(document.activeElement).toBe(items[1]);
+  });
+
   it('accepts a key event owned by Trigger before its focus snapshot settles', async () => {
     // T-BASE-DROPDOWN-MENU-TRIGGER-0001-CASE-KEYBOARD
     vi.useFakeTimers();
@@ -332,6 +362,23 @@ describe('prototypes/base: dropdown-menu', () => {
     await settle();
     document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
     await settle();
+    expect(root.getExposes().open.get()).toBe(false);
+  });
+
+  it('classifies the Trigger anchor as inside so one pointer activation only closes', async () => {
+    // T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-DISMISS
+    vi.useFakeTimers();
+    const { root, trigger } = createMenu();
+    await flush();
+
+    trigger.click();
+    await settle();
+    expect(root.getExposes().open.get()).toBe(true);
+
+    trigger.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    trigger.click();
+    await settle();
+
     expect(root.getExposes().open.get()).toBe(false);
   });
 

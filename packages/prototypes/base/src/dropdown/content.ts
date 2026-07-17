@@ -142,13 +142,17 @@ function setupDropdownContent(
     onMatch: (_run, entry: any) => entry.focusSelf?.({ reason: 'keyboard' }),
   });
 
-  const focusValue = (run: any, value: string) => {
+  const focusValue = (
+    run: any,
+    value: string,
+    options: { reason: 'keyboard' | 'pointer' | 'programmatic'; preventScroll: boolean }
+  ) => {
     if (!value) return false;
     const entry = getNavigationEntries(run).find(
       (candidate: any) => String(candidate.snapshot?.value ?? '') === value
     );
     if (!entry?.focusSelf) return false;
-    entry.focusSelf({ reason: 'keyboard' });
+    entry.focusSelf(options);
     return true;
   };
 
@@ -156,16 +160,17 @@ function setupDropdownContent(
     const entry = ctx.requestEntry ?? ctx.openEntry;
     const options = {
       defer: true,
+      preventScroll: true,
       reason: ctx.requestFocusReason ?? ('programmatic' as const),
     };
     if (entry === 'last') {
       focusRoving.focusLast(options);
       return;
     }
-    if (entry === 'value-or-first' && focusValue(run, ctx.openEntryValue)) {
+    if (entry === 'value-or-first' && focusValue(run, ctx.openEntryValue, options)) {
       return;
     }
-    if (entry === 'active-or-first' && focusValue(run, ctx.activeValue)) {
+    if (entry === 'active-or-first' && focusValue(run, ctx.activeValue, options)) {
       return;
     }
     focusRoving.focusFirst(options);

@@ -65,6 +65,7 @@ describe('prototypes/shadcn: dropdown-menu', () => {
     expect(content.parentElement).toBe(document.body);
     expect(styleContains(content, 'rounded-md')).toBe(true);
     expect(styleContains(content, 'bg-popover')).toBe(true);
+    expect(styleContains(content, 'transition-none')).toBe(true);
     expect(styleContains(content, 'animate-in')).toBe(true);
     expect(document.activeElement).toBe(item);
   });

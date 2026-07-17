@@ -434,7 +434,10 @@ export class FocusCenter {
     this.pendingRovingEntries.delete(provider.instance);
     const outcome = this.requestFocusOutcome(
       target,
-      { reason: options?.entryRequest?.reason ?? 'keyboard' },
+      {
+        reason: options?.entryRequest?.reason ?? 'keyboard',
+        preventScroll: options?.entryRequest?.preventScroll,
+      },
       { syncFacts: true }
     );
     if (outcome === 'pending' && options?.entryRequest?.defer) {

@@ -259,8 +259,12 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (target: HTMLElement) => {
-          target.focus();
+        (target: HTMLElement, options) => {
+          target.focus(
+            typeof options?.preventScroll === 'boolean'
+              ? { preventScroll: options.preventScroll }
+              : undefined
+          );
           const applied = target.ownerDocument.activeElement === target;
           if (!applied) args.retryTargetReady();
           return applied;

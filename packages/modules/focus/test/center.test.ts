@@ -8,6 +8,7 @@ function createEntry(options: {
   roving?: boolean;
   focused?: string[];
   outcomes?: FocusRequestOutcome[];
+  requests?: Array<{ reason?: string; preventScroll?: boolean }>;
 }): FocusCenterEntry {
   return {
     instance: options.instance,
@@ -24,7 +25,8 @@ function createEntry(options: {
     getRovingConfig: () => ({ loop: false }) as ReturnType<FocusCenterEntry['getRovingConfig']>,
     getFacts: () => ({ focused: false }) as ReturnType<FocusCenterEntry['getFacts']>,
     getRootTarget: () => null,
-    requestFocus: () => {
+    requestFocus: (request) => {
+      options.requests?.push(request ?? {});
       const outcome = options.outcomes?.shift() ?? 'applied';
       if (outcome === 'applied') {
         options.focused?.push(String((options.instance as { id?: string }).id ?? 'item'));
@@ -113,5 +115,30 @@ describe('FocusCenter retained owner entry', () => {
     );
 
     expect(focused).toEqual(['replacement-item']);
+  });
+
+  it('forwards target focus policies while consuming roving-only entry options', () => {
+    const center = new FocusCenter();
+    const providerToken = { id: 'provider' };
+    const requests: Array<{ reason?: string; preventScroll?: boolean }> = [];
+    const provider = createEntry({
+      instance: providerToken,
+      scope: true,
+      roving: true,
+    });
+
+    center.upsert(provider);
+    center.upsert(
+      createEntry({
+        instance: { id: 'item' },
+        parent: providerToken,
+        requests,
+      })
+    );
+    center.focusInRoving(provider, 'first', {
+      entryRequest: { defer: true, reason: 'pointer', preventScroll: true },
+    });
+
+    expect(requests).toEqual([{ reason: 'pointer', preventScroll: true }]);
   });
 });
