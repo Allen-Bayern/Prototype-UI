@@ -1,5 +1,10 @@
 import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
-import { HOST_ELEMENT_CAP, type EffectsPort, type FocusEntryConfig } from '@proto.ui/core';
+import {
+  HOST_ELEMENT_CAP,
+  type EffectsPort,
+  type FocusEntryConfig,
+  type FocusRequestOptions,
+} from '@proto.ui/core';
 import {
   createDomOrderObserver,
   ANATOMY_GET_PROTO_CAP,
@@ -80,9 +85,6 @@ type WebComponentOwnerModulesArgs<Props extends PropsBaseType> = {
   };
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
-  isViewReady: () => boolean;
-  subscribeTargetReady: (listener: () => void) => () => void;
-  retryTargetReady: () => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 };
 
@@ -178,6 +180,9 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
   };
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
+  isViewReady: () => boolean;
+  subscribeTargetReady: (listener: () => void) => () => void;
+  retryTargetReady: () => void;
   overlayLayerScheduler?: OverlayLayerScheduler;
 }) {
   const {
@@ -259,7 +264,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (target: HTMLElement, options) => {
+        (target: HTMLElement, options?: FocusRequestOptions) => {
           target.focus(
             typeof options?.preventScroll === 'boolean'
               ? { preventScroll: options.preventScroll }

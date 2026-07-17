@@ -327,7 +327,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
             setExposes,
             runInCallbackScope,
             isViewReady: () => thisEl.isConnected && !thisEl.closest(`[${PUI_VIEW_DETACHED_ATTR}]`),
-            subscribeTargetReady: (listener) => {
+            subscribeTargetReady: (listener: () => void) => {
               this._focusTargetReadyListeners.add(listener);
               return () => this._focusTargetReadyListeners.delete(listener);
             },

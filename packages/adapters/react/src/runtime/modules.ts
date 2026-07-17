@@ -1,5 +1,5 @@
 import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
-import { HOST_ELEMENT_CAP, type EffectsPort } from '@proto.ui/core';
+import { HOST_ELEMENT_CAP, type EffectsPort, type FocusRequestOptions } from '@proto.ui/core';
 import {
   createDomOrderObserver,
   ANATOMY_GET_PROTO_CAP,
@@ -219,7 +219,7 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (_target: HTMLElement, options) => {
+        (_target: HTMLElement, options?: FocusRequestOptions) => {
           const current = args.getCurrentElement();
           if (!current?.isConnected) return false;
           current.focus(
