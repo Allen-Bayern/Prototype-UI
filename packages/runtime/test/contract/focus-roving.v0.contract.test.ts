@@ -273,7 +273,10 @@ describe('runtime contract: focus-roving (v0)', () => {
     expect(focused).toEqual(['item-b']);
 
     roving.focusNext();
-    expect(focused).toEqual(['item-b', 'item-b']);
+    // The explicit selected request established actual focus on item-b, so an
+    // unlooped next request stops at that boundary instead of falling back to
+    // the stale active seed.
+    expect(focused).toEqual(['item-b']);
   });
 
   it('FOCUS-ROVING-0350: arrow navigation requests default-action cancellation through event host cap', () => {
@@ -536,6 +539,56 @@ describe('runtime contract: focus-roving (v0)', () => {
     );
 
     expect(focused).toEqual(['item-a1', 'item-a2']);
+  });
+
+  it('FOCUS-ROVING-0380: an explicit deferred entry request focuses once when members join late', () => {
+    // T-FOCUS-ROVING-0001-CASE-DEFERRED-ENTRY
+    let roving!: FocusRovingHandle<PropsBaseType>;
+    const Roving = definePrototype({
+      name: 'x-focus-roving-0380-owner',
+      setup() {
+        roving = asFocusRoving<PropsBaseType>();
+        roving.configure({ navigation: 'none' });
+        return (r) => r.el('div', 'roving');
+      },
+    });
+    const Item = definePrototype({
+      name: 'x-focus-roving-0380-item',
+      setup() {
+        asFocusable<PropsBaseType>();
+        return (r) => r.el('button', 'item');
+      },
+    });
+
+    const order = new Map<string, number>([
+      ['roving', 0],
+      ['late-a', 1],
+      ['late-b', 2],
+    ]);
+    const globalTarget = new FocusTarget('global', order);
+    const targets = {
+      roving: new FocusTarget('roving', order),
+      lateA: new FocusTarget('late-a', order),
+      lateB: new FocusTarget('late-b', order),
+    };
+    const parents = new Map<unknown, unknown | null>([
+      [targets.roving, null],
+      [targets.lateA, targets.roving],
+      [targets.lateB, targets.roving],
+    ]);
+    const focused: string[] = [];
+    const hostOptions = { globalTarget, parents, focused };
+
+    executeWithHost(Roving as any, createTreeHost(Roving.name, targets.roving, hostOptions) as any);
+
+    (roving.focusFirst as any)({ defer: true, reason: 'keyboard' });
+    expect(focused).toEqual([]);
+
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.lateA, hostOptions) as any);
+    expect(focused).toEqual(['late-a']);
+
+    executeWithHost(Item as any, createTreeHost(Item.name, targets.lateB, hostOptions) as any);
+    expect(focused).toEqual(['late-a']);
   });
 
   it('FOCUS-ROVING-0310: scope getRoving handle declares logical roving ownership', () => {

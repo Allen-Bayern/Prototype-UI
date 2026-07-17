@@ -21,6 +21,7 @@ const spacing: Record<string, string> = {
   '9': '2.25rem',
   '10': '2.5rem',
   '11': '2.75rem',
+  '32': '8rem',
   '64': '16rem',
   '28': '7rem',
   '56': '14rem',
@@ -67,6 +68,8 @@ const staticUtilities: Record<string, string[]> = {
   'select-none': ['user-select: none;'],
   'outline-none': ['outline: 2px solid transparent;', 'outline-offset: 2px;'],
   'overflow-hidden': ['overflow: hidden;'],
+  'overflow-x-hidden': ['overflow-x: hidden;'],
+  'overflow-y-auto': ['overflow-y: auto;'],
   'whitespace-nowrap': ['white-space: nowrap;'],
   'bg-clip-padding': ['background-clip: padding-box;'],
   'will-change-transform': ['will-change: transform;'],
@@ -281,7 +284,7 @@ function renderUtility(utility: string): string[] | null {
 
 function renderSpacingUtility(utility: string): string[] | null {
   const spacingMatch = utility.match(
-    /^(gap|h|w|min-h|min-w|size|p|px|py|pl|pr|mt|mb|ml|mr|top|left)-(.+)$/
+    /^(gap|h|w|min-h|min-w|max-h|size|p|px|py|pl|pr|mt|mb|ml|mr|top|left)-(.+)$/
   );
   if (!spacingMatch) return null;
   const [, kind, rawValue] = spacingMatch;
@@ -293,6 +296,7 @@ function renderSpacingUtility(utility: string): string[] | null {
   if (kind === 'w') return [`width: ${value};`];
   if (kind === 'min-h') return [`min-height: ${value};`];
   if (kind === 'min-w') return [`min-width: ${value};`];
+  if (kind === 'max-h') return [`max-height: ${value};`];
   if (kind === 'size') return [`width: ${value};`, `height: ${value};`];
   if (kind === 'p') return [`padding: ${value};`];
   if (kind === 'px') return [`padding-inline: ${value};`];
@@ -331,6 +335,7 @@ function renderRoundedUtility(utility: string): string[] | null {
   if (utility === 'rounded-xl') return ['border-radius: var(--pui-radius-xl);'];
   if (utility === 'rounded-lg') return ['border-radius: var(--pui-radius-lg);'];
   if (utility === 'rounded-md') return ['border-radius: var(--pui-radius-md);'];
+  if (utility === 'rounded-sm') return ['border-radius: var(--pui-radius-sm);'];
   if (utility === 'rounded-[min(var(--radius-md),12px)]') {
     return ['border-radius: min(var(--pui-radius-md), 12px);'];
   }

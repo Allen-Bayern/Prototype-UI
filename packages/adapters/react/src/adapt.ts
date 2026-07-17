@@ -12,6 +12,7 @@ import {
   createWebProtoEventRouter,
   installViewVisibilityRule,
   PUI_VIEW_PENDING_ATTR,
+  scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -148,6 +149,13 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const [hostTokens, setHostTokens] = runtime.useState<string[]>([]);
       const [shouldExist, setShouldExist] = runtime.useState(!supportsOwnerContext);
       const viewReadyRef = runtime.useRef(false);
+      const focusTargetReadyListenersRef = runtime.useRef<Set<() => void>>(new Set());
+      const focusTargetRetryScheduledRef = runtime.useRef(false);
+      const notifyFocusTargetReady = () => {
+        const target = rootRef.current;
+        if (!viewReadyRef.current || !target?.isConnected) return;
+        for (const listener of Array.from(focusTargetReadyListenersRef.current)) listener();
+      };
 
       const controllerRef = runtime.useRef<RuntimeController | null>(null);
       const eventGateRef = runtime.useRef<ReturnType<typeof createEventGate> | null>(null);
@@ -345,6 +353,24 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             }
             fn();
           },
+          isViewReady: () => viewReadyRef.current,
+          getCurrentElement: () => rootRef.current,
+          subscribeTargetReady: (listener) => {
+            focusTargetReadyListenersRef.current.add(listener);
+            return () => focusTargetReadyListenersRef.current.delete(listener);
+          },
+          retryTargetReady: () => {
+            if (focusTargetRetryScheduledRef.current) return;
+            focusTargetRetryScheduledRef.current = true;
+            scheduleAfterWebLayout(
+              rootRef.current,
+              () => {
+                notifyFocusTargetReady();
+                focusTargetRetryScheduledRef.current = false;
+              },
+              schedule
+            );
+          },
           overlayLayerScheduler,
         });
 
@@ -383,9 +409,23 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         viewReadyRef.current = true;
         rootRef.current?.removeAttribute(PUI_VIEW_PENDING_ATTR);
         eventGateRef.current?.enable();
+        notifyFocusTargetReady();
         pendingSignalRef.current?.done?.();
         pendingSignalRef.current = null;
       }, [commitVersion]);
+
+      // A renderer can replace the host element after the Proto commit that
+      // first announced readiness. Re-advertise the current ref after every
+      // committed render, then once more after the renderer's microtask work,
+      // so pending focus requests bind to the element that actually survived.
+      runtime.useLayoutEffect(() => {
+        const target = rootRef.current;
+        if (!viewReadyRef.current || !target?.isConnected) return;
+        notifyFocusTargetReady();
+        schedule(() => {
+          if (rootRef.current === target) notifyFocusTargetReady();
+        });
+      });
 
       const rendered = renderTemplateToReact(runtime, renderChildren, {
         slot: props.children,

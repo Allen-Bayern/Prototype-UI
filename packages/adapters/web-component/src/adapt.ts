@@ -9,6 +9,7 @@ import {
   createEventGate,
   createWebProtoEventRouter,
   createViewEpochOwner,
+  scheduleAfterWebLayout,
   type LogicalInstanceToken,
 } from '@proto.ui/adapter-base';
 import {
@@ -85,6 +86,7 @@ export type WebComponentAdapterConstructor = {
 };
 
 const SHARED_OVERLAY_LAYER_SCHEDULER = createZIndexOverlayLayerScheduler();
+const NOTIFY_FOCUS_TARGET_READY = Symbol('proto-ui.notify-focus-target-ready');
 
 export function AdaptToWebComponent<Props extends PropsBaseType>(
   proto: Prototype<Props>,
@@ -122,6 +124,8 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
     private _disconnectVersion = 0;
     private _pendingOwnedTokens: string[] | null = null;
     private _controller: RuntimeController | null = null;
+    private _focusTargetReadyListeners = new Set<() => void>();
+    private _focusTargetRetryScheduled = false;
 
     private _root: Element | ShadowRoot;
     private _slotProjector: SlotProjector | null = null;
@@ -151,6 +155,7 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
         this._hostDisplay?.sync();
         this._pendingOwnedTokens = null;
         this._controller?.update();
+        schedule(() => this[NOTIFY_FOCUS_TARGET_READY]());
         return;
       }
       if (this._runtimeGeneration > 0) {
@@ -210,6 +215,13 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
 
       const setViewDetached = (detached: boolean) => {
         thisEl.toggleAttribute(PUI_VIEW_DETACHED_ATTR, detached);
+        if (detached) return;
+        schedule(() => {
+          thisEl[NOTIFY_FOCUS_TARGET_READY]();
+          for (const descendant of thisEl.querySelectorAll<ProtoElement>('[data-pui-root]')) {
+            descendant[NOTIFY_FOCUS_TARGET_READY]?.();
+          }
+        });
       };
 
       const releaseRenderedChildren = () => {
@@ -314,6 +326,23 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
             exposeStateWebMode,
             setExposes,
             runInCallbackScope,
+            isViewReady: () => thisEl.isConnected && !thisEl.closest(`[${PUI_VIEW_DETACHED_ATTR}]`),
+            subscribeTargetReady: (listener: () => void) => {
+              this._focusTargetReadyListeners.add(listener);
+              return () => this._focusTargetReadyListeners.delete(listener);
+            },
+            retryTargetReady: () => {
+              if (this._focusTargetRetryScheduled) return;
+              this._focusTargetRetryScheduled = true;
+              scheduleAfterWebLayout(
+                this,
+                () => {
+                  this[NOTIFY_FOCUS_TARGET_READY]();
+                  this._focusTargetRetryScheduled = false;
+                },
+                schedule
+              );
+            },
             overlayLayerScheduler,
           }),
           disposeView,
@@ -427,6 +456,10 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
       bindController(this, controller);
 
       this._invokeUnmounted = () => owner.dispose();
+    }
+
+    private [NOTIFY_FOCUS_TARGET_READY](): void {
+      for (const listener of Array.from(this._focusTargetReadyListeners)) listener();
     }
 
     disconnectedCallback() {

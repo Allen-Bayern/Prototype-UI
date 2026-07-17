@@ -30,6 +30,10 @@ criteria:
     text:
       zh-CN: Anatomy 对 Expose 的实现依赖必须在治理与模块依赖中被明确记录。
       en: Anatomy's implementation dependency on Expose must be explicitly recorded in governance and module dependencies.
+  - id: C-ANATOMY-0009-E
+    text:
+      zh-CN: PartView 读取到的 exposed method 在调用时必须进入目标 part 的 callback scope；调用方不得获得目标 instance 或 run handle，返回值与异常必须同步投射给调用方。
+      en: An exposed method read through a PartView must enter the target part's callback scope when invoked; the caller must not receive the target instance or run handle, and the return value or error must be synchronously projected back to the caller.
 sources:
   - path: internal/contracts/anatomy/base-text/01.terminology.v0.zh-CN.md
     sections:
@@ -48,6 +52,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured PartView expose reads and Anatomy's implementation dependency on Expose.
+  - version: 0.1.1
+    change: refined
+    summary: Required PartView method invocation to preserve the target part callback binding.
 tags:
   - anatomy
   - expose

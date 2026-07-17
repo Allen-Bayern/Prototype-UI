@@ -3,3 +3,5 @@
 // Deprecated helpers remain only until their existing prototype consumers migrate.
 export { useFocusRoving } from './use-focus-roving';
 export type { FocusRovingExposes, FocusRovingOptions } from './use-focus-roving';
+export { useTypeaheadNavigation } from './use-typeahead-navigation';
+export type { TypeaheadNavigationOptions } from './use-typeahead-navigation';

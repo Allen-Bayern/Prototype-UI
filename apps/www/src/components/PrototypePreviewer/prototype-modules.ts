@@ -75,6 +75,22 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('../../../../../packages/prototypes/base/src/hover-card/content');
     registerPrototype('base-hover-card-content', mod.default);
   },
+  'base-dropdown-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/dropdown/root');
+    registerPrototype('base-dropdown-root', mod.default);
+  },
+  'base-dropdown-trigger': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/dropdown/trigger');
+    registerPrototype('base-dropdown-trigger', mod.default);
+  },
+  'base-dropdown-content': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/dropdown/content');
+    registerPrototype('base-dropdown-content', mod.default);
+  },
+  'base-dropdown-item': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/dropdown/item');
+    registerPrototype('base-dropdown-item', mod.default);
+  },
   'base-checkbox-root': async () => {
     const mod = await import('../../../../../packages/prototypes/base/src/checkbox/root');
     registerPrototype('base-checkbox-root', mod.default);

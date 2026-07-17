@@ -8,6 +8,7 @@ import type {
   FocusRovingHandle,
   FocusRovingKey,
   FocusRovingMemberStatus,
+  FocusRovingEntryRequestOptions,
   FocusScopeConfig,
   FocusRequestOptions,
   FocusScopeConfigPatch,
@@ -42,11 +43,11 @@ export type FocusPort = {
   requestFocus(options?: FocusRequestOptions): void;
   requestEntryFocus(options?: FocusRequestOptions): void;
   blur(): void;
-  focusFirst(): void;
-  focusLast(): void;
+  focusFirst(options?: FocusRovingEntryRequestOptions): void;
+  focusLast(options?: FocusRovingEntryRequestOptions): void;
   focusNext(): void;
   focusPrev(): void;
-  focusSelected(): void;
+  focusSelected(options?: FocusRovingEntryRequestOptions): void;
   restoreFocus(): void;
   activateScope(options?: FocusRequestOptions): void;
   deactivateScope(options?: FocusRequestOptions): void;

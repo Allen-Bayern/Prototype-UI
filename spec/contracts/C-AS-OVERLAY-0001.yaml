@@ -68,8 +68,8 @@ criteria:
       en: Anchored opt-in must be orchestrated by Overlay but delegate geometry to the Positioning module and host capability; Overlay submits only anchor, content, and placement policy and must not measure host nodes itself.
   - id: C-AS-OVERLAY-0001-N
     text:
-      zh-CN: Overlay 可以把 author-facing AnatomyPartView 注册为 anchor，但 raw target 解析必须只发生在 Anatomy 与 Overlay 的 module-internal port 之间，不得向 prototype author 暴露宿主引用。
-      en: Overlay may register an author-facing AnatomyPartView as its anchor, but raw-target resolution must occur only between Anatomy and Overlay module-internal ports and must not expose a host reference to prototype authors.
+      zh-CN: Overlay 可以把 author-facing AnatomyPartView 注册为 anchor，但 raw target 解析必须只发生在 Anatomy 与 Overlay 的 module-internal port 之间，不得向 prototype author 暴露宿主引用；解析出的当前 target 必须同时参与 anchored positioning 与 Boundary region 分类，使 anchor/trigger interaction 不会被误判为 outside。
+      en: Overlay may register an author-facing AnatomyPartView as its anchor, but raw-target resolution must occur only between Anatomy and Overlay module-internal ports and must not expose a host reference to prototype authors; the current resolved target must participate in both anchored positioning and Boundary region classification so anchor or trigger interaction is not misclassified as outside.
   - id: C-AS-OVERLAY-0001-O
     text:
       zh-CN: positioning lease 必须跟随 bound Presence 的 active view，而非仅跟随 logical open；Portal、layer 与 positioning 的建立必须在最外层 runtime callback 完成后协调。
@@ -122,6 +122,9 @@ revisions:
   - version: 0.2.0
     change: extended
     summary: Added delegated anchored positioning, internal Anatomy part resolution, and active-view positioning lifetime.
+  - version: 0.2.1
+    change: refined
+    summary: Required resolved Anatomy anchors to remain shared by Positioning and Boundary classification.
 tags:
   - overlay
   - as-hook

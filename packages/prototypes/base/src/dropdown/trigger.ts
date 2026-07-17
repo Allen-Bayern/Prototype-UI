@@ -1,110 +1,86 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusable } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { DROPDOWN_CONTEXT, DROPDOWN_FAMILY } from './shared';
+import { setupDropdownCommand } from './command';
+import {
+  createDropdownContentId,
+  DROPDOWN_CONTEXT,
+  DROPDOWN_FAMILY,
+  requestDropdownOpen,
+  type DropdownContextValue,
+} from './shared';
 import type {
   DropdownTriggerAsHookContract,
   DropdownTriggerExposes,
   DropdownTriggerProps,
 } from './types';
 
-const DROPDOWN_TRIGGER_OPEN_HANDLED = '__dropdownTriggerOpenHandled';
-const DROPDOWN_ROVING_HANDLED = '__dropdownRovingHandled';
-const DROPDOWN_OPEN_HANDLED = '__dropdownOpenHandled';
-
 function setupDropdownTrigger(def: DefHandle<DropdownTriggerProps, DropdownTriggerExposes>): void {
+  // P-BASE-DROPDOWN-MENU-TRIGGER-COMMAND
   def.anatomy.claim(DROPDOWN_FAMILY, { role: 'trigger' });
-  asButton();
-  const focusable = asFocusable<DropdownTriggerProps>();
-  const focused = focusable.focused;
+  const command = setupDropdownCommand(def, 'dropdown trigger');
 
-  def.props.define({
-    disabled: { type: 'boolean', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    disabled: false,
-  });
+  const expanded = def.state.bool('dropdownExpanded', false);
+  const hasPopup = def.state.string('dropdownHasPopup', 'menu');
+  const controls = def.state.string('dropdownContentId', '');
+  // P-BASE-DROPDOWN-MENU-TRIGGER-A11Y
+  def.a11y.role('button');
+  def.a11y.nameFromContent();
+  def.a11y.state('disabled', command.disabled);
+  def.a11y.state('expanded', expanded);
+  def.a11y.state('hasPopup', hasPopup);
+  def.a11y.relation('controls', { target: controls });
+  def.a11y.action('activate', { event: 'click' });
 
-  def.context.subscribe(DROPDOWN_CONTEXT);
-
-  const resolveBoundaryValue = (run: any, direction: 'first' | 'last') => {
-    const items = run.anatomy.partsOf(DROPDOWN_FAMILY, 'item');
-    const ordered = direction === 'first' ? items : items.slice().reverse();
-    for (const item of ordered) {
-      const snapshot = (
-        item.getExpose('getCollectionItem') as (() => Record<string, unknown>) | null
-      )?.();
-      if (!snapshot || snapshot.disabled) continue;
-      const value = snapshot.value;
-      if (typeof value === 'string' && value) return value;
-    }
-    return '';
+  const sync = (run: any, ctx: DropdownContextValue) => {
+    command.syncDisabled(!!run.props.get().disabled || ctx.disabled);
+    expanded.set(ctx.open, 'reason: dropdown trigger expanded sync');
+    controls.set(createDropdownContentId(ctx.rootId), 'reason: dropdown trigger controls sync');
   };
+  def.context.subscribe(DROPDOWN_CONTEXT, (run, next) => sync(run, next));
+  def.lifecycle.onCreated((run) => sync(run, run.context.read(DROPDOWN_CONTEXT)));
+  def.props.watch(['disabled'], (run) => sync(run, run.context.read(DROPDOWN_CONTEXT)));
 
-  const requestOpen = (run: any, direction: 'first' | 'last') => {
-    focusable.focus({ reason: 'keyboard' });
-    const boundaryValue = resolveBoundaryValue(run, direction);
-    run.context.update(DROPDOWN_CONTEXT, (prev: any) => ({
-      ...prev,
-      open: prev.controlled ? prev.open : true,
-      activeValue: boundaryValue,
-      openEntry: direction,
-    }));
-  };
+  command.focused.watch((run, event) => {
+    if (event.type !== 'next' || !event.next) return;
+    const ctx = run.context.read(DROPDOWN_CONTEXT);
+    if (!ctx.open || !ctx.activeValue) return;
+    run.context.update(DROPDOWN_CONTEXT, (prev) => ({ ...prev, activeValue: '' }));
+  });
 
   def.event.on('press.commit', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
+    // P-BASE-DROPDOWN-MENU-TRIGGER-REQUEST, P-BASE-DROPDOWN-MENU-TRIGGER-DISABLED
+    if (command.disabled.get()) return;
     const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
     const key = ev?.detail?.key;
+    const focusReason = key ? 'keyboard' : 'pointer';
     if (key === 'Enter' || key === ' ') {
-      if (ev?.detail) (ev.detail as any)[DROPDOWN_OPEN_HANDLED] = true;
-      if (ctx.open) return;
-      requestOpen(run, 'first');
+      requestDropdownOpen(run, true, 'trigger.press', 'keyboard', 'first');
       return;
     }
-    if (ctx.controlled) return;
-    if (!ctx.open) focusable.focus({ reason: 'pointer' });
-    run.context.update(DROPDOWN_CONTEXT, (prev) => ({
-      ...prev,
-      open: !prev.open,
-      activeValue: prev.open ? '' : prev.activeValue,
-    }));
+    requestDropdownOpen(run, !ctx.open, 'trigger.press', focusReason);
   });
 
-  def.event.onGlobal('key.down', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(DROPDOWN_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
-    if (!focused.get()) return;
-    if ((ev?.detail as any)?.[DROPDOWN_TRIGGER_OPEN_HANDLED]) return;
-
+  def.event.on('key.down', (run, ev) => {
+    if (command.disabled.get()) return;
     const key = ev?.detail?.key;
     if (key !== 'ArrowDown' && key !== 'ArrowUp') return;
-    if (ev?.detail) (ev.detail as any)[DROPDOWN_TRIGGER_OPEN_HANDLED] = true;
-    if (ev?.detail) (ev.detail as any)[DROPDOWN_ROVING_HANDLED] = true;
-    if (ev?.detail) (ev.detail as any)[DROPDOWN_OPEN_HANDLED] = true;
     ev?.detail?.preventDefault?.();
 
-    const content = run.anatomy.partsOf(DROPDOWN_FAMILY, 'content')[0] ?? null;
-    const focusFirst = content?.getExpose('focusFirst') as (() => void) | null;
-    const focusLast = content?.getExpose('focusLast') as (() => void) | null;
-
-    if (ctx.open) {
-      if (key === 'ArrowDown') {
-        focusFirst?.();
-        return;
-      }
-      if (key === 'ArrowUp') {
-        focusLast?.();
-      }
+    const ctx = run.context.read(DROPDOWN_CONTEXT);
+    const entry = key === 'ArrowUp' ? 'last' : 'first';
+    if (!ctx.open) {
+      requestDropdownOpen(run, true, `trigger.${key}`, 'keyboard', entry);
       return;
     }
-    const direction = key === 'ArrowUp' ? 'last' : 'first';
-    requestOpen(run, direction);
+    if (ctx.activeValue) return;
+    const content = run.anatomy.partsOf(DROPDOWN_FAMILY, 'content')[0] ?? null;
+    const focusBoundary = content?.getExpose(entry === 'first' ? 'focusFirst' : 'focusLast') as
+      | (() => void)
+      | null;
+    focusBoundary?.();
   });
 }
 
+// P-BASE-DROPDOWN-MENU-TRIGGER-AUTHORING-ENTRIES
 export const asDropdownTrigger = defineAsHook<
   DropdownTriggerProps,
   DropdownTriggerExposes,

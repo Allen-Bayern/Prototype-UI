@@ -65,6 +65,23 @@ cases:
     covers:
       - C-AS-FOCUSABLE-0001-F
     expectation: nav-participation-none-does-not-disable-explicit-focus
+  - id: T-FOCUS-0001-CASE-PENDING-HOST-TARGET
+    title: A focus request waits for host target projection without fabricating facts
+    covers:
+      - C-AS-FOCUSABLE-0001-G
+      - C-FOCUS-0001-D
+    expectation: latest-focus-request-fulfilled-after-target-commit
+    notes:
+      - Multiple requests before commit retain only the latest request and its reason.
+      - Focus facts remain false until the host target exists and the request is actually applied.
+      - focusSelf waits through initial mount readiness and remains host-event-authoritative for facts.
+      - An adapter target-readiness host signal retries a retained request when view readiness follows commit.
+      - A host focus rejection retains the request and leaves focus facts false until a later readiness signal succeeds.
+      - A later target-readiness signal re-projects an established logical owner after portal or retained-view target replacement without changing facts.
+      - A retained view detach preserves the latest pending logical request until the replacement target mounts.
+      - Web adapters publish a bounded post-layout readiness retry from the target realm when a connected target temporarily rejects focus before layout.
+      - Web adapters project preventScroll requests to native focus without changing logical focus semantics.
+      - Blur cancels the pending request before projection completes.
   - id: T-FOCUS-0001-CASE-SCOPE-CONTAINER
     title: Scope emptyPolicy=container activates boundary without node focus
     covers:
@@ -87,6 +104,7 @@ implementations:
       - T-FOCUS-0001-CASE-UNIQUE-OWNER
       - T-FOCUS-0001-CASE-DISABLED
       - T-FOCUS-0001-CASE-NAV-PARTICIPATION
+      - T-FOCUS-0001-CASE-PENDING-HOST-TARGET
       - T-FOCUS-0001-CASE-SCOPE-CONTAINER
   - id: adapter-web-component-focus-entry
     kind: adapter-test
@@ -95,6 +113,13 @@ implementations:
     required: true
     consumesCases:
       - T-FOCUS-0001-CASE-ENTRY-HOST-DELEGATION
+  - id: adapter-base-layout-readiness
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/base/test/layout-ready.test.ts
+    required: true
+    consumesCases:
+      - T-FOCUS-0001-CASE-PENDING-HOST-TARGET
   - id: adapter-react-focus-unique-owner
     kind: adapter-test
     status: passing
@@ -126,6 +151,7 @@ verifies:
         - C-AS-FOCUSABLE-0001-D
         - C-AS-FOCUSABLE-0001-E
         - C-AS-FOCUSABLE-0001-F
+        - C-AS-FOCUSABLE-0001-G
     - id: C-AS-FOCUS-SCOPE-0001
       anchors:
         - C-AS-FOCUS-SCOPE-0001-A
@@ -154,6 +180,30 @@ revisions:
   - version: 0.1.3
     change: refined
     summary: Added runtime navParticipation coverage for sequential focus navigation control.
+  - version: 0.1.4
+    change: refined
+    summary: Added durable pending host-target focus request coverage.
+  - version: 0.1.5
+    change: refined
+    summary: Added focusSelf mounted-readiness coverage without synthetic focus facts.
+  - version: 0.1.6
+    change: refined
+    summary: Added explicit adapter target-readiness signal coverage for retained focus requests.
+  - version: 0.1.7
+    change: refined
+    summary: Added established-owner re-projection coverage for portal and retained view target epochs.
+  - version: 0.1.8
+    change: refined
+    summary: Added host focus rejection coverage for temporarily inapplicable renderer targets.
+  - version: 0.1.9
+    change: refined
+    summary: Added retained-detach pending focus preservation coverage.
+  - version: 0.1.10
+    change: refined
+    summary: Added target-realm post-layout readiness scheduling coverage for Web adapters.
+  - version: 0.1.11
+    change: refined
+    summary: Added native projection coverage for scroll-preserving focus requests.
 tags:
   - focus
   - as-focusable

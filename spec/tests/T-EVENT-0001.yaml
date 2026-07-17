@@ -27,6 +27,13 @@ cases:
       - C-EVENT-0003-C
       - C-EVENT-0003-D
     expectation: target-binding
+  - id: T-EVENT-0001-CASE-ROOT-SEMANTIC-OWNERSHIP
+    title: Root semantic keyboard events are routed only to the owning component root
+    covers:
+      - C-EVENT-0003-A
+      - C-EVENT-0003-D
+      - C-EVENT-0003-E
+    expectation: adapter-owned-root-semantic-routing
   - id: T-EVENT-0001-CASE-EMPTY-NOOP
     title: Empty event registration set is a binding no-op
     covers:
@@ -75,6 +82,7 @@ implementations:
       - T-EVENT-0001-CASE-SETUP-ROOT
       - T-EVENT-0001-CASE-RUNTIME-CALLBACK
       - T-EVENT-0001-CASE-GLOBAL-TARGET
+      - T-EVENT-0001-CASE-ROOT-SEMANTIC-OWNERSHIP
       - T-EVENT-0001-CASE-EMPTY-NOOP
       - T-EVENT-0001-CASE-NO-DEDUP
       - T-EVENT-0001-CASE-TOKEN-REMOVAL
@@ -123,6 +131,7 @@ verifies:
         - C-EVENT-0003-B
         - C-EVENT-0003-C
         - C-EVENT-0003-D
+        - C-EVENT-0003-E
     - id: C-EVENT-0004
       anchors:
         - C-EVENT-0004-A
@@ -164,6 +173,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added event registration and dispatch test entity with shared fixture mapping.
+  - version: 0.1.1
+    change: refined
+    summary: Added root-scoped semantic keyboard ownership coverage.
 tags:
   - event
   - registration

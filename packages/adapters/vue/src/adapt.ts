@@ -11,6 +11,7 @@ import {
   createWebProtoEventRouter,
   installViewVisibilityRule,
   PUI_VIEW_PENDING_ATTR,
+  scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
 import {
@@ -169,6 +170,13 @@ export function createVueAdapter(runtime: VueRuntime) {
         }
         const shouldExist = runtime.ref(!supportsOwnerContext);
         let viewReady = false;
+        const focusTargetReadyListeners = new Set<() => void>();
+        let focusTargetRetryScheduled = false;
+        const notifyFocusTargetReady = () => {
+          const target = rootRef.value;
+          if (!viewReady || !target?.isConnected) return;
+          for (const listener of Array.from(focusTargetReadyListeners)) listener();
+        };
 
         const subs = new Set<() => void>();
         const rawPropsSource: RawPropsSource<Props> = {
@@ -288,6 +296,7 @@ export function createVueAdapter(runtime: VueRuntime) {
             viewReady = true;
             rootRef.value?.removeAttribute(PUI_VIEW_PENDING_ATTR);
             eventGateRef.value?.enable();
+            notifyFocusTargetReady();
             pendingSignal?.done?.();
             pendingSignal = null;
           },
@@ -350,6 +359,24 @@ export function createVueAdapter(runtime: VueRuntime) {
               }
               fn();
             },
+            isViewReady: () => viewReady,
+            getCurrentElement: () => rootRef.value,
+            subscribeTargetReady: (listener) => {
+              focusTargetReadyListeners.add(listener);
+              return () => focusTargetReadyListeners.delete(listener);
+            },
+            retryTargetReady: () => {
+              if (focusTargetRetryScheduled) return;
+              focusTargetRetryScheduled = true;
+              scheduleAfterWebLayout(
+                rootRef.value,
+                () => {
+                  notifyFocusTargetReady();
+                  focusTargetRetryScheduled = false;
+                },
+                schedule
+              );
+            },
             overlayLayerScheduler,
           });
 
@@ -372,6 +399,15 @@ export function createVueAdapter(runtime: VueRuntime) {
           const rootEl = rootRef.value;
           if (rootEl) installViewVisibilityRule(rootEl.ownerDocument);
           initSession();
+          runtime.nextTick().then(notifyFocusTargetReady);
+        });
+        runtime.onUpdated?.(() => {
+          const target = rootRef.value;
+          if (!viewReady || !target?.isConnected) return;
+          notifyFocusTargetReady();
+          runtime.nextTick().then(() => {
+            if (rootRef.value === target) notifyFocusTargetReady();
+          });
         });
         runtime.onDeactivated?.(() => {
           viewReady = false;

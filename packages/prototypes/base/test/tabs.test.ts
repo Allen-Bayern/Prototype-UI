@@ -15,6 +15,14 @@ AdaptToWebComponent(tabsTrigger as any);
 AdaptToWebComponent(tabsContent as any);
 AdaptToWebComponent(tabsIndicator as any);
 
+async function waitForFrameCondition(predicate: () => boolean, maxFrames = 20): Promise<void> {
+  for (let frame = 0; frame < maxFrames; frame += 1) {
+    if (predicate()) return;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  }
+  throw new Error('Timed out waiting for frame condition.');
+}
+
 describe('prototypes/base: tabs', () => {
   it('declares tabs anatomy family including optional indicator', () => {
     // T-BASE-TABS-0001-CASE-ANATOMY-FAMILY
@@ -91,6 +99,7 @@ describe('prototypes/base: tabs', () => {
     triggerB.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await Promise.resolve();
     await Promise.resolve();
+    await waitForFrameCondition(() => contentB.tabIndex === 0);
 
     expect(root.getExposes().value.get()).toBe('b');
     expect(valueChanges).toEqual([{ value: 'b' }]);

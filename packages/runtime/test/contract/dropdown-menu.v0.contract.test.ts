@@ -96,6 +96,17 @@ function createDropdownRuntimeTree(options?: {
       schedule(task) {
         scheduled.push(task);
       },
+      scheduleDelay(_durationMs, task) {
+        let active = true;
+        scheduled.push(() => {
+          if (active) task();
+        });
+        return {
+          cancel() {
+            active = false;
+          },
+        };
+      },
       onRuntimeReady(wiring) {
         wiring.attach('expose-state', [
           [EXPOSE_STATE_SET_EXPOSES_CAP, (next: Record<string, unknown>) => (exposes = next)],

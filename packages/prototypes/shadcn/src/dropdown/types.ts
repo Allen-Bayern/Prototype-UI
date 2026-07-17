@@ -32,6 +32,9 @@ export type ShadcnDropdownContentProps = DropdownContentProps;
 export type ShadcnDropdownContentExposes = DropdownContentExposes;
 export type ShadcnDropdownContentAsHookContract = DropdownContentAsHookContract;
 
-export type ShadcnDropdownItemProps = DropdownItemProps;
+export interface ShadcnDropdownItemProps extends DropdownItemProps {
+  inset?: boolean;
+  variant?: 'default' | 'destructive';
+}
 export type ShadcnDropdownItemExposes = DropdownItemExposes;
 export type ShadcnDropdownItemAsHookContract = DropdownItemAsHookContract;
