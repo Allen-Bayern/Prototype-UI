@@ -1,9 +1,18 @@
-import { ExposeEvent, ExposeMethod, ExposeState, FocusRequestOptions, State } from '@proto.ui/core';
+import type {
+  BorrowedStateHandle,
+  ExposeEvent,
+  ExposeMethod,
+  ExposeState,
+  FocusRequestOptions,
+  State,
+} from '@proto.ui/core';
 import type {
   CollectionExposes,
   CollectionItemExposes,
   CollectionItemSnapshotExposed as CollectionItemSnapshot,
 } from '@proto.ui/core';
+import type { SelectFocusReason, SelectOpenRequest, SelectValueRequest } from './shared';
+import type { TransitionExposes, TransitionHandles, TransitionProps } from '../transition/types';
 
 export interface SelectRootProps {
   open?: boolean;
@@ -21,6 +30,18 @@ export type SelectRootExposes = {
   openDropdown: ExposeMethod<(reason?: string) => void>;
   close: ExposeMethod<(reason?: string) => void>;
   toggle: ExposeMethod<(reason?: string) => void>;
+  requestOpen: ExposeMethod<(request: SelectOpenRequest) => boolean>;
+  requestValue: ExposeMethod<(request: SelectValueRequest) => boolean>;
+  openChange: ExposeEvent<{
+    open: boolean;
+    reason: string | null;
+    focusReason: SelectFocusReason | null;
+  }>;
+  valueChange: ExposeEvent<{
+    value: string;
+    textValue: string;
+    reason: SelectFocusReason;
+  }>;
 } & CollectionExposes;
 
 export type SelectRootStateHandles = {
@@ -28,10 +49,7 @@ export type SelectRootStateHandles = {
   value: State<string>;
   textValue: State<string>;
 };
-
-export type SelectRootAsHookContract = {
-  state: SelectRootStateHandles;
-};
+export type SelectRootAsHookContract = { state: SelectRootStateHandles };
 
 export interface SelectTriggerProps {
   disabled?: boolean;
@@ -43,27 +61,39 @@ export type SelectTriggerExposes = {
   focused: ExposeState<boolean>;
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
+  placeholder: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
-  click: ExposeEvent<void>;
 };
 
+export type SelectCommandStateHandles = {
+  disabled: State<boolean>;
+  hovered: State<boolean>;
+  focused: State<boolean>;
+  focusVisible: State<boolean>;
+  pressed: State<boolean>;
+};
 export type SelectTriggerAsHookContract = {
-  event: {
-    click: void;
-  };
+  state: SelectCommandStateHandles & { placeholder: State<boolean> };
 };
 
 export interface SelectValueProps {
   placeholder?: string;
 }
 
-export type SelectValueExposes = {};
+export type SelectValueExposes = { displayValue: ExposeState<string> };
+export type SelectValueStateHandles = { displayValue: State<string> };
+export type SelectValueAsHookContract = { state: SelectValueStateHandles };
 
-export type SelectValueAsHookContract = {};
+export type SelectContentProps = TransitionProps & {
+  side?: 'top' | 'right' | 'bottom' | 'left';
+  align?: 'start' | 'center' | 'end';
+  sideOffset?: number;
+  alignOffset?: number;
+  avoidCollisions?: boolean;
+  collisionPadding?: number;
+};
 
-export interface SelectContentProps {}
-
-export type SelectContentExposes = {
+export type SelectContentExposes = TransitionExposes & {
   open: ExposeState<boolean>;
   focusFirst: ExposeMethod<() => void>;
   focusLast: ExposeMethod<() => void>;
@@ -71,13 +101,14 @@ export type SelectContentExposes = {
   focusPrev: ExposeMethod<() => void>;
   focusSelected: ExposeMethod<() => void>;
 };
-
-export type SelectContentStateHandles = {
-  open: State<boolean>;
-};
-
+export type SelectContentStateHandles = { open: State<boolean> };
 export type SelectContentAsHookContract = {
   state: SelectContentStateHandles;
+  asHooks: { asTransition: TransitionHandles };
+};
+export type SelectContentHandles = {
+  stateHandles: { open: BorrowedStateHandle<boolean, SelectContentProps> };
+  asTransition: TransitionHandles;
 };
 
 export interface SelectItemProps {
@@ -93,24 +124,15 @@ export type SelectItemExposes = {
   focused: ExposeState<boolean>;
   focusVisible: ExposeState<boolean>;
   pressed: ExposeState<boolean>;
-  // `active` follows the committed select value, not the transient roving focus cursor.
-  // When the select still has no value, every item remains inactive.
   active: ExposeState<boolean>;
-  // `selected` mirrors the committed value as the accessibility-facing selected state.
   selected: ExposeState<boolean>;
   focusSelf: ExposeMethod<(options?: FocusRequestOptions) => void>;
-  click: ExposeEvent<void>;
+  select: ExposeEvent<{ value: string; reason: SelectFocusReason }>;
 } & CollectionItemExposes;
 
 export type SelectItemAsHookContract = {
-  event: {
-    click: void;
-  };
+  state: SelectCommandStateHandles & { active: State<boolean>; selected: State<boolean> };
 };
 
 export type SelectItemSnapshot = CollectionItemSnapshot &
-  Readonly<{
-    value: string;
-    textValue: string;
-    disabled: boolean;
-  }>;
+  Readonly<{ value: string; textValue: string; disabled: boolean }>;

@@ -61,6 +61,7 @@ const staticUtilities: Record<string, string[]> = {
   'items-center': ['align-items: center;'],
   'items-start': ['align-items: flex-start;'],
   'justify-center': ['justify-content: center;'],
+  'justify-between': ['justify-content: space-between;'],
   'shrink-0': ['flex-shrink: 0;'],
   'pointer-events-none': ['pointer-events: none;'],
   'cursor-default': ['cursor: default;'],

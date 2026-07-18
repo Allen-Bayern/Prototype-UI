@@ -1,5 +1,4 @@
-import { describe, expect, it } from 'vitest';
-import { styleContains } from '../../test-utils/style';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
 import { selectContent, selectItem, selectRoot, selectTrigger, selectValue } from '../src/select';
 
@@ -9,470 +8,429 @@ AdaptToWebComponent(selectValue as any);
 AdaptToWebComponent(selectContent as any);
 AdaptToWebComponent(selectItem as any);
 
-describe('prototypes/base: select', () => {
-  it('select-value renders placeholder, then selected item text after commit', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const value = document.createElement('base-select-value') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
+async function flush(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}
 
-    setElementProps(value, { placeholder: 'Pick one' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
+async function settle(): Promise<void> {
+  await vi.advanceTimersByTimeAsync(0);
+  await flush();
+}
 
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(trigger);
-    root.appendChild(value);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(value.textContent).toBe('Pick one');
-    expect(root.getExposes().value.get()).toBe('');
-
-    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    itemB.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().value.get()).toBe('b');
-    expect(root.getExposes().textValue.get()).toBe('Beta');
-    expect(value.textContent).toBe('Beta');
-    expect(styleContains(content, 'hidden')).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('outside pointerdown closes select through boundary classification', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
+function createSelect(options?: {
+  root?: Record<string, unknown>;
+  trigger?: Record<string, unknown>;
+  value?: Record<string, unknown>;
+  content?: Record<string, unknown>;
+  items?: Array<Record<string, unknown>>;
+}) {
+  const root = document.createElement('base-select-root') as any;
+  const trigger = document.createElement('base-select-trigger') as any;
+  const value = document.createElement('base-select-value') as any;
+  const content = document.createElement('base-select-content') as any;
+  const items = (
+    options?.items ?? [
+      { value: 'alpha', textValue: 'Alpha' },
+      { value: 'beta', textValue: 'Beta' },
+      { value: 'gamma', textValue: 'Gamma' },
+    ]
+  ).map((props) => {
     const item = document.createElement('base-select-item') as any;
-
-    setElementProps(item, { value: 'a', textValue: 'Alpha' });
-
+    setElementProps(item, props);
+    item.textContent = String(props.textValue ?? props.value ?? 'Option');
     content.appendChild(item);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    trigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(true);
-    expect(styleContains(content, 'hidden')).toBe(false);
-
-    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().open.get()).toBe(false);
-    expect(styleContains(content, 'hidden')).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
+    return item;
   });
+  setElementProps(root, options?.root ?? {});
+  setElementProps(trigger, options?.trigger ?? {});
+  setElementProps(value, options?.value ?? { placeholder: 'Pick one' });
+  setElementProps(content, options?.content ?? {});
+  trigger.appendChild(value);
+  root.append(trigger, content);
+  document.body.appendChild(root);
+  return { root, trigger, value, content, items };
+}
 
-  it('controlled select root synchronizes selected value text from props', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const value = document.createElement('base-select-value') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
+afterEach(async () => {
+  document.body.replaceChildren();
+  await flush();
+  vi.useRealTimers();
+});
 
-    setElementProps(root, { value: 'a' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
+describe('prototypes/base: select', () => {
+  it('owns single-selection facts, collection, anatomy, and live selected text', async () => {
+    // T-BASE-SELECT-0001-CASE-ROOT-OWNERSHIP
+    // T-BASE-SELECT-0001-CASE-SELECTION-TEXT
+    // T-BASE-SELECT-VALUE-0001-CASE-CONTEXT-FALLBACK
+    vi.useFakeTimers();
+    const { root, value, items } = createSelect({ root: { defaultValue: 'beta' } });
+    await settle();
 
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(value);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().value.get()).toBe('a');
-    expect(value.textContent).toBe('Alpha');
-    expect(itemA.getExposes().selected.get()).toBe(true);
-    expect(itemB.getExposes().selected.get()).toBe(false);
-
-    setElementProps(root, { value: 'b' });
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().value.get()).toBe('b');
+    expect(root.getExposes()).toHaveProperty('requestOpen');
+    expect(root.getExposes()).toHaveProperty('requestValue');
+    expect(root.getExposes().value.get()).toBe('beta');
     expect(root.getExposes().textValue.get()).toBe('Beta');
+    expect(value.getExposes().displayValue.get()).toBe('Beta');
     expect(value.textContent).toBe('Beta');
-    expect(itemA.getExposes().selected.get()).toBe(false);
-    expect(itemB.getExposes().selected.get()).toBe(true);
+    expect(
+      root
+        .getExposes()
+        .getCollectionItems()
+        .map((item: any) => item.value)
+    ).toEqual(['alpha', 'beta', 'gamma']);
+    expect(items[1].getExposes().selected.get()).toBe(true);
 
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('selected item text changes propagate to select-value without changing selected value', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const value = document.createElement('base-select-value') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-
-    setElementProps(root, { defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(value);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().value.get()).toBe('b');
-    expect(root.getExposes().textValue.get()).toBe('Beta');
-    expect(value.textContent).toBe('Beta');
-
-    setElementProps(itemB, { value: 'b', textValue: 'Beta v2' });
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(root.getExposes().value.get()).toBe('b');
+    setElementProps(items[1], { value: 'beta', textValue: 'Beta v2' });
+    await flush();
+    expect(root.getExposes().value.get()).toBe('beta');
     expect(root.getExposes().textValue.get()).toBe('Beta v2');
     expect(value.textContent).toBe('Beta v2');
-
-    root.remove();
-    await Promise.resolve();
   });
 
-  it('trigger arrow key opens select and focuses the selected item', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
+  it('emits controlled open and value requests without replacing either owner fact', async () => {
+    // T-BASE-SELECT-0001-CASE-REQUESTS
+    // T-BASE-SELECT-ITEM-0001-CASE-COMMIT
+    vi.useFakeTimers();
+    const { root, trigger, items } = createSelect({
+      root: { open: false, value: 'alpha' },
+    });
+    const openRequests: any[] = [];
+    const valueRequests: any[] = [];
+    root.addEventListener('openChange', (event: Event) =>
+      openRequests.push((event as CustomEvent).detail)
+    );
+    root.addEventListener('valueChange', (event: Event) =>
+      valueRequests.push((event as CustomEvent).detail)
+    );
+    await settle();
 
-    setElementProps(root, { defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
+    trigger.click();
+    await settle();
+    expect(root.getExposes().open.get()).toBe(false);
+    expect(openRequests.at(-1)).toEqual(
+      expect.objectContaining({ open: true, reason: 'trigger.press', focusReason: 'pointer' })
+    );
 
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    trigger.focus();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-
+    setElementProps(root, { open: true, value: 'alpha' });
+    await settle();
+    items[1].click();
+    await settle();
+    expect(root.getExposes().value.get()).toBe('alpha');
     expect(root.getExposes().open.get()).toBe(true);
-    expect(document.activeElement).toBe(itemB);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
+    expect(valueRequests.at(-1)).toEqual({ value: 'beta', textValue: 'Beta', reason: 'pointer' });
+    expect(openRequests.at(-1)).toEqual(
+      expect.objectContaining({ open: false, reason: 'item.select' })
+    );
   });
 
-  it.each(['Enter', ' '])(
-    'trigger key %j opens select and focuses the selected item',
-    async (key) => {
-      const root = document.createElement('base-select-root') as any;
-      const trigger = document.createElement('base-select-trigger') as any;
-      const content = document.createElement('base-select-content') as any;
-      const itemA = document.createElement('base-select-item') as any;
-      const itemB = document.createElement('base-select-item') as any;
+  it('projects combobox, listbox, option, and stable relationship semantics', async () => {
+    // T-BASE-SELECT-TRIGGER-0001-CASE-COMMAND-A11Y
+    // T-BASE-SELECT-CONTENT-0001-CASE-A11Y-FOCUS
+    // T-BASE-SELECT-ITEM-0001-CASE-COLLECTION-A11Y
+    vi.useFakeTimers();
+    const { trigger, value, content, items } = createSelect({ root: { defaultValue: 'beta' } });
+    await settle();
 
-      setElementProps(root, { defaultValue: 'b' });
-      setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-      setElementProps(itemB, { value: 'b', textValue: 'Beta' });
+    expect(trigger.getAttribute('role')).toBe('combobox');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('listbox');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.getAttribute('aria-controls')).toMatch(/^pui-select-\d+-content$/);
+    expect(value.getAttribute('data-pui-style')).toContain('pointer-events-none');
+    trigger.click();
+    await settle();
+    expect(content.getAttribute('id')).toBe(trigger.getAttribute('aria-controls'));
+    expect(content.getAttribute('role')).toBe('listbox');
+    expect(content.getAttribute('aria-orientation')).toBe('vertical');
+    expect(items[0].getAttribute('role')).toBe('option');
+    expect(items[0].getAttribute('aria-selected')).toBe('false');
+    expect(items[1].getAttribute('aria-selected')).toBe('true');
+    expect(items[0].getAttribute('aria-disabled')).toBe('false');
+  });
 
-      content.appendChild(itemA);
-      content.appendChild(itemB);
-      root.appendChild(trigger);
-      root.appendChild(content);
-      document.body.appendChild(root);
-
-      await Promise.resolve();
-      await Promise.resolve();
-
-      trigger.focus();
-      trigger.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
-      await Promise.resolve();
-      await Promise.resolve();
-
-      expect(root.getExposes().open.get()).toBe(true);
-      expect(document.activeElement).toBe(itemB);
-      expect(itemB.getExposes().active.get()).toBe(true);
-
-      root.remove();
-      await Promise.resolve();
-    }
-  );
-
-  it('ArrowUp also opens select without losing the selected item', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-
-    setElementProps(root, { defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
+  it.each([
+    ['Enter', 'beta'],
+    [' ', 'beta'],
+    ['ArrowDown', 'beta'],
+    ['ArrowUp', 'beta'],
+  ])('opens from Trigger %j and focuses selected option %s once', async (key, expectedValue) => {
+    // T-BASE-SELECT-TRIGGER-0001-CASE-KEYBOARD
+    vi.useFakeTimers();
+    const { root, trigger, items } = createSelect({ root: { defaultValue: 'beta' } });
+    const requests: any[] = [];
+    root.addEventListener('openChange', (event: Event) =>
+      requests.push((event as CustomEvent).detail)
+    );
+    await settle();
 
     trigger.focus();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-    await Promise.resolve();
-    await Promise.resolve();
-
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    await settle();
     expect(root.getExposes().open.get()).toBe(true);
-    expect(document.activeElement).toBe(itemB);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
+    expect(document.activeElement).toBe(items[1]);
+    expect(items[1].getExposes().active.get()).toBe(true);
+    expect(items[1].getExposes().selected.get()).toBe(true);
+    expect(items[1].textContent).toBe(expectedValue === 'beta' ? 'Beta' : expectedValue);
+    expect(requests.filter((request) => request.open).length).toBe(1);
   });
 
-  it('first arrow key after trigger-open continues item roving', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-    const itemC = document.createElement('base-select-item') as any;
+  it('uses first or last enabled boundary when no value is selected', async () => {
+    // T-BASE-SELECT-TRIGGER-0001-CASE-KEYBOARD
+    // T-BASE-SELECT-CONTENT-0001-CASE-KEYBOARD
+    vi.useFakeTimers();
+    const down = createSelect({ items: [{ value: 'a' }, { value: 'b', disabled: true }] });
+    await settle();
+    down.trigger.focus();
+    down.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    await settle();
+    expect(document.activeElement).toBe(down.items[0]);
+    expect(down.root.getExposes().value.get()).toBe('');
+    down.root.remove();
+    await flush();
 
-    setElementProps(root, { defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-    setElementProps(itemC, { value: 'c', textValue: 'Gamma' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    content.appendChild(itemC);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    trigger.focus();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemB);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemC);
-    expect(itemB.getExposes().active.get()).toBe(true);
-    expect(itemC.getExposes().active.get()).toBe(false);
-
-    root.remove();
-    await Promise.resolve();
+    const up = createSelect({
+      items: [{ value: 'a' }, { value: 'b', disabled: true }, { value: 'c' }],
+    });
+    await settle();
+    up.trigger.focus();
+    up.trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    await settle();
+    expect(document.activeElement).toBe(up.items[2]);
+    expect(up.root.getExposes().value.get()).toBe('');
   });
 
-  it('first open without selected value still establishes a roving start point', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-    const itemC = document.createElement('base-select-item') as any;
+  it('keeps active navigation separate from selected and skips disabled options', async () => {
+    // T-BASE-SELECT-ITEM-0001-CASE-STATE-SEPARATION
+    // T-BASE-SELECT-ITEM-0001-CASE-DISABLED
+    vi.useFakeTimers();
+    const { root, items } = createSelect({
+      root: { defaultOpen: true, defaultValue: 'alpha' },
+      items: [
+        { value: 'alpha', textValue: 'Alpha' },
+        { value: 'beta', textValue: 'Beta', disabled: true },
+        { value: 'gamma', textValue: 'Gamma' },
+      ],
+    });
+    await settle();
+    expect(document.activeElement).toBe(items[0]);
 
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-    setElementProps(itemC, { value: 'c', textValue: 'Gamma' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    content.appendChild(itemC);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    trigger.focus();
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
+    await flush();
+    expect(document.activeElement).toBe(items[2]);
+    expect(items[0].getExposes().selected.get()).toBe(true);
+    expect(items[0].getExposes().active.get()).toBe(false);
+    expect(items[2].getExposes().selected.get()).toBe(false);
+    expect(items[2].getExposes().active.get()).toBe(true);
+    expect(root.getExposes().value.get()).toBe('alpha');
 
+    items[1].click();
+    await flush();
+    expect(root.getExposes().value.get()).toBe('alpha');
     expect(root.getExposes().open.get()).toBe(true);
-    expect(document.activeElement).toBe(itemA);
-    expect(itemA.getExposes().active.get()).toBe(false);
-    expect(itemB.getExposes().active.get()).toBe(false);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(document.activeElement).toBe(itemB);
-    expect(itemA.getExposes().active.get()).toBe(false);
-    expect(itemB.getExposes().active.get()).toBe(false);
-
-    root.remove();
-    await Promise.resolve();
+    expect(items[1].getAttribute('aria-disabled')).toBe('true');
   });
 
-  it('select items support roving focus with arrow and boundary keys', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-    const itemC = document.createElement('base-select-item') as any;
+  it('clears pointer highlight on leave and resets every transient Item state on close', async () => {
+    // T-BASE-SELECT-ITEM-0001-CASE-TRANSIENT-RESET
+    // T-BASE-SELECT-CONTENT-0001-CASE-ENTRY-STABILITY
+    vi.useFakeTimers();
+    const { root, trigger, items } = createSelect({
+      root: { defaultOpen: true, defaultValue: 'alpha' },
+    });
+    await settle();
+    expect(document.activeElement).toBe(items[0]);
 
-    setElementProps(root, { defaultOpen: true, defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-    setElementProps(itemC, { value: 'c', textValue: 'Gamma' });
+    items[1].dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+    await flush();
+    expect(items[1].getExposes().hovered.get()).toBe(true);
+    expect(items[1].getExposes().active.get()).toBe(true);
+    expect(root.getExposes().value.get()).toBe('alpha');
 
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    content.appendChild(itemC);
-    root.appendChild(content);
-    document.body.appendChild(root);
+    items[1].dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }));
+    await flush();
+    expect(items[1].getExposes().hovered.get()).toBe(false);
+    expect(items[1].getExposes().active.get()).toBe(false);
+    expect(items[0].getExposes().active.get()).toBe(true);
 
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(document.activeElement).toBe(itemB);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemC);
-    expect(itemB.getExposes().active.get()).toBe(true);
-    expect(itemC.getExposes().active.get()).toBe(false);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemB);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemA);
-    expect(itemA.getExposes().active.get()).toBe(false);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemC);
-    expect(itemB.getExposes().active.get()).toBe(true);
-    expect(itemC.getExposes().active.get()).toBe(false);
-
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('arrow navigation does not skip an item after moving upward first', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-    const itemC = document.createElement('base-select-item') as any;
-
-    setElementProps(root, { defaultOpen: true, defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-    setElementProps(itemC, { value: 'c', textValue: 'Gamma' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    content.appendChild(itemC);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(document.activeElement).toBe(itemB);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemA);
-
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemB);
-    expect(itemB.getExposes().active.get()).toBe(true);
-
-    root.remove();
-    await Promise.resolve();
-  });
-
-  it('closing the content restores focus to trigger', async () => {
-    const root = document.createElement('base-select-root') as any;
-    const trigger = document.createElement('base-select-trigger') as any;
-    const content = document.createElement('base-select-content') as any;
-    const itemA = document.createElement('base-select-item') as any;
-    const itemB = document.createElement('base-select-item') as any;
-
-    setElementProps(root, { defaultValue: 'b' });
-    setElementProps(itemA, { value: 'a', textValue: 'Alpha' });
-    setElementProps(itemB, { value: 'b', textValue: 'Beta' });
-
-    content.appendChild(itemA);
-    content.appendChild(itemB);
-    root.appendChild(trigger);
-    root.appendChild(content);
-    document.body.appendChild(root);
-
-    await Promise.resolve();
-    await Promise.resolve();
-
+    items[1].focus();
+    await flush();
+    expect(items[1].getExposes().active.get()).toBe(true);
     trigger.focus();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
-    await Promise.resolve();
-    await Promise.resolve();
-    expect(document.activeElement).toBe(itemB);
+    await flush();
+    expect(items[1].getExposes().focused.get()).toBe(false);
+    expect(items[1].getExposes().active.get()).toBe(false);
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-    await Promise.resolve();
-    await Promise.resolve();
+    items[1].dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+    items[1].click();
+    await settle();
     expect(root.getExposes().open.get()).toBe(false);
     expect(document.activeElement).toBe(trigger);
+    for (const item of items) {
+      expect(item.getExposes().hovered.get()).toBe(false);
+      expect(item.getExposes().focused.get()).toBe(false);
+      expect(item.getExposes().active.get()).toBe(false);
+    }
 
-    root.remove();
-    await Promise.resolve();
+    trigger.click();
+    await settle();
+    expect(document.activeElement).toBe(items[1]);
+    expect(items.filter((item) => item.getExposes().focused.get())).toEqual([items[1]]);
+    expect(items.filter((item) => item.getExposes().active.get())).toEqual([items[1]]);
+  });
+
+  it('supports Home, End, and printable typeahead through asFocusRoving', async () => {
+    // T-BASE-SELECT-CONTENT-0001-CASE-KEYBOARD
+    vi.useFakeTimers();
+    const { items } = createSelect({ root: { defaultOpen: true } });
+    await settle();
+    expect(document.activeElement).toBe(items[0]);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'End' }));
+    await flush();
+    expect(document.activeElement).toBe(items[2]);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home' }));
+    await flush();
+    expect(document.activeElement).toBe(items[0]);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'g' }));
+    await flush();
+    expect(document.activeElement).toBe(items[2]);
+  });
+
+  it('commits with keyboard, refreshes Value, closes, and restores Trigger focus', async () => {
+    // T-BASE-SELECT-ITEM-0001-CASE-COMMIT
+    // T-BASE-SELECT-CONTENT-0001-CASE-DISMISS
+    vi.useFakeTimers();
+    const { root, trigger, value, items } = createSelect();
+    await settle();
+    trigger.focus();
+    trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    await settle();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    await flush();
+    expect(document.activeElement).toBe(items[1]);
+
+    items[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await settle();
+    expect(root.getExposes().value.get()).toBe('beta');
+    expect(value.textContent).toBe('Beta');
+    expect(root.getExposes().open.get()).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('Escape cancels navigation, closes, and restores Trigger focus', async () => {
+    // T-BASE-SELECT-0001-CASE-SELECTION-TEXT
+    // T-BASE-SELECT-CONTENT-0001-CASE-DISMISS
+    vi.useFakeTimers();
+    const { root, trigger, items } = createSelect({ root: { defaultValue: 'alpha' } });
+    await settle();
+    trigger.click();
+    await settle();
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    await flush();
+    expect(document.activeElement).toBe(items[1]);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await settle();
+    expect(root.getExposes().open.get()).toBe(false);
+    expect(root.getExposes().value.get()).toBe('alpha');
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('Tab and outside press close without accidental selection', async () => {
+    // T-BASE-SELECT-CONTENT-0001-CASE-DISMISS
+    vi.useFakeTimers();
+    const tabSelect = createSelect({ root: { defaultOpen: true, defaultValue: 'alpha' } });
+    await settle();
+    const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    window.dispatchEvent(tabEvent);
+    await settle();
+    expect(tabSelect.root.getExposes().open.get()).toBe(false);
+    expect(tabSelect.root.getExposes().value.get()).toBe('alpha');
+    expect(tabEvent.defaultPrevented).toBe(false);
+    tabSelect.root.remove();
+    await flush();
+
+    const outsideSelect = createSelect({ root: { defaultOpen: true } });
+    await settle();
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await settle();
+    expect(outsideSelect.root.getExposes().open.get()).toBe(false);
+    expect(outsideSelect.root.getExposes().value.get()).toBe('');
+  });
+
+  it('uses Transition as Overlay presence and applies anchored positioning props', async () => {
+    // T-BASE-SELECT-CONTENT-0001-CASE-PRESENCE-POSITION
+    vi.useFakeTimers();
+    const { trigger, content } = createSelect({
+      content: { side: 'top', align: 'end', sideOffset: 12, alignOffset: 3 },
+    });
+    await settle();
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+
+    trigger.click();
+    await settle();
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(false);
+    expect(content.getExposes().transitionState.get()).toBe('entered');
+    expect(content.style.position).toBe('fixed');
+    expect(content.dataset.side).toBe('top');
+    expect(content.dataset.align).toBe('end');
+
+    trigger.click();
+    await settle();
+    expect(content.getExposes().transitionState.get()).toBe('closed');
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+  });
+
+  it('refreshes placeholder and raw-value fallback through the Value display state', async () => {
+    // T-BASE-SELECT-VALUE-0001-CASE-RENDER-EXPOSE
+    // T-BASE-SELECT-VALUE-0001-CASE-BOUNDARY
+    vi.useFakeTimers();
+    const { root, value } = createSelect({
+      root: { value: 'missing' },
+      value: { placeholder: 'Initial placeholder' },
+      items: [],
+    });
+    await settle();
+    expect(value.getExposes()).toEqual(
+      expect.objectContaining({
+        displayValue: expect.objectContaining({ get: expect.any(Function) }),
+      })
+    );
+    expect(value.getExposes().displayValue.get()).toBe('missing');
+    expect(value.textContent).toBe('missing');
+
+    setElementProps(root, { value: '' });
+    await flush();
+    expect(value.textContent).toBe('Initial placeholder');
+    setElementProps(value, { placeholder: 'Updated placeholder' });
+    await flush();
+    expect(value.getExposes().displayValue.get()).toBe('Updated placeholder');
+    expect(value.textContent).toBe('Updated placeholder');
+    expect(value.getExposes()).not.toHaveProperty('focusSelf');
+    expect(value.getExposes()).not.toHaveProperty('click');
+  });
+
+  it('suppresses Trigger and Item behavior under local or Root disabled state', async () => {
+    // T-BASE-SELECT-TRIGGER-0001-CASE-DISABLED
+    // T-BASE-SELECT-ITEM-0001-CASE-DISABLED
+    vi.useFakeTimers();
+    const local = createSelect({ trigger: { disabled: true } });
+    await settle();
+    local.trigger.click();
+    await settle();
+    expect(local.root.getExposes().open.get()).toBe(false);
+    expect(local.trigger.getAttribute('aria-disabled')).toBe('true');
+    expect(local.trigger.getAttribute('tabindex')).not.toBe('0');
+    local.root.remove();
+    await flush();
+
+    const rootDisabled = createSelect({ root: { disabled: true, defaultOpen: true } });
+    await settle();
+    rootDisabled.items[0].click();
+    await settle();
+    expect(rootDisabled.root.getExposes().value.get()).toBe('');
+    expect(rootDisabled.root.getExposes().open.get()).toBe(true);
+    expect(rootDisabled.items[0].getAttribute('aria-disabled')).toBe('true');
   });
 });

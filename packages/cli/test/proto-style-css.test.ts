@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { renderProtoStyleTokenCss } from '../src/services/proto-style-css';
 
 describe('proto style css renderer', () => {
+  it('renders space-between layout utilities used by compound controls', () => {
+    const css = renderProtoStyleTokenCss(['flex', 'justify-between']);
+
+    expect(css).toContain('display: flex;');
+    expect(css).toContain('justify-content: space-between;');
+    expect(css).not.toContain('Unsupported Proto UI style tokens');
+  });
+
   it('renders internal negative data selector variants', () => {
     const css = renderProtoStyleTokenCss(['data-[hovered]:not-[data-active]:bg-muted']);
 

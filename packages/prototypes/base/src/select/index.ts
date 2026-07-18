@@ -19,8 +19,15 @@ export type {
   SelectValueAsHookContract,
   SelectValueExposes,
   SelectValueProps,
+  SelectValueStateHandles,
 } from './types';
-export type { SelectContextValue } from './shared';
+export type {
+  SelectContextValue,
+  SelectFocusReason,
+  SelectOpenEntry,
+  SelectOpenRequest,
+  SelectValueRequest,
+} from './shared';
 
 export { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 export { asSelectRoot, default as selectRoot } from './root';

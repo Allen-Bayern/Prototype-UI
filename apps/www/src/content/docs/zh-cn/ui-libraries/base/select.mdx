@@ -6,7 +6,7 @@ description: 'Select 基础原型'
 
 import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
-`base-select` 是当前 base 原型库里用来验证 value 类组件路径的核心探针。
+`base-select` 是一个已经编目的 select-only 复合原型，也是 base 原型库里首个正式定义 `value` 类呈现部件的 family。
 
 <div>
   <PrototypePreviewer
@@ -17,15 +17,15 @@ import { PrototypePreviewer } from '@/components/PrototypePreviewer';
   />
 </div>
 
-它与 `dropdown` 的区别在于，协议边界不只停在开合与 active-item 协作，还会把一个专门的 `select-value` 部件留在 family 内部，用来承接“当前选中值文本”的正式呈现。
+它使用 APG select-only combobox 语义：Trigger 投影 `combobox`，Content 投影 `listbox`，Item 投影 `option`。选中值是持久状态；打开后的 active item 是瞬时导航状态，两者不会混为一谈。
 
 ## Family Parts
 
-- `select-root`：持有 `open`、`value`、`textValue`
-- `select-trigger`：负责打开和关闭弹出层
-- `select-value`：渲染当前选中值文本或 placeholder
-- `select-content`：负责浮层进入、关闭与焦点进入
-- `select-item`：提供 `value` / `textValue` snapshot，并提交选中结果
+- `select-root`：持有受控/非受控 `open`、`value`、`textValue`，并裁决变更请求
+- `select-trigger`：独立 command surface，投影 combobox ARIA，并负责键盘/指针开合
+- `select-value`：通过显式 `run.update()` 渲染 `displayValue` 或 placeholder，不拥有输入行为
+- `select-content`：组合 `asOverlay`、`asTransition`、`asFocusRoving` 与锚点定位
+- `select-item`：投影 option，区分瞬时 `active` 与持久 `selected`，并提交选择请求
 
 ## 为什么它重要
 
@@ -42,17 +42,20 @@ import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 `base-select` 目前包含：
 
 - 单选语义
-- 弹层开合协作
-- 打开后优先聚焦当前 selected item
-- 选中值文本同步
+- 鼠标与 select-only 键盘交互，包括方向键、Home/End 与 typeahead
+- Escape、Tab、外部点击关闭及所需的焦点恢复
+- 打开后优先聚焦 selected item，否则从边界项开始
+- combobox/listbox/option 的 ARIA 关系和选中状态
+- 受控值只发送请求、不制造临时成功状态
 - family 内部自带的 value 呈现部件
 
 它暂时不包含：
 
 - 表单语义
 - 原生 `<select>` 等价行为
-- combobox / 搜索能力
-- 分组 options
+- 可编辑 combobox / 搜索能力
+- `Group`、`Label`、`Separator`、`Viewport` 与滚动按钮
+- 表单提交与 hidden input
 - 多选
 
 ## References

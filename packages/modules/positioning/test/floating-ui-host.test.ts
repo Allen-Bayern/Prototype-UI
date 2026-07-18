@@ -66,6 +66,10 @@ describe('module-positioning: Floating UI host', () => {
     expect(floating.style.top).toBe('124px');
     expect(floating.style.transform).toBe('');
     expect(floating.dataset).toMatchObject({ side: 'bottom', align: 'start' });
+    expect(floating.style.getPropertyValue('--proto-ui-anchor-width')).toBe('50px');
+    expect(floating.style.getPropertyValue('--proto-ui-anchor-height')).toBe('20px');
+    expect(floating.style.getPropertyValue('--proto-ui-available-width')).toMatch(/px$/);
+    expect(floating.style.getPropertyValue('--proto-ui-available-height')).toMatch(/px$/);
     expect(snapshots.at(-1)).toEqual({ side: 'bottom', align: 'start', strategy: 'fixed' });
 
     lease.update({
