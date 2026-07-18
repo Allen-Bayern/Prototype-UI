@@ -84,6 +84,7 @@ const UI_TEXT = {
     relationKinds: {
       relates: 'Relates',
       dependsOn: 'Depends On',
+      inherits: 'Inherits',
       references: 'References',
       refines: 'Refines',
       satisfies: 'Satisfies',
@@ -189,6 +190,7 @@ const UI_TEXT = {
     relationKinds: {
       relates: '关联',
       dependsOn: '依赖',
+      inherits: '继承',
       references: '参考',
       refines: '细化',
       satisfies: '满足',

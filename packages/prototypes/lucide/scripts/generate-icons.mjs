@@ -194,7 +194,7 @@ ${lines.join('\n')}
 `;
 }
 
-function createManifestSource(iconNames) {
+function createManifestSource(iconNames, upstream) {
   const toEntryLiteral = (name) => {
     const pascal = toPascalCase(name);
     return `{
@@ -220,6 +220,10 @@ function createManifestSource(iconNames) {
 // Source: packages/prototypes/lucide/icons.config.json + lucide-static/icon-nodes.json
 
 import type { LucideIconName } from './icon/icons';
+
+export const LUCIDE_UPSTREAM_PACKAGE = ${JSON.stringify(upstream.name)};
+export const LUCIDE_UPSTREAM_VERSION = ${JSON.stringify(upstream.version)};
+export const LUCIDE_UPSTREAM_LICENSE = ${JSON.stringify(upstream.license)};
 
 export interface LucideIconManifestEntry {
   name: LucideIconName;
@@ -386,6 +390,7 @@ async function main() {
 
   const lucidePkgPath = require.resolve('lucide-static/package.json');
   const lucideDir = path.dirname(lucidePkgPath);
+  const lucidePackage = JSON.parse(await fs.readFile(lucidePkgPath, 'utf8'));
   const nodeMapPath = path.join(lucideDir, 'icon-nodes.json');
   const nodeMap = JSON.parse(await fs.readFile(nodeMapPath, 'utf8'));
 
@@ -442,7 +447,17 @@ async function main() {
 
   writeJobs.push(fs.writeFile(output.iconRegistry, createIconRegistrySource(iconNames), 'utf8'));
   writeJobs.push(fs.writeFile(output.iconIndex, createIconIndexSource(iconNames), 'utf8'));
-  writeJobs.push(fs.writeFile(output.manifest, createManifestSource(iconNames), 'utf8'));
+  writeJobs.push(
+    fs.writeFile(
+      output.manifest,
+      createManifestSource(iconNames, {
+        name: lucidePackage.name,
+        version: lucidePackage.version,
+        license: lucidePackage.license,
+      }),
+      'utf8'
+    )
+  );
   writeJobs.push(fs.writeFile(output.snippets, createSnippetsSource(iconNames), 'utf8'));
   writeJobs.push(fs.writeFile(output.loaders, createLoadersSource(iconNames), 'utf8'));
 

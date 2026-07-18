@@ -47,6 +47,13 @@ describe('prototypes/shadcn: button', () => {
 
     const { controller } = executeWithHost(button as any, host as any);
 
+    // T-SHADCN-BUTTON-0001-CASE-IDENTITY-AND-INHERITANCE:
+    // the current projection installs asButton and declares no negative patch.
+    expect(button.name).toBe('shadcn-button');
+    expect((button as any).__asHooks).toContainEqual(
+      expect.objectContaining({ name: 'as-button', mode: 'once' })
+    );
+
     let tokens = controller.getRuleStyleTokens();
     expect(tokens).toContain('bg-primary');
     expect(tokens).not.toContain('border-border');

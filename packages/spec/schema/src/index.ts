@@ -26,6 +26,7 @@ export const SPEC_ENTITY_STATUSES = ['draft', 'active', 'deprecated', 'removed']
 export const SPEC_RELATION_KINDS = [
   'relates',
   'dependsOn',
+  'inherits',
   'references',
   'refines',
   'satisfies',
@@ -123,6 +124,13 @@ export const specRelationsSchema = z
     knowledge: z.array(specRelationTargetSchema).optional(),
   })
   .partial()
+  .optional();
+
+export const specPrototypeInheritanceSchema = z
+  .object({
+    prototypes: z.array(specRelationTargetSchema).min(1),
+  })
+  .strict()
   .optional();
 
 export const specRevisionSchema = z.object({
@@ -326,6 +334,7 @@ export const specEntitySchema = z
     sources: z.array(specSourceRefSchema).default([]),
     relates: specRelationsSchema,
     dependsOn: specRelationsSchema,
+    inherits: specPrototypeInheritanceSchema,
     references: specRelationsSchema,
     refines: specRelationsSchema,
     satisfies: specRelationsSchema,
@@ -362,6 +371,14 @@ export const specEntitySchema = z
         code: 'custom',
         path: ['removedSince'],
         message: 'Removed entities must set removedSince.',
+      });
+    }
+
+    if (entity.inherits && entity.type !== 'prototype') {
+      context.addIssue({
+        code: 'custom',
+        path: ['inherits'],
+        message: 'Only prototype entities may declare prototype inheritance.',
       });
     }
 
@@ -458,6 +475,7 @@ export const specEntitySchema = z
 
 export type SpecRelationTarget = z.infer<typeof specRelationTargetSchema>;
 export type SpecRelations = z.infer<typeof specRelationsSchema>;
+export type SpecPrototypeInheritance = z.infer<typeof specPrototypeInheritanceSchema>;
 export type SpecRevision = z.infer<typeof specRevisionSchema>;
 export type SpecSourceRef = z.infer<typeof specSourceRefSchema>;
 export type SpecAnatomy = z.infer<typeof specAnatomySchema>;
