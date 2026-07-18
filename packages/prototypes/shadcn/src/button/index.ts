@@ -52,6 +52,7 @@ const SIZE_TOKENS: Record<ShadcnButtonSize, string> = {
 const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
   name: 'shadcn-button',
   setup(def) {
+    // P-SHADCN-BUTTON-VARIANT-PROP, P-SHADCN-BUTTON-SIZE-PROP
     def.props.define({
       variant: {
         type: 'enum',
@@ -67,12 +68,17 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       disabled: false,
     });
 
+    // P-SHADCN-BUTTON-BASE-INHERITANCE,
+    // P-SHADCN-BUTTON-CURRENT-BASE-DEVIATIONS
+    // The current projection keeps every asButton-introduced behavior. A future
+    // setup-only negative patch must first be declared as a P-entity deviation.
     const buttonState = asButton().stateHandles;
     if (!buttonState) {
       throw new Error('[shadcn-button] asButton must project Button state handles.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 
+    // P-SHADCN-BUTTON-DIRECT-ENTRY
     // Base skeleton shared by every shadcn-style button.
     def.feedback.style.use(tw(BUTTON_BASE_TOKENS));
 
@@ -93,6 +99,7 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       });
     });
 
+    // P-SHADCN-BUTTON-INTERACTION-STYLES
     // Focus/press are shared interaction states exposed by `asButton()`, so
     // shadcn styling can stay inside rule semantics instead of hard-coding
     // host-specific pseudo selectors.
@@ -138,6 +145,7 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
       intent: (i) => i.feedback.style.use(tw('bg-destructive/20')),
     });
 
+    // P-SHADCN-BUTTON-COLOR-SCHEME-STYLES
     // Dark mode stays in meta so the prototype remains host-agnostic while web
     // adapters still have a clean place to optimize to `dark:*`.
     def.rule({
@@ -184,6 +192,14 @@ const button = definePrototype<ShadcnButtonProps, ShadcnButtonExposes>({
     });
   },
 });
+
+/**
+ * P-SHADCN-BUTTON-COMPATIBILITY-SUBSET:
+ * The one catalog open question centralizes every upstream difference.
+ * P-SHADCN-BUTTON-AS-CHILD-OMISSION is intentional under D-AS-CHILD-OMISSION-0001;
+ * native/className forwarding, aria-invalid/nested-svg selectors, extra sizes,
+ * and exact token parity remain implementation or review gaps.
+ */
 
 export type { ShadcnButtonProps, ShadcnButtonExposes, ShadcnButtonSize, ShadcnButtonVariant };
 export default button;

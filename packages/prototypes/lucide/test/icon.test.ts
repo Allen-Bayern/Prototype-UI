@@ -3,17 +3,39 @@ import { createRendererPrimitives, isSvgTemplateNode, type TemplateChildren } fr
 import type { RuntimeHost } from '@proto.ui/runtime';
 import { executeWithHost } from '@proto.ui/runtime';
 import lucideIcon from '../src/icon/icon';
+import { asLucideIcon } from '../src/icon/icon';
 import { renderLucideIcon } from '../src/icon/render';
 import {
   asLucideChevronDownIcon,
   lucideChevronDownIcon,
   renderLucideChevronDownIcon,
 } from '../src/icons/chevron-down';
-import { LUCIDE_ICON_MANIFEST, LUCIDE_ICON_MANIFEST_MAP } from '../src/manifest.generated';
+import {
+  LUCIDE_ICON_MANIFEST,
+  LUCIDE_ICON_MANIFEST_MAP,
+  LUCIDE_UPSTREAM_LICENSE,
+  LUCIDE_UPSTREAM_PACKAGE,
+  LUCIDE_UPSTREAM_VERSION,
+} from '../src/manifest.generated';
 import { getLucideIconSnippet } from '../src/snippets.generated';
 import { loadLucideIcon } from '../src/loaders.generated';
 
 describe('prototypes/lucide: icon', () => {
+  it('keeps name-based and fixed glyphs under one Lucide Icon protocol', () => {
+    // T-LUCIDE-ICON-0001-CASE-SHARED-PROTOCOL
+    expect(lucideIcon.name).toBe('lucide-icon');
+    expect(asLucideIcon.kind).toBe('asHook');
+    expect(asLucideIcon.definition.name).toBe('as-lucide-icon');
+    expect(LUCIDE_ICON_MANIFEST.length).toBeGreaterThan(1000);
+  });
+
+  it('records the exact upstream generation baseline', () => {
+    // T-LUCIDE-ICON-0001-CASE-PROVENANCE
+    expect(LUCIDE_UPSTREAM_PACKAGE).toBe('lucide-static');
+    expect(LUCIDE_UPSTREAM_VERSION).toBe('1.8.0');
+    expect(LUCIDE_UPSTREAM_LICENSE).toBe('ISC');
+  });
+
   it('renderLucideIcon() returns svg root node from renderer.svg', () => {
     const { svg } = createRendererPrimitives();
     const node = renderLucideIcon({ svg } as any, {

@@ -10,6 +10,7 @@ const DEFAULT_STROKE = 'currentColor';
 const DEFAULT_FILL = 'none';
 
 function setupLucideIcon(def: DefHandle<LucideIconProps, LucideIconExposes>): void {
+  // P-LUCIDE-ICON-NAME-BASED-PROPS
   def.props.define({
     name: { type: 'enum', empty: 'fallback', options: [...LUCIDE_ICON_NAMES] },
     size: { type: 'number', empty: 'fallback' },
@@ -39,6 +40,7 @@ export const asLucideIcon = defineAsHook<
 const lucideIcon = definePrototype<LucideIconProps, LucideIconExposes>({
   name: 'lucide-icon',
   setup(def) {
+    // P-LUCIDE-ICON-AUTHORING-ENTRIES
     setupLucideIcon(def);
     return (renderer) => {
       const props = renderer.read.props.get();

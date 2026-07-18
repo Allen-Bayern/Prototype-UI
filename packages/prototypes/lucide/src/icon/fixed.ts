@@ -12,6 +12,7 @@ const DEFAULT_STROKE = 'currentColor';
 const DEFAULT_FILL = 'none';
 
 function setupFixedIcon(def: DefHandle<LucideFixedIconProps, LucideFixedIconExposes>): void {
+  // P-LUCIDE-ICON-FIXED-PROPS
   def.props.define({
     size: { type: 'number', empty: 'fallback' },
     strokeWidth: { type: 'number', empty: 'fallback' },
@@ -41,6 +42,7 @@ export function createLucideFixedIcon(options: {
   prototypeName: string;
   shapeFactory: LucideShapeFactory;
 }) {
+  // P-LUCIDE-ICON-SINGLE-PROTOCOL, P-LUCIDE-ICON-AUTHORING-ENTRIES
   const asHook = defineAsHook<
     LucideFixedIconProps,
     LucideFixedIconExposes,

@@ -807,6 +807,9 @@ importers:
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
+      prettier:
+        specifier: ^3.8.1
+        version: 3.8.1
 
   packages/prototypes/shadcn:
     dependencies:

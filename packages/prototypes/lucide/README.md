@@ -16,6 +16,7 @@ Provides:
 - Icon visual definitions are derived from [Lucide](https://lucide.dev/).
 - This package is a Proto UI-side consumption layer and is **not** an official Lucide package.
 - Please keep upstream Lucide license/attribution in distribution and documentation workflows.
+- The current generated baseline is `lucide-static@1.8.0`; the generated manifest exports the exact package, version, and license metadata.
 
 ## Package Role
 
@@ -60,6 +61,8 @@ Generated outputs include:
 - `src/snippets.generated.ts`
 - `src/loaders.generated.ts`
 
+The generator formats every emitted TypeScript file with the repository Prettier configuration before writing it. Running generation repeatedly without changing the config or upstream package must therefore leave the working tree byte-for-byte unchanged.
+
 ## Recommended Consumption
 
 - Static, tree-shakable import:
@@ -77,4 +80,4 @@ Generated outputs include:
 
 ## License
 
-MIT
+The Proto UI integration code is MIT-licensed. Generated icon definitions are derived from `lucide-static` and retain the upstream Lucide/Feather notices. The current upstream package declares ISC and includes an additional MIT notice for Feather-derived icons. Do not interpret the Proto UI package license field as replacing those upstream notices.

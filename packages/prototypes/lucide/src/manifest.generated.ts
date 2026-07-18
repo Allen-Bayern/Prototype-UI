@@ -3,6 +3,10 @@
 
 import type { LucideIconName } from './icon/icons';
 
+export const LUCIDE_UPSTREAM_PACKAGE = 'lucide-static';
+export const LUCIDE_UPSTREAM_VERSION = '1.8.0';
+export const LUCIDE_UPSTREAM_LICENSE = 'ISC';
+
 export interface LucideIconManifestEntry {
   name: LucideIconName;
   importPath: string;

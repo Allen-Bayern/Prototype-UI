@@ -33,6 +33,7 @@ export function renderLucideShape(
   shapeFactory: LucideShapeFactory,
   options: RenderLucideShapeOptions = {}
 ): SvgRenderResult {
+  // P-LUCIDE-ICON-SVG-PROJECTION, P-LUCIDE-ICON-VISUAL-NORMALIZATION
   const visual = resolveVisualOptions(options);
 
   return renderer.svg.root(
