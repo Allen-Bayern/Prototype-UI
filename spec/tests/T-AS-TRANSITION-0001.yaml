@@ -47,6 +47,11 @@ cases:
       - C-AS-TRANSITION-0001-L
       - C-AS-TRANSITION-0001-M
     expectation: setup-only-configured-defaults-with-host-prop-precedence
+  - id: T-AS-TRANSITION-0001-CASE-REDUCED-MOTION
+    title: Reduced motion uses zero-duration fallback while preserving transition ordering
+    covers:
+      - C-AS-TRANSITION-0001-N
+    expectation: reduced-motion-zero-duration-fallback-preserves-transition-ordering
 implementations:
   - id: base-transition-state-machine
     kind: runtime-test
@@ -61,6 +66,7 @@ implementations:
       - T-AS-TRANSITION-0001-CASE-INTERRUPT
       - T-AS-TRANSITION-0001-CASE-CONTROL
       - T-AS-TRANSITION-0001-CASE-CONFIGURE
+      - T-AS-TRANSITION-0001-CASE-REDUCED-MOTION
   - id: react-transition-view-intent
     kind: adapter-test
     status: passing
@@ -85,6 +91,11 @@ implementations:
 verifies:
   contracts:
     - id: C-AS-TRANSITION-0001
+      anchors:
+        - C-AS-TRANSITION-0001-A
+        - C-AS-TRANSITION-0001-D
+        - C-AS-TRANSITION-0001-E
+        - C-AS-TRANSITION-0001-N
 exercises:
   contracts:
     - id: C-DELAY-0001
@@ -97,6 +108,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added state-machine and cross-adapter conformance coverage for the rewritten Transition model.
+  - version: 0.2.0
+    change: refined
+    summary: Added reduced-motion fallback coverage and explicit contract anchors.
 tags:
   - transition
   - view-intent

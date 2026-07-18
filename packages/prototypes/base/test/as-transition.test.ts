@@ -6,14 +6,21 @@ import { executeWithHost } from '@proto.ui/runtime';
 import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
 import { PRESENCE_HOST_BRIDGE_CAP } from '@proto.ui/module-presence';
 import { EVENT_EMIT_CAP } from '@proto.ui/module-event';
+import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
 import { asOverlay } from '@proto.ui/hooks';
 import { OVERLAY_GLOBAL_MOUNT_CAP, OVERLAY_MODAL_CAP } from '@proto.ui/module-overlay';
-import { asTransition, type TransitionProps, type TransitionExposes } from '../src/transition';
+import {
+  asTransition,
+  transition as baseTransition,
+  type TransitionProps,
+  type TransitionExposes,
+} from '../src/transition';
 
 function createHost(
   initialRaw: Partial<TransitionProps> = {},
   opts: {
     bridge?: { mount?: () => void; unmount?: () => void };
+    reducedMotion?: 'reduce' | 'no-preference';
     overlay?: {
       hostElement: HTMLElement;
       mount(): void;
@@ -73,6 +80,13 @@ function createHost(
       wiring.attach('event', [
         [EVENT_EMIT_CAP, (key: string, payload: unknown) => emitted.push({ key, payload })],
       ]);
+      wiring.attach('rule-meta', [
+        [
+          RULE_META_GET_CAP,
+          (key: string) =>
+            key === 'reducedMotion' ? (opts.reducedMotion ?? 'no-preference') : undefined,
+        ],
+      ]);
       if (opts.overlay) {
         wiring.attach('overlay', [
           [HOST_ELEMENT_CAP, opts.overlay.hostElement],
@@ -128,6 +142,21 @@ function createTransitionProto(
 }
 
 describe('prototypes/base: asTransition', () => {
+  it('BASE-TRANSITION-0100: direct prototype independently installs the shared surface', () => {
+    const ctx = createHost({ defaultOpen: true });
+
+    mountTransition(baseTransition as Prototype<TransitionProps>, ctx);
+
+    expect(baseTransition.name).toBe('base-transition');
+    expect(ctx.getExposes().transitionState.get()).toBe('entered');
+    expect(ctx.getExposes().isPresent.get()).toBe(true);
+    expect(ctx.getExposes().controls).toMatchObject({
+      enter: expect.any(Function),
+      leave: expect.any(Function),
+      complete: expect.any(Function),
+    });
+  });
+
   it('AS-TRANSITION-0100: initializes to closed state by default', () => {
     const ctx = createHost();
     const P = createTransitionProto('x-as-transition-0100');
@@ -773,5 +802,38 @@ describe('prototypes/base: asTransition', () => {
     expect(() =>
       result.invokeInCallbackScope(() => transition.configure({ enterDuration: 100 }))
     ).toThrow(/exec-phase violation/i);
+  });
+
+  it('AS-TRANSITION-2900: reduced motion uses zero-duration fallback without collapsing ordering', () => {
+    const ctx = createHost(
+      { open: true, appear: true, enterDuration: 240, leaveDuration: 180 },
+      { reducedMotion: 'reduce' }
+    );
+    const P = createTransitionProto('x-as-transition-2900');
+
+    const result = mountTransition(P, ctx);
+
+    expect(ctx.getExposes().transitionState.get()).toBe('entering');
+    expect(ctx.getDelays().map((entry) => entry.durationMs)).toEqual([0]);
+    expect(ctx.getEmitted().map((entry) => entry.key)).toEqual(['beforeEnter']);
+
+    ctx.flushDelay(0);
+    expect(ctx.getExposes().transitionState.get()).toBe('entered');
+    expect(ctx.getEmitted().map((entry) => entry.key)).toEqual(['beforeEnter', 'afterEnter']);
+
+    result.invokeInCallbackScope(() => ctx.getExposes().controls.leave());
+    expect(ctx.getExposes().transitionState.get()).toBe('leaving');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(true);
+    expect(ctx.getDelays().map((entry) => entry.durationMs)).toEqual([0, 0]);
+
+    ctx.flushDelay(1);
+    expect(ctx.getExposes().transitionState.get()).toBe('closed');
+    expect(result.session.viewIntent.getSnapshot().present).toBe(false);
+    expect(ctx.getEmitted().map((entry) => entry.key)).toEqual([
+      'beforeEnter',
+      'afterEnter',
+      'beforeLeave',
+      'afterLeave',
+    ]);
   });
 });

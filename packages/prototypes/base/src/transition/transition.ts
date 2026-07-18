@@ -15,9 +15,10 @@ import { asTransition } from './as-transition';
 export const transition = definePrototype({
   name: 'base-transition',
   setup() {
+    // P-BASE-TRANSITION-AUTHORING-ENTRIES, P-BASE-TRANSITION-STANDALONE
     asTransition();
-    // Transition 组件本身不渲染具体 DOM，只提供状态机治理
-    // 子组件或宿主平台通过 exposes 驱动实际动画
+    // P-BASE-TRANSITION-HOST-NEUTRAL
+    // Transition 本身不创建语义元素或宿主动画引擎，只透明保留调用者内容。
     return (r) => r.slot();
   },
 });

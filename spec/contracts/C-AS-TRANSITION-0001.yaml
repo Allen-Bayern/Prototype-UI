@@ -66,6 +66,10 @@ criteria:
     text:
       zh-CN: 显式宿主 prop 必须优先于对应的 configure 默认值；多次 setup 配置只 patch 显式字段，并以最后一次提供的值为准。
       en: An explicit host prop must take precedence over its corresponding configured default; repeated setup configuration patches only supplied fields and the last supplied value wins.
+  - id: C-AS-TRANSITION-0001-N
+    text:
+      zh-CN: 当宿主 environment meta 声明 reducedMotion=reduce 时，自动 fallback completion 必须以 0ms delay 调度，在不保留非必要持续运动等待的同时保留 entering/leaving phase、before/after event 与 ViewIntent sequencing；meta 的最终实体归属由后续 Module/HC/Adapter 编目决定。
+      en: When host environment meta declares reducedMotion=reduce, automatic fallback completion must be scheduled with a 0ms delay, preserving entering and leaving phases, before and after events, and ViewIntent sequencing without retaining non-essential sustained-motion waits; final entity ownership of the meta source is left to later Module, HC, and Adapter cataloging.
 sources:
   - path: internal/contracts/prototype-base/transition.v0.md
   - path: packages/prototypes/base/src/transition/as-transition.ts
@@ -98,6 +102,9 @@ revisions:
   - version: 0.1.2
     change: revised
     summary: Added setup-only transition default configuration and explicit-host-prop precedence.
+  - version: 0.2.0
+    change: revised
+    summary: Added reduced-motion consumption semantics while deferring final environment capability ownership.
 tags:
   - transition
   - as-hook
