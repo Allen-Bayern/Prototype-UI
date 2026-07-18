@@ -61,6 +61,8 @@ Generated outputs include:
 - `src/snippets.generated.ts`
 - `src/loaders.generated.ts`
 
+The generator formats every emitted TypeScript file with the repository Prettier configuration before writing it. Running generation repeatedly without changing the config or upstream package must therefore leave the working tree byte-for-byte unchanged.
+
 ## Recommended Consumption
 
 - Static, tree-shakable import:

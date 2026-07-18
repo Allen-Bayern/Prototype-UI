@@ -4,12 +4,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { format, resolveConfig } from 'prettier';
 
 const require = createRequire(import.meta.url);
 const pkgDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const configPath = path.join(pkgDir, 'icons.config.json');
 const iconDir = path.join(pkgDir, 'src', 'icons');
 const shapeDir = path.join(pkgDir, 'src', 'shapes');
+const WRITE_CONCURRENCY = 16;
 
 const output = {
   iconRegistry: path.join(pkgDir, 'src', 'icon', 'icons.generated.ts'),
@@ -385,6 +387,27 @@ async function clearGeneratedShapeModules() {
   );
 }
 
+async function writeGeneratedSources(entries) {
+  const prettierConfig = (await resolveConfig(output.manifest)) ?? {};
+  let nextIndex = 0;
+
+  async function writeNext() {
+    while (nextIndex < entries.length) {
+      const entry = entries[nextIndex];
+      nextIndex += 1;
+      const source = await format(entry.source, {
+        ...prettierConfig,
+        filepath: entry.filePath,
+      });
+      await fs.writeFile(entry.filePath, source, 'utf8');
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(WRITE_CONCURRENCY, entries.length) }, () => writeNext())
+  );
+}
+
 async function main() {
   const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
 
@@ -426,42 +449,45 @@ async function main() {
   await clearGeneratedIconModules();
   await clearGeneratedShapeModules();
 
-  const writeJobs = [];
+  const generatedSources = [];
   for (const iconName of iconNames) {
     const nodes = nodeMap[iconName];
-    writeJobs.push(
-      fs.writeFile(
-        path.join(iconDir, `${iconName}.ts`),
-        createIconModuleSource(iconName, nodes),
-        'utf8'
-      )
-    );
-    writeJobs.push(
-      fs.writeFile(
-        path.join(shapeDir, `${iconName}.ts`),
-        createShapeModuleSource(iconName, nodes),
-        'utf8'
-      )
-    );
+    generatedSources.push({
+      filePath: path.join(iconDir, `${iconName}.ts`),
+      source: createIconModuleSource(iconName, nodes),
+    });
+    generatedSources.push({
+      filePath: path.join(shapeDir, `${iconName}.ts`),
+      source: createShapeModuleSource(iconName, nodes),
+    });
   }
 
-  writeJobs.push(fs.writeFile(output.iconRegistry, createIconRegistrySource(iconNames), 'utf8'));
-  writeJobs.push(fs.writeFile(output.iconIndex, createIconIndexSource(iconNames), 'utf8'));
-  writeJobs.push(
-    fs.writeFile(
-      output.manifest,
-      createManifestSource(iconNames, {
-        name: lucidePackage.name,
-        version: lucidePackage.version,
-        license: lucidePackage.license,
-      }),
-      'utf8'
-    )
-  );
-  writeJobs.push(fs.writeFile(output.snippets, createSnippetsSource(iconNames), 'utf8'));
-  writeJobs.push(fs.writeFile(output.loaders, createLoadersSource(iconNames), 'utf8'));
+  generatedSources.push({
+    filePath: output.iconRegistry,
+    source: createIconRegistrySource(iconNames),
+  });
+  generatedSources.push({
+    filePath: output.iconIndex,
+    source: createIconIndexSource(iconNames),
+  });
+  generatedSources.push({
+    filePath: output.manifest,
+    source: createManifestSource(iconNames, {
+      name: lucidePackage.name,
+      version: lucidePackage.version,
+      license: lucidePackage.license,
+    }),
+  });
+  generatedSources.push({
+    filePath: output.snippets,
+    source: createSnippetsSource(iconNames),
+  });
+  generatedSources.push({
+    filePath: output.loaders,
+    source: createLoadersSource(iconNames),
+  });
 
-  await Promise.all(writeJobs);
+  await writeGeneratedSources(generatedSources);
   process.stdout.write(
     `[prototypes-lucide] generated ${iconNames.length} icon modules and manifests under src/icons\n`
   );
