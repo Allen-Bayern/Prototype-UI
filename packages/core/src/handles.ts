@@ -161,6 +161,11 @@ export interface RunHandle<Props extends PropsBaseType> {
     get(): unknown;
   };
 
+  /** Optional module-backed host/environment metadata. */
+  meta?: {
+    get(key: string): unknown;
+  };
+
   props: {
     get(): PropsSnapshot<Props>;
     getRaw(): Readonly<Props & PropsBaseType>;

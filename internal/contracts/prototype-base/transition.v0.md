@@ -96,4 +96,10 @@ Rapid input is latest-intent governed; it must not behave as an unbounded FIFO.
 
 Transition does not define physics animation, layout/shared-element motion, staggering, child coordination, or host event detection. A host or higher-level capability may call `complete()` when native animation finishes; duration is the portable fallback.
 
+## Reduced motion
+
+Official adapters currently expose the host preference as environment meta under `reducedMotion`. When that value is `reduce`, Transition retains the same `entering` / `leaving` phases, lifecycle signals, and ViewIntent ordering, but schedules its portable fallback completion with a `0ms` delay. This removes the non-essential sustained wait without collapsing observable protocol boundaries into one synchronous operation.
+
+The final ownership and naming of this environment input remains deferred to Module, host-capability, and adapter-profile cataloging. Consumers should depend on the Transition behavior rather than reading adapter globals directly.
+
 The legacy Presence host bridge is not a structural authority for Transition. Structural materialization is governed exclusively through `run.lifecycle.setPresent()` and ViewIntent reconciliation.

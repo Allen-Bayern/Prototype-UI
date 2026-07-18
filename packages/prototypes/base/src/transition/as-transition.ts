@@ -83,14 +83,19 @@ export const asTransition = defineAsHook<
         currentRun?.props.isProvided('interrupt')
           ? ((getProps()?.interrupt as TransitionInterrupt | undefined) ?? interruptDefault.get())
           : interruptDefault.get(),
-      getDuration: (state) =>
-        state === 'entering'
+      getDuration: (state) => {
+        // A zero-duration fallback preserves phase/event scheduling while removing
+        // non-essential sustained motion waits for reduced-motion users.
+        // P-BASE-TRANSITION-REDUCED-MOTION
+        if (currentRun?.meta?.get('reducedMotion') === 'reduce') return 0;
+        return state === 'entering'
           ? currentRun?.props.isProvided('enterDuration')
             ? (getProps()?.enterDuration ?? enterDurationDefault.get())
             : enterDurationDefault.get()
           : currentRun?.props.isProvided('leaveDuration')
             ? (getProps()?.leaveDuration ?? leaveDurationDefault.get())
-            : leaveDurationDefault.get(),
+            : leaveDurationDefault.get();
+      },
       schedule: (durationMs, callback) => delay(durationMs, callback),
       setViewPresent(present) {
         if (!currentRun) {

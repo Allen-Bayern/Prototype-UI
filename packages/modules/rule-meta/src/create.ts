@@ -20,6 +20,11 @@ class RuleMetaModuleImpl extends ModuleBase {
       },
     });
   }
+
+  get(key: string): unknown {
+    const getter = this.caps.has(RULE_META_GET_CAP) ? this.caps.get(RULE_META_GET_CAP) : null;
+    return getter ? getter(key) : undefined;
+  }
 }
 
 export function createRuleMetaModule(ctx: ModuleFactoryArgs): RuleMetaModule {
@@ -34,7 +39,9 @@ export function createRuleMetaModule(ctx: ModuleFactoryArgs): RuleMetaModule {
     build: ({ caps, deps }) => {
       const impl = new RuleMetaModuleImpl(caps, deps);
       return {
-        facade: {},
+        facade: {
+          get: (key: string) => impl.get(key),
+        },
         hooks: {
           onProtoPhase: (p) => impl.onProtoPhase(p),
         },

@@ -7,6 +7,7 @@ import { ContextFacade } from '@proto.ui/module-context';
 import { EventFacade } from '@proto.ui/module-event';
 import { AnatomyFacade } from '@proto.ui/module-anatomy';
 import { FeedbackFacade } from '@proto.ui/module-feedback';
+import type { RuleMetaFacade } from '@proto.ui/module-rule-meta';
 
 export const createRunHandle = <P extends PropsBaseType>(
   update: RunHandle<P>['update'],
@@ -19,12 +20,18 @@ export const createRunHandle = <P extends PropsBaseType>(
   const event = facades['event'] as EventFacade;
   const anatomy = facades['anatomy'] as AnatomyFacade | undefined;
   const feedback = facades['feedback'] as FeedbackFacade;
+  const meta = facades['rule-meta'] as RuleMetaFacade | undefined;
 
   return {
     update,
     lifecycle: {
       setPresent,
     },
+    meta: meta
+      ? {
+          get: (key) => meta.get(key),
+        }
+      : undefined,
     props: {
       get: () => props.get(),
       getRaw: () => props.getRaw(),
