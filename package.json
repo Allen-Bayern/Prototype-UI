@@ -21,6 +21,7 @@
   },
   "scripts": {
     "docs:dev": "corepack pnpm@10.32.1 --filter apps-www dev",
+    "dev:workspace": "corepack pnpm@10.32.1 --filter apps-workspace dev",
     "docs:build": "corepack pnpm@10.32.1 --filter apps-www build",
     "docs:preview": "corepack pnpm@10.32.1 --filter apps-www preview",
     "sync:links": "node scripts/sync-shared-links.mjs",
