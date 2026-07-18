@@ -1,34 +1,34 @@
 id: D-USE-FOCUS-ROVING-DEPRECATION-0001
 type: decision
-title: useFocusRoving is a deprecated compatibility helper
-status: draft
+title: useFocusRoving was removed after the asFocusRoving migration
+status: deprecated
 since: 0.1.0
-summary: useFocusRoving is deprecated because it overlaps with asFocusRoving ownership of sibling-local movement and should be removed after Select and Dropdown migrate to Focus Roving-owned navigation.
+deprecatedSince: 0.2.0
+summary: useFocusRoving was removed in 0.2 after Dropdown Menu and Select assigned sibling-local movement and default-action control to asFocusRoving.
 statement:
   zh-CN: >-
-    `useFocusRoving` 是早期 anatomy/expose 型 focus movement helper，现在进入 deprecated compatibility helper 状态。它通过 collection item exposes 暴露 focus methods，并要求具体 item/trigger 原型监听键盘事件后手动转发 roving movement；这与当前 `asFocusRoving()` / focus module 拥有 sibling-local keyboard navigation 与 default-action control 的方向冲突。新实现不应新增对 `useFocusRoving` 的依赖；待 Select / Dropdown 完成 roving 收口后应移除该 helper。
+    `useFocusRoving` 是早期 anatomy/expose 型 focus movement helper。Dropdown Menu 与 Select 已在 0.2 完成迁移，因此其实现与公开导出已经删除。Sibling-local keyboard navigation、orientation、loop、Home/End 与 default-action control 由 `asFocusRoving()` / focus module 长期拥有；具体组件只保留 activation、selection request、disabled gating 与组件状态同步。新实现不得恢复或重新消费 `useFocusRoving`。
 
 
   en: >-
-    `useFocusRoving` is an early anatomy/expose-based focus movement helper and is now a deprecated compatibility helper. It exposes focus methods through collection item exposes and requires concrete item/trigger prototypes to listen for keyboard events and manually forward roving movement; this conflicts with the current direction where `asFocusRoving()` and the focus module own sibling-local keyboard navigation and default-action control. New implementations should not add new `useFocusRoving` dependencies; the helper should be removed after Select and Dropdown complete their roving migration.
+    `useFocusRoving` was an early anatomy/expose-based focus movement helper. Dropdown Menu and Select completed their migration in 0.2, so its implementation and public exports have been removed. `asFocusRoving()` and the focus module now permanently own sibling-local keyboard navigation, orientation, loop, Home/End, and default-action control; concrete components retain activation, selection requests, disabled gating, and component-state synchronization. New implementations must not restore or consume `useFocusRoving`.
 
 
 criteria:
   - id: D-USE-FOCUS-ROVING-DEPRECATION-0001-A
     text:
-      zh-CN: '`useFocusRoving` 不得作为新的 roving focus 抽象被推荐或新增消费。'
-      en: '`useFocusRoving` must not be recommended or newly consumed as a current roving focus abstraction.'
+      zh-CN: 原型实现与 behaviors 公开入口中不得存在 `useFocusRoving` 实现、导出或消费。
+      en: Prototype implementations and public behavior entrypoints must not contain a `useFocusRoving` implementation, export, or consumer.
   - id: D-USE-FOCUS-ROVING-DEPRECATION-0001-B
     text:
-      zh-CN: 已有消费方可以在迁移期继续使用 `useFocusRoving`，但应以 Select / Dropdown roving 收口为移除前置条件。
-      en: Existing consumers may continue to use `useFocusRoving` during migration, but Select/Dropdown roving closure should be the prerequisite for removal.
+      zh-CN: Dropdown Menu 与 Select 必须消费 `asFocusRoving()`，并由其拥有 sibling movement 与 default-action control。
+      en: Dropdown Menu and Select must consume `asFocusRoving()` as the owner of sibling movement and default-action control.
   - id: D-USE-FOCUS-ROVING-DEPRECATION-0001-C
     text:
-      zh-CN: '`useFocusRoving` 移除前，focus movement、orientation、loop、Home/End 与 default-action control 的长期所有权必须归属 `asFocusRoving()` / focus module。'
-      en: Before `useFocusRoving` is removed, long-term ownership of focus movement, orientation, loop, Home/End, and default-action control must belong to `asFocusRoving()` / the focus module.
+      zh-CN: 历史名称仅可出现在迁移记录或治理决策中，不得作为可用 API 出现在原型文档中。
+      en: The historical name may remain only in migration records or governance decisions, not in prototype documentation as an available API.
 sources:
   - path: internal/records/2026-07-06-use-focus-roving-deprecation.zh-CN.md
-  - path: packages/prototypes/base/src/behaviors/use-focus-roving.ts
   - path: packages/prototypes/base/src/select/content.ts
   - path: packages/prototypes/base/src/dropdown/content.ts
 relates:
@@ -40,6 +40,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Deprecated useFocusRoving as a compatibility helper pending Select/Dropdown migration.
+  - version: 0.2.0
+    change: refined
+    summary: Removed useFocusRoving after Dropdown Menu and Select migrated to asFocusRoving.
 tags:
   - focus
   - focus-roving

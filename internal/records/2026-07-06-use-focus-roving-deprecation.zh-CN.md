@@ -28,3 +28,7 @@
 ## 后续顺序
 
 当前 PR 合并后，建议单独推进 Presence / Visibility 方向；之后再处理 Select / Dropdown roving 收口，并在消费方迁移完成后移除 `useFocusRoving`。
+
+## 0.2 完成记录（2026-07-17）
+
+Dropdown Menu 与 Select 均已迁移到 `asFocusRoving()`。`useFocusRoving` 的实现文件与公开导出已经删除；当前原型代码不再消费该 helper。历史名称只保留在本记录与相关决策实体中，用于说明迁移原因并阻止回归。

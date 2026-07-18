@@ -1,57 +1,41 @@
-import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
+import { defineAsHook, definePrototype, tw, type DefHandle } from '@proto.ui/core';
 import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
 import type { SelectValueAsHookContract, SelectValueExposes, SelectValueProps } from './types';
 
 function setupSelectValue(def: DefHandle<SelectValueProps, SelectValueExposes>) {
   def.anatomy.claim(SELECT_FAMILY, { role: 'value' });
+  def.props.define({ placeholder: { type: 'string', empty: 'fallback' } });
+  def.props.setDefaults({ placeholder: '' });
+  def.feedback.style.use(tw('pointer-events-none'));
 
-  def.props.define({
-    placeholder: { type: 'string', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    placeholder: '',
-  });
-
+  const displayValue = def.state.string('displayValue', '');
+  def.expose.state('displayValue', displayValue);
   let mounted = false;
-  let renderedValue = '';
 
   const computeDisplayValue = (run: any) => {
     const ctx = run.context.read(SELECT_CONTEXT);
-    const placeholder = run.props.get().placeholder ?? '';
-    return ctx.textValue || ctx.value || placeholder || '';
+    return ctx.textValue || ctx.value || run.props.get().placeholder || '';
   };
 
-  const syncRenderedValue = (run: any, requestRender: boolean) => {
+  const syncDisplayValue = (run: any, requestRender: boolean) => {
     const nextValue = computeDisplayValue(run);
-    if (nextValue === renderedValue) return;
-    renderedValue = nextValue;
-    if (requestRender && mounted) {
-      run.update();
-    }
+    if (nextValue === displayValue.get()) return;
+    displayValue.set(nextValue, 'reason: select value display sync');
+    if (requestRender && mounted) run.update();
   };
 
-  def.context.subscribe(SELECT_CONTEXT, (run) => {
-    syncRenderedValue(run, true);
-  });
-
-  def.lifecycle.onCreated((run) => {
-    syncRenderedValue(run, false);
-  });
-
+  def.context.subscribe(SELECT_CONTEXT, (run) => syncDisplayValue(run, true));
+  def.lifecycle.onCreated((run) => syncDisplayValue(run, false));
   def.lifecycle.onMounted((run) => {
-    syncRenderedValue(run, false);
+    syncDisplayValue(run, false);
     mounted = true;
   });
-
-  def.props.watch(['placeholder'], (run) => {
-    syncRenderedValue(run, true);
-  });
-
+  def.props.watch(['placeholder'], (run) => syncDisplayValue(run, true));
   def.lifecycle.onUnmounted(() => {
     mounted = false;
   });
 
-  return () => (renderedValue ? [renderedValue] : null);
+  return () => (displayValue.get() ? [displayValue.get()] : null);
 }
 
 export const asSelectValue = defineAsHook<
@@ -63,9 +47,6 @@ export const asSelectValue = defineAsHook<
   setup: setupSelectValue,
 });
 
-const selectValue = definePrototype({
-  name: 'base-select-value',
-  setup: setupSelectValue,
-});
+const selectValue = definePrototype({ name: 'base-select-value', setup: setupSelectValue });
 
 export default selectValue;

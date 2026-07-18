@@ -1,28 +1,21 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asCollectionItem, asFocusable } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
+import { asCollectionItem } from '@proto.ui/hooks';
+import { setupSelectCommand } from './command';
+import {
+  notifySelectItemSnapshotChanged,
+  requestSelectOpen,
+  requestSelectValue,
+  SELECT_CONTEXT,
+  SELECT_FAMILY,
+  type SelectContextValue,
+  type SelectFocusReason,
+} from './shared';
 import type { SelectItemAsHookContract, SelectItemExposes, SelectItemProps } from './types';
 
-const SELECT_ROVING_HANDLED = '__selectRovingHandled';
-
-function syncBoolState(
-  currentValue: string,
-  ownValue: string,
-  state: { set(value: boolean, reason?: string): void },
-  reason: string
-) {
-  state.set(!!ownValue && ownValue === currentValue, reason);
-}
-
 function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): void {
-  asButton();
-  const focusable = asFocusable<SelectItemProps>();
-  const hovered = def.state.fromInteraction('hovered');
-  const focused = focusable.focused;
+  const command = setupSelectCommand(def, 'select item');
   const active = def.state.bool('active', false);
   const selected = def.state.fromAccessibility('selected');
-
   const collectionItem = asCollectionItem();
   collectionItem.configure({
     family: SELECT_FAMILY,
@@ -30,7 +23,7 @@ function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): vo
       const props = run.props.get();
       return {
         value: props.value ?? '',
-        textValue: props.textValue ?? '',
+        textValue: props.textValue ?? props.value ?? '',
         disabled: !!props.disabled,
       };
     },
@@ -42,147 +35,119 @@ function setupSelectItem(def: DefHandle<SelectItemProps, SelectItemExposes>): vo
     textValue: { type: 'string', empty: 'fallback' },
     closeOnSelect: { type: 'boolean', empty: 'fallback' },
   });
-  def.props.setDefaults({
-    disabled: false,
-    value: '',
-    textValue: '',
-  });
+  def.props.setDefaults({ disabled: false, value: '', textValue: '' });
 
-  let ownValue = '';
-  let ownTextValue = '';
   def.expose.state('active', active);
   def.expose.state('selected', selected);
+  def.expose.event('select', { payload: 'json' });
+  def.a11y.role('option');
+  def.a11y.nameFromContent();
+  def.a11y.state('selected', selected);
+  def.a11y.state('disabled', command.disabled);
+  def.a11y.action('activate', { event: 'select' });
 
-  const publishSelectedText = (run: any) => {
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (!ownValue || ctx.value !== ownValue) return;
-    const nextTextValue = ownTextValue || ownValue;
-    if (ctx.textValue === nextTextValue) return;
-    run.context.update(SELECT_CONTEXT, (prev: any) => {
-      if (prev.value !== ownValue || prev.textValue === nextTextValue) return prev;
-      return { ...prev, textValue: nextTextValue };
-    });
+  const readContext = (run: any): SelectContextValue | null => {
+    try {
+      return run.context.read(SELECT_CONTEXT);
+    } catch (error) {
+      if ((error as { code?: string })?.code === 'CONTEXT_DISCONNECTED') return null;
+      throw error;
+    }
   };
 
-  const syncFromContext = (ctx: { value?: string; activeValue?: string }) => {
-    syncBoolState(ctx.value ?? '', ownValue, selected, 'reason: select context sync => selected');
-    // Select keeps "active" aligned with the committed value.
-    // `activeValue` is still used as the roving cursor, including the initial no-value open case.
-    syncBoolState(ctx.value ?? '', ownValue, active, 'reason: select context sync => active');
+  const sync = (run: any, ctx: SelectContextValue) => {
+    const ownValue = run.props.get().value ?? '';
+    const nextDisabled = !!run.props.get().disabled || ctx.disabled;
+    command.syncDisabled(nextDisabled);
+    if (!ctx.open) {
+      command.resetInteraction('reason: select popup close => reset item interaction', {
+        blur: true,
+      });
+    }
+    const nextSelected = !!ownValue && ownValue === ctx.value;
+    const nextActive =
+      ctx.open &&
+      !nextDisabled &&
+      (command.focused.get() || (!!ownValue && ownValue === ctx.activeValue));
+    selected.set(nextSelected, 'reason: select item selected sync');
+    active.set(nextActive, 'reason: select item active sync');
+    command.setRovingStatus({ selected: nextSelected, active: nextActive });
   };
 
-  def.context.subscribe(SELECT_CONTEXT, (run, next) => {
-    syncFromContext(next);
-    publishSelectedText(run);
-  });
-
+  def.context.subscribe(SELECT_CONTEXT, (run, next) => sync(run, next));
   def.lifecycle.onMounted((run) => {
-    ownValue = run.props.get().value ?? '';
-    ownTextValue = run.props.get().textValue ?? '';
-    syncFromContext(run.context.read(SELECT_CONTEXT));
-    publishSelectedText(run);
-    const content = run.anatomy.partsOf(SELECT_FAMILY, 'content')[0] ?? null;
-    const resolveEntryFocus = content?.getExpose('__resolveSelectEntryFocus') as
-      | (() => boolean)
-      | null;
-    resolveEntryFocus?.();
+    const ctx = readContext(run);
+    if (ctx) sync(run, ctx);
+    notifySelectItemSnapshotChanged(run);
   });
-
-  def.props.watch(['value', 'textValue'], (run, next) => {
-    ownValue = next.value ?? '';
-    ownTextValue = next.textValue ?? '';
-    syncFromContext(run.context.read(SELECT_CONTEXT));
-    publishSelectedText(run);
+  def.props.watch(['value', 'textValue', 'disabled'], (run) => {
+    const ctx = readContext(run);
+    if (ctx) sync(run, ctx);
+    notifySelectItemSnapshotChanged(run);
   });
 
   const updateActiveValue = (run: any) => {
+    if (command.disabled.get()) return;
+    const ownValue = run.props.get().value ?? '';
     if (!ownValue) return;
-    run.context.update(SELECT_CONTEXT, (prev: any) => {
-      if (prev.activeValue === ownValue) return prev;
-      return { ...prev, activeValue: ownValue };
-    });
+    active.set(true, 'reason: select item interaction => active');
+    command.setRovingStatus({ active: true, selected: selected.get() });
+    run.context.update(SELECT_CONTEXT, (prev: SelectContextValue) =>
+      prev.activeValue === ownValue ? prev : { ...prev, activeValue: ownValue }
+    );
   };
 
-  def.event.on('press.commit', (run) => {
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
+  const clearTransientActive = (run: any, reason: string) => {
+    const ctx = readContext(run);
+    const ownValue = run.props.get().value ?? '';
+    active.set(false, reason);
+    command.setRovingStatus({ active: false, selected: selected.get() });
+    if (!ctx?.open || !ownValue || ctx.activeValue !== ownValue) return;
+    run.context.update(SELECT_CONTEXT, (prev: SelectContextValue) =>
+      prev.activeValue === ownValue ? { ...prev, activeValue: '' } : prev
+    );
+  };
 
+  def.event.on('press.commit', (run, ev) => {
+    if (command.disabled.get()) return;
+    const ctx = readContext(run);
+    if (!ctx) return;
+    const reason: SelectFocusReason = ev?.detail?.key ? 'keyboard' : 'pointer';
+    const ownValue = run.props.get().value ?? '';
+    const ownTextValue = run.props.get().textValue || ownValue;
     updateActiveValue(run);
-
-    if (!ctx.controlledValue) {
-      run.context.update(SELECT_CONTEXT, (prev: any) => ({
-        ...prev,
-        value: ownValue,
-        textValue: ownTextValue || ownValue,
-      }));
-    }
+    run.expose.emit('select', { value: ownValue, reason });
+    requestSelectValue(run, { value: ownValue, textValue: ownTextValue, reason });
 
     const closeOnSelect = run.props.isProvided('closeOnSelect')
       ? !!run.props.get().closeOnSelect
-      : !!ctx.closeOnSelect;
-    if (!closeOnSelect || ctx.controlledOpen) return;
-
-    run.context.update(SELECT_CONTEXT, (prev: any) => ({
-      ...prev,
-      open: false,
-    }));
+      : ctx.closeOnSelect;
+    if (closeOnSelect) {
+      requestSelectOpen(run, { open: false, reason: 'item.select', focusReason: reason });
+    }
   });
 
-  focused.watch((run, event) => {
-    if (event.type !== 'next' || !event.next) return;
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
+  command.focused.watch((run, event) => {
+    if (event.type !== 'next') return;
+    if (event.next) {
+      updateActiveValue(run);
+      return;
+    }
+    if (!command.hovered.get()) {
+      clearTransientActive(run, 'reason: select item blur => clear transient active');
+      return;
+    }
+    const ctx = readContext(run);
+    if (ctx) sync(run, ctx);
+  });
+  def.event.on('pointer.enter', (run) => {
+    const ctx = readContext(run);
+    if (command.disabled.get() || !ctx?.open) return;
     updateActiveValue(run);
   });
-
-  hovered.watch((run, event) => {
-    if (event.type !== 'next' || !event.next) return;
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled || !ctx.open) return;
-    updateActiveValue(run);
-  });
-
-  def.event.onGlobal('key.down', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
-    if (!focusable.isFocused()) return;
-    // Keep one roving move per keyboard event without depending on propagation phase semantics.
-    if ((ev?.detail as any)?.[SELECT_ROVING_HANDLED]) return;
-
-    const key = ev?.detail?.key;
-    const content = run.anatomy.partsOf(SELECT_FAMILY, 'content')[0] ?? null;
-    const focusFirst = content?.getExpose('focusFirst') as (() => void) | null;
-    const focusLast = content?.getExpose('focusLast') as (() => void) | null;
-    const focusNext = content?.getExpose('focusNext') as (() => void) | null;
-    const focusPrev = content?.getExpose('focusPrev') as (() => void) | null;
-
-    if (key === 'Home') {
-      if (ev?.detail) (ev.detail as any)[SELECT_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusFirst?.();
-      return;
-    }
-    if (key === 'End') {
-      if (ev?.detail) (ev.detail as any)[SELECT_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusLast?.();
-      return;
-    }
-    if (key === 'ArrowDown') {
-      if (ev?.detail) (ev.detail as any)[SELECT_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusNext?.();
-      return;
-    }
-    if (key === 'ArrowUp') {
-      if (ev?.detail) (ev.detail as any)[SELECT_ROVING_HANDLED] = true;
-      ev?.detail?.preventDefault?.();
-      focusPrev?.();
-    }
+  def.event.on('pointer.leave', (run) => {
+    if (command.focused.get()) return;
+    clearTransientActive(run, 'reason: select item pointer.leave => clear pointer active');
   });
 }
 
@@ -195,9 +160,6 @@ export const asSelectItem = defineAsHook<
   setup: setupSelectItem,
 });
 
-const selectItem = definePrototype({
-  name: 'base-select-item',
-  setup: setupSelectItem,
-});
+const selectItem = definePrototype({ name: 'base-select-item', setup: setupSelectItem });
 
 export default selectItem;

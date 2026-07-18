@@ -37,8 +37,9 @@ npm install @proto.ui/prototypes-base@0.0.1
 
 ## Select Interaction Notes
 
-- `select.item.active` tracks the committed select value instead of the transient roving focus cursor.
-- When a select has no committed value yet, opening the content may still establish a roving start point for keyboard navigation, but no item should be exposed as active until a value is selected.
+- `select.item.selected` tracks the committed select value.
+- `select.item.active` tracks the transient popup navigation cursor and may move independently of selection.
+- `select.content` delegates ArrowUp/ArrowDown/Home/End movement to `asFocusRoving`; the removed `useFocusRoving` compatibility helper must not be reintroduced.
 
 ## Related Internal Packages
 

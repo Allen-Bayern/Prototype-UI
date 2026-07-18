@@ -151,6 +151,26 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('../../../../../packages/prototypes/shadcn/src/dropdown/item');
     registerPrototype('shadcn-dropdown-item', mod.default);
   },
+  'shadcn-select-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/select/root');
+    registerPrototype('shadcn-select-root', mod.default);
+  },
+  'shadcn-select-trigger': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/select/trigger');
+    registerPrototype('shadcn-select-trigger', mod.default);
+  },
+  'shadcn-select-value': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/select/value');
+    registerPrototype('shadcn-select-value', mod.default);
+  },
+  'shadcn-select-content': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/select/content');
+    registerPrototype('shadcn-select-content', mod.default);
+  },
+  'shadcn-select-item': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/select/item');
+    registerPrototype('shadcn-select-item', mod.default);
+  },
   'base-dialog-root': async () => {
     const mod = await import('../../../../../packages/prototypes/base/src/dialog/root');
     registerPrototype('base-dialog-root', mod.default);

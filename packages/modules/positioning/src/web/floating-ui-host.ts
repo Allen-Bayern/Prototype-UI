@@ -49,12 +49,11 @@ function middlewareFor(config: AnchoredPositionConfig): Middleware[] {
       rootBoundary: 'viewport',
       padding: config.collisionPadding,
       apply({ availableWidth, availableHeight, rects, elements }) {
-        Object.assign(elements.floating.style, {
-          '--proto-ui-anchor-width': `${rects.reference.width}px`,
-          '--proto-ui-anchor-height': `${rects.reference.height}px`,
-          '--proto-ui-available-width': `${availableWidth}px`,
-          '--proto-ui-available-height': `${availableHeight}px`,
-        });
+        const style = elements.floating.style;
+        style.setProperty('--proto-ui-anchor-width', `${rects.reference.width}px`);
+        style.setProperty('--proto-ui-anchor-height', `${rects.reference.height}px`);
+        style.setProperty('--proto-ui-available-width', `${availableWidth}px`);
+        style.setProperty('--proto-ui-available-height', `${availableHeight}px`);
       },
     })
   );

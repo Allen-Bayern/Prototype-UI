@@ -6,12 +6,12 @@ since: 0.2.0
 summary: Covers host-mediated offsets, collision resolution, non-transform coordinate projection, Overlay lease lifetime, and Hover Card adapter integration.
 cases:
   - id: T-ANCHORED-POSITIONING-0001-CASE-OFFSET
-    title: Floating UI host applies side, alignment, offsets, and non-transform coordinates
+    title: Floating UI host applies placement, non-transform coordinates, and geometry variables
     covers:
       - C-ANCHORED-POSITIONING-0001-A
       - C-ANCHORED-POSITIONING-0001-B
       - C-ANCHORED-POSITIONING-0001-D
-    expectation: host-applies-fixed-left-top-and-categorical-placement
+    expectation: host-applies-fixed-left-top-categorical-placement-and-anchor-size-variables
   - id: T-ANCHORED-POSITIONING-0001-CASE-COLLISION
     title: Floating UI host reports collision-resolved placement
     covers:
@@ -67,4 +67,7 @@ revisions:
   - version: 0.2.0
     change: introduced
     summary: Added module, host, Overlay lifetime, and Hover Card Portal integration coverage.
+  - version: 0.2.0
+    change: clarified
+    summary: Required the Web host test to verify anchor and available-size CSS variable projection.
 tags: [positioning, overlay, hover-card, test]

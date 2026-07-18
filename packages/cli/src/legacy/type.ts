@@ -155,6 +155,7 @@ export const SHADCN_STYLE_TOKENS = [
   'items-center',
   'items-start',
   'justify-center',
+  'justify-between',
   'leading-6',
   'leading-none',
   'left-0',

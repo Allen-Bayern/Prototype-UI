@@ -1,70 +1,79 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
-import { asFocusable } from '@proto.ui/hooks';
-import { asButton } from '../button';
-import { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
+import { setupSelectCommand } from './command';
+import {
+  createSelectContentId,
+  requestSelectOpen,
+  SELECT_CONTEXT,
+  SELECT_FAMILY,
+  type SelectContextValue,
+} from './shared';
 import type {
   SelectTriggerAsHookContract,
   SelectTriggerExposes,
   SelectTriggerProps,
 } from './types';
 
-const SELECT_TRIGGER_OPEN_HANDLED = '__selectTriggerOpenHandled';
-const SELECT_ROVING_HANDLED = '__selectRovingHandled';
-
 function setupSelectTrigger(def: DefHandle<SelectTriggerProps, SelectTriggerExposes>): void {
   def.anatomy.claim(SELECT_FAMILY, { role: 'trigger' });
-  asButton();
-  const focusable = asFocusable<SelectTriggerProps>();
-  const focused = focusable.focused;
+  const command = setupSelectCommand(def, 'select trigger');
+  const expanded = def.state.bool('selectExpanded', false);
+  const hasPopup = def.state.string('selectHasPopup', 'listbox');
+  const controls = def.state.string('selectContentId', '');
+  const placeholder = def.state.bool('placeholder', true);
+  def.expose.state('placeholder', placeholder);
 
-  def.props.define({
-    disabled: { type: 'boolean', empty: 'fallback' },
-  });
-  def.props.setDefaults({
-    disabled: false,
-  });
+  def.a11y.role('combobox');
+  def.a11y.nameFromContent();
+  def.a11y.state('disabled', command.disabled);
+  def.a11y.state('expanded', expanded);
+  def.a11y.state('hasPopup', hasPopup);
+  def.a11y.relation('controls', { target: controls });
+  def.a11y.action('activate', { event: 'click' });
 
-  def.context.subscribe(SELECT_CONTEXT);
-
-  const requestOpen = (run: any) => {
-    run.context.update(SELECT_CONTEXT, (prev: any) => ({
-      ...prev,
-      activeValue: prev.value,
-      open: prev.controlledOpen ? prev.open : true,
-    }));
+  const sync = (run: any, ctx: SelectContextValue) => {
+    command.syncDisabled(!!run.props.get().disabled || ctx.disabled);
+    expanded.set(ctx.open, 'reason: select trigger expanded sync');
+    placeholder.set(!ctx.value, 'reason: select trigger placeholder sync');
+    controls.set(createSelectContentId(ctx.rootId), 'reason: select trigger controls sync');
   };
+  def.context.subscribe(SELECT_CONTEXT, (run, next) => sync(run, next));
+  def.lifecycle.onCreated((run) => sync(run, run.context.read(SELECT_CONTEXT)));
+  def.props.watch(['disabled'], (run) => sync(run, run.context.read(SELECT_CONTEXT)));
 
   def.event.on('press.commit', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
+    if (command.disabled.get()) return;
     const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled || ctx.controlledOpen) return;
     const key = ev?.detail?.key;
     if (key === 'Enter' || key === ' ') {
-      if (ctx.open) return;
-      requestOpen(run);
+      requestSelectOpen(run, {
+        open: true,
+        reason: 'trigger.press',
+        focusReason: 'keyboard',
+        entry: 'selected-or-first',
+      });
       return;
     }
-    run.context.update(SELECT_CONTEXT, (prev) => ({
-      ...prev,
-      open: !prev.open,
-      activeValue: prev.open ? '' : prev.value,
-    }));
+    requestSelectOpen(run, {
+      open: !ctx.open,
+      reason: 'trigger.press',
+      focusReason: 'pointer',
+      entry: 'selected-or-first',
+    });
   });
 
-  def.event.onGlobal('key.down', (run, ev) => {
-    const ownDisabled = !!run.props.get().disabled;
-    const ctx = run.context.read(SELECT_CONTEXT);
-    if (ownDisabled || ctx.disabled) return;
-    if (ctx.open) return;
-    if (!focused.get()) return;
-    if ((ev?.detail as any)?.[SELECT_TRIGGER_OPEN_HANDLED]) return;
-
+  def.event.on('key.down', (run, ev) => {
+    if (command.disabled.get()) return;
     const key = ev?.detail?.key;
     if (key !== 'ArrowDown' && key !== 'ArrowUp') return;
-    if (ev?.detail) (ev.detail as any)[SELECT_TRIGGER_OPEN_HANDLED] = true;
-    if (ev?.detail) (ev.detail as any)[SELECT_ROVING_HANDLED] = true;
     ev?.detail?.preventDefault?.();
-    requestOpen(run);
+    const ctx = run.context.read(SELECT_CONTEXT);
+    if (ctx.open) return;
+    requestSelectOpen(run, {
+      open: true,
+      reason: `trigger.${key}`,
+      focusReason: 'keyboard',
+      entry: key === 'ArrowUp' ? 'selected-or-last' : 'selected-or-first',
+    });
   });
 }
 
@@ -77,9 +86,6 @@ export const asSelectTrigger = defineAsHook<
   setup: setupSelectTrigger,
 });
 
-const selectTrigger = definePrototype({
-  name: 'base-select-trigger',
-  setup: setupSelectTrigger,
-});
+const selectTrigger = definePrototype({ name: 'base-select-trigger', setup: setupSelectTrigger });
 
 export default selectTrigger;

@@ -6,7 +6,7 @@ description: 'Select base prototype'
 
 import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
-`base-select` is the current base-library probe for value-class components.
+`base-select` is a cataloged select-only compound prototype and the first Base family to formally define a value-class presentation part.
 
 <div>
   <PrototypePreviewer
@@ -17,15 +17,15 @@ import { PrototypePreviewer } from '@/components/PrototypePreviewer';
   />
 </div>
 
-Unlike `dropdown`, this family does not stop at open/close plus active-item coordination. It also includes a dedicated `select-value` part, which keeps selected text presentation inside the protocol boundary.
+It follows the APG select-only combobox pattern: Trigger projects `combobox`, Content projects `listbox`, and Item projects `option`. The committed selection is persistent state; the active item while open is transient navigation state.
 
 ## Family Parts
 
-- `select-root`: owns `open`, `value`, and `textValue`
-- `select-trigger`: opens and closes the popup surface
-- `select-value`: renders the selected text or placeholder
-- `select-content`: owns overlay entry, dismissal, and focus entry
-- `select-item`: contributes `value` / `textValue` snapshots and commits selection
+- `select-root`: owns controlled/uncontrolled `open`, `value`, and `textValue`, and arbitrates change requests
+- `select-trigger`: an independent command surface that projects combobox ARIA and handles keyboard/pointer opening
+- `select-value`: renders `displayValue` or placeholder through explicit `run.update()` without owning input behavior
+- `select-content`: composes `asOverlay`, `asTransition`, `asFocusRoving`, and anchor positioning
+- `select-item`: projects an option, separates transient `active` from persistent `selected`, and submits selection requests
 
 ## Why It Matters
 
@@ -42,17 +42,20 @@ That makes `select-value` a concrete `render-consumed-value` sample instead of a
 `base-select` currently includes:
 
 - single selection
-- popup open/close coordination
-- selected item focus entry
-- selected text synchronization
+- pointer and select-only keyboard interaction, including arrows, Home/End, and typeahead
+- Escape, Tab, outside-press dismissal, and appropriate focus restoration
+- selected-item focus entry, with boundary fallback
+- combobox/listbox/option ARIA relationships and selected state
+- controlled values that emit requests without creating temporary success state
 - a protocol-owned value presentation part
 
 It does not yet include:
 
 - form semantics
 - native `<select>` parity
-- combobox/search behavior
-- grouped options
+- editable combobox/search behavior
+- `Group`, `Label`, `Separator`, `Viewport`, and scroll buttons
+- form submission and hidden inputs
 - multi-select
 
 ## References

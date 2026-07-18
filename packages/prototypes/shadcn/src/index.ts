@@ -8,6 +8,7 @@ export { default as shadcnSwitchThumb } from './switch/thumb';
 export { tabsRoot, tabsList, tabsTrigger, tabsContent } from './tabs';
 export { hoverCardRoot, hoverCardTrigger, hoverCardContent } from './hover-card';
 export { dropdownRoot, dropdownTrigger, dropdownContent, dropdownItem } from './dropdown';
+export { selectRoot, selectTrigger, selectValue, selectContent, selectItem } from './select';
 export { default as shadcnTabsRoot } from './tabs/root';
 export { default as shadcnTabsList } from './tabs/list';
 export { default as shadcnTabsTrigger } from './tabs/trigger';
@@ -19,6 +20,11 @@ export { default as shadcnDropdownRoot } from './dropdown/root';
 export { default as shadcnDropdownTrigger } from './dropdown/trigger';
 export { default as shadcnDropdownContent } from './dropdown/content';
 export { default as shadcnDropdownItem } from './dropdown/item';
+export { default as shadcnSelectRoot } from './select/root';
+export { default as shadcnSelectTrigger } from './select/trigger';
+export { default as shadcnSelectValue } from './select/value';
+export { default as shadcnSelectContent } from './select/content';
+export { default as shadcnSelectItem } from './select/item';
 export {
   dialogRoot,
   dialogTrigger,
@@ -96,6 +102,23 @@ export type {
   ShadcnDropdownItemExposes,
   ShadcnDropdownItemAsHookContract,
 } from './dropdown/types';
+export type {
+  ShadcnSelectRootProps,
+  ShadcnSelectRootExposes,
+  ShadcnSelectRootAsHookContract,
+  ShadcnSelectTriggerProps,
+  ShadcnSelectTriggerExposes,
+  ShadcnSelectTriggerAsHookContract,
+  ShadcnSelectValueProps,
+  ShadcnSelectValueExposes,
+  ShadcnSelectValueAsHookContract,
+  ShadcnSelectContentProps,
+  ShadcnSelectContentExposes,
+  ShadcnSelectContentAsHookContract,
+  ShadcnSelectItemProps,
+  ShadcnSelectItemExposes,
+  ShadcnSelectItemAsHookContract,
+} from './select/types';
 export type {
   ShadcnDialogRootProps,
   ShadcnDialogRootExposes,
