@@ -2,7 +2,7 @@ id: P-BASE-SELECT-CONTENT
 type: prototype
 title: Base Select Content is a transitional positioned listbox surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Content binds Root visibility to Overlay and Transition, owns listbox focus navigation and dismissal, and portals an anchored option surface.
 statement:
   zh-CN: Select Content 是 Root 同域中至多一个的 vertical listbox surface。它从 Root open 派生 Overlay/Transition presence，使用 Trigger PartView 作为 anchor，并建立 selected-or-boundary focus entry、asFocusRoving keyboard navigation、typeahead 与 Escape/Tab/outside dismissal。popup active option 与 committed selection 必须保持分离，所有 close 都回到 Root request entry。
@@ -61,10 +61,10 @@ dependsOn:
   decisions: [D-USE-FOCUS-ROVING-DEPRECATION-0001]
 verifies: { tests: [T-BASE-SELECT-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Content listbox semantics, asFocusRoving ownership, Overlay and Transition presence, positioning, keyboard behavior, and dismissal.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: clarified
     summary: Required selected-option entry focus to wait for a stable synchronously mounted Item collection across adapters.
 tags:

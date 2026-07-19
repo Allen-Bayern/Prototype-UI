@@ -14,16 +14,18 @@ export function getRoot(rootDir) {
 export function readVersion(rootDir) {
   const root = getRoot(rootDir);
   const raw = readFileSync(join(root, 'VERSION'), 'utf8').trim();
-  const match = raw.match(/^(\d+)\.(\d+)\.(\d+)$/);
+  const match = raw.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/);
   if (!match) {
     throw new Error(`Invalid VERSION at ${join(root, 'VERSION')}: ${raw}`);
   }
-  const [, major, minor, patch] = match;
+  const [, major, minor, patch, prerelease] = match;
   return {
     raw,
     major,
     minor,
     patch,
+    prerelease,
+    isPrerelease: prerelease !== undefined,
     minorPrefix: `${major}.${minor}.`,
   };
 }
@@ -61,7 +63,9 @@ export function findProtoPackages(rootDir) {
     })
     .filter(
       (entry) =>
-        typeof entry.manifest.name === 'string' && entry.manifest.name.startsWith('@proto.ui/')
+        typeof entry.manifest.name === 'string' &&
+        entry.manifest.name.startsWith('@proto.ui/') &&
+        entry.manifest.private !== true
     )
     .sort((a, b) => a.manifest.name.localeCompare(b.manifest.name));
 }

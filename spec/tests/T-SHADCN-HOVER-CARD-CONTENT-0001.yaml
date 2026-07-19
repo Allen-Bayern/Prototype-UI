@@ -2,7 +2,7 @@ id: T-SHADCN-HOVER-CARD-CONTENT-0001
 type: test
 title: Shadcn Hover Card Content delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content identity, Base overlay inheritance, transition and positioning behavior, current animated surface, asChild omission, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-HOVER-CARD-CONTENT-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -58,7 +58,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-HOVER-CARD-CONTENT, P-BASE-HOVER-CARD-CONTENT]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Hover Card Content delta coverage.
 tags: [prototype, shadcn, hover-card, content, transition, delta, compatibility, test]

@@ -2,7 +2,7 @@ id: C-ANCHORED-POSITIONING-0001
 type: contract
 title: Anchored positioning is host-mediated geometry with bounded lifetime
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Proto modules declare anchor-relative placement while a host capability measures, resolves collisions, writes coordinates, and observes geometry only while the floating view is active.
 statement:
   zh-CN: >-
@@ -49,7 +49,7 @@ verifies:
   tests:
     - T-ANCHORED-POSITIONING-0001
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Defined host-mediated anchored geometry, collision defaults, output projection, Portal separation, and bounded observation lifetime.
 tags: [positioning, overlay, geometry, collision, host-capability]

@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-DESCRIPTION-0001
 type: test
 title: Shadcn Dialog Description delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Description Base relation inheritance, corrected generic order, current typography, asChild omission, and bounded parity.
 cases:
   - id: T-SHADCN-DIALOG-DESCRIPTION-0001-CASE-CURRENT-PROTOCOL
@@ -45,5 +45,11 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG-DESCRIPTION, P-BASE-DIALOG-DESCRIPTION] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Description delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Dialog Description delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, dialog, description, delta, compatibility, test]

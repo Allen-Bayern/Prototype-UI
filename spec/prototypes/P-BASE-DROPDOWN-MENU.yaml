@@ -2,7 +2,7 @@ id: P-BASE-DROPDOWN-MENU
 type: prototype
 title: Base Dropdown Menu is a root-owned action-menu protocol
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Base Dropdown Menu is a compound action-menu protocol whose Root owns visibility, request arbitration, collection order, entry policy, and shared menu context.
 statement:
   zh-CN: >-
@@ -83,10 +83,10 @@ dependsOn:
   decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-BASE-PROTOTYPE-INDEPENDENCE-0001]
 verifies: { tests: [T-BASE-DROPDOWN-MENU-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged the Base Dropdown Menu Root, request ownership, collection, entry policy, and current extension boundary.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Replaced versioned Context request envelopes with a Root-owned same-domain request entry.
 tags: [prototype, base, dropdown-menu, action-menu, compound]

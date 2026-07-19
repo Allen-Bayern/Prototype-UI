@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-CONTENT-0001
 type: test
 title: Base Dialog Content protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content transition presence, focus containment, dismissal requests, controlled ownership, and accessible modal semantics.
 cases:
   - id: T-BASE-DIALOG-CONTENT-0001-CASE-SURFACE
@@ -48,8 +48,8 @@ verifies:
         - P-BASE-DIALOG-CONTENT-A11Y-RELATIONS
 exercises: { prototypes: [P-BASE-DIALOG-CONTENT] }
 revisions:
-  - { version: 0.2.0, change: introduced, summary: Added Dialog Content protocol coverage. }
-  - version: 0.2.1
+  - { version: 0.2.0-rc.0, change: introduced, summary: Added Dialog Content protocol coverage. }
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added live add/remove coverage for conditional Title and Description relationships and a11yLabel fallback.
 tags: [prototype, base, dialog, content, test]

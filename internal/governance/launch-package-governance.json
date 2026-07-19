@@ -1,7 +1,7 @@
 {
-  "releaseLine": "v0.1.0",
-  "targetDate": "2026-05-14",
-  "cliLaunchDate": "2026-05-14",
+  "releaseLine": "v0.2.0-rc.0",
+  "targetDate": null,
+  "cliLaunchDate": null,
   "launchCommitmentPackages": [
     "@proto.ui/adapter-react",
     "@proto.ui/adapter-vue",
@@ -19,10 +19,12 @@
   ],
   "internalOrDependencyDirectedPackages": [
     "@proto.ui/runtime",
+    "@proto.ui/module-a11y",
     "@proto.ui/module-base",
     "@proto.ui/module-anatomy",
     "@proto.ui/module-as-trigger",
     "@proto.ui/module-boundary",
+    "@proto.ui/module-collection",
     "@proto.ui/module-context",
     "@proto.ui/module-event",
     "@proto.ui/module-expose",
@@ -33,6 +35,7 @@
     "@proto.ui/module-hit-participation",
     "@proto.ui/module-overlay",
     "@proto.ui/module-presence",
+    "@proto.ui/module-positioning",
     "@proto.ui/module-props",
     "@proto.ui/module-rule",
     "@proto.ui/module-rule-expose-state-web",

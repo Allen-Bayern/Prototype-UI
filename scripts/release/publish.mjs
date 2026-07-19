@@ -1,4 +1,6 @@
 import { mkdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
 import {
   buildPrerequisitePackages,
   ROOT_DIR,
@@ -10,15 +12,16 @@ import {
   topoSortPackages,
 } from './lib.mjs';
 import { collectLaunchGovernanceDiagnostics, loadLaunchPackageGovernance } from './governance.mjs';
+import { readVersion } from './version-utils.mjs';
 
 function printHelp() {
   console.log(`Usage: node scripts/release/publish.mjs [options]
 
 Options:
-  --version <semver>            Override package version for this release batch
   --dry-run                     Run npm publish --dry-run against staged packages
   --publish                     Run npm publish for real
-  --tag <tag>                   npm dist-tag, defaults to latest
+  --resume-published            Recovery only: skip an existing identical registry tarball
+  --tag <tag>                   Override npm dist-tag for dry-run inspection only
   --otp <code>                  npm one-time password for accounts requiring 2FA
   --registry <url>              Custom npm registry
   --access <mode>               npm access, defaults to public
@@ -40,6 +43,25 @@ if (args.help) {
   printHelp();
   process.exit(0);
 }
+
+if (args.publish && args.profile !== 'workspace') {
+  throw new Error('Global exact-version publication requires --profile workspace');
+}
+if (args.publish && args.only.length > 0) {
+  throw new Error('Global exact-version publication does not allow package-local --only releases');
+}
+if (args.publish && args.tag !== undefined) {
+  throw new Error(
+    'Global exact-version publication derives npm dist-tag from the reviewed VERSION'
+  );
+}
+if (args.resumePublished && !args.publish) {
+  throw new Error('--resume-published is only valid with --publish');
+}
+if (args.publish) assertPublishSource();
+
+const releaseVersion = readVersion();
+args.tag ??= releaseVersion.isPrerelease ? 'next' : 'latest';
 
 if (!args.publish && !args.dryRun) {
   args.dryRun = true;
@@ -79,7 +101,7 @@ const selected = selectPackages(packages, {
 });
 const ordered = topoSortPackages(selected);
 const packageVersions = new Map(
-  packages.map((pkg) => [pkg.name, args.version ?? pkg.manifest.version ?? pkg.version])
+  packages.map((pkg) => [pkg.name, pkg.manifest.version ?? pkg.version])
 );
 
 if (ordered.length === 0) {
@@ -87,12 +109,8 @@ if (ordered.length === 0) {
   process.exit(1);
 }
 
-if (
-  args.publish &&
-  !args.version &&
-  ordered.some((pkg) => !pkg.version || pkg.version === '0.0.0')
-) {
-  console.error('Refusing to publish with default 0.0.0 versions. Pass --version x.y.z.');
+if (args.publish && ordered.some((pkg) => !pkg.version || pkg.version === '0.0.0')) {
+  console.error('Refusing to publish a package with a missing or default 0.0.0 version.');
   process.exit(1);
 }
 
@@ -149,10 +167,15 @@ for (const result of results) {
     console.log('  build diagnostics: 0');
   }
   if (result.publishResult) {
-    console.log(`  npm publish exit code: ${result.publishResult.code}`);
-    console.log(
-      `  npm publish attempt: ${result.publishResult.attempt}/${result.publishResult.maxAttempts}`
-    );
+    if (result.publishResult.resumed) {
+      console.log(`  npm publish: recovered existing identical tarball`);
+      console.log(`  registry integrity: ${result.publishResult.integrity}`);
+    } else {
+      console.log(`  npm publish exit code: ${result.publishResult.code}`);
+      console.log(
+        `  npm publish attempt: ${result.publishResult.attempt}/${result.publishResult.maxAttempts}`
+      );
+    }
   }
 }
 
@@ -171,3 +194,38 @@ if (failedBuilds.length > 0) {
 
 console.log('');
 console.log(`Next step from repo root: cd ${ROOT_DIR}`);
+
+function assertPublishSource() {
+  const currentBranch =
+    process.env.GITHUB_REF_NAME ||
+    spawnSync('git', ['branch', '--show-current'], {
+      cwd: ROOT_DIR,
+      encoding: 'utf8',
+    }).stdout.trim();
+  if (currentBranch !== 'main') {
+    throw new Error(
+      `Real publication is only allowed from main (got: ${currentBranch || 'detached'})`
+    );
+  }
+
+  for (const args of [
+    ['diff', '--quiet'],
+    ['diff', '--cached', '--quiet'],
+  ]) {
+    const result = spawnSync('git', args, { cwd: ROOT_DIR, encoding: 'utf8' });
+    if (result.status !== 0) {
+      throw new Error('Real publication requires a clean tracked main worktree');
+    }
+  }
+
+  const governance = spawnSync(
+    process.execPath,
+    [join(ROOT_DIR, 'scripts', 'release', 'check-version-governance.mjs')],
+    { cwd: ROOT_DIR, encoding: 'utf8' }
+  );
+  if (governance.status !== 0) {
+    throw new Error(
+      `Real publication requires valid global release governance\n${governance.stderr || governance.stdout}`
+    );
+  }
+}

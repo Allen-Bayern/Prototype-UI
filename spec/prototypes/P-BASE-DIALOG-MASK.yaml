@@ -2,7 +2,7 @@ id: P-BASE-DIALOG-MASK
 type: prototype
 title: Base Dialog Mask projects modal occlusion and hit participation
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Dialog Mask is the optional modal backdrop whose presence follows Dialog open through Transition while hit participation remains independently configurable.
 statement:
   zh-CN: Dialog Mask 是至多一个的 modal backdrop part。它消费 Overlay、Transition 与 Hit Participation，但不拥有 open 或 dismissal；logical close 后必须保留到 leave 完成。
@@ -36,7 +36,7 @@ dependsOn:
   contracts: [C-AS-OVERLAY-0001, C-AS-TRANSITION-0001]
 verifies: { tests: [T-BASE-DIALOG-MASK-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Dialog Mask presence and hit participation.
 tags: [prototype, base, dialog, mask, overlay]

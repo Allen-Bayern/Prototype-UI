@@ -159,7 +159,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs Indicator protocol catalog as a context-driven visual consumer.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the concrete authoring entry and its T entity for catalog coverage enforcement.
 tags:

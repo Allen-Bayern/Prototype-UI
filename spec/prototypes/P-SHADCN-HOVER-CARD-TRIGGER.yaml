@@ -2,7 +2,7 @@ id: P-SHADCN-HOVER-CARD-TRIGGER
 type: prototype
 title: Shadcn Hover Card Trigger inherits Base preview intent and adds link-like styling
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Hover Card Trigger inherits Base hover and focus preview intent without activation semantics and adds the current link-like and state-driven surface.
 statement:
   zh-CN: >-
@@ -94,7 +94,7 @@ inherits:
       note: Default inherited preview-trigger protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-HOVER-CARD-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Hover Card Trigger delta cataloging with Base inheritance, state-driven link styling, asChild omission, and centralized differences.
 tags: [prototype, shadcn, hover-card, trigger, upstream-derived, delta, compatibility, visual]

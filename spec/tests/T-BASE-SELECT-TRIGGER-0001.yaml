@@ -2,7 +2,7 @@ id: T-BASE-SELECT-TRIGGER-0001
 type: test
 title: Base Select Trigger protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers independent command state, combobox relationships, pointer and keyboard entry, disabled gating, and absence of selection ownership.
 cases:
   - id: T-BASE-SELECT-TRIGGER-0001-CASE-COMMAND-A11Y
@@ -47,7 +47,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-SELECT-TRIGGER] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Trigger command, combobox a11y, keyboard, disabled, and selection-boundary coverage.
 tags: [prototype, base, select, trigger, keyboard, a11y, test]

@@ -2,7 +2,7 @@ id: T-BASE-HOVER-CARD-0001
 type: test
 title: Base Hover Card Root and compound protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root ownership, controlled requests, delayed interaction, cancellation, context, anatomy, and authoring independence.
 cases:
   - id: T-BASE-HOVER-CARD-0001-CASE-ROOT-OWNERSHIP
@@ -110,7 +110,7 @@ verifies:
         - P-BASE-HOVER-CARD-PROTOCOL-INDEPENDENCE
 exercises: { prototypes: [P-BASE-HOVER-CARD] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Base Hover Card Root and delayed request coverage.
 tags: [prototype, base, hover-card, test]

@@ -2,7 +2,7 @@ id: T-SHADCN-SELECT-ITEM-0001
 type: test
 title: Shadcn Select Item delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Item Base option inheritance, state styles, selected check rendering, asChild omission, and bounded parity.
 cases:
   - id: T-SHADCN-SELECT-ITEM-0001-CASE-CURRENT-PROTOCOL
@@ -54,5 +54,5 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-SELECT-ITEM, P-BASE-SELECT-ITEM] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Select Item delta coverage. }]
+  [{ version: 0.2.0-rc.0, change: introduced, summary: Added Shadcn Select Item delta coverage. }]
 tags: [prototype, shadcn, select, item, delta, compatibility, test]

@@ -2,7 +2,7 @@ id: P-SHADCN-SWITCH-THUMB
 type: prototype
 title: Shadcn Switch Thumb inherits the Base indicator and adds its current visual surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Switch Thumb inherits the Base context-driven indicator protocol and adds the currently implemented thumb shape, sizing, surface, and motion tokens.
 statement:
   zh-CN: >-
@@ -84,7 +84,7 @@ inherits:
       note: Default inherited indicator protocol; explicit setup-time negative-patch criteria may override individual guarantees.
 verifies: { tests: [T-SHADCN-SWITCH-THUMB-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced delta-style Shadcn Switch Thumb cataloging with Base indicator inheritance, current visual guarantees, and centralized upstream composition differences.
 tags: [prototype, shadcn, switch, thumb, upstream-derived, delta, compatibility, visual]

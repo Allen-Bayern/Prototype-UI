@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-DESCRIPTION-0001
 type: test
 title: Base Dialog Description protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Description authoring parity, stable descriptive identity, and alert-dialog primary-message requirements.
 cases:
   - id: T-BASE-DIALOG-DESCRIPTION-0001-CASE-RELATION
@@ -39,8 +39,12 @@ verifies:
         - P-BASE-DIALOG-DESCRIPTION-ALERT
 exercises: { prototypes: [P-BASE-DIALOG-DESCRIPTION] }
 revisions:
-  - { version: 0.2.0, change: introduced, summary: Added Dialog Description protocol coverage. }
-  - version: 0.2.1
+  - {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Dialog Description protocol coverage.,
+    }
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added runtime diagnostic coverage for Alert Dialog without Description.
 tags: [prototype, base, dialog, description, test]

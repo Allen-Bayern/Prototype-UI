@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-TITLE
 type: prototype
 title: Shadcn Dialog Title inherits Base labeling and adds current heading typography
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Title inherits Base dialog-label semantics without behavior and adds the current heading typography surface.
 statement:
   zh-CN: Shadcn Dialog Title 是 `P-BASE-DIALOG-TITLE` 之上的 direct part，继续作为 Content 的 accessible label 且不拥有行为，并增加当前 heading typography。其 `definePrototype<Props, Exposes>` 类型参数保持 props-first 顺序；`asChild` 明确不提供。
@@ -95,7 +95,7 @@ verifies: { tests: [T-SHADCN-DIALOG-TITLE-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Title cataloging with Base labeling,
       corrected generic order,

@@ -2,7 +2,7 @@ id: P-BASE-HOVER-CARD-TRIGGER
 type: prototype
 title: Base Hover Card Trigger publishes preview intent
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Hover Card Trigger is a focusable link-preview anchor that publishes hover and focus intent without owning navigation activation or preview visibility.
 statement:
   zh-CN: Hover Card Trigger 是 Hover Card domain 内至多一个的 link-preview anchor。它拥有自身 focus 与 hover facts，但不拥有 open，也不把自身改写为 Button；pointer hover 与 keyboard focus 只能向 Root 发布可延时的 interaction intent，应用提供的 link 仍持有 navigation activation。
@@ -43,7 +43,7 @@ dependsOn:
   decisions: [D-BASE-PROTOTYPE-INDEPENDENCE-0001]
 verifies: { tests: [T-BASE-HOVER-CARD-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Trigger focus, hover, disabled, and activation ownership.
 tags: [prototype, base, hover-card, trigger, link-preview]

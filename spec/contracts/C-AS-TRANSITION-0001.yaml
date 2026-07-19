@@ -102,7 +102,7 @@ revisions:
   - version: 0.1.2
     change: revised
     summary: Added setup-only transition default configuration and explicit-host-prop precedence.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: revised
     summary: Added reduced-motion consumption semantics while deferring final environment capability ownership.
 tags:

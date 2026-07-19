@@ -2,7 +2,7 @@ id: D-AS-CHILD-OMISSION-0001
 type: decision
 title: Proto UI intentionally omits asChild compatibility APIs
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Proto UI keeps interaction-route composition under component-author and role-system ownership, so upstream-derived prototypes intentionally omit asChild rather than exposing a weaker event-proxy analogue.
 statement:
   zh-CN: >-
@@ -70,28 +70,28 @@ relates:
       P-SHADCN-DIALOG-CLOSE,
     ]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Recorded the intentional omission of asChild in favor of component-author-owned role declarations and automatic asTrigger event-route merging.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked Shadcn Toggle as an additional governed consumer of the shared asChild omission decision.
-  - version: 0.2.2
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked Shadcn Switch Root as an additional governed consumer of the shared asChild omission decision.
-  - version: 0.2.3
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the Shadcn Tabs Root, List, Trigger, and Content projections as governed consumers of the shared asChild omission decision.
-  - version: 0.2.4
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the Shadcn Hover Card Trigger and Content projections as governed consumers of the shared asChild omission decision.
-  - version: 0.2.5
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the Shadcn Dropdown Menu Trigger, Content, and Item projections as governed consumers of the shared asChild omission decision.
-  - version: 0.2.6
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the Shadcn Select Trigger, Value, Content, and Item projections as governed consumers of the shared asChild omission decision.
-  - version: 0.2.7
+  - version: 0.2.0-rc.0
     change: refined
     summary: Linked the Shadcn Dialog Trigger, Mask, Content, Title, Description, and Close projections as governed consumers of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

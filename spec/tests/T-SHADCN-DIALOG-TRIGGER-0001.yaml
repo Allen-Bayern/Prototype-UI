@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-TRIGGER-0001
 type: test
 title: Shadcn Dialog Trigger delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger Base command inheritance, variants, current state styles, asChild omission, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-DIALOG-TRIGGER-0001-CASE-CURRENT-PROTOCOL
@@ -52,5 +52,11 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG-TRIGGER, P-BASE-DIALOG-TRIGGER] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Trigger delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Dialog Trigger delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, dialog, trigger, delta, compatibility, test]

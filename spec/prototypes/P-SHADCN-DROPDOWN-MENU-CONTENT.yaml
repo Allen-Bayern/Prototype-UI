@@ -2,7 +2,7 @@ id: P-SHADCN-DROPDOWN-MENU-CONTENT
 type: prototype
 title: Shadcn Dropdown Menu Content inherits Base menu overlay behavior and adds the current animated surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dropdown Menu Content inherits Base menu accessibility, overlay, presence, positioning, portal, keyboard, and dismissal behavior and adds current transition and surface styling.
 statement:
   zh-CN: >-
@@ -100,7 +100,7 @@ inherits:
       note: Default inherited menu-overlay protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-DROPDOWN-MENU-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Dropdown Menu Content delta cataloging with Base inheritance, configured transitions, current animations, asChild omission, and centralized differences.
 tags:

@@ -2,7 +2,7 @@ id: T-BASE-HOVER-CARD-CONTENT-0001
 type: test
 title: Base Hover Card Content protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content non-modal Overlay behavior, Transition presence, hover bridge, Trigger anchoring, collision-aware positioning, Portal escape, and deferred extension boundaries.
 cases:
   - id: T-BASE-HOVER-CARD-CONTENT-0001-CASE-PRESENCE
@@ -61,10 +61,10 @@ verifies:
         - P-BASE-HOVER-CARD-CONTENT-PORTAL
 exercises: { prototypes: [P-BASE-HOVER-CARD-CONTENT] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Content Overlay, Transition, hover bridge, positioning, and boundary coverage.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: extended
     summary: Added Trigger PartView anchor, collision-aware host positioning, offsets, and Portal escape coverage.
 tags: [prototype, base, hover-card, content, positioning, portal, test]

@@ -2,7 +2,7 @@ id: T-BASE-DROPDOWN-MENU-CONTENT-0001
 type: test
 title: Base Dropdown Menu Content protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers menu semantics, Transition-bound Overlay presence, positioned Portal ownership, focus navigation, typeahead, and dismissal.
 cases:
   - id: T-BASE-DROPDOWN-MENU-CONTENT-0001-CASE-A11Y-FOCUS
@@ -67,28 +67,28 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-DROPDOWN-MENU-CONTENT] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Content a11y, focus, Transition, positioning, Portal, keyboard, and dismissal coverage.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added runtime delay-policy coverage for typeahead buffer expiry.
-  - version: 0.2.2
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added structure-first entry focus coverage across retained adapter view epochs.
-  - version: 0.2.3
+  - version: 0.2.0-rc.0
     change: refined
     summary: Mapped deferred Focus-owned entry readiness and completed Overlay and positioning anchor coverage.
-  - version: 0.2.4
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added coverage for preserving focus established synchronously by a composed Item action.
-  - version: 0.2.5
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added mounted-checkpoint replay coverage for entry intent established while the Content view was detached.
-  - version: 0.2.6
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added entry-focus host scroll preservation coverage before portal positioning settles.
-  - version: 0.2.7
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added stable animation geometry and Trigger-anchor inside-boundary regression coverage.
 tags: [prototype, base, dropdown-menu, content, overlay, transition, positioning, test]

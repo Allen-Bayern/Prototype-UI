@@ -97,7 +97,7 @@ dependsOn:
     - C-AS-TRANSITION-0001
     - C-BOUNDARY-0001
     - id: C-ANCHORED-POSITIONING-0001
-      since: 0.2.0
+      since: 0.2.0-rc.0
   decisions:
     - D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001
 verifies:
@@ -119,10 +119,10 @@ revisions:
   - version: 0.1.4
     change: refined
     summary: Moved post-callback host-resource reconciliation from hook-selected microtasks into the runtime and Overlay module boundary.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: extended
     summary: Added delegated anchored positioning, internal Anatomy part resolution, and active-view positioning lifetime.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Required resolved Anatomy anchors to remain shared by Positioning and Boundary classification.
 tags:

@@ -2,7 +2,7 @@ id: P-SHADCN-TABS-LIST
 type: prototype
 title: Shadcn Tabs List inherits Base Tabs List and adds the current collection surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Tabs List inherits Base collection, roving-focus, orientation, and accessibility behavior and adds its currently implemented list surface.
 statement:
   zh-CN: >-
@@ -85,7 +85,7 @@ inherits:
       note: Default inherited collection protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-TABS-LIST-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Tabs List delta cataloging with Base inheritance, current surface, intentional asChild omission, and variant parity gaps.
 tags: [prototype, shadcn, tabs, list, upstream-derived, delta, compatibility, visual]

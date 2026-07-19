@@ -2,7 +2,7 @@ id: T-SHADCN-SELECT-0001
 type: test
 title: Shadcn Select Root delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root identity, Base select-only inheritance, current five-part scope, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-SELECT-0001-CASE-ROOT
@@ -45,5 +45,5 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-SELECT, P-BASE-SELECT] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Select Root delta coverage. }]
+  [{ version: 0.2.0-rc.0, change: introduced, summary: Added Shadcn Select Root delta coverage. }]
 tags: [prototype, shadcn, select, root, delta, compatibility, test]

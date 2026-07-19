@@ -53,7 +53,7 @@ test('stamp resets cross-minor packages to VERSION', () => {
   }
 });
 
-test('stamp leaves same-minor patches untouched', () => {
+test('stamp resets same-minor patches to the exact VERSION', () => {
   const root = makeFixture({
     version: '0.1.0',
     packages: [
@@ -65,9 +65,27 @@ test('stamp leaves same-minor patches untouched', () => {
   try {
     const result = runStamp(root);
     assert.equal(result.status, 0, result.stderr || result.stdout);
-    assert.equal(readManifestVersion(root, 'cli'), '0.1.5');
+    assert.equal(readManifestVersion(root, 'cli'), '0.1.0');
     assert.equal(readManifestVersion(root, 'core'), '0.1.0');
-    assert.equal(readManifestVersion(root, 'modules/base'), '0.1.7');
+    assert.equal(readManifestVersion(root, 'modules/base'), '0.1.0');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('stamp aligns public packages to a prerelease VERSION', () => {
+  const root = makeFixture({
+    version: '0.2.0-rc.0',
+    packages: [
+      { relPath: 'cli', name: '@proto.ui/cli', version: '0.1.4' },
+      { relPath: 'core', name: '@proto.ui/core', version: '0.1.0' },
+    ],
+  });
+  try {
+    const result = runStamp(root);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.equal(readManifestVersion(root, 'cli'), '0.2.0-rc.0');
+    assert.equal(readManifestVersion(root, 'core'), '0.2.0-rc.0');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

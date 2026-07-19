@@ -2,7 +2,7 @@ id: T-SHADCN-SELECT-TRIGGER-0001
 type: test
 title: Shadcn Select Trigger delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger Base inheritance, size, state styles, chevron, asChild omission, and bounded parity.
 cases:
   - id: T-SHADCN-SELECT-TRIGGER-0001-CASE-CURRENT-PROTOCOL
@@ -57,5 +57,11 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-SELECT-TRIGGER, P-BASE-SELECT-TRIGGER] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Select Trigger delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Select Trigger delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, select, trigger, delta, compatibility, test]

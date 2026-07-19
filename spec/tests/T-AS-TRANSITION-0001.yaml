@@ -108,7 +108,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added state-machine and cross-adapter conformance coverage for the rewritten Transition model.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added reduced-motion fallback coverage and explicit contract anchors.
 tags:

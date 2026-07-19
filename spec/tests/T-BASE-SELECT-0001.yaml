@@ -2,7 +2,7 @@ id: T-BASE-SELECT-0001
 type: test
 title: Base Select Root and compound protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root ownership, controlled open and value requests, selection invariants, text derivation, anatomy, and extension boundaries.
 cases:
   - id: T-BASE-SELECT-0001-CASE-ROOT-OWNERSHIP
@@ -94,7 +94,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-SELECT] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Root ownership, request, selection invariant, text derivation, anatomy, and scope coverage.
 tags: [prototype, base, select, test]

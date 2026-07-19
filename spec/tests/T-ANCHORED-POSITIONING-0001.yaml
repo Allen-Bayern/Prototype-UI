@@ -2,7 +2,7 @@ id: T-ANCHORED-POSITIONING-0001
 type: test
 title: Anchored positioning contract and host integration tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers host-mediated offsets, collision resolution, non-transform coordinate projection, Overlay lease lifetime, and Hover Card adapter integration.
 cases:
   - id: T-ANCHORED-POSITIONING-0001-CASE-OFFSET
@@ -64,10 +64,10 @@ exercises:
   modules: [M-POSITIONING-0001]
   hostCaps: [HC-ANCHORED-POSITION-0001]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added module, host, Overlay lifetime, and Hover Card Portal integration coverage.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: clarified
     summary: Required the Web host test to verify anchor and available-size CSS variable projection.
 tags: [positioning, overlay, hover-card, test]

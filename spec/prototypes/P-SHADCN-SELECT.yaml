@@ -2,7 +2,7 @@ id: P-SHADCN-SELECT
 type: prototype
 title: Shadcn Select Root inherits Base select-only ownership
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Select Root is an unofficial direct projection that inherits Base select-only value, text derivation, requests, context, and anatomy and adds no Root-specific behavior.
 statement:
   zh-CN: Shadcn Select Root 是 `P-BASE-SELECT` 之上的 direct prototype，保留 select-only value/open ownership、selection invariant、text derivation、requests、context 与 anatomy；当前 Root 不增加行为或视觉 surface。比较基线固定到 shadcn-ui/ui revision `f31ed81983653919dd4fe77aee4b4859f610f1dc` 的 v4 new-york Select。
@@ -87,7 +87,7 @@ verifies: { tests: [T-SHADCN-SELECT-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Select Root delta cataloging with Base inheritance and centralized family-scope gaps.,
     },

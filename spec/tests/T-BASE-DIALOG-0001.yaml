@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-0001
 type: test
 title: Base Dialog root and compound protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers root ownership, authoring parity, controlled requests, context propagation, anatomy, and independence from sibling Base prototypes.
 cases:
   - id: T-BASE-DIALOG-0001-CASE-ROOT-OWNERSHIP
@@ -63,10 +63,10 @@ verifies:
         - P-BASE-DIALOG-PROTOCOL-INDEPENDENCE
 exercises: { prototypes: [P-BASE-DIALOG] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Base Dialog root and compound protocol coverage.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added controlled Root method request coverage.
 tags: [prototype, base, dialog, test]

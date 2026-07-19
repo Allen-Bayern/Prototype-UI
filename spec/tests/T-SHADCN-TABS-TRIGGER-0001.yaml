@@ -2,7 +2,7 @@ id: T-SHADCN-TABS-TRIGGER-0001
 type: test
 title: Shadcn Tabs Trigger delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger identity, Base tab inheritance, selection and focus behavior, current state styles, asChild omission, and bounded upstream parity.
 cases:
   - id: T-SHADCN-TABS-TRIGGER-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -56,7 +56,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-TABS-TRIGGER, P-BASE-TABS-TRIGGER]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Tabs Trigger delta coverage.
 tags: [prototype, shadcn, tabs, trigger, delta, compatibility, test]

@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-TRIGGER
 type: prototype
 title: Shadcn Dialog Trigger inherits Base command behavior and adds button variants
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Trigger inherits Base open command, disabled gating, request, and accessibility behavior and adds six visual variants and current interaction styling.
 statement:
   zh-CN: >-
@@ -139,7 +139,7 @@ verifies: { tests: [T-SHADCN-DIALOG-TRIGGER-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Trigger delta cataloging with button variants,
       state styles,

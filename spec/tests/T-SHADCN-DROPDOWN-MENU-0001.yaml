@@ -2,7 +2,7 @@ id: T-SHADCN-DROPDOWN-MENU-0001
 type: test
 title: Shadcn Dropdown Menu Root delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root identity, Base action-menu inheritance, current four-part scope, and bounded upstream family compatibility.
 cases:
   - id: T-SHADCN-DROPDOWN-MENU-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -53,5 +53,11 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-DROPDOWN-MENU, P-BASE-DROPDOWN-MENU]
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dropdown Menu Root delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Dropdown Menu Root delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, dropdown-menu, root, delta, compatibility, test]

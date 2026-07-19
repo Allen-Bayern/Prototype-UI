@@ -2,7 +2,7 @@ id: T-BASE-DROPDOWN-MENU-ITEM-0001
 type: test
 title: Base Dropdown Menu Item protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers collection snapshots, menuitem semantics, active navigation, select signaling, commit-close policy, disabled behavior, and absence of persistent selection.
 cases:
   - id: T-BASE-DROPDOWN-MENU-ITEM-0001-CASE-COLLECTION-A11Y
@@ -53,7 +53,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-DROPDOWN-MENU-ITEM] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Item collection, a11y, active, select, close, disabled, and no-selection coverage.
 tags: [prototype, base, dropdown-menu, item, a11y, test]

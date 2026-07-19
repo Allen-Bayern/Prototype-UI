@@ -2,7 +2,7 @@ id: P-BASE-HOVER-CARD-CONTENT
 type: prototype
 title: Base Hover Card Content is a transitional non-modal preview surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Hover Card Content consumes Root open through Overlay and Transition, retains the hover bridge, and uses portaled collision-aware positioning without becoming an interactive modal surface.
 statement:
   zh-CN: Hover Card Content 是至多一个的 non-modal preview surface。它从 Root open 派生 Overlay/Transition presence，在 leave 完成前保留当前 view，并通过自身 hover 延续 Trigger 与 Content 间的 pointer bridge。Content 不建立 focus scope、outside/Escape dismissal 或 dialog semantics。它以 Trigger anatomy part 为 anchor，通过 Overlay 委托 Positioning host-cap，支持 side/align、数值 offsets、默认 flip/shift 与 collision padding；Content 使用 Portal 和 fixed strategy 逃逸 DemoPreviewer 等 clipping ancestor，但 logical owner、Context 与 Anatomy 域保持不变。
@@ -69,10 +69,10 @@ dependsOn:
     [C-AS-OVERLAY-0001, C-ANCHORED-POSITIONING-0001, C-AS-TRANSITION-0001, C-LIFECYCLE-0008]
 verifies: { tests: [T-BASE-HOVER-CARD-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged non-modal Content presence, hover bridge, positioning, and deferred extensions.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: extended
     summary: Added Trigger PartView anchoring, host-mediated offsets and collision handling, Portal escape, and fixed positioning.
 tags: [prototype, base, hover-card, content, overlay, transition, positioning, portal]

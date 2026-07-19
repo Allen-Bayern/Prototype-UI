@@ -1,9 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createPublishManifest } from '../lib.mjs';
+import { createPublishManifest, parseArgs } from '../lib.mjs';
 
-test('workspace dependencies use their own package versions when publishing a single package', () => {
+test('partial recovery is an explicit release argument', () => {
+  assert.equal(parseArgs([]).resumePublished, false);
+  assert.equal(parseArgs(['--resume-published']).resumePublished, true);
+});
+
+test('workspace dependencies use exact package versions in published manifests', () => {
   const manifest = createPublishManifest(
     {
       name: '@proto.ui/adapter-react',
@@ -39,7 +44,7 @@ test('workspace dependencies use their own package versions when publishing a si
   );
 
   assert.equal(manifest.version, '0.1.1');
-  assert.equal(manifest.dependencies['@proto.ui/core'], '^0.1.0');
-  assert.equal(manifest.dependencies['@proto.ui/runtime'], '^0.1.0');
-  assert.equal(manifest.peerDependencies['@proto.ui/types'], '^0.1.0');
+  assert.equal(manifest.dependencies['@proto.ui/core'], '0.1.0');
+  assert.equal(manifest.dependencies['@proto.ui/runtime'], '0.1.0');
+  assert.equal(manifest.peerDependencies['@proto.ui/types'], '0.1.0');
 });

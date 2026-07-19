@@ -2,7 +2,7 @@ id: T-BASE-DROPDOWN-MENU-TRIGGER-0001
 type: test
 title: Base Dropdown Menu Trigger protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger command state, accessible relationships, disabled behavior, and pointer and keyboard entry requests.
 cases:
   - id: T-BASE-DROPDOWN-MENU-TRIGGER-0001-CASE-COMMAND-A11Y
@@ -47,7 +47,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-DROPDOWN-MENU-TRIGGER] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Trigger command, a11y, keyboard, and disabled coverage.
 tags: [prototype, base, dropdown-menu, trigger, keyboard, test]

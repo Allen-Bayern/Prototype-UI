@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-CONTENT
 type: prototype
 title: Shadcn Dialog Content inherits Base modal content and adds a narrowed animated panel surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Content inherits Base presence, focus, dismissal, controlled, and accessibility behavior, narrows its declared public Transition surface, and adds the current centered animated panel.
 statement:
   zh-CN: >-
@@ -123,7 +123,7 @@ verifies: { tests: [T-SHADCN-DIALOG-CONTENT-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Content cataloging with Base inheritance,
       public-boundary narrowing,
