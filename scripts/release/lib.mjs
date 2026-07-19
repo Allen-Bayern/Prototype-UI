@@ -38,6 +38,7 @@ export function parseArgs(argv) {
     includeTest: false,
     checkBuild: false,
     checkGovernance: false,
+    pack: false,
     publish: false,
     resumePublished: false,
     tag: undefined,
@@ -62,6 +63,7 @@ export function parseArgs(argv) {
     else if (arg === '--include-approved-candidates') args.includeApprovedCandidates = true;
     else if (arg === '--check-build') args.checkBuild = true;
     else if (arg === '--check-governance') args.checkGovernance = true;
+    else if (arg === '--pack') args.pack = true;
     else if (arg === '--publish') args.publish = true;
     else if (arg === '--resume-published') args.resumePublished = true;
     else if (arg === '--tag') args.tag = argv[++i];
@@ -335,6 +337,7 @@ export function stagePackage(pkg, options) {
     outDir,
     version,
     access = 'public',
+    pack = false,
     publish = false,
     dryRun = false,
     tag = 'latest',
@@ -447,6 +450,32 @@ export function stagePackage(pkg, options) {
     }
   }
 
+  let packResult = null;
+  if (pack) {
+    const tarballDir = join(outDir, 'tarballs');
+    mkdirSync(tarballDir, { recursive: true });
+    const result = spawnSync('npm', ['pack', '--json', '--pack-destination', tarballDir], {
+      cwd: stageDir,
+      encoding: 'utf8',
+      shell: IS_WINDOWS,
+      env: {
+        ...process.env,
+        npm_config_cache: npmCacheDir,
+      },
+    });
+    if (result.status !== 0) {
+      throw new Error(`npm pack failed for ${pkg.name}\n${result.stderr || result.stdout}`);
+    }
+    const packed = JSON.parse(result.stdout || '[]');
+    if (packed.length !== 1 || !packed[0]?.filename) {
+      throw new Error(`npm pack returned no tarball metadata for ${pkg.name}`);
+    }
+    packResult = {
+      ...packed[0],
+      path: join(tarballDir, packed[0].filename),
+    };
+  }
+
   let publishResult = null;
   if (publish || dryRun) {
     if (publish && publishSequenceIndex > 0 && publishDelayMs > 0) {
@@ -530,6 +559,7 @@ export function stagePackage(pkg, options) {
     stageDir,
     buildCode: buildResult.status ?? 0,
     buildErrors,
+    packResult,
     publishResult,
   };
 }

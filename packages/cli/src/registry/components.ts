@@ -181,6 +181,34 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
     },
   ]),
 
+  'shadcn-select': shadcnCompound('shadcn-select', 'shadcn Select', [
+    {
+      prototypeImport: 'shadcnSelectRoot',
+      exportBaseName: 'ShadcnSelectRoot',
+      elementName: 'proto-ui-shadcn-select-root',
+    },
+    {
+      prototypeImport: 'shadcnSelectTrigger',
+      exportBaseName: 'ShadcnSelectTrigger',
+      elementName: 'proto-ui-shadcn-select-trigger',
+    },
+    {
+      prototypeImport: 'shadcnSelectValue',
+      exportBaseName: 'ShadcnSelectValue',
+      elementName: 'proto-ui-shadcn-select-value',
+    },
+    {
+      prototypeImport: 'shadcnSelectContent',
+      exportBaseName: 'ShadcnSelectContent',
+      elementName: 'proto-ui-shadcn-select-content',
+    },
+    {
+      prototypeImport: 'shadcnSelectItem',
+      exportBaseName: 'ShadcnSelectItem',
+      elementName: 'proto-ui-shadcn-select-item',
+    },
+  ]),
+
   'shadcn-dialog': shadcnCompound('shadcn-dialog', 'shadcn Dialog', [
     {
       prototypeImport: 'shadcnDialogRoot',

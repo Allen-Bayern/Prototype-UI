@@ -8,6 +8,11 @@ test('partial recovery is an explicit release argument', () => {
   assert.equal(parseArgs(['--resume-published']).resumePublished, true);
 });
 
+test('tarball packing is an explicit release argument', () => {
+  assert.equal(parseArgs([]).pack, false);
+  assert.equal(parseArgs(['--pack']).pack, true);
+});
+
 test('workspace dependencies use exact package versions in published manifests', () => {
   const manifest = createPublishManifest(
     {

@@ -23,6 +23,8 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 
 任何新数字版本都必须先成为受评审的 release train，不能通过局部 package 改版绕过。
 
+`release-consumer-react` 进一步从当前源码构建全部公开 package tarball，并在 monorepo 外的临时 React + Vite 项目中安装当前发布依赖闭包。该门禁禁止 `@proto.ui/*` 回退到 npm registry 或 workspace 源码，并验证 CLI facade 生成、TypeScript、production build 和基础运行时行为。
+
 ## 发布工作流（`release-packages.yml`）
 
 该工作流仅通过 `workflow_dispatch` 手动触发。
@@ -60,8 +62,9 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 1. 创建或更新 draft V 实体，并在 PR 中统一 `VERSION` 与 package manifests。
 2. 运行 `pnpm check:release-version` 与 `pnpm release:scan:launch`，审阅首发产品范围。
 3. 运行 `pnpm release:stage`，彩排全部公开 package 的最终 tarball。
-4. 合入 `main` 后，用 `workspace` profile 运行 `publish-all`。
-5. 发布成功后核对 GitHub release/spec snapshot 证据，再通过后续 PR 将 V 实体转为 `active`。
+4. 运行 `pnpm release:smoke:react`，验证精确 tarball 能被隔离 React + Vite 项目消费。
+5. 合入 `main` 后，用 `workspace` profile 运行 `publish-all`。
+6. 发布成功后核对 GitHub release/spec snapshot 证据，再通过后续 PR 将 V 实体转为 `active`。
 
 ## 本地快捷命令
 
@@ -69,5 +72,6 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`
+- `pnpm release:smoke:react`
 
 仓库不提供局部真实发布快捷命令；package 局部修复进入下一次全局 release train。

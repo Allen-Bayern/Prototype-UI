@@ -180,6 +180,34 @@ describe('@proto.ui/cli', () => {
     expect(config.components.react).toEqual(['shadcn-button']);
   });
 
+  it('adds the complete shadcn Select React facade', async () => {
+    const cwd = await createTempProject('pui-cli-add-shadcn-select', {
+      name: 'pui-cli-add-shadcn-select',
+      private: true,
+      dependencies: {
+        react: '^19.0.0',
+        'react-dom': '^19.0.0',
+      },
+    });
+
+    expect(runCli(cwd, ['init', '--no-interactive', '--no-styles']).status).toBe(0);
+    const result = runCli(cwd, ['add', 'react', 'shadcn-select', '--no-install']);
+
+    expect(result.status).toBe(0);
+    const reactIndex = await fs.readFile(
+      path.join(cwd, 'proto-ui/components/react/index.ts'),
+      'utf8'
+    );
+    const config = JSON.parse(await fs.readFile(path.join(cwd, 'proto-ui/config.json'), 'utf8'));
+
+    for (const part of ['Root', 'Trigger', 'Value', 'Content', 'Item']) {
+      expect(reactIndex).toContain(
+        `export const ShadcnSelect${part} = adapt(shadcnSelect${part});`
+      );
+    }
+    expect(config.components.react).toEqual(['shadcn-select']);
+  });
+
   it('adds a compound Web Component facade from base prototypes', async () => {
     const cwd = await createTempProject('pui-cli-add-wc', {
       name: 'pui-cli-add-wc',
