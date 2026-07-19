@@ -5,6 +5,7 @@ import type { ShadcnSelectContentExposes, ShadcnSelectContentProps } from './typ
 const selectContent = definePrototype<ShadcnSelectContentProps, ShadcnSelectContentExposes>({
   name: 'shadcn-select-content',
   setup(def) {
+    // P-SHADCN-SELECT-CONTENT-POSITION-PROP
     def.props.define({
       position: {
         type: 'enum',
@@ -14,16 +15,21 @@ const selectContent = definePrototype<ShadcnSelectContentProps, ShadcnSelectCont
     });
     def.props.setDefaults({ position: 'item-aligned' });
 
+    // P-SHADCN-SELECT-CONTENT-BASE-INHERITANCE,
+    // P-SHADCN-SELECT-CONTENT-CURRENT-BASE-DEVIATIONS
     const select = asSelectContent();
+    // P-SHADCN-SELECT-CONTENT-TRANSITION
     select.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
     const { open } = select.stateHandles;
     const { transitionState } = select.asTransition;
 
+    // P-SHADCN-SELECT-CONTENT-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
         'relative z-50 w-[var(--proto-ui-anchor-width)] min-w-[var(--proto-ui-anchor-width)] max-h-[var(--proto-ui-available-height)] overflow-x-hidden overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none transition-none duration-150'
       )
     );
+    // P-SHADCN-SELECT-CONTENT-OPEN-AND-SIDE-STYLES
     def.rule({
       when: (w) =>
         w.any(w.state(transitionState).eq('entering'), w.state(transitionState).eq('entered')),
@@ -51,5 +57,7 @@ const selectContent = definePrototype<ShadcnSelectContentProps, ShadcnSelectCont
     });
   },
 });
+
+/** P-SHADCN-SELECT-CONTENT-DIRECT-ENTRY; parity is bounded by P-SHADCN-SELECT-CONTENT-COMPATIBILITY-SUBSET. */
 
 export default selectContent;

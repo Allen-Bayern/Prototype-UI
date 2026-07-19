@@ -27,15 +27,19 @@ function renderCheck(renderer: Pick<RendererHandle<any>, 'svg' | 'el'>, selected
 const selectItem = definePrototype<ShadcnSelectItemProps, ShadcnSelectItemExposes>({
   name: 'shadcn-select-item',
   setup(def) {
+    // P-SHADCN-SELECT-ITEM-BASE-INHERITANCE,
+    // P-SHADCN-SELECT-ITEM-CURRENT-BASE-DEVIATIONS
     const state = asSelectItem().stateHandles;
     if (!state) throw new Error('[shadcn-select-item] Select Item must project option states.');
     const { disabled, hovered, focused, focusVisible, pressed, active, selected } = state;
 
+    // P-SHADCN-SELECT-ITEM-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
         'relative flex w-full cursor-default items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none'
       )
     );
+    // P-SHADCN-SELECT-ITEM-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) =>
         w.any(
@@ -56,6 +60,7 @@ const selectItem = definePrototype<ShadcnSelectItemProps, ShadcnSelectItemExpose
     });
 
     let renderTask: { cancel(): void } | null = null;
+    // P-SHADCN-SELECT-ITEM-SELECTED-INDICATOR
     selected.watch((run, event) => {
       if (event.type !== 'next') return;
       renderTask?.cancel();
@@ -72,5 +77,7 @@ const selectItem = definePrototype<ShadcnSelectItemProps, ShadcnSelectItemExpose
     return (renderer) => [renderer.r.slot(), renderCheck(renderer, selected.get())];
   },
 });
+
+/** P-SHADCN-SELECT-ITEM-DIRECT-ENTRY; parity is bounded by P-SHADCN-SELECT-ITEM-COMPATIBILITY-SUBSET. */
 
 export default selectItem;

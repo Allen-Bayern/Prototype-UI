@@ -1,0 +1,61 @@
+id: T-SHADCN-SELECT-TRIGGER-0001
+type: test
+title: Shadcn Select Trigger delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Trigger Base inheritance, size, state styles, chevron, asChild omission, and bounded parity.
+cases:
+  - id: T-SHADCN-SELECT-TRIGGER-0001-CASE-CURRENT-PROTOCOL
+    title: Trigger inherits combobox behavior and projects current size, state, and chevron surface
+    covers:
+      [
+        P-SHADCN-SELECT-TRIGGER-UPSTREAM-IDENTITY,
+        P-SHADCN-SELECT-TRIGGER-BASE-INHERITANCE,
+        P-SHADCN-SELECT-TRIGGER-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-SELECT-TRIGGER-DIRECT-ENTRY,
+        P-SHADCN-SELECT-TRIGGER-SIZE-PROP,
+        P-SHADCN-SELECT-TRIGGER-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-SELECT-TRIGGER-STATE-DRIVEN-STYLES,
+        P-SHADCN-SELECT-TRIGGER-CHEVRON,
+        P-SHADCN-SELECT-TRIGGER-COMPATIBILITY-SUBSET,
+        P-SHADCN-SELECT-TRIGGER-AS-CHILD-OMISSION,
+      ]
+    expectation: shadcn-select-trigger-current-combobox-surface
+implementations:
+  - id: prototypes-shadcn-select-trigger-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/select.test.ts
+    required: true
+    consumesCases: [T-SHADCN-SELECT-TRIGGER-0001-CASE-CURRENT-PROTOCOL]
+    exercises: [P-SHADCN-SELECT-TRIGGER, P-BASE-SELECT-TRIGGER]
+    notes:
+      [
+        Tests cover combobox role,
+        placeholder,
+        default and sm size,
+        chevron,
+        open requests,
+        keyboard entry,
+        and current tokens; remaining gaps stay centralized.,
+      ]
+verifies:
+  prototypes:
+    - id: P-SHADCN-SELECT-TRIGGER
+      anchors:
+        [
+          P-SHADCN-SELECT-TRIGGER-UPSTREAM-IDENTITY,
+          P-SHADCN-SELECT-TRIGGER-BASE-INHERITANCE,
+          P-SHADCN-SELECT-TRIGGER-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-SELECT-TRIGGER-DIRECT-ENTRY,
+          P-SHADCN-SELECT-TRIGGER-SIZE-PROP,
+          P-SHADCN-SELECT-TRIGGER-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-SELECT-TRIGGER-STATE-DRIVEN-STYLES,
+          P-SHADCN-SELECT-TRIGGER-CHEVRON,
+          P-SHADCN-SELECT-TRIGGER-COMPATIBILITY-SUBSET,
+          P-SHADCN-SELECT-TRIGGER-AS-CHILD-OMISSION,
+        ]
+exercises: { prototypes: [P-SHADCN-SELECT-TRIGGER, P-BASE-SELECT-TRIGGER] }
+revisions:
+  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Select Trigger delta coverage. }]
+tags: [prototype, shadcn, select, trigger, delta, compatibility, test]

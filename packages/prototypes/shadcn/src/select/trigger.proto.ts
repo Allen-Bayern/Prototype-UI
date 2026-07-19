@@ -25,22 +25,27 @@ function renderChevron(renderer: Pick<RendererHandle<any>, 'svg' | 'el'>) {
 const selectTrigger = definePrototype<ShadcnSelectTriggerProps, ShadcnSelectTriggerExposes>({
   name: 'shadcn-select-trigger',
   setup(def) {
+    // P-SHADCN-SELECT-TRIGGER-SIZE-PROP
     def.props.define({
       size: { type: 'enum', empty: 'fallback', options: ['sm', 'default'] },
     });
     def.props.setDefaults({ size: 'default' });
 
+    // P-SHADCN-SELECT-TRIGGER-BASE-INHERITANCE,
+    // P-SHADCN-SELECT-TRIGGER-CURRENT-BASE-DEVIATIONS
     const state = asSelectTrigger().stateHandles;
     if (!state) {
       throw new Error('[shadcn-select-trigger] Select Trigger must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed, placeholder } = state;
 
+    // P-SHADCN-SELECT-TRIGGER-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
         'flex items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-colors outline-none select-none'
       )
     );
+    // P-SHADCN-SELECT-TRIGGER-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.prop('size').eq('default'),
       intent: (i) => i.feedback.style.use(tw('h-9')),
@@ -70,8 +75,11 @@ const selectTrigger = definePrototype<ShadcnSelectTriggerProps, ShadcnSelectTrig
       intent: (i) => i.feedback.style.use(tw('pointer-events-none opacity-50')),
     });
 
+    // P-SHADCN-SELECT-TRIGGER-CHEVRON
     return (renderer) => [renderer.r.slot(), renderChevron(renderer)];
   },
 });
+
+/** P-SHADCN-SELECT-TRIGGER-DIRECT-ENTRY; parity is bounded by P-SHADCN-SELECT-TRIGGER-COMPATIBILITY-SUBSET. */
 
 export default selectTrigger;

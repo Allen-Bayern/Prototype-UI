@@ -58,6 +58,10 @@ relates:
       P-SHADCN-DROPDOWN-MENU-TRIGGER,
       P-SHADCN-DROPDOWN-MENU-CONTENT,
       P-SHADCN-DROPDOWN-MENU-ITEM,
+      P-SHADCN-SELECT-TRIGGER,
+      P-SHADCN-SELECT-VALUE,
+      P-SHADCN-SELECT-CONTENT,
+      P-SHADCN-SELECT-ITEM,
     ]
 revisions:
   - version: 0.2.0
@@ -78,4 +82,7 @@ revisions:
   - version: 0.2.5
     change: refined
     summary: Linked the Shadcn Dropdown Menu Trigger, Content, and Item projections as governed consumers of the shared asChild omission decision.
+  - version: 0.2.6
+    change: refined
+    summary: Linked the Shadcn Select Trigger, Value, Content, and Item projections as governed consumers of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

@@ -29,26 +29,6 @@
     {
       "file": "packages/prototypes/shadcn/src/dialog/trigger.proto.ts",
       "entries": [{ "kind": "prototype", "name": "shadcn-dialog-trigger" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/select/content.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-select-content" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/select/item.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-select-item" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/select/root.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-select-root" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/select/trigger.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-select-trigger" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/select/value.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-select-value" }]
     }
   ]
 }

@@ -53,6 +53,14 @@ afterEach(async () => {
 });
 
 describe('prototypes/shadcn: select', () => {
+  it('keeps every Select anatomy part as a named direct entry', () => {
+    expect(selectRoot.name).toBe('shadcn-select-root');
+    expect(selectTrigger.name).toBe('shadcn-select-trigger');
+    expect(selectValue.name).toBe('shadcn-select-value');
+    expect(selectContent.name).toBe('shadcn-select-content');
+    expect(selectItem.name).toBe('shadcn-select-item');
+  });
+
   it('composes the official five-part API with shadcn Trigger, Content, and Item styling', async () => {
     vi.useFakeTimers();
     const { trigger, value, content, alpha } = createSelect();
