@@ -8,19 +8,24 @@ const ITEM_BASE_TOKENS =
 const dropdownItem = definePrototype<ShadcnDropdownItemProps, ShadcnDropdownItemExposes>({
   name: 'shadcn-dropdown-item',
   setup(def) {
+    // P-SHADCN-DROPDOWN-MENU-ITEM-VISUAL-PROPS
     def.props.define({
       inset: { type: 'boolean', empty: 'fallback' },
       variant: { type: 'enum', empty: 'fallback', options: ['default', 'destructive'] },
     });
     def.props.setDefaults({ inset: false, variant: 'default' });
 
+    // P-SHADCN-DROPDOWN-MENU-ITEM-BASE-INHERITANCE,
+    // P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-BASE-DEVIATIONS
     const itemState = asDropdownItem().stateHandles;
     if (!itemState) {
       throw new Error('[shadcn-dropdown-item] Dropdown Item must project command states.');
     }
     const { disabled, hovered, focused, focusVisible, pressed, active } = itemState;
 
+    // P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(ITEM_BASE_TOKENS));
+    // P-SHADCN-DROPDOWN-MENU-ITEM-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.prop('inset').eq(true),
       intent: (i) => i.feedback.style.use(tw('pl-8')),
@@ -53,5 +58,7 @@ const dropdownItem = definePrototype<ShadcnDropdownItemProps, ShadcnDropdownItem
     });
   },
 });
+
+/** P-SHADCN-DROPDOWN-MENU-ITEM-DIRECT-ENTRY; parity is bounded by P-SHADCN-DROPDOWN-MENU-ITEM-COMPATIBILITY-SUBSET. */
 
 export default dropdownItem;

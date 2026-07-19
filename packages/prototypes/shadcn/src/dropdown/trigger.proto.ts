@@ -71,6 +71,7 @@ function renderIndicatorIcon(
 const dropdownTrigger = definePrototype<ShadcnDropdownTriggerProps, ShadcnDropdownTriggerExposes>({
   name: 'shadcn-dropdown-trigger',
   setup(def) {
+    // P-SHADCN-DROPDOWN-MENU-TRIGGER-INDICATOR-EXTENSION
     def.props.define({
       disabled: { type: 'boolean', empty: 'fallback' },
       indicator: { type: 'boolean', empty: 'fallback' },
@@ -90,14 +91,18 @@ const dropdownTrigger = definePrototype<ShadcnDropdownTriggerProps, ShadcnDropdo
       indicatorStrokeWidth: DEFAULT_INDICATOR_STROKE_WIDTH,
     });
 
+    // P-SHADCN-DROPDOWN-MENU-TRIGGER-BASE-INHERITANCE,
+    // P-SHADCN-DROPDOWN-MENU-TRIGGER-CURRENT-BASE-DEVIATIONS
     const buttonState = asDropdownTrigger().stateHandles;
     if (!buttonState) {
       throw new Error('[shadcn-dropdown-trigger] Dropdown Trigger must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 
+    // P-SHADCN-DROPDOWN-MENU-TRIGGER-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
+    // P-SHADCN-DROPDOWN-MENU-TRIGGER-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(hovered).eq(true),
       intent: (i) => i.feedback.style.use(tw('bg-muted text-foreground')),
@@ -142,5 +147,7 @@ const dropdownTrigger = definePrototype<ShadcnDropdownTriggerProps, ShadcnDropdo
     };
   },
 });
+
+/** P-SHADCN-DROPDOWN-MENU-TRIGGER-DIRECT-ENTRY; parity is bounded by P-SHADCN-DROPDOWN-MENU-TRIGGER-COMPATIBILITY-SUBSET. */
 
 export default dropdownTrigger;

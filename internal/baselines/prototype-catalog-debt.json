@@ -31,22 +31,6 @@
       "entries": [{ "kind": "prototype", "name": "shadcn-dialog-trigger" }]
     },
     {
-      "file": "packages/prototypes/shadcn/src/dropdown/content.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-content" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dropdown/item.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-item" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dropdown/root.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-root" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dropdown/trigger.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-trigger" }]
-    },
-    {
       "file": "packages/prototypes/shadcn/src/select/content.proto.ts",
       "entries": [{ "kind": "prototype", "name": "shadcn-select-content" }]
     },

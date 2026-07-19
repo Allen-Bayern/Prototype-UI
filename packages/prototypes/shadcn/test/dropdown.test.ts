@@ -48,6 +48,13 @@ afterEach(async () => {
 });
 
 describe('prototypes/shadcn: dropdown-menu', () => {
+  it('keeps every Dropdown Menu anatomy part as a named direct entry', () => {
+    expect(dropdownRoot.name).toBe('shadcn-dropdown-root');
+    expect(dropdownTrigger.name).toBe('shadcn-dropdown-trigger');
+    expect(dropdownContent.name).toBe('shadcn-dropdown-content');
+    expect(dropdownItem.name).toBe('shadcn-dropdown-item');
+  });
+
   it('composes official-style Content and Item tokens over Base behavior', async () => {
     vi.useFakeTimers();
     const { root, trigger, content, item, destructive } = createDropdown();

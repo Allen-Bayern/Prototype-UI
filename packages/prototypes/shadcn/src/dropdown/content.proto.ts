@@ -5,16 +5,21 @@ import type { ShadcnDropdownContentExposes, ShadcnDropdownContentProps } from '.
 const dropdownContent = definePrototype<ShadcnDropdownContentProps, ShadcnDropdownContentExposes>({
   name: 'shadcn-dropdown-content',
   setup(def) {
+    // P-SHADCN-DROPDOWN-MENU-CONTENT-BASE-INHERITANCE,
+    // P-SHADCN-DROPDOWN-MENU-CONTENT-CURRENT-BASE-DEVIATIONS
     const dropdown = asDropdownContent();
+    // P-SHADCN-DROPDOWN-MENU-CONTENT-TRANSITION
     dropdown.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
     const { open } = dropdown.stateHandles;
     const { transitionState } = dropdown.asTransition;
 
+    // P-SHADCN-DROPDOWN-MENU-CONTENT-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
         'z-50 max-h-[var(--proto-ui-available-height)] min-w-32 overflow-x-hidden overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md outline-none transition-none duration-150'
       )
     );
+    // P-SHADCN-DROPDOWN-MENU-CONTENT-OPEN-AND-SIDE-STYLES
     def.rule({
       when: (w) =>
         w.any(w.state(transitionState).eq('entering'), w.state(transitionState).eq('entered')),
@@ -42,5 +47,7 @@ const dropdownContent = definePrototype<ShadcnDropdownContentProps, ShadcnDropdo
     });
   },
 });
+
+/** P-SHADCN-DROPDOWN-MENU-CONTENT-DIRECT-ENTRY; parity is bounded by P-SHADCN-DROPDOWN-MENU-CONTENT-COMPATIBILITY-SUBSET. */
 
 export default dropdownContent;
