@@ -23,6 +23,8 @@ const BASE_TOKENS = [
 const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExposes>({
   name: 'shadcn-tabs-trigger',
   setup(def) {
+    // P-SHADCN-TABS-TRIGGER-BASE-INHERITANCE,
+    // P-SHADCN-TABS-TRIGGER-CURRENT-BASE-DEVIATIONS
     const triggerState = asTabsTrigger().stateHandles;
     if (!triggerState) {
       throw new Error(
@@ -31,8 +33,10 @@ const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExp
     }
     const { disabled, hovered, focusVisible, pressed, selected } = triggerState;
 
+    // P-SHADCN-TABS-TRIGGER-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(BASE_TOKENS));
 
+    // P-SHADCN-TABS-TRIGGER-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(focusVisible).eq(true),
       intent: (i) =>
@@ -65,5 +69,7 @@ const tabsTrigger = definePrototype<ShadcnTabsTriggerProps, ShadcnTabsTriggerExp
     });
   },
 });
+
+/** P-SHADCN-TABS-TRIGGER-DIRECT-ENTRY; parity remains bounded by P-SHADCN-TABS-TRIGGER-COMPATIBILITY-SUBSET. */
 
 export default tabsTrigger;

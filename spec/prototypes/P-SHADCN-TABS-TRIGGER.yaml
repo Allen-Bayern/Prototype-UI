@@ -1,0 +1,111 @@
+id: P-SHADCN-TABS-TRIGGER
+type: prototype
+title: Shadcn Tabs Trigger inherits Base Tabs Trigger and adds current tab styling
+status: draft
+since: 0.2.0
+summary: Shadcn Tabs Trigger inherits Base tab selection, focus, activation, and accessibility behavior and adds the currently implemented trigger and state-driven visual surface.
+statement:
+  zh-CN: >-
+    Shadcn Tabs Trigger 是 `P-BASE-TABS-TRIGGER` 之上的 direct anatomy part，保留同域 tab identity、selection request、interaction/focus state、disabled gating 与 a11y，并增加当前 trigger surface 以及 selected、hovered、pressed、focusVisible、disabled 视觉反馈。固定 upstream 的 orientation/variant-aware styling、SVG handling 与其他 API/token 差异尚不属于 passing guarantee；`asChild` 明确不提供。
+
+
+  en: >-
+    Shadcn Tabs Trigger is a direct anatomy part over `P-BASE-TABS-TRIGGER`. It retains same-domain tab identity, selection requests, interaction and focus state, disabled gating, and accessibility while adding the current trigger surface and selected, hovered, pressed, focusVisible, and disabled feedback. Pinned-upstream orientation and variant-aware styling, SVG handling, and other API or token differences are not part of the passing guarantee; `asChild` is explicitly unavailable.
+
+
+criteria:
+  - id: P-SHADCN-TABS-TRIGGER-UPSTREAM-IDENTITY
+    text:
+      zh-CN: Trigger 必须沿用固定 Shadcn Tabs revision/path，并明确为 Proto UI 治理的非官方 anatomy projection。
+      en: Trigger must use the pinned Shadcn Tabs revision and path and identify itself as an unofficial Proto UI-governed anatomy projection.
+  - id: P-SHADCN-TABS-TRIGGER-BASE-INHERITANCE
+    text:
+      zh-CN: '`shadcn-tabs-trigger` 必须继承 `P-BASE-TABS-TRIGGER` 并调用 `asTabsTrigger()`；任何 setup-only 负向补丁必须声明被改写能力及替代语义。'
+      en: '`shadcn-tabs-trigger` must inherit `P-BASE-TABS-TRIGGER` and call `asTabsTrigger()`; any setup-only negative patch must identify the rewritten capability and replacement semantics.'
+    references:
+      prototypes:
+        - id: P-BASE-TABS-TRIGGER
+          anchors:
+            [
+              P-BASE-TABS-TRIGGER-AUTHORING-ENTRIES,
+              P-BASE-TABS-TRIGGER-ROLE-TAB,
+              P-BASE-TABS-TRIGGER-ACTIVATION-REQUESTS-SELECTION,
+            ]
+  - id: P-SHADCN-TABS-TRIGGER-CURRENT-BASE-DEVIATIONS
+    text:
+      zh-CN: 当前实现不反转 inherited selection、context、interaction、focus、disabled、keyboard、click signal 或 a11y guarantee；新增 rules 仅构成视觉增量。
+      en: The current implementation reverses no inherited selection, context, interaction, focus, disabled, keyboard, click-signal, or accessibility guarantee; added rules are visual deltas only.
+  - id: P-SHADCN-TABS-TRIGGER-DIRECT-ENTRY
+    text:
+      zh-CN: 当前 Trigger protocol 以 `shadcn-tabs-trigger` direct prototype 公开。
+      en: The current Trigger protocol is exposed as the `shadcn-tabs-trigger` direct prototype.
+  - id: P-SHADCN-TABS-TRIGGER-CURRENT-VISUAL-SURFACE
+    text:
+      zh-CN: Trigger 必须提供当前 alignment、spacing、radius、border、typography、transition、outline 与 muted foreground tokens。
+      en: Trigger must provide the current alignment, spacing, radius, border, typography, transition, outline, and muted-foreground tokens.
+  - id: P-SHADCN-TABS-TRIGGER-STATE-DRIVEN-STYLES
+    text:
+      zh-CN: selected、hovered、pressed、focusVisible 与 disabled rules 必须从 inherited Trigger state 派生，不得创建第二套 selection 或 interaction truth。
+      en: Selected, hovered, pressed, focusVisible, and disabled rules must derive from inherited Trigger state and must not create a second selection or interaction source of truth.
+    references:
+      prototypes:
+        - id: P-BASE-TABS-TRIGGER
+          anchors:
+            [
+              P-BASE-TABS-TRIGGER-SELECTED-DERIVED,
+              P-BASE-TABS-TRIGGER-INTERACTION-STATES,
+              P-BASE-TABS-TRIGGER-FOCUSABLE,
+              P-BASE-TABS-TRIGGER-DISABLED-EXPOSE,
+            ]
+  - id: P-SHADCN-TABS-TRIGGER-COMPATIBILITY-SUBSET
+    text:
+      zh-CN: 当前实体只声明已测试的 inherited behavior 与视觉 surface；固定 baseline 的全部差异集中维护在唯一 compatibility open question。
+      en: This entity claims only tested inherited behavior and visual surface; every difference from the pinned baseline is maintained in one compatibility open question.
+  - id: P-SHADCN-TABS-TRIGGER-AS-CHILD-OMISSION
+    text:
+      zh-CN: upstream Trigger props 中的 `asChild` 依共享决策有意省略。
+      en: The `asChild` member of upstream Trigger props is intentionally omitted under the shared decision.
+    dependsOn:
+      decisions: [D-AS-CHILD-OMISSION-0001]
+openQuestions:
+  - id: P-SHADCN-TABS-TRIGGER-Q-UPSTREAM-DIFFERENCES
+    question:
+      zh-CN: Trigger 的 orientation/variant-aware styling 与其他 upstream parity 应如何收敛？
+      en: How should Trigger orientation and variant-aware styling and other upstream parity converge?
+    context:
+      zh-CN: >-
+        intentional deviation 是省略 `asChild`。待实现或待评审项包括 className/native prop forwarding、data-slot、Radix data-state 映射、vertical full-width/left alignment、List line/default variant 分支及 line indicator、dark styles、nested SVG handling、focus outline，以及当前 px/py、radius、shadow、hover、pressed、ring offset 与 transition tokens 相对 upstream 的精确差异。
+
+
+      en: >-
+        The intentional deviation is omission of `asChild`. Implementation or review gaps include className and native prop forwarding, data-slot, Radix data-state mapping, vertical full-width and left alignment, List line/default variant branches and line indicator, dark styles, nested-SVG handling, focus outline, and exact differences in current padding, radius, shadow, hover, press, ring offset, and transition tokens.
+
+
+    blocks: [shadcn tabs trigger parity roadmap]
+sources:
+  - path: packages/prototypes/shadcn/src/tabs/trigger.proto.ts
+  - path: packages/prototypes/shadcn/src/tabs/types.ts
+  - path: packages/prototypes/shadcn/test/tabs.test.ts
+  - path: https://github.com/shadcn-ui/ui/blob/f31ed81983653919dd4fe77aee4b4859f610f1dc/apps/v4/registry/new-york-v4/ui/tabs.tsx
+    label: shadcn/ui v4 new-york TabsTrigger pinned baseline
+dependsOn:
+  contracts:
+    [
+      C-AS-HOOK-0001,
+      C-CORE-SYNTAX-0003,
+      C-CORE-SYNTAX-0007,
+      C-RULE-WHEN-0002,
+      C-RULE-INTENT-FEEDBACK-STYLE-0001,
+    ]
+  decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-AS-CHILD-OMISSION-0001]
+  prototypes: [P-SHADCN-TABS]
+inherits:
+  prototypes:
+    - id: P-BASE-TABS-TRIGGER
+      note: Default inherited tab protocol; explicit setup-time negative patches must be declared.
+verifies: { tests: [T-SHADCN-TABS-TRIGGER-0001] }
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Introduced Shadcn Tabs Trigger delta cataloging with Base inheritance, state-driven styles, intentional asChild omission, and centralized parity gaps.
+tags: [prototype, shadcn, tabs, trigger, upstream-derived, delta, compatibility, visual]

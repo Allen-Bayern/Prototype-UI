@@ -44,7 +44,16 @@ sources:
 dependsOn:
   contracts: [C-AS-TRIGGER-0001, C-AS-HOOK-PRIVILEGED-0001]
 relates:
-  prototypes: [P-SHADCN-BUTTON, P-SHADCN-TOGGLE, P-SHADCN-SWITCH]
+  prototypes:
+    [
+      P-SHADCN-BUTTON,
+      P-SHADCN-TOGGLE,
+      P-SHADCN-SWITCH,
+      P-SHADCN-TABS,
+      P-SHADCN-TABS-LIST,
+      P-SHADCN-TABS-TRIGGER,
+      P-SHADCN-TABS-CONTENT,
+    ]
 revisions:
   - version: 0.2.0
     change: introduced
@@ -55,4 +64,7 @@ revisions:
   - version: 0.2.2
     change: refined
     summary: Linked Shadcn Switch Root as an additional governed consumer of the shared asChild omission decision.
+  - version: 0.2.3
+    change: refined
+    summary: Linked the Shadcn Tabs Root, List, Trigger, and Content projections as governed consumers of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

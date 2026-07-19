@@ -1,0 +1,110 @@
+id: P-SHADCN-TABS-CONTENT
+type: prototype
+title: Shadcn Tabs Content inherits Base Tabs Content and adds the current panel surface
+status: draft
+since: 0.2.0
+summary: Shadcn Tabs Content inherits Base same-domain panel selection, presence, and accessibility behavior and adds the currently implemented panel and hidden styling.
+statement:
+  zh-CN: >-
+    Shadcn Tabs Content 是 `P-BASE-TABS-CONTENT` 之上的 direct anatomy part，保留同域 panel identity、current/hidden 派生状态、presence policy 与 a11y，并增加当前 panel surface 与 hidden visual projection。固定 upstream 的 minimal flex surface、forceMount API 和其他 API/token 差异尚不属于 passing guarantee；`asChild` 明确不提供。
+
+
+  en: >-
+    Shadcn Tabs Content is a direct anatomy part over `P-BASE-TABS-CONTENT`. It retains same-domain panel identity, derived current and hidden state, presence policy, and accessibility while adding the current panel surface and hidden visual projection. The pinned upstream minimal flex surface, forceMount API, and other API or token differences are not part of the passing guarantee; `asChild` is explicitly unavailable.
+
+
+criteria:
+  - id: P-SHADCN-TABS-CONTENT-UPSTREAM-IDENTITY
+    text:
+      zh-CN: Content 必须沿用固定 Shadcn Tabs revision/path，并明确为 Proto UI 治理的非官方 anatomy projection。
+      en: Content must use the pinned Shadcn Tabs revision and path and identify itself as an unofficial Proto UI-governed anatomy projection.
+  - id: P-SHADCN-TABS-CONTENT-BASE-INHERITANCE
+    text:
+      zh-CN: '`shadcn-tabs-content` 必须继承 `P-BASE-TABS-CONTENT` 并调用 `asTabsContent()`；任何 setup-only 负向补丁必须显式声明。'
+      en: '`shadcn-tabs-content` must inherit `P-BASE-TABS-CONTENT` and call `asTabsContent()`; any setup-only negative patch must be declared explicitly.'
+    references:
+      prototypes:
+        - id: P-BASE-TABS-CONTENT
+          anchors:
+            [
+              P-BASE-TABS-CONTENT-AUTHORING-ENTRIES,
+              P-BASE-TABS-CONTENT-ROLE-PANEL,
+              P-BASE-TABS-CONTENT-CURRENT-DERIVED,
+            ]
+  - id: P-SHADCN-TABS-CONTENT-CURRENT-BASE-DEVIATIONS
+    text:
+      zh-CN: 当前实现不反转 inherited context、current/hidden、presence 或 a11y guarantee；新增 style 与 hidden rule 仅构成呈现增量。
+      en: The current implementation reverses no inherited context, current or hidden state, presence, or accessibility guarantee; added style and hidden rules are presentation deltas only.
+  - id: P-SHADCN-TABS-CONTENT-DIRECT-ENTRY
+    text:
+      zh-CN: 当前 Content protocol 以 `shadcn-tabs-content` direct prototype 公开。
+      en: The current Content protocol is exposed as the `shadcn-tabs-content` direct prototype.
+  - id: P-SHADCN-TABS-CONTENT-CURRENT-VISUAL-SURFACE
+    text:
+      zh-CN: Content 必须提供当前 block、full width、minimum height、radius、border、background、padding、typography、shadow 与 outline tokens。
+      en: Content must provide the current block, full-width, minimum-height, radius, border, background, padding, typography, shadow, and outline tokens.
+  - id: P-SHADCN-TABS-CONTENT-HIDDEN-PROJECTION
+    text:
+      zh-CN: hidden visual rule 必须从 inherited hidden state 派生，且不得替代 Base Content 的 presence policy 或 host hidden projection。
+      en: The hidden visual rule must derive from inherited hidden state and must not replace Base Content presence policy or host hidden projection.
+    references:
+      prototypes:
+        - id: P-BASE-TABS-CONTENT
+          anchors:
+            [
+              P-BASE-TABS-CONTENT-CURRENT-DERIVED,
+              P-BASE-TABS-CONTENT-HIDDEN-WHEN-INACTIVE,
+              P-BASE-TABS-CONTENT-PRESENCE-POLICY,
+            ]
+  - id: P-SHADCN-TABS-CONTENT-COMPATIBILITY-SUBSET
+    text:
+      zh-CN: 当前实体只声明已测试的 inherited panel behavior 与视觉 surface；固定 baseline 的全部差异集中维护在唯一 compatibility open question。
+      en: This entity claims only tested inherited panel behavior and visual surface; every difference from the pinned baseline is maintained in one compatibility open question.
+  - id: P-SHADCN-TABS-CONTENT-AS-CHILD-OMISSION
+    text:
+      zh-CN: upstream Content props 中的 `asChild` 依共享决策有意省略。
+      en: The `asChild` member of upstream Content props is intentionally omitted under the shared decision.
+    dependsOn:
+      decisions: [D-AS-CHILD-OMISSION-0001]
+openQuestions:
+  - id: P-SHADCN-TABS-CONTENT-Q-UPSTREAM-DIFFERENCES
+    question:
+      zh-CN: Content 的 presence API、host projection 与 upstream visual parity 应如何收敛？
+      en: How should Content presence API, host projection, and upstream visual parity converge?
+    context:
+      zh-CN: >-
+        intentional deviation 是省略 `asChild`。待实现或待评审项包括 upstream Radix `forceMount` 相对 Proto UI `keepMounted` 的语义映射、className/native prop forwarding、data-slot，以及 upstream 仅有 flex-1/outline-none 相对当前 block、min-height、border、background、padding、typography 与 shadow surface 的差异。当前 hidden rule 与 adapter hidden attribute/presence 的职责边界也需继续核对。
+
+
+      en: >-
+        The intentional deviation is omission of `asChild`. Implementation or review gaps include mapping upstream Radix `forceMount` to Proto UI `keepMounted`, className and native prop forwarding, data-slot, and the difference between upstream's flex-1 and outline-none surface and the current block, minimum-height, border, background, padding, typography, and shadow surface. The responsibility boundary between the current hidden rule and adapter hidden-attribute or presence projection also needs review.
+
+
+    blocks: [shadcn tabs content parity roadmap]
+sources:
+  - path: packages/prototypes/shadcn/src/tabs/content.proto.ts
+  - path: packages/prototypes/shadcn/src/tabs/types.ts
+  - path: packages/prototypes/shadcn/test/tabs.test.ts
+  - path: https://github.com/shadcn-ui/ui/blob/f31ed81983653919dd4fe77aee4b4859f610f1dc/apps/v4/registry/new-york-v4/ui/tabs.tsx
+    label: shadcn/ui v4 new-york TabsContent pinned baseline
+dependsOn:
+  contracts:
+    [
+      C-AS-HOOK-0001,
+      C-CORE-SYNTAX-0003,
+      C-CORE-SYNTAX-0007,
+      C-RULE-WHEN-0002,
+      C-RULE-INTENT-FEEDBACK-STYLE-0001,
+    ]
+  decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-AS-CHILD-OMISSION-0001]
+  prototypes: [P-SHADCN-TABS]
+inherits:
+  prototypes:
+    - id: P-BASE-TABS-CONTENT
+      note: Default inherited panel protocol; explicit setup-time negative patches must be declared.
+verifies: { tests: [T-SHADCN-TABS-CONTENT-0001] }
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Introduced Shadcn Tabs Content delta cataloging with Base inheritance, current panel surface, hidden projection, intentional asChild omission, and centralized parity gaps.
+tags: [prototype, shadcn, tabs, content, upstream-derived, delta, compatibility, visual]

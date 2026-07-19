@@ -77,22 +77,6 @@
     {
       "file": "packages/prototypes/shadcn/src/select/value.proto.ts",
       "entries": [{ "kind": "prototype", "name": "shadcn-select-value" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/tabs/content.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-content" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/tabs/list.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-list" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/tabs/root.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-root" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/tabs/trigger.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-trigger" }]
     }
   ]
 }
