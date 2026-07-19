@@ -79,6 +79,13 @@ describe('prototypes/shadcn: toggle', () => {
 
     const { controller } = executeWithHost(toggle as any, host as any);
 
+    // T-SHADCN-TOGGLE-0001-CASE-IDENTITY-AND-INHERITANCE:
+    // the current projection installs asToggle and declares no negative patch.
+    expect(toggle.name).toBe('shadcn-toggle');
+    expect((toggle as any).__asHooks).toContainEqual(
+      expect.objectContaining({ name: 'as-toggle', mode: 'once' })
+    );
+
     let tokens = controller.getRuleStyleTokens();
     expect(tokens).toContain('h-8');
     expect(tokens).toContain('bg-transparent');

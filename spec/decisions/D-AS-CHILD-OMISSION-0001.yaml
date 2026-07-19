@@ -44,9 +44,12 @@ sources:
 dependsOn:
   contracts: [C-AS-TRIGGER-0001, C-AS-HOOK-PRIVILEGED-0001]
 relates:
-  prototypes: [P-SHADCN-BUTTON]
+  prototypes: [P-SHADCN-BUTTON, P-SHADCN-TOGGLE]
 revisions:
   - version: 0.2.0
     change: introduced
     summary: Recorded the intentional omission of asChild in favor of component-author-owned role declarations and automatic asTrigger event-route merging.
+  - version: 0.2.1
+    change: refined
+    summary: Linked Shadcn Toggle as an additional governed consumer of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

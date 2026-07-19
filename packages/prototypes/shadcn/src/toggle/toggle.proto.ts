@@ -31,6 +31,7 @@ const SIZE_TOKENS: Record<NonNullable<ShadcnToggleProps['size']>, string> = {
 const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
   name: 'shadcn-toggle',
   setup(def) {
+    // P-SHADCN-TOGGLE-VARIANT-PROP, P-SHADCN-TOGGLE-SIZE-PROP
     def.props.define({
       variant: { type: 'enum', empty: 'fallback', options: ['default', 'outline'] },
       size: { type: 'enum', empty: 'fallback', options: ['default', 'sm', 'lg'] },
@@ -45,12 +46,17 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
       disabled: false,
     });
 
+    // P-SHADCN-TOGGLE-BASE-INHERITANCE,
+    // P-SHADCN-TOGGLE-CURRENT-BASE-DEVIATIONS
+    // The current projection keeps every asToggle-introduced behavior. A future
+    // setup-only negative patch must first be declared as a P-entity deviation.
     const toggleState = asToggle().stateHandles;
     if (!toggleState) {
       throw new Error('[shadcn-toggle] asToggle must project Toggle state handles.');
     }
     const { active, disabled, hovered, focusVisible } = toggleState;
 
+    // P-SHADCN-TOGGLE-DIRECT-ENTRY
     def.feedback.style.use(tw(TOGGLE_BASE_TOKENS));
 
     (Object.keys(VARIANT_TOKENS) as Array<NonNullable<ShadcnToggleProps['variant']>>).forEach(
@@ -69,6 +75,7 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
       });
     });
 
+    // P-SHADCN-TOGGLE-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(active).eq(true),
       intent: (i) => i.feedback.style.use(tw('bg-muted')),
@@ -90,6 +97,14 @@ const toggle = definePrototype<ShadcnToggleProps, ShadcnToggleExposes>({
     });
   },
 });
+
+/**
+ * P-SHADCN-TOGGLE-COMPATIBILITY-SUBSET:
+ * The one catalog open question centralizes every upstream difference.
+ * P-SHADCN-TOGGLE-AS-CHILD-OMISSION is intentional under D-AS-CHILD-OMISSION-0001;
+ * pressed API aliases, native/className forwarding, invalid/SVG selectors, and
+ * exact size and visual-token parity remain implementation or review gaps.
+ */
 
 export type {
   ShadcnToggleProps,

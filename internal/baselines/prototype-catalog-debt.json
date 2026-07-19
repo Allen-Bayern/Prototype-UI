@@ -101,10 +101,6 @@
     {
       "file": "packages/prototypes/shadcn/src/tabs/trigger.proto.ts",
       "entries": [{ "kind": "prototype", "name": "shadcn-tabs-trigger" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/toggle/toggle.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-toggle" }]
     }
   ]
 }
