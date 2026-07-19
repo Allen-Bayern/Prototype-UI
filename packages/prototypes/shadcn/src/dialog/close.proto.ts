@@ -42,6 +42,7 @@ const VARIANT_TOKENS: Record<ShadcnDialogCloseVariant, string> = {
 const dialogClose = definePrototype<ShadcnDialogCloseProps, ShadcnDialogCloseExposes>({
   name: 'shadcn-dialog-close',
   setup(def) {
+    // P-SHADCN-DIALOG-CLOSE-VARIANT-PROP
     def.props.define({
       variant: {
         type: 'enum',
@@ -55,12 +56,15 @@ const dialogClose = definePrototype<ShadcnDialogCloseProps, ShadcnDialogCloseExp
       disabled: false,
     });
 
+    // P-SHADCN-DIALOG-CLOSE-BASE-INHERITANCE,
+    // P-SHADCN-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS
     const buttonState = asDialogClose().stateHandles;
     if (!buttonState) {
       throw new Error('[shadcn-dialog-close] Dialog Close must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 
+    // P-SHADCN-DIALOG-CLOSE-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(BASE_TOKENS));
 
     (Object.keys(VARIANT_TOKENS) as ShadcnDialogCloseVariant[]).forEach((variant) => {
@@ -111,5 +115,7 @@ const dialogClose = definePrototype<ShadcnDialogCloseProps, ShadcnDialogCloseExp
     });
   },
 });
+
+/** P-SHADCN-DIALOG-CLOSE-DIRECT-ENTRY and P-SHADCN-DIALOG-CLOSE-STATE-DRIVEN-STYLES. */
 
 export default dialogClose;

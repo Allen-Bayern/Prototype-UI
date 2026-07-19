@@ -62,6 +62,12 @@ relates:
       P-SHADCN-SELECT-VALUE,
       P-SHADCN-SELECT-CONTENT,
       P-SHADCN-SELECT-ITEM,
+      P-SHADCN-DIALOG-TRIGGER,
+      P-SHADCN-DIALOG-MASK,
+      P-SHADCN-DIALOG-CONTENT,
+      P-SHADCN-DIALOG-TITLE,
+      P-SHADCN-DIALOG-DESCRIPTION,
+      P-SHADCN-DIALOG-CLOSE,
     ]
 revisions:
   - version: 0.2.0
@@ -85,4 +91,7 @@ revisions:
   - version: 0.2.6
     change: refined
     summary: Linked the Shadcn Select Trigger, Value, Content, and Item projections as governed consumers of the shared asChild omission decision.
+  - version: 0.2.7
+    change: refined
+    summary: Linked the Shadcn Dialog Trigger, Mask, Content, Title, Description, and Close projections as governed consumers of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

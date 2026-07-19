@@ -5,10 +5,14 @@ import type { ShadcnDialogMaskExposes, ShadcnDialogMaskProps } from './types';
 const dialogMask = definePrototype<ShadcnDialogMaskProps, ShadcnDialogMaskExposes>({
   name: 'shadcn-dialog-mask',
   setup(def) {
+    // P-SHADCN-DIALOG-MASK-BASE-INHERITANCE,
+    // P-SHADCN-DIALOG-MASK-PUBLIC-BOUNDARY-DEVIATION
     const dialog = asDialogMask();
+    // P-SHADCN-DIALOG-MASK-TRANSITION
     dialog.asTransition.configure({ enterDuration: 150, leaveDuration: 150 });
     const dialogState = dialog.stateHandles;
     const { open } = dialogState;
+    // P-SHADCN-DIALOG-MASK-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw('fixed inset-0 bg-black/50 backdrop-blur-xs'));
 
     def.rule({
@@ -22,5 +26,7 @@ const dialogMask = definePrototype<ShadcnDialogMaskProps, ShadcnDialogMaskExpose
     });
   },
 });
+
+/** P-SHADCN-DIALOG-MASK-DIRECT-ENTRY; parity is bounded by P-SHADCN-DIALOG-MASK-COMPATIBILITY-SUBSET. */
 
 export default dialogMask;

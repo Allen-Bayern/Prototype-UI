@@ -42,6 +42,7 @@ const VARIANT_TOKENS: Record<ShadcnDialogTriggerVariant, string> = {
 const dialogTrigger = definePrototype<ShadcnDialogTriggerProps, ShadcnDialogTriggerExposes>({
   name: 'shadcn-dialog-trigger',
   setup(def) {
+    // P-SHADCN-DIALOG-TRIGGER-VARIANT-PROP
     def.props.define({
       variant: {
         type: 'enum',
@@ -55,6 +56,8 @@ const dialogTrigger = definePrototype<ShadcnDialogTriggerProps, ShadcnDialogTrig
       disabled: false,
     });
 
+    // P-SHADCN-DIALOG-TRIGGER-BASE-INHERITANCE,
+    // P-SHADCN-DIALOG-TRIGGER-CURRENT-BASE-DEVIATIONS
     const buttonState = asDialogTrigger().stateHandles;
     if (!buttonState) {
       throw new Error('[shadcn-dialog-trigger] Dialog Trigger must project command states.');
@@ -63,6 +66,7 @@ const dialogTrigger = definePrototype<ShadcnDialogTriggerProps, ShadcnDialogTrig
     const expanded = def.state.fromAccessibility('expanded');
     const invalid = def.state.fromAccessibility('invalid');
 
+    // P-SHADCN-DIALOG-TRIGGER-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(BASE_TOKENS));
 
     (Object.keys(VARIANT_TOKENS) as ShadcnDialogTriggerVariant[]).forEach((variant) => {
@@ -132,5 +136,7 @@ const dialogTrigger = definePrototype<ShadcnDialogTriggerProps, ShadcnDialogTrig
     });
   },
 });
+
+/** P-SHADCN-DIALOG-TRIGGER-DIRECT-ENTRY and P-SHADCN-DIALOG-TRIGGER-STATE-DRIVEN-STYLES. */
 
 export default dialogTrigger;

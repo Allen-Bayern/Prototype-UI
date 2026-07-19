@@ -1,0 +1,56 @@
+id: T-SHADCN-DIALOG-TRIGGER-0001
+type: test
+title: Shadcn Dialog Trigger delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Trigger Base command inheritance, variants, current state styles, asChild omission, and bounded upstream compatibility.
+cases:
+  - id: T-SHADCN-DIALOG-TRIGGER-0001-CASE-CURRENT-PROTOCOL
+    title: Trigger opens the inherited dialog and projects its current button-like surface
+    covers:
+      [
+        P-SHADCN-DIALOG-TRIGGER-UPSTREAM-IDENTITY,
+        P-SHADCN-DIALOG-TRIGGER-BASE-INHERITANCE,
+        P-SHADCN-DIALOG-TRIGGER-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-DIALOG-TRIGGER-DIRECT-ENTRY,
+        P-SHADCN-DIALOG-TRIGGER-VARIANT-PROP,
+        P-SHADCN-DIALOG-TRIGGER-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-DIALOG-TRIGGER-STATE-DRIVEN-STYLES,
+        P-SHADCN-DIALOG-TRIGGER-COMPATIBILITY-SUBSET,
+        P-SHADCN-DIALOG-TRIGGER-AS-CHILD-OMISSION,
+      ]
+    expectation: shadcn-dialog-trigger-current-open-command-surface
+implementations:
+  - id: prototypes-shadcn-dialog-trigger-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/dialog.test.ts
+    required: true
+    consumesCases: [T-SHADCN-DIALOG-TRIGGER-0001-CASE-CURRENT-PROTOCOL]
+    exercises: [P-SHADCN-DIALOG-TRIGGER, P-BASE-DIALOG-TRIGGER]
+    notes:
+      [
+        Tests cover direct identity,
+        current base tokens,
+        command activation,
+        and modal opening; enum and source review bound the remaining variant and upstream claims.,
+      ]
+verifies:
+  prototypes:
+    - id: P-SHADCN-DIALOG-TRIGGER
+      anchors:
+        [
+          P-SHADCN-DIALOG-TRIGGER-UPSTREAM-IDENTITY,
+          P-SHADCN-DIALOG-TRIGGER-BASE-INHERITANCE,
+          P-SHADCN-DIALOG-TRIGGER-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-DIALOG-TRIGGER-DIRECT-ENTRY,
+          P-SHADCN-DIALOG-TRIGGER-VARIANT-PROP,
+          P-SHADCN-DIALOG-TRIGGER-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-DIALOG-TRIGGER-STATE-DRIVEN-STYLES,
+          P-SHADCN-DIALOG-TRIGGER-COMPATIBILITY-SUBSET,
+          P-SHADCN-DIALOG-TRIGGER-AS-CHILD-OMISSION,
+        ]
+exercises: { prototypes: [P-SHADCN-DIALOG-TRIGGER, P-BASE-DIALOG-TRIGGER] }
+revisions:
+  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Trigger delta coverage. }]
+tags: [prototype, shadcn, dialog, trigger, delta, compatibility, test]

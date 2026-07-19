@@ -1,34 +1,5 @@
 {
   "schemaVersion": 1,
   "description": "Existing concrete prototype declarations that still need P/T catalog entities. CI rejects unlisted or stale debt, so accepting a new gap requires an explicit reviewed edit.",
-  "uncataloged": [
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/close.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-close" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/content.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-content" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/description.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-description" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/overlay.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-mask" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/root.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-root" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/title.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-title" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/dialog/trigger.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-trigger" }]
-    }
-  ]
+  "uncataloged": []
 }
