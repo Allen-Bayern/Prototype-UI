@@ -26,13 +26,17 @@ const ROOT_BASE_TOKENS = [
 const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExposes>({
   name: 'shadcn-switch-root',
   setup(def) {
+    // P-SHADCN-SWITCH-BASE-INHERITANCE,
+    // P-SHADCN-SWITCH-CURRENT-BASE-DEVIATIONS
     const switchState = asSwitchRoot().stateHandles;
     if (!switchState) {
       throw new Error('[shadcn-switch-root] asSwitchRoot must project Switch root state handles.');
     }
     const { checked, disabled, hovered, focusVisible, pressed } = switchState;
+    // P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
+    // P-SHADCN-SWITCH-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(checked).eq(true),
       intent: (i) =>
@@ -78,5 +82,11 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     });
   },
 });
+
+/**
+ * P-SHADCN-SWITCH-DIRECT-ENTRY exposes the current Root projection.
+ * P-SHADCN-SWITCH-COMPATIBILITY-SUBSET and P-SHADCN-SWITCH-AS-CHILD-OMISSION
+ * keep upstream parity outside the passing claim unless it is implemented and tested.
+ */
 
 export default switchRoot;

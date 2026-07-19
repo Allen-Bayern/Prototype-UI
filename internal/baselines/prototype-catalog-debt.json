@@ -79,14 +79,6 @@
       "entries": [{ "kind": "prototype", "name": "shadcn-select-value" }]
     },
     {
-      "file": "packages/prototypes/shadcn/src/switch/root.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-switch-root" }]
-    },
-    {
-      "file": "packages/prototypes/shadcn/src/switch/thumb.proto.ts",
-      "entries": [{ "kind": "prototype", "name": "shadcn-switch-thumb" }]
-    },
-    {
       "file": "packages/prototypes/shadcn/src/tabs/content.proto.ts",
       "entries": [{ "kind": "prototype", "name": "shadcn-tabs-content" }]
     },

@@ -7,6 +7,11 @@ AdaptToWebComponent(switchRoot as any);
 AdaptToWebComponent(switchThumb as any);
 
 describe('prototypes/shadcn: switch', () => {
+  it('keeps root and thumb as named direct entries', () => {
+    expect(switchRoot.name).toBe('shadcn-switch-root');
+    expect(switchThumb.name).toBe('shadcn-switch-thumb');
+  });
+
   it('runs as a compound switch and keeps thumb attached to root state', async () => {
     const root = document.createElement('shadcn-switch-root') as any;
     const thumb = document.createElement('shadcn-switch-thumb') as any;

@@ -22,9 +22,19 @@ const THUMB_TOKENS = [
 const switchThumb = definePrototype<ShadcnSwitchThumbProps, ShadcnSwitchThumbExposes>({
   name: 'shadcn-switch-thumb',
   setup(def) {
+    // P-SHADCN-SWITCH-THUMB-BASE-INHERITANCE,
+    // P-SHADCN-SWITCH-THUMB-CURRENT-BASE-DEVIATIONS,
+    // P-SHADCN-SWITCH-THUMB-CONTEXT-INDICATOR
     asSwitchThumb();
+    // P-SHADCN-SWITCH-THUMB-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(THUMB_TOKENS));
   },
 });
+
+/**
+ * P-SHADCN-SWITCH-THUMB-DIRECT-ENTRY exposes the current anatomy part.
+ * P-SHADCN-SWITCH-THUMB-COMPATIBILITY-SUBSET keeps the upstream composition
+ * and token differences outside the passing claim.
+ */
 
 export default switchThumb;
