@@ -611,7 +611,7 @@ Decision 潜力：
 来源：
 
 - `internal/contracts/focus/base-text/as-focusable.v0.md`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 - `packages/runtime/test/contract/focus.v0.contract.test.ts`
 - `packages/adapters/*/test/focus.test.ts`
 
@@ -744,7 +744,7 @@ Decision 潜力：
 - `internal/contracts/as-hook/as-hook.v0.md`
 - `internal/contracts/as-hook/base-text/as-hook.v0.md`
 - `packages/core/src/prototype.ts`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 - `packages/runtime/test/contract/as-hook.v0.contract.test.ts`
 - `packages/modules/as-trigger/src/impl.ts`
 
@@ -893,7 +893,7 @@ Decision 潜力：
 来源：
 
 - `internal/contracts/prototype-base/button.v0.md`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 - `packages/prototypes/base/test/as-button.test.ts`
 - `packages/modules/state-interaction/src/create.ts`
 - `packages/runtime/test/contract/focus.v0.contract.test.ts`
@@ -953,7 +953,7 @@ Decision 潜力：
 - `internal/contracts/state/interaction/base-text/interaction-state-projection.v0.md`
 - `packages/core/src/state.ts`
 - `packages/modules/state-interaction/src/create.ts`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 
 当前事实：
 
@@ -998,7 +998,7 @@ Decision 潜力：
 - `internal/contracts/expose/expose-event.v0.md`
 - `internal/contracts/event/event.v0.md`
 - `internal/contracts/event/event-type.v0.md`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 - `packages/prototypes/base/test/as-button.test.ts`
 - `packages/adapters/base/src/events/web-event-router.ts`
 

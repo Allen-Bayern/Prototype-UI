@@ -1,0 +1,57 @@
+id: T-SHADCN-DIALOG-CLOSE-0001
+type: test
+title: Shadcn Dialog Close delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Close Base command inheritance, variants, current state styles, asChild omission, and bounded standalone or built-in Close parity.
+cases:
+  - id: T-SHADCN-DIALOG-CLOSE-0001-CASE-CURRENT-PROTOCOL
+    title: Close requests inherited dismissal and projects its current button-like surface
+    covers:
+      [
+        P-SHADCN-DIALOG-CLOSE-UPSTREAM-IDENTITY,
+        P-SHADCN-DIALOG-CLOSE-BASE-INHERITANCE,
+        P-SHADCN-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-DIALOG-CLOSE-DIRECT-ENTRY,
+        P-SHADCN-DIALOG-CLOSE-VARIANT-PROP,
+        P-SHADCN-DIALOG-CLOSE-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-DIALOG-CLOSE-STATE-DRIVEN-STYLES,
+        P-SHADCN-DIALOG-CLOSE-COMPATIBILITY-SUBSET,
+        P-SHADCN-DIALOG-CLOSE-AS-CHILD-OMISSION,
+      ]
+    expectation: shadcn-dialog-close-current-dismiss-command-surface
+implementations:
+  - id: prototypes-shadcn-dialog-close-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/dialog.test.ts
+    required: true
+    consumesCases: [T-SHADCN-DIALOG-CLOSE-0001-CASE-CURRENT-PROTOCOL]
+    exercises: [P-SHADCN-DIALOG-CLOSE, P-BASE-DIALOG-CLOSE]
+    notes:
+      [
+        Tests cover direct identity,
+        modal focus entry,
+        close activation,
+        leaving transition,
+        and current base surface; enum and source review bound remaining variant and upstream Close claims.,
+      ]
+verifies:
+  prototypes:
+    - id: P-SHADCN-DIALOG-CLOSE
+      anchors:
+        [
+          P-SHADCN-DIALOG-CLOSE-UPSTREAM-IDENTITY,
+          P-SHADCN-DIALOG-CLOSE-BASE-INHERITANCE,
+          P-SHADCN-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-DIALOG-CLOSE-DIRECT-ENTRY,
+          P-SHADCN-DIALOG-CLOSE-VARIANT-PROP,
+          P-SHADCN-DIALOG-CLOSE-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-DIALOG-CLOSE-STATE-DRIVEN-STYLES,
+          P-SHADCN-DIALOG-CLOSE-COMPATIBILITY-SUBSET,
+          P-SHADCN-DIALOG-CLOSE-AS-CHILD-OMISSION,
+        ]
+exercises: { prototypes: [P-SHADCN-DIALOG-CLOSE, P-BASE-DIALOG-CLOSE] }
+revisions:
+  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Close delta coverage. }]
+tags: [prototype, shadcn, dialog, close, delta, compatibility, test]

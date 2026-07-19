@@ -33,7 +33,7 @@ criteria:
       zh-CN: Trigger 必须投射 expanded、`hasPopup=dialog` 与 controls Content identity。
       en: Trigger must project expanded, `hasPopup=dialog`, and controls relation to Content identity.
 sources:
-  - path: packages/prototypes/base/src/dialog/trigger.ts
+  - path: packages/prototypes/base/src/dialog/trigger.proto.ts
   - path: packages/prototypes/base/src/dialog/command.ts
   - path: packages/adapters/web-component/test/dialog-overlay.test.ts
 dependsOn:

@@ -41,7 +41,7 @@ criteria:
       zh-CN: item-aligned positioning、Viewport、scroll controls 与虚拟化不属于当前 Base Content 保证；下游只能对已实现的 anchored popper 行为声明兼容。
       en: Item-aligned positioning, Viewport, scroll controls, and virtualization are outside the current Base Content guarantee; downstream layers may claim compatibility only for implemented anchored popper behavior.
 sources:
-  - path: packages/prototypes/base/src/select/content.ts
+  - path: packages/prototypes/base/src/select/content.proto.ts
   - path: packages/prototypes/base/test/select.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/listbox/
     label: WAI-ARIA APG Listbox Pattern

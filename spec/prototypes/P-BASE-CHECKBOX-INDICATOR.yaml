@@ -241,7 +241,7 @@ criteria:
             - P-BASE-CHECKBOX-NO-VISUAL-VARIANT-CORE
 sources:
   - path: spec/prototypes/P-BASE-CHECKBOX.yaml
-  - path: packages/prototypes/base/src/checkbox/indicator.ts
+  - path: packages/prototypes/base/src/checkbox/indicator.proto.ts
     sections:
       - setupCheckboxIndicator
       - asCheckboxIndicator

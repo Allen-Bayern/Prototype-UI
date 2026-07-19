@@ -72,7 +72,7 @@ criteria:
       en: When host environment meta declares reducedMotion=reduce, automatic fallback completion must be scheduled with a 0ms delay, preserving entering and leaving phases, before and after events, and ViewIntent sequencing without retaining non-essential sustained-motion waits; final entity ownership of the meta source is left to later Module, HC, and Adapter cataloging.
 sources:
   - path: internal/contracts/prototype-base/transition.v0.md
-  - path: packages/prototypes/base/src/transition/as-transition.ts
+  - path: packages/prototypes/base/src/transition/as-transition.proto.ts
     sections:
       - asTransition
   - path: packages/prototypes/base/src/transition/machine.ts

@@ -119,7 +119,7 @@ jobs:
       - name: Install
         run: corepack pnpm@"${PROTO_PNPM_VERSION}" install --frozen-lockfile
 
-      - name: Test
+      - name: Prototype catalog gate and tests
         run: corepack pnpm@"${PROTO_PNPM_VERSION}" -s test
 
   release-scan:

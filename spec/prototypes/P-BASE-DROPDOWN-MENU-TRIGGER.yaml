@@ -29,7 +29,7 @@ criteria:
       zh-CN: Trigger 自身或 Root disabled 时必须抑制所有 open request 并退出 focus navigation。
       en: Trigger or Root disabled state must suppress every open request and remove Trigger from focus navigation.
 sources:
-  - path: packages/prototypes/base/src/dropdown/trigger.ts
+  - path: packages/prototypes/base/src/dropdown/trigger.proto.ts
   - path: packages/prototypes/base/src/dropdown/command.ts
   - path: packages/prototypes/base/test/dropdown.test.ts
 dependsOn:

@@ -26,7 +26,7 @@ Proto UI 的单体原型通常对应一个相对完整、边界明确的交互�
 
 ## 一个最小例子：`base-button`
 
-[packages/prototypes/base/src/button/button.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.ts) 是当前仓库里最适合作为起点的例子之一。
+[packages/prototypes/base/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.proto.ts) 是当前仓库里最适合作为起点的例子之一。
 
 它的结构很典型：
 

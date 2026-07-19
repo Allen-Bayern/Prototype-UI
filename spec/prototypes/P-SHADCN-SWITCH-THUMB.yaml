@@ -1,0 +1,90 @@
+id: P-SHADCN-SWITCH-THUMB
+type: prototype
+title: Shadcn Switch Thumb inherits the Base indicator and adds its current visual surface
+status: draft
+since: 0.2.0
+summary: Shadcn Switch Thumb inherits the Base context-driven indicator protocol and adds the currently implemented thumb shape, sizing, surface, and motion tokens.
+statement:
+  zh-CN: >-
+    Shadcn Switch Thumb 是 `P-BASE-SWITCH-THUMB` 之上的 direct anatomy part。它继续从同域 Root context 派生 checked/disabled display state，不拥有 value、activation、focus 或 event 语义，并增加当前实现的 thumb 尺寸、形状、surface 与 transition tokens。固定 upstream Shadcn wrapper 将 Thumb 作为内部结构，而 Proto UI 当前将它公开为可组合原型；该差异及 token parity 集中记录为 compatibility differences。
+
+
+  en: >-
+    Shadcn Switch Thumb is a direct anatomy part over `P-BASE-SWITCH-THUMB`. It continues to derive checked and disabled display state from same-domain Root context, owns no value, activation, focus, or event semantics, and adds the currently implemented thumb dimensions, shape, surface, and transition tokens. The pinned upstream Shadcn wrapper keeps Thumb internal while Proto UI currently exposes it as a composable prototype; that difference and token parity are centralized as compatibility differences.
+
+
+criteria:
+  - id: P-SHADCN-SWITCH-THUMB-UPSTREAM-IDENTITY
+    text:
+      zh-CN: Thumb 必须沿用 Shadcn Switch 固定 revision/path 作为比较基线，并明确本实体只治理 Proto UI 的非官方 anatomy projection。
+      en: Thumb must use the pinned Shadcn Switch revision and path as its comparison baseline and identify this entity as governing only Proto UI's unofficial anatomy projection.
+  - id: P-SHADCN-SWITCH-THUMB-BASE-INHERITANCE
+    text:
+      zh-CN: '`shadcn-switch-thumb` 必须通过 `inherits.prototypes` 指向 `P-BASE-SWITCH-THUMB` 并调用 `asSwitchThumb()`；任何 setup-only 负向补丁必须声明具体偏离和替代语义。'
+      en: '`shadcn-switch-thumb` must point to `P-BASE-SWITCH-THUMB` through `inherits.prototypes` and call `asSwitchThumb()`; any setup-only negative patch must declare the exact deviation and replacement semantics.'
+    dependsOn:
+      contracts: [C-AS-HOOK-0001, C-CORE-SYNTAX-0007]
+  - id: P-SHADCN-SWITCH-THUMB-CURRENT-BASE-DEVIATIONS
+    text:
+      zh-CN: 当前实现不反转 inherited context、indicator role 或无独立交互语义等 Base guarantee；新增 tokens 仅构成视觉增量。
+      en: The current implementation reverses none of the inherited Base guarantees for context, indicator role, or absence of independent interaction semantics; added tokens are visual deltas only.
+  - id: P-SHADCN-SWITCH-THUMB-DIRECT-ENTRY
+    text:
+      zh-CN: 当前 Thumb protocol 以 `shadcn-switch-thumb` direct prototype 公开；本层不额外提供 authored asHook。
+      en: The current Thumb protocol is exposed as the `shadcn-switch-thumb` direct prototype; this layer provides no additional authored asHook.
+    dependsOn:
+      contracts: [C-CORE-SYNTAX-0003]
+  - id: P-SHADCN-SWITCH-THUMB-CONTEXT-INDICATOR
+    text:
+      zh-CN: Thumb 必须继续作为 same-domain context-driven indicator 反映 Root checked state，不得拥有 checked source of truth、activation route、focus target 或 outward signal。
+      en: Thumb must remain a same-domain context-driven indicator of Root checked state and must not own checked source of truth, an activation route, a focus target, or an outward signal.
+    references:
+      prototypes:
+        - id: P-BASE-SWITCH-THUMB
+          anchors:
+            [
+              P-BASE-SWITCH-THUMB-CONTEXT-SUBSCRIBE,
+              P-BASE-SWITCH-THUMB-DERIVED-CHECKED,
+              P-BASE-SWITCH-THUMB-NO-EVENT-TARGET,
+            ]
+  - id: P-SHADCN-SWITCH-THUMB-CURRENT-VISUAL-SURFACE
+    text:
+      zh-CN: Thumb 必须提供当前已实现的尺寸、圆角、背景、边框、阴影、transition 与初始 translate tokens；这些是当前 passing surface，不表示 upstream 的 state-driven translation 已对齐。
+      en: Thumb must provide the currently implemented size, radius, background, border, shadow, transition, and initial translate tokens; these form the current passing surface and do not imply parity with upstream state-driven translation.
+    dependsOn:
+      contracts: [C-RULE-INTENT-FEEDBACK-STYLE-0001]
+  - id: P-SHADCN-SWITCH-THUMB-COMPATIBILITY-SUBSET
+    text:
+      zh-CN: 当前实体只声明已测试的 inherited indicator behavior 与视觉 surface；公开组合模型和 upstream token 的全部差异必须集中在唯一 compatibility open question。
+      en: This entity claims only tested inherited indicator behavior and visual surface; all differences in public composition and upstream tokens must remain centralized in one compatibility open question.
+openQuestions:
+  - id: P-SHADCN-SWITCH-THUMB-Q-UPSTREAM-DIFFERENCES
+    question:
+      zh-CN: 当前公开 Thumb anatomy part 与固定 upstream 内部 Thumb 在组合、尺寸、状态位移和 surface 上应如何对齐？
+      en: How should the current public Thumb anatomy part align with the pinned upstream internal Thumb in composition, sizing, state movement, and surface?
+    context:
+      zh-CN: upstream 不单独导出 Thumb，而是在 `Switch` wrapper 内固定创建一个 Thumb，并按 Root size group 与 checked data-state 决定尺寸和 translate，dark mode 还区分 checked/unchecked surface。Proto UI 当前公开 `shadcn-switch-thumb`，固定 `size-5` 与 `translate-x-0`，位移主要由 Root padding 表达，并额外加入 border、shadow、duration、easing 与 will-change。公开 composition 是否保留是待评审问题；具体 parity 通过实现与测试前不得宣称。
+      en: Upstream does not export Thumb separately; its `Switch` wrapper creates one internally and derives size and translation from the Root size group and checked data-state, with distinct checked and unchecked dark surfaces. Proto UI currently exposes `shadcn-switch-thumb`, fixes `size-5` and `translate-x-0`, expresses movement mainly through Root padding, and adds border, shadow, duration, easing, and will-change. Whether public composition remains is pending review, and exact parity must not be claimed before implementation and tests.
+    blocks: [shadcn switch thumb parity roadmap]
+sources:
+  - path: internal/records/2026-07-18-external-prototype-library-governance.zh-CN.md
+  - path: packages/prototypes/shadcn/src/switch/thumb.proto.ts
+  - path: packages/prototypes/shadcn/src/switch/types.ts
+  - path: packages/prototypes/shadcn/test/switch.test.ts
+  - path: https://github.com/shadcn-ui/ui/blob/f31ed81983653919dd4fe77aee4b4859f610f1dc/apps/v4/registry/new-york-v4/ui/switch.tsx
+    label: shadcn/ui v4 new-york Switch Thumb pinned baseline
+dependsOn:
+  contracts:
+    [C-AS-HOOK-0001, C-CORE-SYNTAX-0003, C-CORE-SYNTAX-0007, C-RULE-INTENT-FEEDBACK-STYLE-0001]
+  decisions: [D-PROTOTYPE-ENTITY-NAMING-0001]
+  prototypes: [P-SHADCN-SWITCH]
+inherits:
+  prototypes:
+    - id: P-BASE-SWITCH-THUMB
+      note: Default inherited indicator protocol; explicit setup-time negative-patch criteria may override individual guarantees.
+verifies: { tests: [T-SHADCN-SWITCH-THUMB-0001] }
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Introduced delta-style Shadcn Switch Thumb cataloging with Base indicator inheritance, current visual guarantees, and centralized upstream composition differences.
+tags: [prototype, shadcn, switch, thumb, upstream-derived, delta, compatibility, visual]

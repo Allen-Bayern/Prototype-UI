@@ -72,7 +72,7 @@ criteria:
       zh-CN: canonical anatomy roles、cardinality 与 contains relations 必须由顶层 anatomy 字段定义。
       en: Canonical anatomy roles, cardinalities, and contains relations must be defined by the top-level anatomy field.
 sources:
-  - path: packages/prototypes/base/src/dialog/root.ts
+  - path: packages/prototypes/base/src/dialog/root.proto.ts
   - path: packages/prototypes/base/src/dialog/shared.ts
   - path: packages/prototypes/base/test/dialog.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/

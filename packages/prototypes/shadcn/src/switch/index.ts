@@ -1,5 +1,5 @@
-import switchRoot from './root';
-import switchThumb from './thumb';
+import switchRoot from './root.proto';
+import switchThumb from './thumb.proto';
 
 export type {
   ShadcnSwitchRootProps,
@@ -12,5 +12,5 @@ export type {
 } from './types';
 
 export { switchRoot, switchThumb };
-export { default as shadcnSwitchRoot } from './root';
-export { default as shadcnSwitchThumb } from './thumb';
+export { default as shadcnSwitchRoot } from './root.proto';
+export { default as shadcnSwitchThumb } from './thumb.proto';

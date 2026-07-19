@@ -41,7 +41,7 @@ criteria:
       zh-CN: Value-class part 的核心边界是“消费 owner fact 并拥有回显刷新”，而不是“拥有 input value”；未来 Input 等组件若兼具输入所有权，必须另行编目该差异。
       en: The core boundary of a value-class part is consuming owner facts and owning display refresh, not owning an input value; future components such as Input that also own input must catalog that distinction separately.
 sources:
-  - path: packages/prototypes/base/src/select/value.ts
+  - path: packages/prototypes/base/src/select/value.proto.ts
   - path: packages/prototypes/base/src/select/types.ts
   - path: https://www.radix-ui.com/primitives/docs/components/select#value
     label: Radix Select Value

@@ -9,6 +9,13 @@ AdaptToWebComponent(tabsTrigger as any);
 AdaptToWebComponent(tabsContent as any);
 
 describe('prototypes/shadcn: tabs', () => {
+  it('keeps every Tabs anatomy part as a named direct entry', () => {
+    expect(tabsRoot.name).toBe('shadcn-tabs-root');
+    expect(tabsList.name).toBe('shadcn-tabs-list');
+    expect(tabsTrigger.name).toBe('shadcn-tabs-trigger');
+    expect(tabsContent.name).toBe('shadcn-tabs-content');
+  });
+
   it('runs as a compound tabs family with trigger selection and content switching', async () => {
     const root = document.createElement('shadcn-tabs-root') as any;
     const list = document.createElement('shadcn-tabs-list') as any;

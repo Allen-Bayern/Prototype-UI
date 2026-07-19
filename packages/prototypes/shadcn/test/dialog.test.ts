@@ -31,6 +31,16 @@ async function completeTransitions(...elements: any[]): Promise<void> {
 }
 
 describe('prototypes/shadcn: dialog', () => {
+  it('keeps every Dialog anatomy part as a named direct entry', () => {
+    expect(dialogRoot.name).toBe('shadcn-dialog-root');
+    expect(dialogTrigger.name).toBe('shadcn-dialog-trigger');
+    expect(dialogMask.name).toBe('shadcn-dialog-mask');
+    expect(dialogContent.name).toBe('shadcn-dialog-content');
+    expect(dialogTitle.name).toBe('shadcn-dialog-title');
+    expect(dialogDescription.name).toBe('shadcn-dialog-description');
+    expect(dialogClose.name).toBe('shadcn-dialog-close');
+  });
+
   it('styles and opens a dialog compound prototype', async () => {
     const root = document.createElement('shadcn-dialog-root') as any;
     const trigger = document.createElement('shadcn-dialog-trigger') as any;

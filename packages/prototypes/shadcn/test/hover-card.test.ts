@@ -20,6 +20,12 @@ afterEach(async () => {
 });
 
 describe('prototypes/shadcn: hover-card', () => {
+  it('keeps every Hover Card anatomy part as a named direct entry', () => {
+    expect(hoverCardRoot.name).toBe('shadcn-hover-card-root');
+    expect(hoverCardTrigger.name).toBe('shadcn-hover-card-trigger');
+    expect(hoverCardContent.name).toBe('shadcn-hover-card-content');
+  });
+
   it('matches the shadcn composition, content styling, API defaults, and transition behavior', async () => {
     vi.useFakeTimers();
     const root = document.createElement('shadcn-hover-card-root') as any;

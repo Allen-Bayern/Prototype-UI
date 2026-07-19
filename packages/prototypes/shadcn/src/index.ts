@@ -3,28 +3,28 @@ export { default as shadcnButton } from './button';
 export { default as toggle } from './toggle';
 export { default as shadcnToggle } from './toggle';
 export { switchRoot, switchThumb } from './switch';
-export { default as shadcnSwitchRoot } from './switch/root';
-export { default as shadcnSwitchThumb } from './switch/thumb';
+export { default as shadcnSwitchRoot } from './switch/root.proto';
+export { default as shadcnSwitchThumb } from './switch/thumb.proto';
 export { tabsRoot, tabsList, tabsTrigger, tabsContent } from './tabs';
 export { hoverCardRoot, hoverCardTrigger, hoverCardContent } from './hover-card';
 export { dropdownRoot, dropdownTrigger, dropdownContent, dropdownItem } from './dropdown';
 export { selectRoot, selectTrigger, selectValue, selectContent, selectItem } from './select';
-export { default as shadcnTabsRoot } from './tabs/root';
-export { default as shadcnTabsList } from './tabs/list';
-export { default as shadcnTabsTrigger } from './tabs/trigger';
-export { default as shadcnTabsContent } from './tabs/content';
-export { default as shadcnHoverCardRoot } from './hover-card/root';
-export { default as shadcnHoverCardTrigger } from './hover-card/trigger';
-export { default as shadcnHoverCardContent } from './hover-card/content';
-export { default as shadcnDropdownRoot } from './dropdown/root';
-export { default as shadcnDropdownTrigger } from './dropdown/trigger';
-export { default as shadcnDropdownContent } from './dropdown/content';
-export { default as shadcnDropdownItem } from './dropdown/item';
-export { default as shadcnSelectRoot } from './select/root';
-export { default as shadcnSelectTrigger } from './select/trigger';
-export { default as shadcnSelectValue } from './select/value';
-export { default as shadcnSelectContent } from './select/content';
-export { default as shadcnSelectItem } from './select/item';
+export { default as shadcnTabsRoot } from './tabs/root.proto';
+export { default as shadcnTabsList } from './tabs/list.proto';
+export { default as shadcnTabsTrigger } from './tabs/trigger.proto';
+export { default as shadcnTabsContent } from './tabs/content.proto';
+export { default as shadcnHoverCardRoot } from './hover-card/root.proto';
+export { default as shadcnHoverCardTrigger } from './hover-card/trigger.proto';
+export { default as shadcnHoverCardContent } from './hover-card/content.proto';
+export { default as shadcnDropdownRoot } from './dropdown/root.proto';
+export { default as shadcnDropdownTrigger } from './dropdown/trigger.proto';
+export { default as shadcnDropdownContent } from './dropdown/content.proto';
+export { default as shadcnDropdownItem } from './dropdown/item.proto';
+export { default as shadcnSelectRoot } from './select/root.proto';
+export { default as shadcnSelectTrigger } from './select/trigger.proto';
+export { default as shadcnSelectValue } from './select/value.proto';
+export { default as shadcnSelectContent } from './select/content.proto';
+export { default as shadcnSelectItem } from './select/item.proto';
 export {
   dialogRoot,
   dialogTrigger,
@@ -34,13 +34,13 @@ export {
   dialogDescription,
   dialogClose,
 } from './dialog';
-export { default as shadcnDialogRoot } from './dialog/root';
-export { default as shadcnDialogTrigger } from './dialog/trigger';
-export { default as shadcnDialogMask } from './dialog/overlay';
-export { default as shadcnDialogContent } from './dialog/content';
-export { default as shadcnDialogTitle } from './dialog/title';
-export { default as shadcnDialogDescription } from './dialog/description';
-export { default as shadcnDialogClose } from './dialog/close';
+export { default as shadcnDialogRoot } from './dialog/root.proto';
+export { default as shadcnDialogTrigger } from './dialog/trigger.proto';
+export { default as shadcnDialogMask } from './dialog/overlay.proto';
+export { default as shadcnDialogContent } from './dialog/content.proto';
+export { default as shadcnDialogTitle } from './dialog/title.proto';
+export { default as shadcnDialogDescription } from './dialog/description.proto';
+export { default as shadcnDialogClose } from './dialog/close.proto';
 export type {
   ShadcnButtonProps,
   ShadcnButtonExposes,

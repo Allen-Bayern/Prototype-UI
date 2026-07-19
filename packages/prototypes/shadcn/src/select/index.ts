@@ -1,8 +1,8 @@
-export { default as selectRoot } from './root';
-export { default as selectTrigger } from './trigger';
-export { default as selectValue } from './value';
-export { default as selectContent } from './content';
-export { default as selectItem } from './item';
+export { default as selectRoot } from './root.proto';
+export { default as selectTrigger } from './trigger.proto';
+export { default as selectValue } from './value.proto';
+export { default as selectContent } from './content.proto';
+export { default as selectItem } from './item.proto';
 
 export type {
   ShadcnSelectRootProps,

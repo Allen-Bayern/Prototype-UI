@@ -20,7 +20,7 @@ criteria:
     text:
       zh-CN: Title 不得拥有 activation、open 或 focus containment。
       en: Title must not own activation, open state, or focus containment.
-sources: [{ path: packages/prototypes/base/src/dialog/title.ts }]
+sources: [{ path: packages/prototypes/base/src/dialog/title.proto.ts }]
 dependsOn: { prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT], contracts: [C-A11Y-0001] }
 verifies: { tests: [T-BASE-DIALOG-TITLE-0001] }
 revisions:

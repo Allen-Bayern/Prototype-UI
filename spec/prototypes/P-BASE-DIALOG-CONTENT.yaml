@@ -37,7 +37,7 @@ criteria:
       zh-CN: Title 存在时，Content 必须通过稳定同域 identity 被其 labelled，并忽略 Root a11yLabel；Title 不存在时必须移除 labelledBy，并在 Root a11yLabel 非空时将其投射为 accessible name。Description 存在时必须投射 describedBy，不存在时必须移除该关系，任何关系都不得指向缺失 part。
       en: When Title exists, Content must be labelled by its stable same-domain identity and ignore Root a11yLabel; when Title is absent, it must remove labelledBy and project Root a11yLabel as the accessible name when non-empty. It must project describedBy when Description exists and remove the relation when absent; no relation may target a missing part.
 sources:
-  - path: packages/prototypes/base/src/dialog/content.ts
+  - path: packages/prototypes/base/src/dialog/content.proto.ts
   - path: packages/adapters/web-component/test/dialog-overlay.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
     label: WAI-ARIA APG Dialog Modal Pattern

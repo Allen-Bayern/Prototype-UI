@@ -1,8 +1,8 @@
-export { asToggle } from './toggle';
-export { default } from './toggle';
+export { asToggle } from './toggle.proto';
+export { default } from './toggle.proto';
 export type {
   ToggleProps,
   ToggleExposes,
   ToggleStateHandles,
   ToggleAsHookContract,
-} from './toggle';
+} from './toggle.proto';

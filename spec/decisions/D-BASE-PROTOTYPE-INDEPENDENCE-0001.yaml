@@ -31,7 +31,7 @@ criteria:
       zh-CN: 可选能力与特定场景能力可以由 owning prototype 自行支持；是否抽成跨原型能力必须经过独立契约讨论。
       en: Optional and scenario-specific capabilities may be supported by the owning prototype itself; extracting them into cross-prototype capabilities requires separate contract discussion.
 sources:
-  - path: packages/prototypes/base/src/button/button.ts
+  - path: packages/prototypes/base/src/button/button.proto.ts
     sections:
       - asButton
       - base-button

@@ -47,7 +47,7 @@ Core Compaction Pass 0.1 的目标是：
 当前仓库中已经存在可作为第一轮原型编目试点的实现与契约材料：
 
 - `internal/contracts/prototype-base/button.v0.md`
-- `packages/prototypes/base/src/button/button.ts`
+- `packages/prototypes/base/src/button/button.proto.ts`
 - `packages/prototypes/base/test/as-button.test.ts`
 - `packages/hooks/src/as-trigger.ts`
 - `packages/runtime/test/contract/as-trigger.v0.contract.test.ts`

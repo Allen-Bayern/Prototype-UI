@@ -1,0 +1,60 @@
+id: T-SHADCN-TABS-LIST-0001
+type: test
+title: Shadcn Tabs List delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers List identity, Base collection inheritance, keyboard navigation, current surface, asChild omission, and bounded variant parity.
+cases:
+  - id: T-SHADCN-TABS-LIST-0001-CASE-IDENTITY-AND-INHERITANCE
+    title: List is a named direct entry that inherits Base collection and roving focus
+    covers:
+      [
+        P-SHADCN-TABS-LIST-UPSTREAM-IDENTITY,
+        P-SHADCN-TABS-LIST-BASE-INHERITANCE,
+        P-SHADCN-TABS-LIST-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-TABS-LIST-DIRECT-ENTRY,
+      ]
+    expectation: shadcn-tabs-list-inherits-base-collection-navigation
+  - id: T-SHADCN-TABS-LIST-0001-CASE-SURFACE-AND-COMPATIBILITY
+    title: List projects its current surface while upstream variant parity stays outside the claim
+    covers:
+      [
+        P-SHADCN-TABS-LIST-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-TABS-LIST-COMPATIBILITY-SUBSET,
+        P-SHADCN-TABS-LIST-AS-CHILD-OMISSION,
+      ]
+    expectation: shadcn-tabs-list-current-surface-with-bounded-variant-parity
+implementations:
+  - id: prototypes-shadcn-tabs-list-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/tabs.test.ts
+    required: true
+    consumesCases:
+      [
+        T-SHADCN-TABS-LIST-0001-CASE-IDENTITY-AND-INHERITANCE,
+        T-SHADCN-TABS-LIST-0001-CASE-SURFACE-AND-COMPATIBILITY,
+      ]
+    exercises: [P-SHADCN-TABS-LIST, P-BASE-TABS-LIST]
+    notes:
+      - Arrow navigation exercises inherited roving focus; variant and token gaps remain bounded by source review and the centralized question.
+verifies:
+  prototypes:
+    - id: P-SHADCN-TABS-LIST
+      anchors:
+        [
+          P-SHADCN-TABS-LIST-UPSTREAM-IDENTITY,
+          P-SHADCN-TABS-LIST-BASE-INHERITANCE,
+          P-SHADCN-TABS-LIST-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-TABS-LIST-DIRECT-ENTRY,
+          P-SHADCN-TABS-LIST-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-TABS-LIST-COMPATIBILITY-SUBSET,
+          P-SHADCN-TABS-LIST-AS-CHILD-OMISSION,
+        ]
+exercises:
+  prototypes: [P-SHADCN-TABS-LIST, P-BASE-TABS-LIST]
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Added Shadcn Tabs List delta coverage.
+tags: [prototype, shadcn, tabs, list, delta, compatibility, test]

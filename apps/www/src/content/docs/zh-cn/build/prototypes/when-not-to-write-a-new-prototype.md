@@ -33,7 +33,7 @@ Proto UI 里的原型，不只是一个方便组织代码的壳。
 
 这类需求更适合优先考虑 `asHook`。
 
-以 [packages/prototypes/base/src/button/button.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.ts) 为例，同一套 `setupButton` 同时被导出为：
+以 [packages/prototypes/base/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.proto.ts) 为例，同一套 `setupButton` 同时被导出为：
 
 - `asButton`
 - `base-button`
@@ -58,7 +58,7 @@ Proto UI 里的原型，不只是一个方便组织代码的壳。
 而不是在发明新的交互边界。
 
 `shadcn-button` 就是一个很直接的例子。  
-它并没有重新发明 Button 的交互语义，而是在 [packages/prototypes/shadcn/src/button/index.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/button/index.ts) 中先调用 `asButton()`，再叠加：
+它并没有重新发明 Button 的交互语义，而是在 [packages/prototypes/shadcn/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/button/button.proto.ts) 中先调用 `asButton()`，再叠加：
 
 - `variant` / `size` 这类库级 props
 - 样式 token

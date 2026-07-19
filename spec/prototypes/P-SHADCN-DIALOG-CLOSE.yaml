@@ -1,0 +1,147 @@
+id: P-SHADCN-DIALOG-CLOSE
+type: prototype
+title: Shadcn Dialog Close inherits Base close-command behavior and adds button variants
+status: draft
+since: 0.2.0
+summary: Shadcn Dialog Close inherits Base close command, request, and disabled behavior and adds six visual variants and current interaction styling.
+statement:
+  zh-CN: >-
+    Shadcn Dialog Close 是 `P-BASE-DIALOG-CLOSE` 之上的 direct part，保留 close command/request 与 disabled behavior，并增加六种 button-like `variant`、基础 surface 及 inherited state-driven feedback。upstream 独立 DialogClose wrapper 不提供这些默认 styles，Content 内置 X Close 又是另一 surface；`asChild` 明确不提供。
+
+
+  en: >-
+    Shadcn Dialog Close is a direct part over `P-BASE-DIALOG-CLOSE`. It retains close-command, request, and disabled behavior while adding six button-like `variant` values, a base surface, and inherited state-driven feedback. The upstream standalone DialogClose wrapper has no such default styles, while the built-in X Close inside Content has a different surface; `asChild` is explicitly unavailable.
+
+
+criteria:
+  - id: P-SHADCN-DIALOG-CLOSE-UPSTREAM-IDENTITY
+    text:
+      {
+        zh-CN: Close 必须沿用固定 Dialog revision/path 并区分 standalone wrapper 与 Content 内置 X Close。,
+        en: Close must use the pinned Dialog revision and path and distinguish the standalone wrapper from the built-in X Close in Content.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-BASE-INHERITANCE
+    text:
+      {
+        zh-CN: '`shadcn-dialog-close` 必须继承 `P-BASE-DIALOG-CLOSE` 并调用 `asDialogClose()`。',
+        en: '`shadcn-dialog-close` must inherit `P-BASE-DIALOG-CLOSE` and call `asDialogClose()`.',
+      }
+    references:
+      prototypes:
+        - id: P-BASE-DIALOG-CLOSE
+          anchors:
+            [
+              P-BASE-DIALOG-CLOSE-AUTHORING-ENTRIES,
+              P-BASE-DIALOG-CLOSE-COMMAND,
+              P-BASE-DIALOG-CLOSE-REQUEST,
+              P-BASE-DIALOG-CLOSE-DISABLED,
+            ]
+  - id: P-SHADCN-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS
+    text:
+      {
+        zh-CN: 当前实现不反转 inherited close command/request 或 disabled guarantee；props/styles 是视觉增量。,
+        en: The current implementation reverses no inherited close-command,
+        request,
+        or disabled guarantee; props and styles are visual deltas.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-DIRECT-ENTRY
+    text:
+      {
+        zh-CN: 当前 Close protocol 以 `shadcn-dialog-close` direct prototype 公开。,
+        en: The current Close protocol is exposed as the `shadcn-dialog-close` direct prototype.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-VARIANT-PROP
+    text:
+      {
+        zh-CN: variant 必须提供 default/destructive/outline/secondary/ghost/link、默认 default，并投射对应 surface。,
+        en: Variant must provide default,
+        destructive,
+        outline,
+        secondary,
+        ghost,
+        and link,
+        default to default,
+        and project the corresponding surface.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-CURRENT-VISUAL-SURFACE
+    text:
+      {
+        zh-CN: Close 必须提供当前 compact button layout、border、typography、transition 与 outline tokens。,
+        en: Close must provide the current compact-button layout,
+        border,
+        typography,
+        transition,
+        and outline tokens.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-STATE-DRIVEN-STYLES
+    text:
+      {
+        zh-CN: focusVisible、pressed、variant-specific hovered 与 disabled visuals 必须从 inherited states 派生。,
+        en: FocusVisible,
+        pressed,
+        variant-specific hover,
+        and disabled visuals must derive from inherited states.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-COMPATIBILITY-SUBSET
+    text:
+      {
+        zh-CN: 当前 button variants 与 upstream standalone/X-close 差异集中在唯一 open question。,
+        en: Current button variants and upstream standalone versus X-Close differences are centralized in one open question.,
+      }
+  - id: P-SHADCN-DIALOG-CLOSE-AS-CHILD-OMISSION
+    text:
+      {
+        zh-CN: upstream Close props 中的 `asChild` 依共享决策省略。,
+        en: Upstream Close `asChild` is omitted under the shared decision.,
+      }
+    dependsOn: { decisions: [D-AS-CHILD-OMISSION-0001] }
+openQuestions:
+  - id: P-SHADCN-DIALOG-CLOSE-Q-UPSTREAM-DIFFERENCES
+    question:
+      {
+        zh-CN: Close 应对齐 transparent wrapper、Content X Close 还是 Footer Button composition？,
+        en: Should Close align with the transparent wrapper,
+        Content X Close,
+        or Footer Button composition?,
+      }
+    context:
+      zh-CN: intentional deviation 是省略 `asChild`。upstream standalone DialogClose 仅 data-slot/forwarding；Content 内置 X Close 默认启用且有 icon/sr-only/absolute styles；Footer 可用 `DialogPrimitive.Close asChild` 包 Button。当前 Close 是六 variant compact button，未继承 `P-SHADCN-BUTTON`，需明确长期 API 与 visual governance。
+      en: The intentional deviation is omission of `asChild`. Upstream standalone DialogClose only adds data-slot and forwarding; Content's built-in X Close is enabled by default with icon, sr-only text, and absolute styles; Footer may wrap Button through Close asChild. Current Close is a six-variant compact button and does not inherit `P-SHADCN-BUTTON`, so its long-term API and visual governance need a decision.
+    blocks: [shadcn dialog close parity roadmap]
+sources:
+  - path: packages/prototypes/shadcn/src/dialog/close.proto.ts
+  - path: packages/prototypes/shadcn/test/dialog.test.ts
+  - path: https://github.com/shadcn-ui/ui/blob/f31ed81983653919dd4fe77aee4b4859f610f1dc/apps/v4/registry/new-york-v4/ui/dialog.tsx
+    label: shadcn/ui v4 new-york DialogClose pinned baseline
+dependsOn:
+  contracts:
+    [
+      C-AS-HOOK-0001,
+      C-PROPS-0001,
+      C-PROPS-0003,
+      C-RULE-WHEN-0002,
+      C-RULE-INTENT-FEEDBACK-STYLE-0001,
+    ]
+  decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-AS-CHILD-OMISSION-0001]
+  prototypes: [P-SHADCN-DIALOG, P-SHADCN-DIALOG-CONTENT]
+inherits:
+  prototypes:
+    [
+      {
+        id: P-BASE-DIALOG-CLOSE,
+        note: Default inherited close-command protocol; explicit setup-time negative patches must be declared.,
+      },
+    ]
+verifies: { tests: [T-SHADCN-DIALOG-CLOSE-0001] }
+revisions:
+  [
+    {
+      version: 0.2.0,
+      change: introduced,
+      summary: Introduced Shadcn Dialog Close delta cataloging with Base command inheritance,
+      button variants,
+      asChild omission,
+      and centralized upstream surface questions.,
+    },
+  ]
+tags: [prototype, shadcn, dialog, close, upstream-derived, delta, compatibility, visual]

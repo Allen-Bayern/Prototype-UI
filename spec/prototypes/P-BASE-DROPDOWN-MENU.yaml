@@ -70,7 +70,7 @@ criteria:
       zh-CN: Group、Label、Separator、CheckboxItem、RadioItem 与 Submenu 不属于当前 Base 保证；下游原型不得把缺失能力宣称为兼容。
       en: Group, Label, Separator, CheckboxItem, RadioItem, and Submenu are not current Base guarantees; downstream prototypes must not claim compatibility for missing capabilities.
 sources:
-  - path: packages/prototypes/base/src/dropdown/root.ts
+  - path: packages/prototypes/base/src/dropdown/root.proto.ts
   - path: packages/prototypes/base/src/dropdown/shared.ts
   - path: packages/prototypes/base/test/dropdown.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/

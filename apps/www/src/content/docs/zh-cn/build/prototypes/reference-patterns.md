@@ -22,8 +22,8 @@ description: '当现有原型库本身就是最好的文档时，应该怎么看
 
 优先看：
 
-- [packages/prototypes/base/src/button/button.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.ts)
-- [packages/prototypes/base/src/toggle/toggle.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/toggle/toggle.ts)
+- [packages/prototypes/base/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/button/button.proto.ts)
+- [packages/prototypes/base/src/toggle/toggle.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/toggle/toggle.proto.ts)
 
 看这些文件时，重点不是逐行抄写 API，而是看：
 
@@ -36,10 +36,10 @@ description: '当现有原型库本身就是最好的文档时，应该怎么看
 优先看 `tabs` 和 `hover-card`：
 
 - [packages/prototypes/base/src/tabs/shared.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/shared.ts)
-- [packages/prototypes/base/src/tabs/root.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/root.ts)
-- [packages/prototypes/base/src/tabs/trigger.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/trigger.ts)
-- [packages/prototypes/base/src/tabs/content.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/content.ts)
-- [packages/prototypes/base/src/hover-card/root.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/hover-card/root.ts)
+- [packages/prototypes/base/src/tabs/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/root.proto.ts)
+- [packages/prototypes/base/src/tabs/trigger.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/trigger.proto.ts)
+- [packages/prototypes/base/src/tabs/content.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/content.proto.ts)
+- [packages/prototypes/base/src/hover-card/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/hover-card/root.proto.ts)
 
 重点看：
 
@@ -51,9 +51,9 @@ description: '当现有原型库本身就是最好的文档时，应该怎么看
 
 优先看：
 
-- [packages/prototypes/shadcn/src/button/index.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/button/index.ts)
-- [packages/prototypes/shadcn/src/switch/root.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/switch/root.ts)
-- [packages/prototypes/shadcn/src/tabs/root.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/tabs/root.ts)
+- [packages/prototypes/shadcn/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/button/button.proto.ts)
+- [packages/prototypes/shadcn/src/switch/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/switch/root.proto.ts)
+- [packages/prototypes/shadcn/src/tabs/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/tabs/root.proto.ts)
 
 重点看：
 

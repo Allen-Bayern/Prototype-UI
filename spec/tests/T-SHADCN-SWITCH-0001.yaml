@@ -1,0 +1,61 @@
+id: T-SHADCN-SWITCH-0001
+type: test
+title: Shadcn Switch Root delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Switch Root identity, Base inheritance, Root/Thumb behavior, current styles, intentional asChild omission, and its bounded upstream compatibility claim.
+cases:
+  - id: T-SHADCN-SWITCH-0001-CASE-IDENTITY-AND-INHERITANCE
+    title: Root is a direct unofficial projection that inherits Base Switch
+    covers:
+      [
+        P-SHADCN-SWITCH-UPSTREAM-IDENTITY,
+        P-SHADCN-SWITCH-BASE-INHERITANCE,
+        P-SHADCN-SWITCH-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-SWITCH-DIRECT-ENTRY,
+      ]
+    expectation: shadcn-switch-root-direct-entry-inherits-as-switch-root
+  - id: T-SHADCN-SWITCH-0001-CASE-FAMILY-AND-VISUALS
+    title: inherited checked focus and disabled facts coordinate the family and drive current Root styles
+    covers: [P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE, P-SHADCN-SWITCH-STATE-DRIVEN-STYLES]
+    expectation: shadcn-switch-root-state-drives-family-and-current-track-styles
+  - id: T-SHADCN-SWITCH-0001-CASE-COMPATIBILITY-SUBSET
+    title: intentional asChild omission and remaining upstream gaps stay outside the passing claim
+    covers: [P-SHADCN-SWITCH-COMPATIBILITY-SUBSET, P-SHADCN-SWITCH-AS-CHILD-OMISSION]
+    expectation: shadcn-switch-root-does-not-overclaim-upstream-parity
+implementations:
+  - id: prototypes-shadcn-switch-root-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/switch.test.ts
+    required: true
+    consumesCases:
+      [
+        T-SHADCN-SWITCH-0001-CASE-IDENTITY-AND-INHERITANCE,
+        T-SHADCN-SWITCH-0001-CASE-FAMILY-AND-VISUALS,
+        T-SHADCN-SWITCH-0001-CASE-COMPATIBILITY-SUBSET,
+      ]
+    exercises: [P-SHADCN-SWITCH, P-BASE-SWITCH]
+    notes:
+      - Positive tests cover only the current Proto UI guarantee; asChild omission and remaining parity gaps are bounded by the decision, declared surface, source review, and centralized compatibility question.
+verifies:
+  prototypes:
+    - id: P-SHADCN-SWITCH
+      anchors:
+        [
+          P-SHADCN-SWITCH-UPSTREAM-IDENTITY,
+          P-SHADCN-SWITCH-BASE-INHERITANCE,
+          P-SHADCN-SWITCH-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-SWITCH-DIRECT-ENTRY,
+          P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-SWITCH-STATE-DRIVEN-STYLES,
+          P-SHADCN-SWITCH-COMPATIBILITY-SUBSET,
+          P-SHADCN-SWITCH-AS-CHILD-OMISSION,
+        ]
+exercises:
+  prototypes: [P-SHADCN-SWITCH, P-BASE-SWITCH]
+revisions:
+  - version: 0.2.0
+    change: introduced
+    summary: Added Shadcn Switch Root delta coverage for Base inheritance, family behavior, current visual styles, and bounded upstream compatibility.
+tags: [prototype, shadcn, switch, root, delta, compatibility, test]

@@ -368,7 +368,7 @@ criteria:
       en: Selection and a11y relationship fallback policies for dynamically removed selected triggers and duplicate trigger values are deferred; first-pass authoring patterns should not rely on these cases.
 sources:
   - path: internal/contracts/prototype-base/tabs.v0.md
-  - path: packages/prototypes/base/src/tabs/root.ts
+  - path: packages/prototypes/base/src/tabs/root.proto.ts
   - path: packages/prototypes/base/src/tabs/shared.ts
   - path: packages/prototypes/base/test/tabs.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
@@ -392,6 +392,9 @@ dependsOn:
     - D-A11Y-SEMANTIC-DOMAIN-0001
     - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
     - D-BASE-TABS-L1-MATERIALIZATION-0001
+verifies:
+  tests:
+    - T-BASE-TABS-0001
 revisions:
   - version: 0.1.0
     change: introduced

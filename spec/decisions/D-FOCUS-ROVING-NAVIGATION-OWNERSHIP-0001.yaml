@@ -34,8 +34,8 @@ sources:
   - path: internal/records/2026-07-06-focus-roving-navigation-ownership.zh-CN.md
   - path: packages/modules/focus/src/center.ts
   - path: packages/modules/focus/src/create.ts
-  - path: packages/prototypes/base/src/tabs/list.ts
-  - path: packages/prototypes/base/src/tabs/trigger.ts
+  - path: packages/prototypes/base/src/tabs/list.proto.ts
+  - path: packages/prototypes/base/src/tabs/trigger.proto.ts
 relates:
   contracts:
     - C-AS-FOCUS-ROVING-0001

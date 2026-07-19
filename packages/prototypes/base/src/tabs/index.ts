@@ -22,8 +22,8 @@ export type {
 export type { TabsActivationMode, TabsContextValue, TabsOrientation } from './shared';
 
 export { TABS_CONTEXT, TABS_FAMILY } from './shared';
-export { asTabsRoot, default as tabsRoot } from './root';
-export { asTabsList, default as tabsList } from './list';
-export { asTabsTrigger, default as tabsTrigger } from './trigger';
-export { asTabsContent, default as tabsContent } from './content';
-export { asTabsIndicator, default as tabsIndicator } from './indicator';
+export { asTabsRoot, default as tabsRoot } from './root.proto';
+export { asTabsList, default as tabsList } from './list.proto';
+export { asTabsTrigger, default as tabsTrigger } from './trigger.proto';
+export { asTabsContent, default as tabsContent } from './content.proto';
+export { asTabsIndicator, default as tabsIndicator } from './indicator.proto';

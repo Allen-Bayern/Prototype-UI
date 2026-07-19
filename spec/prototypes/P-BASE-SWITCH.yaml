@@ -624,12 +624,12 @@ openQuestions:
       - switch state naming decision
 sources:
   - path: internal/records/2026-07-04-switch-toggle-prototype-boundary.zh-CN.md
-  - path: packages/prototypes/base/src/switch/root.ts
+  - path: packages/prototypes/base/src/switch/root.proto.ts
     sections:
       - setupSwitchRoot
       - asSwitchRoot
       - base-switch-root
-  - path: packages/prototypes/base/src/switch/thumb.ts
+  - path: packages/prototypes/base/src/switch/thumb.proto.ts
     sections:
       - setupSwitchThumb
       - asSwitchThumb
@@ -703,7 +703,6 @@ owns:
 verifies:
   tests:
     - T-BASE-SWITCH-0001
-    - T-BASE-SWITCH-THUMB-0001
 revisions:
   - version: 0.1.0
     change: introduced

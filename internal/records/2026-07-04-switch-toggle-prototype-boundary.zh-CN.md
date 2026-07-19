@@ -241,7 +241,7 @@ Switch 在 root 层拥有单一语义与 value-control owner，但它可以是�
 - `spec/contracts/C-ANATOMY-0005.yaml`
 - `spec/contracts/C-ANATOMY-0008.yaml`
 - `spec/contracts/C-ANATOMY-0009.yaml`
-- `packages/prototypes/base/src/switch/root.ts`
-- `packages/prototypes/base/src/switch/thumb.ts`
+- `packages/prototypes/base/src/switch/root.proto.ts`
+- `packages/prototypes/base/src/switch/thumb.proto.ts`
 - `packages/prototypes/base/src/switch/shared.ts`
-- `packages/prototypes/base/src/toggle/toggle.ts`
+- `packages/prototypes/base/src/toggle/toggle.proto.ts`

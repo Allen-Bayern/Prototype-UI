@@ -33,7 +33,7 @@ criteria:
       zh-CN: Trigger 不得因 open 或 navigation 改写 committed value；Value part 负责可见值回显，Root 负责 selection ownership。
       en: Trigger must not rewrite committed value because of open or navigation; Value owns visible value display and Root owns selection.
 sources:
-  - path: packages/prototypes/base/src/select/trigger.ts
+  - path: packages/prototypes/base/src/select/trigger.proto.ts
   - path: packages/prototypes/base/src/select/command.ts
 dependsOn:
   prototypes: [P-BASE-SELECT]

@@ -68,7 +68,7 @@ sources:
   - path: packages/hooks/src/as-hit-participation.ts
     sections:
       - asHitParticipation
-  - path: packages/prototypes/base/src/transition/as-transition.ts
+  - path: packages/prototypes/base/src/transition/as-transition.proto.ts
     sections:
       - asTransition
   - path: packages/hooks/src/collection/use-collection.ts

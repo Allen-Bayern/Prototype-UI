@@ -17,7 +17,8 @@
     "prettier-plugin-astro": "^0.14.1",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^2.0.0"
+    "vitest": "^2.0.0",
+    "yaml": "^2.8.3"
   },
   "scripts": {
     "docs:dev": "corepack pnpm@10.32.1 --filter apps-www dev",
@@ -34,12 +35,13 @@
     "release:publish:launch": "node scripts/release/publish.mjs --publish --profile launch --check-governance",
     "issues:good-first:dry-run": "node scripts/issues/publish-good-first-issues.mjs --dry-run",
     "issues:good-first:publish": "node scripts/issues/publish-good-first-issues.mjs --publish",
+    "check:prototype-catalog": "node scripts/spec/check-prototype-catalog.mjs",
     "check:types:workspace": "tsc -p tsconfig.workspace.json --noEmit",
     "check:types:docs": "corepack pnpm@10.32.1 --filter apps-www check",
     "check:types": "corepack pnpm@10.32.1 -s check:types:workspace && corepack pnpm@10.32.1 -s check:types:docs",
     "format": "prettier --write .",
     "prepare": "husky install",
-    "test": "corepack pnpm@10.32.1 -s test:types && corepack pnpm@10.32.1 -s test:runtime",
+    "test": "corepack pnpm@10.32.1 -s check:prototype-catalog && corepack pnpm@10.32.1 -s test:types && corepack pnpm@10.32.1 -s test:runtime",
     "test:types": "echo \"[types] checking type contracts...\" && tsc -p internal/contracts/types/tsconfig.json && echo \"[types] OK\"",
     "test:runtime": "vitest run"
   },

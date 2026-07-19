@@ -1,0 +1,67 @@
+id: T-SHADCN-DROPDOWN-MENU-ITEM-0001
+type: test
+title: Shadcn Dropdown Menu Item delta protocol contract tests
+status: draft
+since: 0.2.0
+summary: Covers Item identity, Base command inheritance, visual props and state styles, asChild omission, and bounded compatibility.
+cases:
+  - id: T-SHADCN-DROPDOWN-MENU-ITEM-0001-CASE-IDENTITY-AND-INHERITANCE
+    title: Item is a named direct entry that inherits Base menu-command behavior
+    covers:
+      [
+        P-SHADCN-DROPDOWN-MENU-ITEM-UPSTREAM-IDENTITY,
+        P-SHADCN-DROPDOWN-MENU-ITEM-BASE-INHERITANCE,
+        P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-DROPDOWN-MENU-ITEM-DIRECT-ENTRY,
+      ]
+    expectation: shadcn-dropdown-item-inherits-base-menu-command
+  - id: T-SHADCN-DROPDOWN-MENU-ITEM-0001-CASE-PROPS-STYLES-AND-COMPATIBILITY
+    title: Item projects destructive and state styles while remaining parity gaps stay bounded
+    covers:
+      [
+        P-SHADCN-DROPDOWN-MENU-ITEM-VISUAL-PROPS,
+        P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-DROPDOWN-MENU-ITEM-STATE-DRIVEN-STYLES,
+        P-SHADCN-DROPDOWN-MENU-ITEM-COMPATIBILITY-SUBSET,
+        P-SHADCN-DROPDOWN-MENU-ITEM-AS-CHILD-OMISSION,
+      ]
+    expectation: shadcn-dropdown-item-current-variants-and-command-styles
+implementations:
+  - id: prototypes-shadcn-dropdown-item-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/dropdown.test.ts
+    required: true
+    consumesCases:
+      [
+        T-SHADCN-DROPDOWN-MENU-ITEM-0001-CASE-IDENTITY-AND-INHERITANCE,
+        T-SHADCN-DROPDOWN-MENU-ITEM-0001-CASE-PROPS-STYLES-AND-COMPATIBILITY,
+      ]
+    exercises: [P-SHADCN-DROPDOWN-MENU-ITEM, P-BASE-DROPDOWN-MENU-ITEM]
+    notes:
+      [
+        Positive tests cover collection focus entry,
+        item selection closing the menu,
+        base tokens,
+        and destructive surface; remaining gaps stay centralized.,
+      ]
+verifies:
+  prototypes:
+    - id: P-SHADCN-DROPDOWN-MENU-ITEM
+      anchors:
+        [
+          P-SHADCN-DROPDOWN-MENU-ITEM-UPSTREAM-IDENTITY,
+          P-SHADCN-DROPDOWN-MENU-ITEM-BASE-INHERITANCE,
+          P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-BASE-DEVIATIONS,
+          P-SHADCN-DROPDOWN-MENU-ITEM-DIRECT-ENTRY,
+          P-SHADCN-DROPDOWN-MENU-ITEM-VISUAL-PROPS,
+          P-SHADCN-DROPDOWN-MENU-ITEM-CURRENT-VISUAL-SURFACE,
+          P-SHADCN-DROPDOWN-MENU-ITEM-STATE-DRIVEN-STYLES,
+          P-SHADCN-DROPDOWN-MENU-ITEM-COMPATIBILITY-SUBSET,
+          P-SHADCN-DROPDOWN-MENU-ITEM-AS-CHILD-OMISSION,
+        ]
+exercises:
+  prototypes: [P-SHADCN-DROPDOWN-MENU-ITEM, P-BASE-DROPDOWN-MENU-ITEM]
+revisions:
+  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dropdown Menu Item delta coverage. }]
+tags: [prototype, shadcn, dropdown-menu, item, delta, compatibility, test]

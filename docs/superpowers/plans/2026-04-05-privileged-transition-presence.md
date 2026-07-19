@@ -43,8 +43,8 @@
 
 ### Privileged hook migration
 
-- `packages/prototypes/base/src/transition/as-transition.ts` — rewrite as privileged function using `getActiveAsHookContext`
-- `packages/prototypes/base/src/transition/transition.ts` — unchanged (still calls `asTransition()`)
+- `packages/prototypes/base/src/transition/as-transition.proto.ts` — rewrite as privileged function using `getActiveAsHookContext`
+- `packages/prototypes/base/src/transition/transition.proto.ts` — unchanged (still calls `asTransition()`)
 
 ### Tests
 
@@ -959,12 +959,12 @@ git commit -m "feat(adapter-react): wire presence bridge and toggle root render"
 
 **Files:**
 
-- Modify: `packages/prototypes/base/src/transition/as-transition.ts`
+- Modify: `packages/prototypes/base/src/transition/as-transition.proto.ts`
 
 - [ ] **Step 1: Replace entire file**
 
 ```ts
-// packages/prototypes/base/src/transition/as-transition.ts
+// packages/prototypes/base/src/transition/as-transition.proto.ts
 import { getActiveAsHookContext } from '@proto.ui/core/internal';
 import type { RunHandle } from '@proto.ui/core';
 import type {
@@ -1208,7 +1208,7 @@ export const asTransition = (options?: TransitionOptions): void => {
 - [ ] **Step 2: Commit**
 
 ```bash
-git add packages/prototypes/base/src/transition/as-transition.ts
+git add packages/prototypes/base/src/transition/as-transition.proto.ts
 git commit -m "feat(transition): rewrite asTransition as privileged hook with presence"
 ```
 
