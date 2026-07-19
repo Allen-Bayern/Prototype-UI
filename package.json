@@ -33,6 +33,7 @@
     "release:stage": "node scripts/release/publish.mjs --dry-run",
     "release:stage:launch": "node scripts/release/publish.mjs --dry-run --profile launch --check-governance",
     "release:smoke:react": "node scripts/release/consumer-smoke-react.mjs",
+    "release:smoke:cli": "node scripts/release/consumer-smoke-cli.mjs",
     "release:publish": "node scripts/release/publish.mjs --publish",
     "issues:good-first:dry-run": "node scripts/issues/publish-good-first-issues.mjs --dry-run",
     "issues:good-first:publish": "node scripts/issues/publish-good-first-issues.mjs --publish",
