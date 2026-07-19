@@ -53,6 +53,8 @@ relates:
       P-SHADCN-TABS-LIST,
       P-SHADCN-TABS-TRIGGER,
       P-SHADCN-TABS-CONTENT,
+      P-SHADCN-HOVER-CARD-TRIGGER,
+      P-SHADCN-HOVER-CARD-CONTENT,
     ]
 revisions:
   - version: 0.2.0
@@ -67,4 +69,7 @@ revisions:
   - version: 0.2.3
     change: refined
     summary: Linked the Shadcn Tabs Root, List, Trigger, and Content projections as governed consumers of the shared asChild omission decision.
+  - version: 0.2.4
+    change: refined
+    summary: Linked the Shadcn Hover Card Trigger and Content projections as governed consumers of the shared asChild omission decision.
 tags: [as-child, as-trigger, shadcn, composition, event-routing, intentional-deviation]

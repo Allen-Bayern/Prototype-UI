@@ -11,6 +11,8 @@ const hoverCardTrigger = definePrototype<
 >({
   name: 'shadcn-hover-card-trigger',
   setup(def) {
+    // P-SHADCN-HOVER-CARD-TRIGGER-BASE-INHERITANCE,
+    // P-SHADCN-HOVER-CARD-TRIGGER-CURRENT-BASE-DEVIATIONS
     const hoverCard = asHoverCardTrigger();
     const state = hoverCard.stateHandles;
     if (!state) {
@@ -18,8 +20,10 @@ const hoverCardTrigger = definePrototype<
     }
     const { disabled, hovered, focusVisible } = state;
 
+    // P-SHADCN-HOVER-CARD-TRIGGER-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
+    // P-SHADCN-HOVER-CARD-TRIGGER-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(hovered).eq(true),
       intent: (i) => i.feedback.style.use(tw('underline')),
@@ -36,5 +40,7 @@ const hoverCardTrigger = definePrototype<
     });
   },
 });
+
+/** P-SHADCN-HOVER-CARD-TRIGGER-DIRECT-ENTRY; parity is bounded by P-SHADCN-HOVER-CARD-TRIGGER-COMPATIBILITY-SUBSET. */
 
 export default hoverCardTrigger;

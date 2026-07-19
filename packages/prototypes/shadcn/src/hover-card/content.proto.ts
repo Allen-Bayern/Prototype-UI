@@ -8,16 +8,21 @@ const hoverCardContent = definePrototype<
 >({
   name: 'shadcn-hover-card-content',
   setup(def) {
+    // P-SHADCN-HOVER-CARD-CONTENT-BASE-INHERITANCE,
+    // P-SHADCN-HOVER-CARD-CONTENT-CURRENT-BASE-DEVIATIONS
     const hoverCard = asHoverCardContent();
+    // P-SHADCN-HOVER-CARD-CONTENT-TRANSITION
     hoverCard.asTransition.configure({ enterDuration: 200, leaveDuration: 200 });
     const { open } = hoverCard.stateHandles;
 
+    // P-SHADCN-HOVER-CARD-CONTENT-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
         'z-50 w-64 rounded-md border bg-popover p-4 text-sm text-popover-foreground shadow-md outline-none transition-none duration-200'
       )
     );
 
+    // P-SHADCN-HOVER-CARD-CONTENT-OPEN-AND-SIDE-STYLES
     def.rule({
       when: (w) => w.state(open).eq(true),
       intent: (i) => i.feedback.style.use(tw('animate-in fade-in-0 zoom-in-95')),
@@ -44,5 +49,7 @@ const hoverCardContent = definePrototype<
     });
   },
 });
+
+/** P-SHADCN-HOVER-CARD-CONTENT-DIRECT-ENTRY; parity is bounded by P-SHADCN-HOVER-CARD-CONTENT-COMPATIBILITY-SUBSET. */
 
 export default hoverCardContent;
