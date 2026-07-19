@@ -236,7 +236,7 @@ criteria:
         - C-A11Y-0001
 sources:
   - path: spec/prototypes/P-BASE-TABS.yaml
-  - path: packages/prototypes/base/src/tabs/trigger.ts
+  - path: packages/prototypes/base/src/tabs/trigger.proto.ts
   - path: packages/prototypes/base/src/tabs/types.ts
   - path: packages/prototypes/base/test/tabs.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
@@ -254,6 +254,9 @@ dependsOn:
   decisions:
     - D-BASE-PROTOTYPE-INDEPENDENCE-0001
     - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
+verifies:
+  tests:
+    - T-BASE-TABS-0001
 revisions:
   - version: 0.1.0
     change: introduced

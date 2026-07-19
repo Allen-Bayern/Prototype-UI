@@ -289,7 +289,7 @@ openQuestions:
       - overlay prototype catalog
 sources:
   - path: internal/contracts/prototype-base/button.v0.md
-  - path: packages/prototypes/base/src/button/button.ts
+  - path: packages/prototypes/base/src/button/button.proto.ts
     sections:
       - setupButton
       - asButton

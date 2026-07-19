@@ -21,9 +21,9 @@ import {
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
 } from '@proto.ui/module-as-trigger';
-import dropdownContent from '../../../prototypes/base/src/dropdown/content';
-import dropdownItem from '../../../prototypes/base/src/dropdown/item';
-import dropdownRoot from '../../../prototypes/base/src/dropdown/root';
+import dropdownContent from '../../../prototypes/base/src/dropdown/content.proto';
+import dropdownItem from '../../../prototypes/base/src/dropdown/item.proto';
+import dropdownRoot from '../../../prototypes/base/src/dropdown/root.proto';
 
 class FakeNodeTarget extends EventTarget {
   constructor(

@@ -14,8 +14,8 @@
 - `packages/modules/overlay` 已经是独立 module，并通过 adapter host-cap 接入 portal / modal lock / layer scheduler
 - `packages/adapters/base/src/wiring/caps-builder.ts` 已经具备“module 申请宿主能力，adapter 提供 cap”的扩展形态
 - `packages/adapters/*/src/runtime/modules.ts` 已经是 React / Vue / Web Component adapter 的能力接入点
-- `packages/prototypes/base/src/dialog/content.ts` 目前仍自行监听全局 `pointerdown` 做 outside close
-- `packages/prototypes/base/src/dropdown/content.ts` 与 `packages/prototypes/base/src/select/content.ts` 目前只有 `Escape` 关闭，没有正式的 outside-close 抽象
+- `packages/prototypes/base/src/dialog/content.proto.ts` 目前仍自行监听全局 `pointerdown` 做 outside close
+- `packages/prototypes/base/src/dropdown/content.proto.ts` 与 `packages/prototypes/base/src/select/content.proto.ts` 目前只有 `Escape` 关闭，没有正式的 outside-close 抽象
 
 这意味着我们不是从零开始，而是在已有 `module + hook + adapter cap` 体系上补齐新的交互基础能力。
 
@@ -217,14 +217,14 @@
 
 ### Phase 2.1 迁移 dropdown
 
-- [x] 在 `packages/prototypes/base/src/dropdown/content.ts` 接入 `asBoundary`
+- [x] 在 `packages/prototypes/base/src/dropdown/content.proto.ts` 接入 `asBoundary`
 - [x] 把 outside close 改为 boundary subscription，而不是本地 DOM 判定
 - [x] 把 trigger 与 content 纳入同一 boundary
 - [x] 保证 item commit 与 outside press 的 close reason 可区分
 
 ### Phase 2.2 迁移 select
 
-- [x] 在 `packages/prototypes/base/src/select/content.ts` 接入 `asBoundary`
+- [x] 在 `packages/prototypes/base/src/select/content.proto.ts` 接入 `asBoundary`
 - [x] 让 trigger / content / value 呈现路径在 boundary 内协同
 - [x] 验证“打开后点击外部关闭，且 restore focus 到 trigger”路径
 
@@ -349,7 +349,7 @@
 
 ### 为什么把 dialog 放到这一步
 
-- [ ] 现在 `packages/prototypes/base/src/dialog/content.ts` 仍有自定义 global `pointerdown` outside-close
+- [ ] 现在 `packages/prototypes/base/src/dialog/content.proto.ts` 仍有自定义 global `pointerdown` outside-close
 - [ ] dialog 还叠加了 `alert`、`mask`、`focusScope`、portal、scroll lock 等复杂语义
 - [ ] 如果 boundary / hit / weak stack 还没站稳，太早迁移 dialog 会把问题揉在一起
 

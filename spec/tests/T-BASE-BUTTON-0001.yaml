@@ -79,7 +79,7 @@ implementations:
       - Deferred form, command, and visual surfaces are covered as absence checks rather than positive host integration behavior.
 sources:
   - path: packages/prototypes/base/test/as-button.test.ts
-  - path: packages/prototypes/base/src/button/button.ts
+  - path: packages/prototypes/base/src/button/button.proto.ts
 exercises:
   prototypes:
     - P-BASE-BUTTON

@@ -45,12 +45,12 @@
 ### modified prototypes (remove direct portal usage)
 
 - `packages/prototypes/base/src/dialog/portal.ts` — delete
-- `packages/prototypes/base/src/dialog/overlay.ts` — remove `createBodyPortal`, rename role to `mask`, rename exports
-- `packages/prototypes/base/src/dialog/content.ts` — remove `createBodyPortal`, use `asOverlay({ portal: true, modal: true })`
+- `packages/prototypes/base/src/dialog/overlay.proto.ts` — remove `createBodyPortal`, rename role to `mask`, rename exports
+- `packages/prototypes/base/src/dialog/content.proto.ts` — remove `createBodyPortal`, use `asOverlay({ portal: true, modal: true })`
 - `packages/prototypes/base/src/dialog/shared.ts` — rename role `overlay` to `mask`, bump cardinality max for trigger/description/close
 - `packages/prototypes/base/src/dialog/index.ts` — rename exports
 - `packages/prototypes/base/src/dialog/types.ts` — rename `DialogOverlay*` types to `DialogMask*`
-- `packages/prototypes/shadcn/src/dialog/overlay.ts` — rename to mask, update imports
+- `packages/prototypes/shadcn/src/dialog/overlay.proto.ts` — rename to mask, update imports
 - `packages/prototypes/shadcn/src/dialog/types.ts` — rename types
 - `packages/prototypes/shadcn/src/dialog/index.ts` — rename exports/re-exports
 - `packages/prototypes/shadcn/src/index.ts` — update re-exports
@@ -430,11 +430,11 @@ git commit -m "feat(hooks): propagate portal and modal options through asOverlay
 
 - delete: `packages/prototypes/base/src/dialog/portal.ts`
 - modify: `packages/prototypes/base/src/dialog/shared.ts`
-- modify: `packages/prototypes/base/src/dialog/overlay.ts`
-- modify: `packages/prototypes/base/src/dialog/content.ts`
+- modify: `packages/prototypes/base/src/dialog/overlay.proto.ts`
+- modify: `packages/prototypes/base/src/dialog/content.proto.ts`
 - modify: `packages/prototypes/base/src/dialog/index.ts`
 - modify: `packages/prototypes/base/src/dialog/types.ts`
-- modify: `packages/prototypes/shadcn/src/dialog/overlay.ts`
+- modify: `packages/prototypes/shadcn/src/dialog/overlay.proto.ts`
 - modify: `packages/prototypes/shadcn/src/dialog/types.ts`
 - modify: `packages/prototypes/shadcn/src/dialog/index.ts`
 - modify: `packages/prototypes/shadcn/src/index.ts`
@@ -475,9 +475,9 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
 
 - [ ] **step 4.3: update base dialog mask (formerly overlay)**
 
-rename file `packages/prototypes/base/src/dialog/overlay.ts` to `mask.ts` (or keep filename as `overlay.ts` and rename internals only). for consistency, keep filename `overlay.ts` but rename all internal identifiers to `mask`.
+rename file `packages/prototypes/base/src/dialog/overlay.proto.ts` to `mask.ts` (or keep filename as `overlay.ts` and rename internals only). for consistency, keep filename `overlay.ts` but rename all internal identifiers to `mask`.
 
-modify `packages/prototypes/base/src/dialog/overlay.ts`:
+modify `packages/prototypes/base/src/dialog/overlay.proto.ts`:
 
 ```ts
 import { ... } from '@proto.ui/core';
@@ -541,7 +541,7 @@ export default dialogMask;
 
 - [ ] **step 4.4: update base dialog content**
 
-modify `packages/prototypes/base/src/dialog/content.ts`:
+modify `packages/prototypes/base/src/dialog/content.proto.ts`:
 
 1. remove `import { createBodyPortal } from './portal'`;
 2. change `asOverlay({ ... })` to include `portal: true, modal: false` (content does not need modal lock):
@@ -588,7 +588,7 @@ export type { DialogMaskProps, DialogMaskExposes, DialogMaskAsHookContract } fro
 
 - [ ] **step 4.7: update shadcn dialog mask**
 
-modify `packages/prototypes/shadcn/src/dialog/overlay.ts`:
+modify `packages/prototypes/shadcn/src/dialog/overlay.proto.ts`:
 
 ```ts
 import { definePrototype, tw } from '@proto.ui/core';
@@ -625,7 +625,7 @@ verify `packages/prototypes/base/src/index.ts` exports the dialog family. if it 
 - [ ] **step 4.9: commit prototype changes**
 
 ```bash
-git add packages/prototypes/base/src/dialog/ packages/prototypes/shadcn/src/dialog/overlay.ts packages/prototypes/shadcn/src/dialog/types.ts packages/prototypes/shadcn/src/dialog/index.ts packages/prototypes/shadcn/src/index.ts packages/prototypes/base/src/index.ts
+git add packages/prototypes/base/src/dialog/ packages/prototypes/shadcn/src/dialog/overlay.proto.ts packages/prototypes/shadcn/src/dialog/types.ts packages/prototypes/shadcn/src/dialog/index.ts packages/prototypes/shadcn/src/index.ts packages/prototypes/base/src/index.ts
 git rm packages/prototypes/base/src/dialog/portal.ts || true
 git commit -m "refactor(dialog): move portal to overlay module, rename overlay to mask, relax cardinality"
 ```

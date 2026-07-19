@@ -214,7 +214,7 @@ criteria:
 sources:
   - path: internal/records/2026-07-04-switch-toggle-prototype-boundary.zh-CN.md
   - path: spec/prototypes/P-BASE-SWITCH.yaml
-  - path: packages/prototypes/base/src/switch/thumb.ts
+  - path: packages/prototypes/base/src/switch/thumb.proto.ts
     sections:
       - setupSwitchThumb
       - asSwitchThumb

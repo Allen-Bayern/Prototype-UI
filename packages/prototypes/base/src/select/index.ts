@@ -1,4 +1,4 @@
-import selectRoot from './root';
+import selectRoot from './root.proto';
 
 export type {
   SelectContentAsHookContract,
@@ -30,10 +30,10 @@ export type {
 } from './shared';
 
 export { SELECT_CONTEXT, SELECT_FAMILY } from './shared';
-export { asSelectRoot, default as selectRoot } from './root';
-export { asSelectTrigger, default as selectTrigger } from './trigger';
-export { asSelectValue, default as selectValue } from './value';
-export { asSelectContent, default as selectContent } from './content';
-export { asSelectItem, default as selectItem } from './item';
+export { asSelectRoot, default as selectRoot } from './root.proto';
+export { asSelectTrigger, default as selectTrigger } from './trigger.proto';
+export { asSelectValue, default as selectValue } from './value.proto';
+export { asSelectContent, default as selectContent } from './content.proto';
+export { asSelectItem, default as selectItem } from './item.proto';
 
 export default selectRoot;

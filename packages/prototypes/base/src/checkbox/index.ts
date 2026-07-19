@@ -11,5 +11,5 @@ export type {
 } from './types';
 
 export { CHECKBOX_FAMILY, CHECKBOX_CONTEXT } from './shared';
-export { asCheckboxRoot, default as checkboxRoot } from './root';
-export { asCheckboxIndicator, default as checkboxIndicator } from './indicator';
+export { asCheckboxRoot, default as checkboxRoot } from './root.proto';
+export { asCheckboxIndicator, default as checkboxIndicator } from './indicator.proto';

@@ -55,9 +55,9 @@ sources:
   - path: packages/core/src/state.ts
     sections:
       - StateDefAPI
-  - path: packages/prototypes/base/src/button/button.ts
-  - path: packages/prototypes/base/src/switch/root.ts
-  - path: packages/prototypes/base/src/switch/thumb.ts
+  - path: packages/prototypes/base/src/button/button.proto.ts
+  - path: packages/prototypes/base/src/switch/root.proto.ts
+  - path: packages/prototypes/base/src/switch/thumb.proto.ts
 revisions:
   - version: 0.1.0
     change: introduced

@@ -569,7 +569,7 @@ sources:
   - path: internal/records/2026-07-05-toggle-catalog-before-tabs.zh-CN.md
   - path: internal/records/2026-07-03-next-prototype-catalog-switch-first.zh-CN.md
   - path: internal/records/2026-07-04-switch-toggle-prototype-boundary.zh-CN.md
-  - path: packages/prototypes/base/src/checkbox/root.ts
+  - path: packages/prototypes/base/src/checkbox/root.proto.ts
     sections:
       - setupCheckboxRoot
       - asCheckboxRoot

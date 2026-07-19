@@ -10,5 +10,5 @@ export type {
 } from './types';
 
 export { SWITCH_FAMILY } from './shared';
-export { asSwitchRoot, default as switchRoot } from './root';
-export { asSwitchThumb, default as switchThumb } from './thumb';
+export { asSwitchRoot, default as switchRoot } from './root.proto';
+export { asSwitchThumb, default as switchThumb } from './thumb.proto';

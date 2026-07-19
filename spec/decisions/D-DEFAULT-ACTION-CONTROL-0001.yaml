@@ -34,7 +34,7 @@ sources:
   - path: internal/records/2026-07-06-default-action-control.zh-CN.md
   - path: packages/adapters/base/src/events/web-event-router.ts
   - path: packages/modules/focus/src/create.ts
-  - path: packages/prototypes/base/src/tabs/trigger.ts
+  - path: packages/prototypes/base/src/tabs/trigger.proto.ts
 relates:
   contracts:
     - C-EVENT-TYPE-0002

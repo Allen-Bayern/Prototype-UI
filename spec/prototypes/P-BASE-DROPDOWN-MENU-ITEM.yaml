@@ -37,7 +37,7 @@ criteria:
       zh-CN: Item 不得把 active/value 解释为 checked、selected 或 persistent selection；这些语义属于后续 Checkbox/Radio variants。
       en: Item must not interpret active or value as checked, selected, or persistent selection; those semantics belong to future Checkbox and Radio variants.
 sources:
-  - path: packages/prototypes/base/src/dropdown/item.ts
+  - path: packages/prototypes/base/src/dropdown/item.proto.ts
   - path: packages/prototypes/base/src/dropdown/command.ts
   - path: packages/prototypes/base/test/dropdown.test.ts
 dependsOn:

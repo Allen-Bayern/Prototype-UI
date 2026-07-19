@@ -98,8 +98,8 @@ openQuestions:
     blocks: [transition environment capability catalog]
 sources:
   - path: internal/contracts/prototype-base/transition.v0.md
-  - path: packages/prototypes/base/src/transition/transition.ts
-  - path: packages/prototypes/base/src/transition/as-transition.ts
+  - path: packages/prototypes/base/src/transition/transition.proto.ts
+  - path: packages/prototypes/base/src/transition/as-transition.proto.ts
   - path: packages/prototypes/base/src/transition/machine.ts
   - path: packages/prototypes/base/test/as-transition.test.ts
   - path: spec/contracts/C-AS-TRANSITION-0001.yaml

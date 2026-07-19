@@ -68,7 +68,7 @@ criteria:
       zh-CN: form submission、required validation、Group、Label、Separator、Viewport、scroll controls、ItemText、ItemIndicator、editable search、multi-select 与虚拟化不属于当前 Base 保证。
       en: Form submission, required validation, Group, Label, Separator, Viewport, scroll controls, ItemText, ItemIndicator, editable search, multi-select, and virtualization are outside the current Base guarantee.
 sources:
-  - path: packages/prototypes/base/src/select/root.ts
+  - path: packages/prototypes/base/src/select/root.proto.ts
   - path: packages/prototypes/base/src/select/shared.ts
   - path: packages/prototypes/base/test/select.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/combobox/

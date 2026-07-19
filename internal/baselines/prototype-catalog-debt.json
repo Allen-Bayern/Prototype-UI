@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "description": "Existing concrete prototype declarations that still need P/T catalog entities. CI rejects unlisted or stale debt, so accepting a new gap requires an explicit reviewed edit.",
+  "uncataloged": [
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/close.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-close" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/content.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-content" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/description.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-description" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/overlay.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-mask" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/title.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-title" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dialog/trigger.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dialog-trigger" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dropdown/content.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-content" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dropdown/item.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-item" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dropdown/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/dropdown/trigger.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-dropdown-trigger" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/hover-card/content.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-hover-card-content" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/hover-card/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-hover-card-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/hover-card/trigger.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-hover-card-trigger" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/select/content.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-select-content" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/select/item.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-select-item" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/select/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-select-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/select/trigger.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-select-trigger" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/select/value.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-select-value" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/switch/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-switch-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/switch/thumb.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-switch-thumb" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/tabs/content.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-content" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/tabs/list.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-list" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/tabs/root.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-root" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/tabs/trigger.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-tabs-trigger" }]
+    },
+    {
+      "file": "packages/prototypes/shadcn/src/toggle/toggle.proto.ts",
+      "entries": [{ "kind": "prototype", "name": "shadcn-toggle" }]
+    }
+  ]
+}

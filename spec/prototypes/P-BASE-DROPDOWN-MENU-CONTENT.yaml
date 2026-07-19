@@ -41,7 +41,7 @@ criteria:
       zh-CN: Escape 必须请求 close 并把焦点返回 Trigger；Item action close 仅在 menu 仍持有焦点时返回 Trigger，不得覆盖 action 已建立的新焦点；Tab/Shift+Tab 必须请求 close 而不阻止宿主继续焦点遍历；outside press 必须请求 close。受控模式不得绕过 owner。
       en: Escape must request close and return focus to Trigger; an Item-action close returns focus to Trigger only while the menu still owns focus and must not override focus newly established by the action; Tab and Shift+Tab must request close without preventing host focus traversal; outside press must request close. Controlled mode must not bypass its owner.
 sources:
-  - path: packages/prototypes/base/src/dropdown/content.ts
+  - path: packages/prototypes/base/src/dropdown/content.proto.ts
   - path: packages/prototypes/base/test/dropdown.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
     label: WAI-ARIA APG Menu and Menubar Pattern

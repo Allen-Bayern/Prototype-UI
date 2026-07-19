@@ -76,7 +76,7 @@ sources:
   - path: packages/prototypes/lucide/package.json
   - path: packages/prototypes/lucide/icons.config.json
   - path: packages/prototypes/lucide/scripts/generate-icons.mjs
-  - path: packages/prototypes/lucide/src/icon/icon.ts
+  - path: packages/prototypes/lucide/src/icon/icon.proto.ts
   - path: packages/prototypes/lucide/src/icon/fixed.ts
   - path: packages/prototypes/lucide/src/icon/render.ts
   - path: packages/prototypes/lucide/src/manifest.generated.ts

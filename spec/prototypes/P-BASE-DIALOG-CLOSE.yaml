@@ -29,7 +29,7 @@ criteria:
       zh-CN: own 或 Root disabled 必须禁止 Close activation 与 focus request。
       en: Own or Root disabled state must suppress Close activation and focus requests.
 sources:
-  - path: packages/prototypes/base/src/dialog/close.ts
+  - path: packages/prototypes/base/src/dialog/close.proto.ts
   - path: packages/prototypes/base/src/dialog/command.ts
 dependsOn:
   prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT]

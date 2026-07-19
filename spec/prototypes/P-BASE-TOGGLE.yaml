@@ -526,7 +526,7 @@ openQuestions:
       - collection membership design
 sources:
   - path: internal/records/2026-07-05-toggle-catalog-before-tabs.zh-CN.md
-  - path: packages/prototypes/base/src/toggle/toggle.ts
+  - path: packages/prototypes/base/src/toggle/toggle.proto.ts
     sections:
       - setupToggle
       - asToggle
@@ -538,7 +538,7 @@ sources:
       - asToggle mirrors controlled active prop and emits next active without mutating local state
       - disabled toggle keeps active stable and suppresses activeChange
   - path: spec/tests/T-BASE-TOGGLE-0001.yaml
-  - path: packages/prototypes/shadcn/src/toggle/index.ts
+  - path: packages/prototypes/shadcn/src/toggle/toggle.proto.ts
   - path: packages/prototypes/shadcn/test/toggle.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/button/
     label: WAI-ARIA APG Button Pattern

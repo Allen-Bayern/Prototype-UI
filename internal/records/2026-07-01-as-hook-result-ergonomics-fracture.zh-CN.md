@@ -59,7 +59,7 @@ Base Button 契约跟进到 `shadcn-button` 时暴露出一个 asHook 易用性�
 - `packages/runtime/src/kernel/as-hook.ts`
 - `packages/runtime/src/kernel/handles/def.ts`
 - `packages/runtime/test/contract/as-hook.v0.contract.test.ts`
-- `packages/prototypes/shadcn/src/button/index.ts`
+- `packages/prototypes/shadcn/src/button/button.proto.ts`
 
 ## Notes
 

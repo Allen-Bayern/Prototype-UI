@@ -29,8 +29,8 @@ criteria:
       en: The historical name may remain only in migration records or governance decisions, not in prototype documentation as an available API.
 sources:
   - path: internal/records/2026-07-06-use-focus-roving-deprecation.zh-CN.md
-  - path: packages/prototypes/base/src/select/content.ts
-  - path: packages/prototypes/base/src/dropdown/content.ts
+  - path: packages/prototypes/base/src/select/content.proto.ts
+  - path: packages/prototypes/base/src/dropdown/content.proto.ts
 relates:
   contracts:
     - C-AS-FOCUS-ROVING-0001

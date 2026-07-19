@@ -59,7 +59,7 @@ criteria:
       zh-CN: Arrow、forceMount、自定义 Element collision boundary、sticky 与 hideWhenDetached 不属于当前 Base Content 保证；下游原型不得把缺失能力宣称为兼容。
       en: Arrow, forceMount, custom Element collision boundaries, sticky positioning, and hideWhenDetached are not current Base Content guarantees; downstream prototypes must not claim compatibility for missing capabilities.
 sources:
-  - path: packages/prototypes/base/src/hover-card/content.ts
+  - path: packages/prototypes/base/src/hover-card/content.proto.ts
   - path: packages/prototypes/base/test/hover-card.test.ts
   - path: https://www.radix-ui.com/primitives/docs/components/hover-card#content
     label: Radix Hover Card Content

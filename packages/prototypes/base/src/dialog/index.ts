@@ -1,4 +1,4 @@
-import dialogRoot from './root';
+import dialogRoot from './root.proto';
 
 export type {
   DialogCloseAsHookContract,
@@ -28,12 +28,12 @@ export type {
 export type { DialogContextValue } from './shared';
 
 export { DIALOG_CONTEXT, DIALOG_FAMILY } from './shared';
-export { asDialogRoot, default as dialogRoot } from './root';
-export { asDialogTrigger, default as dialogTrigger } from './trigger';
-export { asDialogMask, default as dialogMask } from './overlay';
-export { asDialogContent, default as dialogContent } from './content';
-export { asDialogTitle, default as dialogTitle } from './title';
-export { asDialogDescription, default as dialogDescription } from './description';
-export { asDialogClose, default as dialogClose } from './close';
+export { asDialogRoot, default as dialogRoot } from './root.proto';
+export { asDialogTrigger, default as dialogTrigger } from './trigger.proto';
+export { asDialogMask, default as dialogMask } from './overlay.proto';
+export { asDialogContent, default as dialogContent } from './content.proto';
+export { asDialogTitle, default as dialogTitle } from './title.proto';
+export { asDialogDescription, default as dialogDescription } from './description.proto';
+export { asDialogClose, default as dialogClose } from './close.proto';
 
 export default dialogRoot;

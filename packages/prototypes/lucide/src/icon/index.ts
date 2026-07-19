@@ -1,6 +1,6 @@
-export { asLucideIcon } from './icon';
-export { default } from './icon';
-export { default as lucideIcon } from './icon';
+export { asLucideIcon } from './icon.proto';
+export { default } from './icon.proto';
+export { default as lucideIcon } from './icon.proto';
 export { renderLucideIcon } from './render';
 export { renderLucideShape } from './render';
 export { LUCIDE_ICON_NAMES, isLucideIconName } from './icons';

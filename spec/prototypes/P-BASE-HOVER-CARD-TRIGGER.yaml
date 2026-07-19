@@ -33,7 +33,7 @@ criteria:
       zh-CN: Trigger 不得 author click/press activation 或阻止 Enter navigation；资源激活仍由应用提供的 link surface 持有。
       en: Trigger must not author click or press activation or suppress Enter navigation; resource activation remains owned by the application-provided link surface.
 sources:
-  - path: packages/prototypes/base/src/hover-card/trigger.ts
+  - path: packages/prototypes/base/src/hover-card/trigger.proto.ts
   - path: packages/prototypes/base/test/hover-card.test.ts
   - path: https://www.radix-ui.com/primitives/docs/components/hover-card#trigger
     label: Radix Hover Card Trigger

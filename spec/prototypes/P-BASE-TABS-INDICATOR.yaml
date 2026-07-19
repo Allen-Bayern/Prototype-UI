@@ -139,7 +139,9 @@ criteria:
         - D-BASE-PROTOTYPE-INDEPENDENCE-0001
 sources:
   - path: spec/prototypes/P-BASE-TABS.yaml
+  - path: packages/prototypes/base/src/tabs/indicator.proto.ts
   - path: packages/prototypes/base/src/tabs/shared.ts
+  - path: packages/prototypes/base/test/tabs.test.ts
   - path: https://base-ui.com/react/components/tabs
     label: Base UI Tabs
 dependsOn:
@@ -150,10 +152,16 @@ dependsOn:
     - C-CONTEXT-0006
     - C-STATE-0001
     - C-A11Y-0001
+verifies:
+  tests:
+    - T-BASE-TABS-INDICATOR-0001
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs Indicator protocol catalog as a context-driven visual consumer.
+  - version: 0.2.0
+    change: refined
+    summary: Linked the concrete authoring entry and its T entity for catalog coverage enforcement.
 tags:
   - prototype
   - base

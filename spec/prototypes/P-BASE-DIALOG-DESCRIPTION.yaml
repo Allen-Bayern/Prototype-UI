@@ -21,7 +21,7 @@ criteria:
       zh-CN: alertdialog authoring 必须包含描述主要消息的 Description；Content 在 live anatomy 中检测到 alert mode 缺少 Description 时必须发出诊断。
       en: Alert-dialog authoring must include a Description containing the primary message; Content must emit a diagnostic when live anatomy detects alert mode without Description.
 sources:
-  - path: packages/prototypes/base/src/dialog/description.ts
+  - path: packages/prototypes/base/src/dialog/description.proto.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/
     label: WAI-ARIA APG Alert Dialog Pattern
 dependsOn: { prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT], contracts: [C-A11Y-0001] }

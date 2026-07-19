@@ -1,5 +1,5 @@
 import { definePrototype } from '@proto.ui/core';
-import { asTransition } from './as-transition';
+import { asTransition } from './as-transition.proto';
 
 /**
  * Transition 组件原型

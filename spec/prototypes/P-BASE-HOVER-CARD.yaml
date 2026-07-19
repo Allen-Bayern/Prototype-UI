@@ -75,7 +75,7 @@ criteria:
       zh-CN: canonical Root、Trigger、Content roles、cardinality 与 contains relations 必须由顶层 anatomy 字段定义。
       en: Canonical Root, Trigger, and Content roles, cardinalities, and contains relations must be defined by the top-level anatomy field.
 sources:
-  - path: packages/prototypes/base/src/hover-card/root.ts
+  - path: packages/prototypes/base/src/hover-card/root.proto.ts
   - path: packages/prototypes/base/src/hover-card/shared.ts
   - path: packages/prototypes/base/test/hover-card.test.ts
   - path: https://www.radix-ui.com/primitives/docs/components/hover-card

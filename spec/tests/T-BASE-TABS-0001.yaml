@@ -112,6 +112,9 @@ verifies:
 exercises:
   prototypes:
     - P-BASE-TABS
+    - P-BASE-TABS-LIST
+    - P-BASE-TABS-TRIGGER
+    - P-BASE-TABS-CONTENT
 revisions:
   - version: 0.1.0
     change: introduced

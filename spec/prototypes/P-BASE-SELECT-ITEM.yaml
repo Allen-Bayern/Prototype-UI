@@ -37,7 +37,7 @@ criteria:
       zh-CN: Item local disabled 或 Root disabled 必须抑制 focus participation、active 更新、select signal、value request 与 close request，并投射 aria-disabled。
       en: Local Item disabled or Root disabled must suppress focus participation, active updates, select signal, value request, and close request, and project aria-disabled.
 sources:
-  - path: packages/prototypes/base/src/select/item.ts
+  - path: packages/prototypes/base/src/select/item.proto.ts
   - path: packages/prototypes/base/src/select/command.ts
   - path: https://www.radix-ui.com/primitives/docs/components/select#item
     label: Radix Select Item

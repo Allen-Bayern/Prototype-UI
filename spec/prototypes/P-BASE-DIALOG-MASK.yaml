@@ -29,7 +29,7 @@ criteria:
       zh-CN: Mask 不得自行拥有 Escape 或 outside dismissal policy。
       en: Mask must not independently own Escape or outside-dismissal policy.
 sources:
-  - path: packages/prototypes/base/src/dialog/overlay.ts
+  - path: packages/prototypes/base/src/dialog/overlay.proto.ts
   - path: packages/prototypes/base/test/dialog.test.ts
 dependsOn:
   prototypes: [P-BASE-DIALOG]

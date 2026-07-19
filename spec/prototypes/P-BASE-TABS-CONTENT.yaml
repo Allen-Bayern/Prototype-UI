@@ -152,7 +152,7 @@ criteria:
       en: This criterion expresses cross-host behavior and is not bound to Web `tabIndex`, CSS, or a concrete DOM query implementation.
 sources:
   - path: spec/prototypes/P-BASE-TABS.yaml
-  - path: packages/prototypes/base/src/tabs/content.ts
+  - path: packages/prototypes/base/src/tabs/content.proto.ts
   - path: packages/prototypes/base/src/tabs/types.ts
   - path: packages/prototypes/base/test/tabs.test.ts
   - path: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
@@ -169,6 +169,9 @@ dependsOn:
   decisions:
     - D-A11Y-PART-RELATIONSHIP-PROJECTION-0001
     - D-FOCUS-ENTRY-DELEGATION-0001
+verifies:
+  tests:
+    - T-BASE-TABS-0001
 revisions:
   - version: 0.1.0
     change: introduced

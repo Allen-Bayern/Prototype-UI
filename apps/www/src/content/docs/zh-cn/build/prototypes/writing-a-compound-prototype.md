@@ -31,10 +31,10 @@ description: '如何按 Proto UI 的原型边界拆分复合组件。'
 
 对应文件见：
 
-- [packages/prototypes/base/src/tabs/root.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/root.ts)
-- [packages/prototypes/base/src/tabs/list.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/list.ts)
-- [packages/prototypes/base/src/tabs/trigger.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/trigger.ts)
-- [packages/prototypes/base/src/tabs/content.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/content.ts)
+- [packages/prototypes/base/src/tabs/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/root.proto.ts)
+- [packages/prototypes/base/src/tabs/list.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/list.proto.ts)
+- [packages/prototypes/base/src/tabs/trigger.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/trigger.proto.ts)
+- [packages/prototypes/base/src/tabs/content.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/content.proto.ts)
 
 ## 复合原型不是先拆文件，而是先拆交互主体
 

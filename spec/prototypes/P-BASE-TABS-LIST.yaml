@@ -148,7 +148,7 @@ criteria:
         - D-A11Y-SEMANTIC-DOMAIN-0001
 sources:
   - path: spec/prototypes/P-BASE-TABS.yaml
-  - path: packages/prototypes/base/src/tabs/list.ts
+  - path: packages/prototypes/base/src/tabs/list.proto.ts
   - path: packages/prototypes/base/src/tabs/shared.ts
   - path: packages/prototypes/base/test/tabs.test.ts
 dependsOn:
@@ -159,6 +159,9 @@ dependsOn:
     - C-CONTEXT-0006
     - C-AS-FOCUS-ROVING-0001
     - C-A11Y-0001
+verifies:
+  tests:
+    - T-BASE-TABS-0001
 revisions:
   - version: 0.1.0
     change: introduced

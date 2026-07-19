@@ -1,7 +1,7 @@
-import tabsContent from './content';
-import tabsList from './list';
-import tabsRoot from './root';
-import tabsTrigger from './trigger';
+import tabsContent from './content.proto';
+import tabsList from './list.proto';
+import tabsRoot from './root.proto';
+import tabsTrigger from './trigger.proto';
 
 export type {
   ShadcnTabsRootProps,
@@ -20,7 +20,7 @@ export type {
 } from './types';
 
 export { tabsRoot, tabsList, tabsTrigger, tabsContent };
-export { default as shadcnTabsRoot } from './root';
-export { default as shadcnTabsList } from './list';
-export { default as shadcnTabsTrigger } from './trigger';
-export { default as shadcnTabsContent } from './content';
+export { default as shadcnTabsRoot } from './root.proto';
+export { default as shadcnTabsList } from './list.proto';
+export { default as shadcnTabsTrigger } from './trigger.proto';
+export { default as shadcnTabsContent } from './content.proto';
