@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readVersion, findProtoPackages } from '../version-utils.mjs';
@@ -31,7 +31,24 @@ test('readVersion parses MAJOR.MINOR.PATCH', () => {
     assert.equal(v.major, '0');
     assert.equal(v.minor, '1');
     assert.equal(v.patch, '0');
+    assert.equal(v.prerelease, undefined);
+    assert.equal(v.isPrerelease, false);
     assert.equal(v.minorPrefix, '0.1.');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('readVersion parses prerelease versions', () => {
+  const root = makeFixture({ version: '0.2.0-rc.0' });
+  try {
+    const v = readVersion(root);
+    assert.equal(v.raw, '0.2.0-rc.0');
+    assert.equal(v.major, '0');
+    assert.equal(v.minor, '2');
+    assert.equal(v.patch, '0');
+    assert.equal(v.prerelease, 'rc.0');
+    assert.equal(v.isPrerelease, true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -72,6 +89,29 @@ test('findProtoPackages discovers nested @proto.ui packages and skips others', (
     const cli = found.find((p) => p.manifest.name === '@proto.ui/cli');
     assert.equal(cli.manifest.version, '0.0.4');
     assert.ok(cli.manifestPath.endsWith('package.json'));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('findProtoPackages excludes private @proto.ui implementation packages', () => {
+  const root = makeFixture({
+    version: '0.2.0-rc.0',
+    packages: [
+      { relPath: 'core', name: '@proto.ui/core', version: '0.2.0-rc.0' },
+      { relPath: 'spec/schema', name: '@proto.ui/spec-schema', version: '0.1.0' },
+    ],
+  });
+  const privateManifest = join(root, 'packages', 'spec', 'schema', 'package.json');
+  const privatePackage = JSON.parse(readFileSync(privateManifest, 'utf8'));
+  privatePackage.private = true;
+  writeFileSync(privateManifest, `${JSON.stringify(privatePackage, null, 2)}\n`);
+
+  try {
+    assert.deepEqual(
+      findProtoPackages(root).map((pkg) => pkg.manifest.name),
+      ['@proto.ui/core']
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

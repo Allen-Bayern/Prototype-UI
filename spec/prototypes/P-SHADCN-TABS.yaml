@@ -2,7 +2,7 @@ id: P-SHADCN-TABS
 type: prototype
 title: Shadcn Tabs Root inherits Base Tabs and adds the current layout surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Tabs Root is an unofficial projection that inherits Base Tabs selection and family semantics and adds the currently implemented root layout tokens.
 statement:
   zh-CN: >-
@@ -89,7 +89,7 @@ inherits:
       note: Default inherited protocol; explicit setup-time negative-patch criteria may override individual guarantees.
 verifies: { tests: [T-SHADCN-TABS-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Tabs Root delta cataloging with Base inheritance, current layout surface, intentional asChild omission, and centralized upstream differences.
 tags: [prototype, shadcn, tabs, root, upstream-derived, delta, compatibility, visual]

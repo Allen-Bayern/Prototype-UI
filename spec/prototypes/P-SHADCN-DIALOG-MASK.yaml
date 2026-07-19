@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-MASK
 type: prototype
 title: Shadcn Dialog Mask inherits Base modal masking and adds a narrowed animated overlay surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Mask maps upstream Overlay onto the Base Mask protocol, retains modal presence and passthrough behavior, narrows its declared public Transition surface, and adds current fade styling.
 statement:
   zh-CN: >-
@@ -122,7 +122,7 @@ verifies: { tests: [T-SHADCN-DIALOG-MASK-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Mask cataloging with Base inheritance,
       explicit public-boundary narrowing,

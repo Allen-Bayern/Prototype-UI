@@ -2,7 +2,7 @@ id: P-SHADCN-HOVER-CARD-CONTENT
 type: prototype
 title: Shadcn Hover Card Content inherits Base overlay behavior and adds the current animated surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Hover Card Content inherits Base non-modal overlay, hover bridge, presence, positioning, and transition behavior and adds the current popover surface and open or side animation rules.
 statement:
   zh-CN: >-
@@ -101,7 +101,7 @@ inherits:
       note: Default inherited overlay and transition protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-HOVER-CARD-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Hover Card Content delta cataloging with Base overlay inheritance, 200ms transitions, current animations, asChild omission, and centralized differences.
 tags:

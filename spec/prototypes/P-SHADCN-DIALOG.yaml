@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG
 type: prototype
 title: Shadcn Dialog Root inherits Base modal ownership and adds the current host layout
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Root is an unofficial projection that inherits Base modal open ownership, context, and anatomy and adds the current visible root-host layout.
 statement:
   zh-CN: >-
@@ -103,7 +103,7 @@ verifies: { tests: [T-SHADCN-DIALOG-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Root delta cataloging with Base inheritance,
       visible host layout,

@@ -2,7 +2,7 @@ id: T-SHADCN-DROPDOWN-MENU-CONTENT-0001
 type: test
 title: Shadcn Dropdown Menu Content delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content identity, Base overlay inheritance, configured transition, current animations, asChild omission, and bounded compatibility.
 cases:
   - id: T-SHADCN-DROPDOWN-MENU-CONTENT-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -66,7 +66,7 @@ exercises:
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Added Shadcn Dropdown Menu Content delta coverage.,
     },

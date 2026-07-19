@@ -261,7 +261,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added the first Base Tabs Trigger protocol catalog.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Made keyboard activation and Space default-action control explicit.
 tags:

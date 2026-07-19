@@ -2,7 +2,7 @@ id: P-SHADCN-TABS-CONTENT
 type: prototype
 title: Shadcn Tabs Content inherits Base Tabs Content and adds the current panel surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Tabs Content inherits Base same-domain panel selection, presence, and accessibility behavior and adds the currently implemented panel and hidden styling.
 statement:
   zh-CN: >-
@@ -104,7 +104,7 @@ inherits:
       note: Default inherited panel protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-TABS-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Tabs Content delta cataloging with Base inheritance, current panel surface, hidden projection, intentional asChild omission, and centralized parity gaps.
 tags: [prototype, shadcn, tabs, content, upstream-derived, delta, compatibility, visual]

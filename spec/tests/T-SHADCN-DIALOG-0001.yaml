@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-0001
 type: test
 title: Shadcn Dialog Root delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root identity, Base modal inheritance, visible host layout, current seven-part composition, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-DIALOG-0001-CASE-CURRENT-PROTOCOL
@@ -47,5 +47,5 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG, P-BASE-DIALOG] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Root delta coverage. }]
+  [{ version: 0.2.0-rc.0, change: introduced, summary: Added Shadcn Dialog Root delta coverage. }]
 tags: [prototype, shadcn, dialog, root, delta, compatibility, test]

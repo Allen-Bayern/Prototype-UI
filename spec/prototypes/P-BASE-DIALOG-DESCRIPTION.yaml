@@ -2,7 +2,7 @@ id: P-BASE-DIALOG-DESCRIPTION
 type: prototype
 title: Base Dialog Description describes Dialog Content
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Dialog Description is the optional single primary-message part referenced by Content, and is required by valid alert-dialog authoring.
 statement:
   zh-CN: Dialog Description 是 Content 内至多一个的 primary-message part。它通过稳定同域 identity 成为 Content describedBy target；alertdialog 的有效 authoring 必须提供 Description。
@@ -27,10 +27,10 @@ sources:
 dependsOn: { prototypes: [P-BASE-DIALOG, P-BASE-DIALOG-CONTENT], contracts: [C-A11Y-0001] }
 verifies: { tests: [T-BASE-DIALOG-DESCRIPTION-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Dialog Description relationship and alert requirement.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Required a live-anatomy diagnostic when Alert Dialog lacks Description.
 tags: [prototype, base, dialog, description]

@@ -2,7 +2,7 @@ id: P-BASE-SELECT-VALUE
 type: prototype
 title: Base Select Value is a render-consumed committed-value display
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Value is a non-interactive display part that renders Root-owned selected text or an author placeholder and establishes the value-class anatomy precedent.
 statement:
   zh-CN: Select Value 是 Select family 中至多一个的 value-class display part。它从同域 Context 派生 displayValue：优先显示 Root-owned selected text，其次显示 committed raw value，未选择时显示 placeholder。Value 可以触发自身 renderer refresh，但不得成为 selection owner、event target、focus target 或独立 accessible control。
@@ -50,7 +50,7 @@ dependsOn:
   contracts: [C-CONTEXT-0001, C-STATE-0001, C-EXPOSE-STATE-0001, C-CORE-SYNTAX-0003]
 verifies: { tests: [T-BASE-SELECT-VALUE-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced the first value-class part contract with context-derived display, fallback, render refresh, and non-interactive boundaries.
 tags: [prototype, base, select, value, value-class, render, context]

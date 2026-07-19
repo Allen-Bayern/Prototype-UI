@@ -62,7 +62,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Closed the minimum naming decision needed to start prototype-level P entity cataloging.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: expanded
     summary: Added the machine-discoverable *.proto.* source convention and CI catalog coverage gate.
 tags:

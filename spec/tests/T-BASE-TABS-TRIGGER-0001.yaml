@@ -65,7 +65,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Introduced Base Tabs Trigger protocol test entity aligned to P-BASE-TABS-TRIGGER criteria.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added focused Space default-action coverage.
 tags:

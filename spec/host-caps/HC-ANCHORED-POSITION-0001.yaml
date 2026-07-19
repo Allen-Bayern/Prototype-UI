@@ -2,7 +2,7 @@ id: HC-ANCHORED-POSITION-0001
 type: host-cap
 title: Host measures and maintains anchored floating geometry
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: The host attaches a bounded positioning lease that measures anchor and floating targets, resolves collision policy, writes non-transform coordinates, and observes relevant geometry changes.
 satisfies:
   contracts:
@@ -11,7 +11,7 @@ sources:
   - path: packages/modules/positioning/src/caps.ts
   - path: packages/modules/positioning/src/web/floating-ui-host.ts
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added the high-level anchored positioning host capability and lease boundary.
 tags: [host-capability, positioning, overlay, geometry]

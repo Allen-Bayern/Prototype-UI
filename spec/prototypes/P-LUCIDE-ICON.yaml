@@ -2,7 +2,7 @@ id: P-LUCIDE-ICON
 type: prototype
 title: Lucide Icon projects one upstream glyph protocol through generated Proto UI SVG
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Lucide Icon is one upstream-derived icon protocol shared by the name-based lucide-icon entries and every generated fixed-glyph projection, with auditable source-version metadata, common visual props, deterministic SVG structure, and explicit accessibility and ownership boundaries.
 statement:
   zh-CN: >-
@@ -89,7 +89,7 @@ dependsOn:
   decisions: [D-PROTOTYPE-ENTITY-NAMING-0001]
 verifies: { tests: [T-LUCIDE-ICON-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged all generated Lucide glyph entries as one upstream-derived Icon protocol with source-version, rendering, distribution, and accessibility boundaries.
 tags: [prototype, lucide, icon, svg, generated, upstream-derived, accessibility]

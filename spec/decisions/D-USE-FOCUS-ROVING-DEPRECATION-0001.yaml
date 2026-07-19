@@ -3,7 +3,7 @@ type: decision
 title: useFocusRoving was removed after the asFocusRoving migration
 status: deprecated
 since: 0.1.0
-deprecatedSince: 0.2.0
+deprecatedSince: 0.2.0-rc.0
 summary: useFocusRoving was removed in 0.2 after Dropdown Menu and Select assigned sibling-local movement and default-action control to asFocusRoving.
 statement:
   zh-CN: >-
@@ -40,7 +40,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Deprecated useFocusRoving as a compatibility helper pending Select/Dropdown migration.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Removed useFocusRoving after Dropdown Menu and Select migrated to asFocusRoving.
 tags:

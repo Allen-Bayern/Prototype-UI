@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-      - feat/v0-release-prep
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +22,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Verify @proto.ui packages share VERSION minor
+      - name: Verify public package exact versions
         run: node scripts/release/check-lockstep.mjs
 
   type-check:

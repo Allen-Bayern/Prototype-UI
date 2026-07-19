@@ -2,7 +2,7 @@ id: T-SHADCN-DROPDOWN-MENU-ITEM-0001
 type: test
 title: Shadcn Dropdown Menu Item delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Item identity, Base command inheritance, visual props and state styles, asChild omission, and bounded compatibility.
 cases:
   - id: T-SHADCN-DROPDOWN-MENU-ITEM-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -63,5 +63,11 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-DROPDOWN-MENU-ITEM, P-BASE-DROPDOWN-MENU-ITEM]
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dropdown Menu Item delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Dropdown Menu Item delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, dropdown-menu, item, delta, compatibility, test]

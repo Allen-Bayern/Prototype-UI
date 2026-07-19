@@ -2,7 +2,7 @@ id: T-SHADCN-SWITCH-0001
 type: test
 title: Shadcn Switch Root delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Switch Root identity, Base inheritance, Root/Thumb behavior, current styles, intentional asChild omission, and its bounded upstream compatibility claim.
 cases:
   - id: T-SHADCN-SWITCH-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -55,7 +55,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-SWITCH, P-BASE-SWITCH]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Switch Root delta coverage for Base inheritance, family behavior, current visual styles, and bounded upstream compatibility.
 tags: [prototype, shadcn, switch, root, delta, compatibility, test]

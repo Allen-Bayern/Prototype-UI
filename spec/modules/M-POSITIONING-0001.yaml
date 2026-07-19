@@ -2,7 +2,7 @@ id: M-POSITIONING-0001
 type: module
 title: Positioning module owns anchored host-session lifetime
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: The Positioning module converts an anchor and floating declaration into one host positioning lease, retains only categorical resolved placement, and revokes the lease with view or prototype lifetime.
 satisfies:
   contracts:
@@ -19,7 +19,7 @@ sources:
   - path: packages/modules/positioning/src/caps.ts
   - path: packages/modules/positioning/src/impl.ts
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged the adapter-independent positioning session and host-capability boundary.
 tags: [positioning, module, overlay, host-capability]

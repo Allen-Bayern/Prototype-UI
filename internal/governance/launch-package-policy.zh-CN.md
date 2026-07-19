@@ -1,6 +1,6 @@
 # Proto UI 首发 Package 策略
 
-> 内部治理文档。本文定义 Proto UI 在 `v0.1.0` 首次公开发布时，应如何划分 package 层级、哪些 package 属于首发承诺面，以及在最后准备窗口中新增什么样的 package 仍可计入首发范围。
+> 内部治理文档。本文定义 Proto UI 在 `v0.2.0-rc.0` 首次公开发布时，应如何划分 package 层级、哪些 package 属于首发承诺面，以及在最后准备窗口中新增什么样的 package 仍可计入首发范围。
 
 ---
 
@@ -10,10 +10,10 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 这份文档用于明确：
 
-- 哪些 package 属于 `v0.1.0` 的首发承诺范围
+- 哪些 package 属于 `v0.2.0-rc.0` 的首发承诺范围
 - 哪些 package 虽然可以公开、可以发布，但不属于首发承诺范围
 - 哪些 package 在首发治理上应视为 internal 或 dependency-directed
-- 在首发前最后一个月内，哪些新增 package 仍可纳入 `v0.1.0`
+- 在首发前最后一个月内，哪些新增 package 仍可纳入 `v0.2.0-rc.0`
 
 它是一份发版范围治理文档。
 
@@ -23,7 +23,7 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 ## 2. Package 分层
 
-对于 `v0.1.0`，Proto UI 的 package 应分成三层。
+对于 `v0.2.0-rc.0`，Proto UI 的 package 应分成三层。
 
 ### 2.1 首发承诺包
 
@@ -43,7 +43,7 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 这一层的 package 可以公开、可以发布，也确实拥有真实用户。
 
-但它们不属于 `v0.1.0` 的默认 first-user story，第一次公开发布不应以它们是否被打磨到与首发承诺包相同成熟度来判断成功与否。
+但它们不属于 `v0.2.0-rc.0` 的默认 first-user story，第一次公开发布不应以它们是否被打磨到与首发承诺包相同成熟度来判断成功与否。
 
 这一层主要面向：
 
@@ -56,19 +56,19 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 这一层的 package 可能依然很重要，也可能因为依赖关系需要发布。
 
-但在首发治理视角下，它们应被视为：
+但在首发产品治理视角下，它们应被视为：
 
 - 内部架构构件
 - 依赖导向的能力面
 - 不作为默认入口的底层包
 
-它们不属于 `v0.1.0` 的 public promise surface。
+它们不属于 `v0.2.0-rc.0` 的 public promise surface。这是成熟度与沟通分层，不是版本或发布集合分层。
 
 ---
 
-## 3. `v0.1.0` 首发承诺包名单
+## 3. `v0.2.0-rc.0` 首发承诺包名单
 
-当前 `v0.1.0` 的首发承诺包名单为：
+当前 `v0.2.0-rc.0` 的首发承诺包名单为：
 
 - `@proto.ui/adapter-react`
 - `@proto.ui/adapter-vue`
@@ -89,7 +89,7 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 ---
 
-## 4. `v0.1.0` 公开但非首发承诺包
+## 4. `v0.2.0-rc.0` 公开但非首发承诺包
 
 当前“公开但非首发承诺”的 package 集合为：
 
@@ -114,15 +114,17 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 ---
 
-## 5. `v0.1.0` Internal 或 dependency-directed 包
+## 5. `v0.2.0-rc.0` Internal 或 dependency-directed 包
 
 以下 package 在首发治理中应视为 internal 或 dependency-directed：
 
 - `@proto.ui/runtime`
+- `@proto.ui/module-a11y`
 - `@proto.ui/module-base`
 - `@proto.ui/module-anatomy`
 - `@proto.ui/module-as-trigger`
 - `@proto.ui/module-boundary`
+- `@proto.ui/module-collection`
 - `@proto.ui/module-context`
 - `@proto.ui/module-event`
 - `@proto.ui/module-expose`
@@ -132,6 +134,7 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 - `@proto.ui/module-focus`
 - `@proto.ui/module-hit-participation`
 - `@proto.ui/module-overlay`
+- `@proto.ui/module-positioning`
 - `@proto.ui/module-presence`
 - `@proto.ui/module-props`
 - `@proto.ui/module-rule`
@@ -146,15 +149,17 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 它意味着：
 
-- 它们不属于 `v0.1.0` 的对外主承诺面
+- 它们不属于 `v0.2.0-rc.0` 的对外主承诺面
 - 它们不应扩张第一次发布的对外故事
-- 它们是否发布，应主要由架构与依赖需要决定，而不是由首发营销范围决定
+- 它们的文档优先级与对外呈现应主要由架构与依赖需要决定，而不是由首发营销范围决定
+
+从全局精确版本治理建立起，全部公开 `@proto.ui/*` package 必须作为一个原子 release train 使用同一精确版本发布。因此本节不允许被解释成“只发布首发承诺包”。
 
 ---
 
 ## 6. 这套分层会如何影响发版工作
 
-对于 `v0.1.0`，package 分层应当实实在在影响后续工作方式。
+对于 `v0.2.0-rc.0`，package 分层应当实实在在影响后续工作方式。
 
 ### 6.1 文档
 
@@ -166,9 +171,9 @@ Internal 或 dependency-directed 包不应被包装成 first-user path 的一部
 
 ### 6.2 Release Scan
 
-面向首发的 release scan 与 packaging 加固，应以首发承诺包名单作为主要发版门槛。
+面向首发的产品 release scan 与 packaging 加固，应以首发承诺包名单作为主要成熟度门槛。
 
-其他 package 当然也可以继续扫描、继续改进，但除非它们会阻塞以下事项，否则不应拖慢 `v0.1.0`：
+其他 package 的产品打磨可以排在其后；但全部公开 package 仍必须通过全局版本一致性、可打包性与依赖闭包检查。它们仅在阻塞以下事项时成为首发产品就绪性的 blocker：
 
 - 首发承诺包的发布
 - 首发承诺包依赖链的正确性
@@ -192,10 +197,10 @@ release note 与 launch messaging 应明确区分：
 
 ## 7. 首发前最后一个月内新增 package 的准入规则
 
-在 `v0.1.0` 前最后一个月内，只有同时满足以下条件的新增 package，才可以进入首发承诺范围：
+在 `v0.2.0-rc.0` 前最后一个月内，只有同时满足以下条件的新增 package，才可以进入首发承诺范围：
 
 - 它直接服务于一条已经冻结的首发路径
-- 它不会扩大当前已经冻结的 `v0.1.0` 产品叙事
+- 它不会扩大当前已经冻结的 `v0.2.0-rc.0` 产品叙事
 - 它对于首发承诺包的真实可用性、可发布性或真实性是必要的
 - 它能够在首发前补齐最小文档、最小测试与最小 packaging 验证
 - 它不会显著增加 release 流程复杂度
@@ -208,9 +213,9 @@ release note 与 launch messaging 应明确区分：
 
 ---
 
-## 8. 默认应后移到 `0.2.0` 或更晚的新增 package
+## 8. 默认应后移到后续 RC 或稳定版本的新增 package
 
-在最后准备窗口中，以下类型的新增 package 默认应后移到 `0.2.0` 或更晚：
+在最后准备窗口中，以下类型的新增 package 默认应后移到后续 RC 或稳定版本：
 
 - 新的 adapter 家族
 - 新的 prototype library 家族
@@ -219,9 +224,9 @@ release note 与 launch messaging 应明确区分：
 - 不会阻塞首发承诺包、但主要服务于 authoring / contributor 的 package
 - 价值真实存在，但首发前无法证明成熟度的 package
 
-新增项需要自己证明为什么必须进 `v0.1.0`。
+新增项需要自己证明为什么必须进 `v0.2.0-rc.0`。
 
-如果一个新增 package 说不清为什么非进 `v0.1.0` 不可，那它就应当进入下一条 minor 线。
+如果一个新增 package 说不清为什么非进 `v0.2.0-rc.0` 不可，那它就应当进入后续 release train。
 
 ---
 
@@ -239,13 +244,13 @@ release note 与 launch messaging 应明确区分：
 
 ## 10. 总结
 
-对于 `v0.1.0`，Proto UI 应将 package 分成三层：
+对于 `v0.2.0-rc.0`，Proto UI 应将 package 分成三层：
 
 - 首发承诺包
 - 公开但非首发承诺包
 - Internal 或 dependency-directed 包
 
-当前 `v0.1.0` 的首发承诺包名单为：
+当前 `v0.2.0-rc.0` 的首发承诺包名单为：
 
 - `@proto.ui/adapter-react`
 - `@proto.ui/adapter-vue`
@@ -255,7 +260,7 @@ release note 与 launch messaging 应明确区分：
 - `@proto.ui/prototypes-lucide`
 - `@proto.ui/prototypes-shadcn`
 
-其他 package 是否进入当前发版范围，不应由“它是否存在于 workspace 中”决定，而应由“它是否支撑这条已冻结的首发故事”决定。
+其他 package 是否进入首发产品承诺范围，不应由“它是否存在于 workspace 中”决定，而应由“它是否支撑这条已冻结的首发故事”决定。发布集合则由全局精确版本策略决定：全部公开 `@proto.ui/*` package 一同发布。
 
 ---
 
@@ -265,20 +270,20 @@ release note 与 launch messaging 应明确区分：
 
 - `internal/governance/launch-package-governance.json`
 
-该文件用于驱动 `scripts/release/scan.mjs` 与 `scripts/release/publish.mjs` 的 `--profile launch` 模式。
+该文件用于驱动 `scripts/release/scan.mjs` 与 `scripts/release/publish.mjs` 的 `--profile launch` 审计与彩排模式；真实发布不允许使用该 profile。
 
 关键约束如下：
 
-- `launchCommitmentPackages`：首发承诺包，默认进入首发发布集合
+- `launchCommitmentPackages`：首发承诺包，默认进入 launch 审计集合
 - `candidatePackages`：候选包集合，必须逐个标注状态
 - 候选包状态仅允许：
-  - `approved`：允许通过 `--include-approved-candidates` 进入发布集合
-  - `pending`：尚未准入，不得进入发布集合
-  - `deferred`：明确后置，不得进入发布集合
+  - `approved`：允许通过 `--include-approved-candidates` 进入 launch 审计集合
+  - `pending`：尚未纳入首发承诺
+  - `deferred`：明确后置到后续产品承诺
 - 新增 package 不会自动上车，必须先进入治理文件并完成准入决策
 
 这保证了：
 
-- 首发范围可被 CI/发布流水线直接执行
+- 首发产品承诺范围可被 CI 与 release scan 直接执行
 - `input` 这类可能引入新 module 或底层 API 的项可以逐个决策上车
 - 首发范围扩展是“显式治理动作”，而不是“仓库里出现了就默认发布”

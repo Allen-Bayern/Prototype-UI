@@ -2,7 +2,7 @@ id: P-BASE-DROPDOWN-MENU-ITEM
 type: prototype
 title: Base Dropdown Menu Item is a transiently active menu action
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Item is a collection-backed menu action that participates in navigation, emits selection intent, and optionally requests close without creating persistent selection.
 statement:
   zh-CN: Dropdown Menu Item 是 Content 中可重复出现的 menu action。它发布 value/textValue collection snapshot、host-neutral menuitem semantics 与瞬时 active state。focus 或 enabled pointer intent 更新 active；Enter、Space 或 pointer activation 发出 `select` 并按 Item/Root policy 请求 close。disabled Item 保留 menu 内焦点能力以便被感知，但必须抑制 select、commit 与 close request。
@@ -45,7 +45,7 @@ dependsOn:
   contracts: [C-A11Y-0001, C-AS-COLLECTION-ITEM-0001, C-AS-FOCUSABLE-0001, C-AS-TRIGGER-0001]
 verifies: { tests: [T-BASE-DROPDOWN-MENU-ITEM-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Item collection, active navigation, selection signal, close policy, and focusable-disabled behavior.
 tags: [prototype, base, dropdown-menu, item, collection, a11y]

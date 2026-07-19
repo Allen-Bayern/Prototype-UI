@@ -2,7 +2,7 @@ id: T-BASE-SELECT-ITEM-0001
 type: test
 title: Base Select Item protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers ordered option metadata, option a11y, active and selected separation, controlled and uncontrolled commits, close policy, and disabled gating.
 cases:
   - id: T-BASE-SELECT-ITEM-0001-CASE-COLLECTION-A11Y
@@ -54,7 +54,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-SELECT-ITEM] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Item collection, a11y, state separation, commit, controlled ownership, close policy, and disabled coverage.
 tags: [prototype, base, select, item, option, selection, test]

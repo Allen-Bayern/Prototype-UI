@@ -1,192 +1,91 @@
 # Proto UI Release Workflow
 
-> Internal governance document. This workflow defines how Proto UI should prepare a public release line before launch, how the preparation branch relates to `main`, and how the final release should be tagged.
+> Internal governance document. This policy defines globally exact release preparation, verification, publication, and evidence capture starting with `0.2.0-rc.0`.
 
----
+## 1. Authoritative State
 
-## 1. Purpose
+`main` is the only source for release tags and real publication. Ordinary work uses short-lived topic branches and pull requests; release identity no longer depends on a long-lived `feat/v0-release-prep` branch.
 
-This document defines the release workflow for Proto UI's first-stage public releases.
+One release is jointly identified by:
 
-It exists to answer:
+- one `V-*` version entity
+- root `VERSION`
+- the exact version of every public `@proto.ui/*` package
+- a `v<version>` Git tag
+- npm dist-tag and published package set
+- the corresponding spec snapshot and digest
 
-- which branch should hold the pre-release preparation work
-- how that branch should interact with `main`
-- when a release branch or release tag should exist
-- how version decisions should be reflected in release actions
+A release is incomplete whenever any of these facts disagree.
 
----
+## 2. V Entity Lifecycle
 
-## 2. Current Working Model
+### 2.1 Draft
 
-For the first public launch cycle, Proto UI is using a dedicated preparation branch:
+When maintainers open a release train, they first create or update a `draft` V entity. It fixes:
 
-- `feat/v0-release-prep`
+- exact semver, including any prerelease suffix
+- Git tag such as `v0.2.0-rc.0`
+- npm dist-tag: `next` for prereleases and `latest` for stable releases
+- `packageVersionPolicy: exact`
+- the public package scope
 
-This branch is **not** the final release branch.
+`VERSION` and every public package manifest must project that version in the same PR. Entity revisions may reference a draft V version, but the workspace must visibly treat it as draft rather than published.
 
-It is the working branch for:
+### 2.2 Active
 
-- release hardening
-- package publication preparation
-- docs alignment
-- governance and process documents
-- launch checklists and remaining v0 release tasks
+A V entity becomes `active` only after npm packages, the Git tag, and the spec snapshot are published. Active entities must record:
 
-`main` remains the protected branch and the final source for the release tag.
+- publication time
+- the 40-character release commit SHA
+- the `sha256` spec snapshot digest
 
----
+## 3. Preparation
 
-## 3. Branch Roles
+1. Create a topic branch from current `main`.
+2. Create the draft V entity and update `VERSION`.
+3. Use `stamp-version` to align every public package exactly.
+4. Update release notes, package BOM, spec snapshot, and governance maps.
+5. Run version governance, spec, types, tests, release scan, and tarball consumer smoke.
+6. Merge through pull request review.
 
-### 3.1 `feat/v0-release-prep`
+Package-local fixes do not use `publish-single`; they enter the next global release train.
 
-Use `feat/v0-release-prep` as the main integration branch for the four-week v0 release-preparation period.
+## 4. Publication
 
-This branch may:
+Real publication is manually triggered from `main` and protected by the GitHub `npm` environment approval.
 
-- accumulate release-focused changes
-- merge from `main` repeatedly to stay current
-- host work that is too broad to keep as scattered one-off branches
+The workflow:
 
-This branch should not be treated as a public release signal by itself.
+1. reads `VERSION` from the repository and accepts no temporary version override
+2. runs `check-version-governance` and the launch governance scan
+3. stages every public package and rewrites workspace dependencies to the same exact version
+4. publishes the complete package set using the V entity npm dist-tag
+5. creates `v<version>` only after every package succeeds
+6. produces the GitHub prerelease/release and spec snapshot artifact
+7. uses a follow-up evidence PR to record publication time, tagged commit, and snapshot digest, then activates the V entity
 
-### 3.2 `main`
+The publish workflow does not rewrite the V entity on `main`. The tag therefore points to the reviewed draft release identity, while `active` arrives as a separately reviewable post-publication fact. The V entity's snapshot digest refers to the immutable draft snapshot attached to the tag, avoiding a digest that recursively includes itself.
 
-`main` remains the canonical protected branch.
+If publication is partial, the workflow must not advance dist-tags or activate the V entity. Recovery still runs the complete workspace release set with `resume_published` explicitly enabled. It skips an existing registry package only when its SHA-512 integrity exactly matches the current staged tarball, publishes missing packages at the same version, and aborts on any mismatch. The actual registry state must be recorded with the recovery.
 
-When the release-preparation work is judged ready:
+## 5. First Unified Version
 
-- merge `feat/v0-release-prep` into `main`
-- validate the post-merge state on `main`
-- create the final release tag from `main`
+The first version governed by this workflow is:
 
-### 3.3 Release tag
+- version: `0.2.0-rc.0`
+- Git tag: `v0.2.0-rc.0`
+- npm dist-tag: `next`
 
-For the first public release, the final tag should be created from `main`.
+Historical `0.1.x` package versions are fragmented releases from before global lockstep. The highest local version, `@proto.ui/cli@0.1.4`, does not establish a global `v0.1.4` and must not be retroactively tagged as one.
 
-Recommended tag shape:
+## 6. Required Checks
 
-- `v0.1.0`
+- `pnpm check:release-version`
+- `pnpm release:scan:launch`
+- `pnpm release:stage`
+- zero spec workspace issues
+- repository types and tests
+- current-source tarball consumer smoke
+- Quick Start commands matching the verified install path
 
-If needed, accompanying release notes may still refer to the release line as `release/v0.1.0`, but the Git tag itself should stay simple and canonical.
-
----
-
-## 4. Why The Preparation Branch Is Not `release/v0.1.0`
-
-Before launch, Proto UI still has substantial work remaining.
-
-Using `release/v0.1.0` too early would blur two different meanings:
-
-- a working branch for getting ready
-- the actual final release identity
-
-Keeping the preparation branch separate helps preserve a cleaner mental model:
-
-- `feat/v0-release-prep` means "we are preparing the first public release"
-- `v0.1.0` means "this exact state on `main` is the first public release"
-
----
-
-## 5. Recommended Release Sequence
-
-The recommended sequence is:
-
-1. Continue release-preparation work on `feat/v0-release-prep`.
-2. Merge from `main` into `feat/v0-release-prep` whenever needed to stay current.
-3. Finish the remaining launch gates on the preparation branch.
-4. Merge `feat/v0-release-prep` back into `main`.
-5. Run the final release verification against the `main` state intended for publication.
-6. Create the `v0.1.0` tag from `main`.
-
-This keeps the final release identity tied to the protected canonical branch instead of to a long-lived working branch.
-
----
-
-## 6. Versioning Expectations During `v0`
-
-Release workflow must follow the versioning policy:
-
-- public packages should stay on the same minor version
-- patch updates are the safe update boundary within a minor line
-- new minor lines should be used when Proto UI's ecosystem coordination boundary changes
-
-For `v0.1.0`, this means the release should present one coherent package line rather than a mix of unrelated package minors.
-
----
-
-## 7. Maintainer Rules During The Preparation Window
-
-During the release-preparation window, maintainers should prefer:
-
-- making the release story more truthful rather than more ambitious
-- narrowing launch scope instead of widening it late
-- merging from `main` often enough to avoid a painful final integration
-- keeping governance, docs, packaging, and launch criteria visible in the same branch
-
-The purpose of the preparation branch is not to hide unfinished work.
-
-Its purpose is to concentrate release-critical work until it is ready to land on `main`.
-
----
-
-## 8. Summary
-
-Proto UI's current release workflow is:
-
-- prepare on `feat/v0-release-prep`
-- keep syncing with `main`
-- merge back into `main` when launch criteria are met
-- create the final `v0.1.0` tag from `main`
-
-This keeps the preparation workflow flexible while keeping the public release identity clean.
-
----
-
-## 9. GitHub Manual/Semi-Automated Package Release Flow (from 2026-04-16)
-
-To align launch package governance with npm rate-limit risk, a manual GitHub Actions release workflow is introduced:
-
-- `.github/workflows/release-packages.yml`
-- trigger: `workflow_dispatch`
-- modes:
-  - `scan`: governance-aware scan, optionally archived as JSON artifact
-  - `stage`: dry-run publish rehearsal
-  - `publish`: real npm publish (requires explicit version input)
-
-### 9.1 Launch Governance Enforcement
-
-The workflow supports `--profile launch` with `--check-governance` by default.
-
-That means:
-
-- release selection is tied to `internal/governance/launch-package-governance.json`
-- if workspace packages are added without governance mapping, the run fails
-- candidate packages only join the release set when status is `approved` and `--include-approved-candidates` is explicitly enabled
-
-### 9.2 npm 429 Mitigation
-
-The publish flow now includes throttling and retry controls:
-
-- `--publish-delay-ms`: delay between package publish requests
-- `--max-publish-retries`: retry count for 429/rate-limit failures
-- `--retry-delay-ms`: wait time before each retry (with incremental backoff)
-
-Recommended launch defaults:
-
-- `publish_delay_ms=3000`
-- `max_publish_retries=2`
-- `retry_delay_ms=15000`
-
-If 429 errors appear, increase delay values first instead of increasing request pressure.
-
-### 9.3 Management Policy
-
-`publish` mode should remain maintainer-triggered (manual or semi-automated), not fully automatic.
-
-Recommended controls:
-
-- keep publish runs scoped to controlled branches (for example `feat/v0-release-prep` and final `main` release state)
-- store npm credentials in GitHub Secrets (`NPM_TOKEN`)
-- enforce who can publish through repository permissions or environment approvals
+Docs-only or private-app changes do not need to publish immediately. Creating a new numeric version or changing `VERSION`, however, must enter this release-train workflow.

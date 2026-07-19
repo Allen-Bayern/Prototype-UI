@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-DESCRIPTION
 type: prototype
 title: Shadcn Dialog Description inherits Base description relations and adds muted typography
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Description inherits Base accessible description and alert semantics and adds the current muted text surface.
 statement:
   zh-CN: Shadcn Dialog Description 是 `P-BASE-DIALOG-DESCRIPTION` 之上的 direct part，继续建立 Content description relation 并支持 alert semantics，增加当前 muted typography。其 `definePrototype<Props, Exposes>` 泛型顺序保持 props-first；`asChild` 明确不提供。
@@ -90,7 +90,7 @@ verifies: { tests: [T-SHADCN-DIALOG-DESCRIPTION-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Description cataloging with Base relations,
       corrected generic order,

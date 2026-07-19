@@ -2,7 +2,7 @@ id: P-BASE-HOVER-CARD
 type: prototype
 title: Base Hover Card is a delayed link-preview protocol
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Base Hover Card is a non-modal compound preview protocol whose root owns controlled or uncontrolled visibility, delayed interaction intent, requests, and shared context.
 statement:
   zh-CN: >-
@@ -86,7 +86,7 @@ dependsOn:
   decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-BASE-PROTOTYPE-INDEPENDENCE-0001]
 verifies: { tests: [T-BASE-HOVER-CARD-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged the Base Hover Card Root, delayed request ownership, and compound protocol.
 tags: [prototype, base, hover-card, preview, compound]

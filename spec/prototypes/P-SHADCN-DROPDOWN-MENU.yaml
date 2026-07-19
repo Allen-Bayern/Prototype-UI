@@ -2,7 +2,7 @@ id: P-SHADCN-DROPDOWN-MENU
 type: prototype
 title: Shadcn Dropdown Menu Root inherits Base action-menu ownership
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dropdown Menu Root is an unofficial direct projection that inherits Base transient action-menu ownership and currently adds no Root-specific behavior or visual surface.
 statement:
   zh-CN: >-
@@ -73,7 +73,7 @@ inherits:
       note: Default inherited action-menu protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-DROPDOWN-MENU-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Dropdown Menu Root delta cataloging with Base inheritance and centralized family-scope parity gaps.
 tags: [prototype, shadcn, dropdown-menu, root, upstream-derived, delta, compatibility]

@@ -2,7 +2,7 @@ id: T-BASE-SELECT-CONTENT-0001
 type: test
 title: Base Select Content protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers listbox semantics, asFocusRoving ownership, Transition-bound Overlay presence, anchored Portal positioning, keyboard navigation, typeahead, and dismissal.
 cases:
   - id: T-BASE-SELECT-CONTENT-0001-CASE-A11Y-FOCUS
@@ -74,7 +74,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-SELECT-CONTENT] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Content listbox, focus-roving, Overlay, Transition, positioning, keyboard, typeahead, dismissal, and scope coverage.
 tags: [prototype, base, select, content, listbox, overlay, transition, keyboard, test]

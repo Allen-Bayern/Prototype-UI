@@ -1,6 +1,6 @@
 # Proto UI Launch Package Policy
 
-> Internal governance document. This policy defines how Proto UI packages should be classified for the `v0.1.0` public launch, which packages are part of the launch commitment surface, and what kinds of new packages may still enter the launch scope during the final preparation window.
+> Internal governance document. This policy defines how Proto UI packages should be classified for the `v0.2.0-rc.0` public launch, which packages are part of the launch commitment surface, and what kinds of new packages may still enter the launch scope during the final preparation window.
 
 ---
 
@@ -10,10 +10,10 @@ Proto UI already contains many workspace packages, but the first public release 
 
 This document exists to define:
 
-- which packages are part of the `v0.1.0` launch commitment
+- which packages are part of the `v0.2.0-rc.0` launch commitment
 - which packages may still be published but are not part of the launch commitment
 - which packages should be treated as internal or dependency-directed for launch purposes
-- which newly added packages may still enter `v0.1.0` during the final preparation window
+- which newly added packages may still enter `v0.2.0-rc.0` during the final preparation window
 
 This document is a governance rule for release scope.
 
@@ -23,7 +23,7 @@ It is not the long-term reference document for explaining every package in detai
 
 ## 2. Package Tiers
 
-For `v0.1.0`, Proto UI packages should be divided into three tiers.
+For `v0.2.0-rc.0`, Proto UI packages should be divided into three tiers.
 
 ### 2.1 Launch Commitment Packages
 
@@ -43,7 +43,7 @@ These packages are primarily aimed at `Maker` users.
 
 These packages may still be public and may still be published.
 
-However, they are not part of the default first-user story for `v0.1.0`, and the first public release should not be judged primarily by whether they are polished to the same level as the launch commitment packages.
+However, they are not part of the default first-user story for `v0.2.0-rc.0`, and the first public release should not be judged primarily by whether they are polished to the same level as the launch commitment packages.
 
 These packages are primarily aimed at:
 
@@ -56,19 +56,19 @@ These packages are primarily aimed at:
 
 These packages may still be important and may still need to be published for dependency reasons.
 
-However, for launch-scope governance, they should be treated as:
+However, for launch product governance, they should be treated as:
 
 - internal architectural building blocks
 - dependency-directed surfaces
 - non-default entry points
 
-They are not part of the `v0.1.0` public promise surface.
+They are not part of the `v0.2.0-rc.0` public promise surface. This is a maturity and communication tier, not a version or publish-set tier.
 
 ---
 
-## 3. `v0.1.0` Launch Commitment Package List
+## 3. `v0.2.0-rc.0` Launch Commitment Package List
 
-The current launch commitment package list for `v0.1.0` is:
+The current launch commitment package list for `v0.2.0-rc.0` is:
 
 - `@proto.ui/adapter-react`
 - `@proto.ui/adapter-vue`
@@ -89,7 +89,7 @@ If a package is not in this list, it is not automatically part of the launch com
 
 ---
 
-## 4. Public But Non-Launch-Commitment Packages For `v0.1.0`
+## 4. Public But Non-Launch-Commitment Packages For `v0.2.0-rc.0`
 
 The current public but non-launch-commitment package set is:
 
@@ -112,15 +112,17 @@ They may appear in deeper documentation, but they should not displace the launch
 
 ---
 
-## 5. Internal Or Dependency-Directed Packages For `v0.1.0`
+## 5. Internal Or Dependency-Directed Packages For `v0.2.0-rc.0`
 
 The following packages should be treated as internal or dependency-directed for launch governance:
 
 - `@proto.ui/runtime`
+- `@proto.ui/module-a11y`
 - `@proto.ui/module-base`
 - `@proto.ui/module-anatomy`
 - `@proto.ui/module-as-trigger`
 - `@proto.ui/module-boundary`
+- `@proto.ui/module-collection`
 - `@proto.ui/module-context`
 - `@proto.ui/module-event`
 - `@proto.ui/module-expose`
@@ -130,6 +132,7 @@ The following packages should be treated as internal or dependency-directed for 
 - `@proto.ui/module-focus`
 - `@proto.ui/module-hit-participation`
 - `@proto.ui/module-overlay`
+- `@proto.ui/module-positioning`
 - `@proto.ui/module-presence`
 - `@proto.ui/module-props`
 - `@proto.ui/module-rule`
@@ -144,15 +147,17 @@ This classification does **not** mean these packages are unimportant.
 
 It means:
 
-- they are not part of the main `v0.1.0` user promise
+- they are not part of the main `v0.2.0-rc.0` user promise
 - they should not expand the first-release story
-- their publication status should be driven by architecture and dependency needs, not by launch marketing scope
+- their documentation priority and public presentation should be driven by architecture and dependency needs, not by launch marketing scope
+
+Once global exact-version governance applies, every public `@proto.ui/*` package is published as one atomic release train at the same exact version. This section must not be interpreted as permission to publish only the launch commitment packages.
 
 ---
 
 ## 6. Operational Rules
 
-For `v0.1.0`, the package tiers should affect release work in the following way.
+For `v0.2.0-rc.0`, the package tiers should affect release work in the following way.
 
 ### 6.1 Docs
 
@@ -164,9 +169,9 @@ Internal or dependency-directed packages should not be presented as part of the 
 
 ### 6.2 Release Scan
 
-Launch-focused release scan and packaging hardening should use the launch commitment list as the main release gate.
+Launch-focused product scan and packaging hardening should use the launch commitment list as the main maturity gate.
 
-Other packages may still be scanned and improved, but they should not delay `v0.1.0` unless they block:
+Product polish for other packages may follow later, but every public package must still pass global-version, packability, and dependency-closure checks. They become launch-readiness blockers only when they block:
 
 - publication of launch commitment packages
 - dependency correctness for launch commitment packages
@@ -190,10 +195,10 @@ Release notes and launch messaging should distinguish clearly between:
 
 ## 7. Rules For New Packages During The Final Preparation Window
 
-During the final month before `v0.1.0`, new packages may only be added to the launch commitment scope if all of the following are true:
+During the final month before `v0.2.0-rc.0`, new packages may only be added to the launch commitment scope if all of the following are true:
 
 - the package directly serves an already committed launch path
-- the package does not widen the product story beyond the frozen `v0.1.0` scope
+- the package does not widen the product story beyond the frozen `v0.2.0-rc.0` scope
 - the package is necessary for the launch commitment packages to be truthful, usable, or publishable
 - the package can receive minimal docs, tests, and packaging validation before launch
 - the package does not materially increase release-process complexity
@@ -206,9 +211,9 @@ Typical cases that may still be acceptable:
 
 ---
 
-## 8. Packages That Should Default To `0.2.0` Or Later
+## 8. Packages That Should Default To A Later RC Or Stable Release
 
-During the final preparation window, the following kinds of additions should default to `0.2.0` or later:
+During the final preparation window, the following kinds of additions should default to a later RC or stable release:
 
 - a new adapter family
 - a new prototype library family
@@ -219,7 +224,7 @@ During the final preparation window, the following kinds of additions should def
 
 The burden of proof is on additions.
 
-If a new package cannot clearly justify why it must be in `v0.1.0`, it should move to the next minor line.
+If a new package cannot clearly justify why it must be in `v0.2.0-rc.0`, it should move to a later release train.
 
 ---
 
@@ -237,13 +242,13 @@ Those topics should be handled in a separate package-surface reference document.
 
 ## 10. Summary
 
-For `v0.1.0`, Proto UI should treat packages in three tiers:
+For `v0.2.0-rc.0`, Proto UI should treat packages in three tiers:
 
 - launch commitment packages
 - public but non-launch-commitment packages
 - internal or dependency-directed packages
 
-The `v0.1.0` launch commitment package list is currently:
+The `v0.2.0-rc.0` launch commitment package list is currently:
 
 - `@proto.ui/adapter-react`
 - `@proto.ui/adapter-vue`
@@ -253,7 +258,7 @@ The `v0.1.0` launch commitment package list is currently:
 - `@proto.ui/prototypes-lucide`
 - `@proto.ui/prototypes-shadcn`
 
-Everything else should be judged against whether it supports that frozen first-release story, rather than against whether it exists in the workspace.
+Everything else enters the launch product promise only when it supports that frozen first-release story. The publish set follows the separate global exact-version policy: all public `@proto.ui/*` packages publish together.
 
 ---
 
@@ -263,16 +268,16 @@ To prevent drift between docs and release automation, launch package governance 
 
 - `internal/governance/launch-package-governance.json`
 
-This file drives `scripts/release/scan.mjs` and `scripts/release/publish.mjs` when running with `--profile launch`.
+This file drives the audit and rehearsal behavior of `scripts/release/scan.mjs` and `scripts/release/publish.mjs` under `--profile launch`; real publication must not use that profile.
 
 Operational constraints:
 
-- `launchCommitmentPackages`: included in the default launch release set
+- `launchCommitmentPackages`: included in the default launch audit set
 - `candidatePackages`: candidate set that must be decided package by package
 - Candidate statuses are restricted to:
-  - `approved`: may join release selection only with `--include-approved-candidates`
-  - `pending`: not yet admitted; must not be published as part of launch set
-  - `deferred`: explicitly postponed; must not be published as part of launch set
+  - `approved`: may join launch audit selection with `--include-approved-candidates`
+  - `pending`: not yet admitted to the launch commitment
+  - `deferred`: explicitly postponed from the launch product promise
 - New packages never auto-enter launch: they must be added to governance and explicitly decided
 
 This keeps launch scope governance explicit and enforceable while still leaving room for hard launch additions (for example packages needed by `input` work that introduces new modules or lower-level APIs).

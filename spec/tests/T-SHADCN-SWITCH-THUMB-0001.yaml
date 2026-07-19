@@ -2,7 +2,7 @@ id: T-SHADCN-SWITCH-THUMB-0001
 type: test
 title: Shadcn Switch Thumb delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Switch Thumb identity, Base indicator inheritance, context-driven checked state, current visual surface, and its bounded upstream composition claim.
 cases:
   - id: T-SHADCN-SWITCH-THUMB-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -54,7 +54,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-SWITCH-THUMB, P-BASE-SWITCH-THUMB]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Switch Thumb delta coverage for Base indicator inheritance, context-driven display state, current visual tokens, and bounded upstream composition.
 tags: [prototype, shadcn, switch, thumb, delta, compatibility, test]

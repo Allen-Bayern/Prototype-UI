@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-CONTENT-0001
 type: test
 title: Shadcn Dialog Content delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content Base modal inheritance, public-boundary narrowing, 200ms panel motion, asChild omission, and bounded composition parity.
 cases:
   - id: T-SHADCN-DIALOG-CONTENT-0001-CASE-CURRENT-PROTOCOL
@@ -51,5 +51,11 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG-CONTENT, P-BASE-DIALOG-CONTENT] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Content delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Dialog Content delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, dialog, content, transition, delta, compatibility, test]

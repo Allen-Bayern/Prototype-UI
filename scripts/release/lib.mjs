@@ -39,7 +39,8 @@ export function parseArgs(argv) {
     checkBuild: false,
     checkGovernance: false,
     publish: false,
-    tag: 'latest',
+    resumePublished: false,
+    tag: undefined,
     access: 'public',
     otp: undefined,
     outDir: join(tmpdir(), 'proto-ui-npm-release'),
@@ -62,7 +63,7 @@ export function parseArgs(argv) {
     else if (arg === '--check-build') args.checkBuild = true;
     else if (arg === '--check-governance') args.checkGovernance = true;
     else if (arg === '--publish') args.publish = true;
-    else if (arg === '--version') args.version = argv[++i];
+    else if (arg === '--resume-published') args.resumePublished = true;
     else if (arg === '--tag') args.tag = argv[++i];
     else if (arg === '--access') args.access = argv[++i];
     else if (arg === '--otp') args.otp = argv[++i];
@@ -344,6 +345,7 @@ export function stagePackage(pkg, options) {
     retryDelayMs = 15000,
     publishSequenceIndex = 0,
     packageVersions = new Map(),
+    resumePublished = false,
   } = options;
   const stageDir = join(outDir, sanitizePackageName(pkg.name));
   const npmCacheDir = join(tmpdir(), 'proto-ui-npm-cache');
@@ -447,7 +449,7 @@ export function stagePackage(pkg, options) {
 
   let publishResult = null;
   if (publish || dryRun) {
-    if (publishSequenceIndex > 0 && publishDelayMs > 0) {
+    if (publish && publishSequenceIndex > 0 && publishDelayMs > 0) {
       sleepMs(publishDelayMs);
     }
 
@@ -456,8 +458,27 @@ export function stagePackage(pkg, options) {
     if (otp) publishArgs.push('--otp', otp);
     if (registry) publishArgs.push('--registry', registry);
 
+    if (publish && resumePublished) {
+      const recovery = inspectPublishedTarball(pkg, stageDir, npmCacheDir, registry);
+      if (recovery.published) {
+        console.log(`[${pkg.name}] recovery: registry tarball integrity matches staged package`);
+        publishResult = {
+          code: 0,
+          stdout: '',
+          stderr: '',
+          errors: [],
+          attempt: 0,
+          maxAttempts: 0,
+          rateLimited: false,
+          alreadyPublished: true,
+          resumed: true,
+          integrity: recovery.integrity,
+        };
+      }
+    }
+
     const maxAttempts = Math.max(1, Number(maxPublishRetries) + 1);
-    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    for (let attempt = 1; publishResult === null && attempt <= maxAttempts; attempt += 1) {
       const result = spawnSync('npm', publishArgs, {
         cwd: stageDir,
         encoding: 'utf8',
@@ -513,6 +534,54 @@ export function stagePackage(pkg, options) {
   };
 }
 
+function inspectPublishedTarball(pkg, stageDir, npmCacheDir, registry) {
+  const packageSpec = `${pkg.name}@${pkg.version}`;
+  const viewArgs = ['view', packageSpec, 'dist.integrity', '--json'];
+  if (registry) viewArgs.push('--registry', registry);
+  const viewResult = spawnSync('npm', viewArgs, {
+    cwd: stageDir,
+    encoding: 'utf8',
+    shell: IS_WINDOWS,
+    env: { ...process.env, npm_config_cache: npmCacheDir },
+  });
+  const viewOutput = `${viewResult.stdout}\n${viewResult.stderr}`;
+  if (viewResult.status !== 0) {
+    if (/\bE404\b|404 Not Found|is not in this registry/i.test(viewOutput)) {
+      return { published: false };
+    }
+    throw new Error(`Cannot inspect ${packageSpec} for recovery\n${viewOutput.trim()}`);
+  }
+
+  const registryIntegrity = JSON.parse(viewResult.stdout || 'null');
+  if (typeof registryIntegrity !== 'string' || !registryIntegrity.startsWith('sha512-')) {
+    throw new Error(`Registry returned no sha512 integrity for ${packageSpec}`);
+  }
+
+  const packDir = join(npmCacheDir, 'recovery-pack');
+  ensureCleanDir(packDir);
+  const packArgs = ['pack', '--json', '--pack-destination', packDir];
+  const packResult = spawnSync('npm', packArgs, {
+    cwd: stageDir,
+    encoding: 'utf8',
+    shell: IS_WINDOWS,
+    env: { ...process.env, npm_config_cache: npmCacheDir },
+  });
+  if (packResult.status !== 0) {
+    throw new Error(
+      `Cannot pack ${packageSpec} for recovery\n${packResult.stderr || packResult.stdout}`
+    );
+  }
+
+  const packed = JSON.parse(packResult.stdout || '[]');
+  const stagedIntegrity = packed[0]?.integrity;
+  if (stagedIntegrity !== registryIntegrity) {
+    throw new Error(
+      `Recovery integrity mismatch for ${packageSpec}: registry=${registryIntegrity}, staged=${stagedIntegrity ?? '<missing>'}`
+    );
+  }
+  return { published: true, integrity: registryIntegrity };
+}
+
 export function createPublishManifest(pkg, options) {
   const { version, access, packageVersions = new Map() } = options;
   const manifest = JSON.parse(JSON.stringify(pkg.manifest));
@@ -565,7 +634,7 @@ export function createPublishManifest(pkg, options) {
 }
 
 function toPublishedWorkspaceRange(version) {
-  return `^${version}`;
+  return version;
 }
 
 function rewriteManifestField(manifest, field) {

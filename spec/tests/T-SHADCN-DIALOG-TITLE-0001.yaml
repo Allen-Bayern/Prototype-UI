@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-TITLE-0001
 type: test
 title: Shadcn Dialog Title delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Title Base labeling inheritance, corrected generic order, current typography, asChild omission, and bounded parity.
 cases:
   - id: T-SHADCN-DIALOG-TITLE-0001-CASE-CURRENT-PROTOCOL
@@ -45,5 +45,5 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG-TITLE, P-BASE-DIALOG-TITLE] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Title delta coverage. }]
+  [{ version: 0.2.0-rc.0, change: introduced, summary: Added Shadcn Dialog Title delta coverage. }]
 tags: [prototype, shadcn, dialog, title, delta, compatibility, test]

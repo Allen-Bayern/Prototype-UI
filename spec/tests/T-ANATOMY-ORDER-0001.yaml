@@ -102,10 +102,10 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added anatomy.order host-order, self-adjacency, version, and missing-policy test mapping.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added runtime coverage for setup-time live role projection subscriptions.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added role filtering and direct logical mount/unmount membership coverage.
 tags:

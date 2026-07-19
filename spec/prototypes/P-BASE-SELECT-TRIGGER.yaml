@@ -2,7 +2,7 @@ id: P-BASE-SELECT-TRIGGER
 type: prototype
 title: Base Select Trigger is an accessible select-only combobox command
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Trigger projects the collapsed select control, reports popup relationships, and submits pointer and keyboard open requests to Root.
 statement:
   zh-CN: Select Trigger 是同域 Root 中至多一个的 focusable command。它投射 select-only combobox role、expanded/controls/disabled facts 与 content-derived name，并将 pointer、Enter、Space、ArrowDown、ArrowUp 的 open intent 提交到 Root；它不得拥有 open 或 selection。
@@ -40,7 +40,7 @@ dependsOn:
   contracts: [C-A11Y-0001, C-AS-FOCUSABLE-0001, C-AS-TRIGGER-0001]
 verifies: { tests: [T-BASE-SELECT-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Trigger command, a11y relationship, keyboard entry, disabled gating, and selection boundaries.
 tags: [prototype, base, select, trigger, combobox, keyboard, a11y]

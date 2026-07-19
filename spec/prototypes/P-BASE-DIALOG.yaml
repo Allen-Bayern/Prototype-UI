@@ -2,7 +2,7 @@ id: P-BASE-DIALOG
 type: prototype
 title: Base Dialog is a root-owned modal dialog protocol
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Base Dialog is a compound modal-window protocol whose root owns open state, controlled requests, shared context, and the Dialog anatomy domain.
 statement:
   zh-CN: >-
@@ -91,13 +91,13 @@ verifies:
   tests:
     - T-BASE-DIALOG-0001
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged the Base Dialog root and compound protocol.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Required Root methods to preserve controlled ownership through the open request channel.
-  - version: 0.2.2
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added the host-neutral a11yLabel fallback published to Content through Dialog context.
 tags: [prototype, base, dialog, modal, compound]

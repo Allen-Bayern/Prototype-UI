@@ -2,7 +2,7 @@ id: T-SHADCN-SELECT-CONTENT-0001
 type: test
 title: Shadcn Select Content delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Content Base listbox inheritance, position API, transition and surface, asChild omission, and bounded parity.
 cases:
   - id: T-SHADCN-SELECT-CONTENT-0001-CASE-CURRENT-PROTOCOL
@@ -55,5 +55,11 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-SELECT-CONTENT, P-BASE-SELECT-CONTENT] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Select Content delta coverage. }]
+  [
+    {
+      version: 0.2.0-rc.0,
+      change: introduced,
+      summary: Added Shadcn Select Content delta coverage.,
+    },
+  ]
 tags: [prototype, shadcn, select, content, transition, delta, compatibility, test]

@@ -2,7 +2,7 @@ id: P-BASE-DIALOG-TRIGGER
 type: prototype
 title: Base Dialog Trigger requests modal visibility
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Dialog Trigger is a button-semantic command that requests open-state changes from its owning Dialog root.
 statement:
   zh-CN: Dialog Trigger 是 Dialog domain 内可重复的 button-semantic command part。它拥有自身 focus/hover/press 与有效 disabled 状态，但不拥有 Dialog open；activation 只能向 Root 请求下一 open 值。
@@ -41,10 +41,10 @@ dependsOn:
   contracts: [C-A11Y-0001, C-AS-TRIGGER-0001, C-AS-FOCUSABLE-0001]
 verifies: { tests: [T-BASE-DIALOG-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Dialog Trigger ownership and accessibility.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Made the shared command state, focus, and keyboard surfaces explicit.
 tags: [prototype, base, dialog, trigger]

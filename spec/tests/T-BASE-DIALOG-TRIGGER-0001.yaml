@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-TRIGGER-0001
 type: test
 title: Base Dialog Trigger protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger command ownership, request behavior, disabled gating, accessibility relationships, and authoring parity.
 cases:
   - id: T-BASE-DIALOG-TRIGGER-0001-CASE-COMMAND
@@ -42,5 +42,5 @@ verifies:
         - P-BASE-DIALOG-TRIGGER-A11Y
 exercises: { prototypes: [P-BASE-DIALOG-TRIGGER] }
 revisions:
-  - { version: 0.2.0, change: introduced, summary: Added Dialog Trigger protocol coverage. }
+  - { version: 0.2.0-rc.0, change: introduced, summary: Added Dialog Trigger protocol coverage. }
 tags: [prototype, base, dialog, trigger, test]

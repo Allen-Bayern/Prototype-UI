@@ -57,36 +57,32 @@ That means:
 
 ---
 
-## 3. Package Coordination Rule
+## 3. Global Exact-Version Rule
 
-During `v0`, production users should treat the Proto UI package minor version as a shared compatibility boundary.
+Starting with `0.2.0-rc.0`, one numeric version identifies one complete Proto UI ecosystem release rather than a package-local revision count.
 
-Recommended user rule:
+During `v0`:
 
-- keep all `@proto.ui/*` packages on the same minor version
+- every public `@proto.ui/*` package must use the exact same version, including patch and prerelease suffixes
+- package-local fixes wait in the current release train instead of creating autonomous patch versions
+- published internal `@proto.ui/*` dependencies use exact versions rather than ranges that automatically mix patches
+- apps, private spec implementation packages, and repository-only fixtures are outside the npm lockstep publish set
 
-Examples:
-
-- acceptable: `0.1.2` with `0.1.7`
-- not recommended: `0.1.x` with `0.2.x`
-
-This rule exists because Proto UI package compatibility is defined at the ecosystem level, not only at the single-package level.
-
-Even if one package looks independently compatible, mixing different minor lines may produce confusing behavior due to cross-package assumptions.
+Equal versions are a necessary compatibility precondition, not sufficient proof of complete Prototype and Adapter compatibility; conformance evidence is still required.
 
 ---
 
-## 4. Repository Versioning Strategy
+## 4. V Entities And Repository Projections
 
-Proto UI should use a lockstep versioning strategy for public packages during `v0`.
+Every governed version must be declared by a `V-*` version entity.
 
-In practice, that means:
+- A `draft` V entity represents a release train that is being prepared but is not published.
+- An `active` V entity represents a release with verifiable npm, Git tag, and spec snapshot evidence.
+- Root `VERSION`, public package manifests, and the workspace release list are projections of the current V entity.
+- An arbitrary entity `revisions[].version` cannot create a release; it must reference an existing V entity.
+- Workspace version choices come from V entities rather than scanning every revision number.
 
-- public packages move together by release line
-- the repo communicates one current minor line at a time
-- patch releases may include only a subset of packages changing internally, but published package versions should remain aligned where practical
-
-This keeps the release story legible and avoids placing dependency-solving work on users during an early stage of the project.
+`VERSION` and public package manifests are compared as complete strings. `0.2.0-rc.0` and `0.2.0-rc.1`, or `0.2.0` and `0.2.1`, are different releases.
 
 ---
 
@@ -145,8 +141,8 @@ If the answer is yes, prefer a new minor release line.
 Public release notes, package docs, and installation guides should consistently communicate the following:
 
 - Proto UI is currently in `v0`
-- all Proto UI packages should stay on the same minor version in production
-- patch updates are the expected safe upgrade path within a chosen minor line
+- all public Proto UI packages should stay on the exact same version in production
+- patch and prerelease updates are complete ecosystem releases, not package-local publishes
 - `v1` is expected to improve stability promises without changing the project's core architecture
 
 We should not imply stronger compatibility guarantees than the project can actually maintain.
@@ -159,6 +155,7 @@ Proto UI versioning should be understood as:
 
 - two planned stages: `v0` and `v1`
 - no architectural reset between `v0` and `v1`
-- lockstep public package management during `v0`
-- minor version as the shared ecosystem compatibility boundary
-- patch version as the safe update boundary within that minor line
+- global exact lockstep for public packages starting with `0.2.0-rc.0`
+- numeric versions declared by V entities and backed by real release behavior
+- patch and prerelease versions as complete ecosystem release boundaries
+- fragmented `0.1.x` package history treated as legacy history without fabricated global tags

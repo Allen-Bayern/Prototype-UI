@@ -2,7 +2,7 @@ id: T-SHADCN-DROPDOWN-MENU-TRIGGER-0001
 type: test
 title: Shadcn Dropdown Menu Trigger delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger identity, Base command inheritance, current surface, opt-in indicator, asChild omission, and bounded compatibility.
 cases:
   - id: T-SHADCN-DROPDOWN-MENU-TRIGGER-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -65,7 +65,7 @@ exercises:
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Added Shadcn Dropdown Menu Trigger delta coverage.,
     },

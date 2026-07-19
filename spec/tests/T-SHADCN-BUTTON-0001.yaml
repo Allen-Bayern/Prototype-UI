@@ -2,7 +2,7 @@ id: T-SHADCN-BUTTON-0001
 type: test
 title: Shadcn Button delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Shadcn Button's first-class reversible Base inheritance, current absence of Base-behavior reversals, direct entry, visual API, intentional asChild omission, and centralized upstream compatibility boundary.
 cases:
   - id: T-SHADCN-BUTTON-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -66,7 +66,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-BUTTON, P-BASE-BUTTON]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added delta-style Shadcn Button coverage for reversible Base inheritance, current visual API, intentional asChild omission, environment styling, and centralized upstream compatibility differences.
 tags: [prototype, shadcn, button, delta, compatibility, test]

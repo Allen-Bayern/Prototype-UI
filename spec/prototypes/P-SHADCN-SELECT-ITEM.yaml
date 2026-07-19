@@ -2,7 +2,7 @@ id: P-SHADCN-SELECT-ITEM
 type: prototype
 title: Shadcn Select Item inherits Base option behavior and adds current styling and a selected check
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Select Item inherits Base option collection, accessibility, state separation, commit, controlled, and disabled behavior and adds current visual feedback and a context-driven check indicator.
 statement:
   zh-CN: Shadcn Select Item 是 `P-BASE-SELECT-ITEM` 之上的 direct part，保留 option collection/a11y、active 与 selected 分离、commit、controlled value 和 disabled behavior，并增加当前 item surface、state feedback 与由 inherited selected state 驱动的 check SVG。`asChild` 明确不提供。
@@ -126,7 +126,7 @@ verifies: { tests: [T-SHADCN-SELECT-ITEM-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Select Item delta cataloging with Base option inheritance,
       state styles,

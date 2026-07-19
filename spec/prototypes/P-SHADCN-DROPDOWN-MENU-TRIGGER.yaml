@@ -2,7 +2,7 @@ id: P-SHADCN-DROPDOWN-MENU-TRIGGER
 type: prototype
 title: Shadcn Dropdown Menu Trigger inherits Base command behavior and adds an optional indicator extension
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dropdown Menu Trigger inherits Base command, accessibility, request, and disabled behavior and adds the current button-like visual surface plus an opt-in Proto UI indicator extension.
 statement:
   zh-CN: >-
@@ -101,7 +101,7 @@ inherits:
       note: Default inherited command-trigger protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-DROPDOWN-MENU-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Dropdown Menu Trigger delta cataloging with Base inheritance, visual surface, indicator extension, asChild omission, and centralized differences.
 tags: [prototype, shadcn, dropdown-menu, trigger, upstream-derived, delta, compatibility, visual]

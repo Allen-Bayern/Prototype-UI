@@ -2,7 +2,7 @@ id: P-SHADCN-DROPDOWN-MENU-ITEM
 type: prototype
 title: Shadcn Dropdown Menu Item inherits Base menu-command behavior and adds visual variants
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dropdown Menu Item inherits Base collection, accessibility, active, selection, and disabled behavior and adds inset and destructive visual props plus current state styling.
 statement:
   zh-CN: >-
@@ -101,7 +101,7 @@ inherits:
       note: Default inherited menu-item protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-DROPDOWN-MENU-ITEM-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Dropdown Menu Item delta cataloging with Base inheritance, visual props, state styles, asChild omission, and centralized differences.
 tags: [prototype, shadcn, dropdown-menu, item, upstream-derived, delta, compatibility, visual]

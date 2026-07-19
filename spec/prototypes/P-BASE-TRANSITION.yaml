@@ -2,7 +2,7 @@ id: P-BASE-TRANSITION
 type: prototype
 title: Base Transition governs host-neutral perceptual presence
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Base Transition is an independently usable, slot-preserving protocol whose direct prototype and authored asHook share one host-neutral state machine for perceptual phases, ViewIntent sequencing, controls, interruption, fallback completion, and reduced-motion compatibility.
 statement:
   zh-CN: >-
@@ -131,7 +131,7 @@ relates:
   decisions: [D-AS-HOOK-NO-ARG-ONCE-0001, D-AS-HOOK-CALLER-NAME-0001]
 verifies: { tests: [T-BASE-TRANSITION-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged standalone and authored-asHook Transition entries, perceptual phase and ViewIntent boundaries, public controls, interruption, fallback completion, host neutrality, and reduced-motion behavior.
 tags: [prototype, base, transition, as-hook, lifecycle, view-intent, reduced-motion, accessibility]

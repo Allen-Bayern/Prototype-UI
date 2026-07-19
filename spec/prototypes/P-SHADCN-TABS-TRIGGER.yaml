@@ -2,7 +2,7 @@ id: P-SHADCN-TABS-TRIGGER
 type: prototype
 title: Shadcn Tabs Trigger inherits Base Tabs Trigger and adds current tab styling
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Tabs Trigger inherits Base tab selection, focus, activation, and accessibility behavior and adds the currently implemented trigger and state-driven visual surface.
 statement:
   zh-CN: >-
@@ -105,7 +105,7 @@ inherits:
       note: Default inherited tab protocol; explicit setup-time negative patches must be declared.
 verifies: { tests: [T-SHADCN-TABS-TRIGGER-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Tabs Trigger delta cataloging with Base inheritance, state-driven styles, intentional asChild omission, and centralized parity gaps.
 tags: [prototype, shadcn, tabs, trigger, upstream-derived, delta, compatibility, visual]

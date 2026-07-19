@@ -2,7 +2,7 @@ id: T-SHADCN-TABS-LIST-0001
 type: test
 title: Shadcn Tabs List delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers List identity, Base collection inheritance, keyboard navigation, current surface, asChild omission, and bounded variant parity.
 cases:
   - id: T-SHADCN-TABS-LIST-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -54,7 +54,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-TABS-LIST, P-BASE-TABS-LIST]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Tabs List delta coverage.
 tags: [prototype, shadcn, tabs, list, delta, compatibility, test]

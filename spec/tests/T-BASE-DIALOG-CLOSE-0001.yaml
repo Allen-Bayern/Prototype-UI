@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-CLOSE-0001
 type: test
 title: Base Dialog Close protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Close command ownership, disabled gating, focus reason, controlled requests, and authoring parity.
 cases:
   - id: T-BASE-DIALOG-CLOSE-0001-CASE-COMMAND
@@ -38,5 +38,5 @@ verifies:
         - P-BASE-DIALOG-CLOSE-DISABLED
 exercises: { prototypes: [P-BASE-DIALOG-CLOSE] }
 revisions:
-  - { version: 0.2.0, change: introduced, summary: Added Dialog Close protocol coverage. }
+  - { version: 0.2.0-rc.0, change: introduced, summary: Added Dialog Close protocol coverage. }
 tags: [prototype, base, dialog, close, test]

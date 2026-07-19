@@ -239,6 +239,19 @@ type UiText = (typeof UI_TEXT)[Locale];
 
 type SpecWorkspaceDataset = {
   generatedAt: string;
+  releases: Array<{
+    entityId: string;
+    status: 'draft' | 'active';
+    version: string;
+    channel: 'prerelease' | 'stable';
+    gitTag: string;
+    npmDistTag: string;
+    packageVersionPolicy: 'exact';
+    packageScope: 'public-@proto.ui';
+    publishedAt?: string;
+    commit?: string;
+    specSnapshotDigest?: string;
+  }>;
   versions: string[];
   latestVersion: string;
   entities: SpecEntity[];

@@ -2,7 +2,7 @@ id: P-SHADCN-SWITCH
 type: prototype
 title: Shadcn Switch Root inherits Base Switch and adds the current track surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Switch Root is an unofficial Proto UI-maintained projection that inherits Base Switch root semantics and adds the currently implemented shadcn-style track and state-driven visual surface.
 statement:
   zh-CN: >-
@@ -114,7 +114,7 @@ inherits:
       note: Default inherited protocol; explicit setup-time negative-patch criteria may override individual guarantees.
 verifies: { tests: [T-SHADCN-SWITCH-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced delta-style Shadcn Switch Root cataloging with Base inheritance, current visual guarantees, intentional asChild omission, and centralized upstream differences.
 tags: [prototype, shadcn, switch, root, upstream-derived, delta, compatibility, visual]

@@ -2,7 +2,7 @@ id: P-SHADCN-DIALOG-CLOSE
 type: prototype
 title: Shadcn Dialog Close inherits Base close-command behavior and adds button variants
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Dialog Close inherits Base close command, request, and disabled behavior and adds six visual variants and current interaction styling.
 statement:
   zh-CN: >-
@@ -136,7 +136,7 @@ verifies: { tests: [T-SHADCN-DIALOG-CLOSE-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Dialog Close delta cataloging with Base command inheritance,
       button variants,

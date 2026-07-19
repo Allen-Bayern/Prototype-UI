@@ -2,7 +2,7 @@ id: P-SHADCN-SELECT-TRIGGER
 type: prototype
 title: Shadcn Select Trigger inherits Base combobox behavior and adds size, styling, and chevron
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Select Trigger inherits Base command, combobox accessibility, open request, placeholder, and disabled behavior and adds size, current state styles, and a fixed chevron.
 statement:
   zh-CN: >-
@@ -146,7 +146,7 @@ verifies: { tests: [T-SHADCN-SELECT-TRIGGER-0001] }
 revisions:
   [
     {
-      version: 0.2.0,
+      version: 0.2.0-rc.0,
       change: introduced,
       summary: Introduced Shadcn Select Trigger delta cataloging with size,
       current styles,

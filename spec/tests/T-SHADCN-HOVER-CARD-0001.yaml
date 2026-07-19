@@ -2,7 +2,7 @@ id: T-SHADCN-HOVER-CARD-0001
 type: test
 title: Shadcn Hover Card Root delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Root identity, Base open and family inheritance, current host layout, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-HOVER-CARD-0001-CASE-IDENTITY-AND-INHERITANCE
@@ -48,7 +48,7 @@ verifies:
 exercises:
   prototypes: [P-SHADCN-HOVER-CARD, P-BASE-HOVER-CARD]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Hover Card Root delta coverage.
 tags: [prototype, shadcn, hover-card, root, delta, compatibility, test]

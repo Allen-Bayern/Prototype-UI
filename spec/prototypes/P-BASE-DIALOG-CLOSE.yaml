@@ -2,7 +2,7 @@ id: P-BASE-DIALOG-CLOSE
 type: prototype
 title: Base Dialog Close requests dismissal
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Dialog Close is a repeatable button-semantic command that requests close without owning the controlled open fact.
 statement:
   zh-CN: Dialog Close 是 Content 内可重复的 button-semantic command。它拥有自身交互状态，activation 向 Root 请求 open=false，并携带 focus restore reason；受控模式下不得自行关闭 Dialog。
@@ -36,10 +36,10 @@ dependsOn:
   contracts: [C-A11Y-0001, C-AS-TRIGGER-0001, C-AS-FOCUSABLE-0001]
 verifies: { tests: [T-BASE-DIALOG-CLOSE-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Dialog Close request and command semantics.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Made the shared command state, focus, and keyboard surfaces explicit.
 tags: [prototype, base, dialog, close]

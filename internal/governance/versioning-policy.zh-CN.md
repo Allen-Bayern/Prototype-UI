@@ -57,36 +57,32 @@ Proto UI 当前只围绕两个产品阶段进行规划：
 
 ---
 
-## 3. 包协同规则
+## 3. 全局精确版本规则
 
-在 `v0` 阶段，生产环境用户应将 Proto UI 的包 minor 版本视为共享兼容边界。
+从 `0.2.0-rc.0` 开始，一个数字版本标识一次完整的 Proto UI 生态发行，而不是某个 package 的局部修订计数。
 
-推荐给用户的规则是：
+在 `v0` 阶段：
 
-- 所有 `@proto.ui/*` 包保持相同 minor 版本
+- 所有公开 `@proto.ui/*` package 必须使用完全相同的版本，包括 patch 与 prerelease 后缀。
+- package 局部修复进入当前 release train，不独立创造 patch 版本。
+- 发布出来的内部 `@proto.ui/*` 依赖使用精确版本，不使用允许自动混合 patch 的范围。
+- apps、private spec implementation package 与纯仓库内部 fixture 不属于 npm 锁步发布集合。
 
-例如：
-
-- 可接受：`0.1.2` 与 `0.1.7`
-- 不建议：`0.1.x` 与 `0.2.x`
-
-之所以采用这条规则，是因为 Proto UI 的兼容性是按生态协同定义的，而不只是按单个包单独定义。
-
-即使某个包看起来可以单独升级，不同 minor 线混用时，仍可能因为跨包假设不同而出现难以定位的问题。
+版本相同是兼容性的必要前提，但不是 Prototype 与 Adapter 完全兼容的充分证明；完整结论仍需 conformance evidence。
 
 ---
 
-## 4. 仓库版本策略
+## 4. V 实体与仓库投射
 
-在 `v0` 阶段，Proto UI 的公开包应采用锁步版本策略。
+每个受治理的版本必须由一个 `V-*` version entity 声明。
 
-这在实践中意味着：
+- `draft` V 实体表示正在准备、尚未发布的 release train。
+- `active` V 实体表示 npm、Git tag 与 spec snapshot 均已有可验证的发布证据。
+- 根 `VERSION`、公开 package manifest 与 workspace release list 都是当前 V 实体的投射。
+- 任意实体的 `revisions[].version` 不能自行创造新版本；它必须引用已有 V 实体。
+- workspace 的可选版本来自 V 实体，而不是扫描所有 revision 数字。
 
-- 公开包围绕同一条 release line 共同演进
-- 仓库在任一时间点只对外强调一个当前 minor 线
-- 某次 patch release 即使只有少数包内部有改动，发布出来的公开包版本也应尽量保持对齐
-
-这样做可以让发版叙事更清晰，也避免在项目早期把依赖求解成本转嫁给用户。
+`VERSION` 与公开 package manifest 的一致性使用完整字符串比较。`0.2.0-rc.0` 与 `0.2.0-rc.1`、`0.2.0` 与 `0.2.1` 均属于不同 release。
 
 ---
 
@@ -145,8 +141,8 @@ Patch 是该 minor 线内部相对安全的升级边界，适用于：
 对外 release notes、包文档、安装说明应统一表达以下几点：
 
 - Proto UI 当前处于 `v0`
-- 生产环境中，所有 Proto UI 包应保持相同 minor 版本
-- 在已选定的 minor 线内部，patch 更新是预期的安全升级路径
+- 生产环境中，所有公开 Proto UI 包应保持完全相同的版本
+- patch 与 prerelease 更新都是完整的生态 release，而不是 package 局部发布
 - `v1` 代表更强的稳定性承诺，但不会改变项目的核心架构
 
 我们不应向用户暗示比项目实际能做到更强的兼容性承诺。
@@ -159,6 +155,7 @@ Proto UI 当前的版本管理应被理解为：
 
 - 仅规划 `v0` 与 `v1` 两个阶段
 - `v0` 到 `v1` 不发生架构级重置
-- `v0` 阶段公开包采用锁步管理
-- minor 是共享生态兼容边界
-- patch 是该 minor 线内部的安全升级边界
+- 从 `0.2.0-rc.0` 起，公开包采用全局精确锁步
+- 数字版本必须由 V 实体声明并对应真实 release 行为
+- patch 与 prerelease 都是完整生态发行边界
+- `0.1.x` 的历史 package 矩阵属于锁步治理建立前的 legacy history，不补造全局 tag

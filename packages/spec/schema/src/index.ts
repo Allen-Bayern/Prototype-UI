@@ -140,6 +140,24 @@ export const specRevisionSchema = z.object({
   breaking: z.boolean().optional(),
 });
 
+export const specReleaseSchema = z.object({
+  version: specVersionSchema,
+  channel: z.enum(['prerelease', 'stable']),
+  gitTag: z.string().regex(/^v\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/),
+  npmDistTag: z.string().min(1),
+  packageVersionPolicy: z.literal('exact'),
+  packageScope: z.literal('public-@proto.ui'),
+  publishedAt: z.string().datetime().optional(),
+  commit: z
+    .string()
+    .regex(/^[0-9a-f]{40}$/)
+    .optional(),
+  specSnapshotDigest: z
+    .string()
+    .regex(/^sha256:[0-9a-f]{64}$/)
+    .optional(),
+});
+
 export const specSourceRefSchema = z.object({
   path: z.string().min(1),
   label: z.string().optional(),
@@ -343,6 +361,7 @@ export const specEntitySchema = z
     explains: specRelationsSchema,
     exercises: specRelationsSchema,
     owns: specRelationsSchema,
+    release: specReleaseSchema.optional(),
     revisions: z.array(specRevisionSchema).default([]),
     tags: z.array(z.string()).default([]),
   })
@@ -380,6 +399,79 @@ export const specEntitySchema = z
         path: ['inherits'],
         message: 'Only prototype entities may declare prototype inheritance.',
       });
+    }
+
+    if (entity.type === 'version' && !entity.release) {
+      context.addIssue({
+        code: 'custom',
+        path: ['release'],
+        message: 'Version entities must declare release metadata.',
+      });
+    }
+
+    if (entity.type !== 'version' && entity.release) {
+      context.addIssue({
+        code: 'custom',
+        path: ['release'],
+        message: 'Only version entities may declare release metadata.',
+      });
+    }
+
+    if (entity.release) {
+      const isPrerelease = entity.release.version.includes('-');
+
+      if (entity.since !== entity.release.version) {
+        context.addIssue({
+          code: 'custom',
+          path: ['since'],
+          message: 'Version entity since must equal release.version.',
+        });
+      }
+
+      if (entity.release.gitTag !== `v${entity.release.version}`) {
+        context.addIssue({
+          code: 'custom',
+          path: ['release', 'gitTag'],
+          message: 'Release gitTag must be v followed by the exact release version.',
+        });
+      }
+
+      if (isPrerelease !== (entity.release.channel === 'prerelease')) {
+        context.addIssue({
+          code: 'custom',
+          path: ['release', 'channel'],
+          message: 'Release channel must agree with whether the version has a prerelease suffix.',
+        });
+      }
+
+      const expectedDistTag = isPrerelease ? 'next' : 'latest';
+      if (entity.release.npmDistTag !== expectedDistTag) {
+        context.addIssue({
+          code: 'custom',
+          path: ['release', 'npmDistTag'],
+          message: `Release npmDistTag must be ${expectedDistTag} for this channel.`,
+        });
+      }
+
+      if (entity.status !== 'draft' && entity.status !== 'active') {
+        context.addIssue({
+          code: 'custom',
+          path: ['status'],
+          message: 'Version entities may only be draft or active.',
+        });
+      }
+
+      if (entity.status === 'active') {
+        for (const field of ['publishedAt', 'commit', 'specSnapshotDigest'] as const) {
+          if (!entity.release[field]) {
+            context.addIssue({
+              code: 'custom',
+              path: ['release', field],
+              message: `Active version entities must declare release.${field}.`,
+            });
+          }
+        }
+      }
     }
 
     const criteriaIds = new Set<string>();
@@ -477,6 +569,7 @@ export type SpecRelationTarget = z.infer<typeof specRelationTargetSchema>;
 export type SpecRelations = z.infer<typeof specRelationsSchema>;
 export type SpecPrototypeInheritance = z.infer<typeof specPrototypeInheritanceSchema>;
 export type SpecRevision = z.infer<typeof specRevisionSchema>;
+export type SpecRelease = z.infer<typeof specReleaseSchema>;
 export type SpecSourceRef = z.infer<typeof specSourceRefSchema>;
 export type SpecAnatomy = z.infer<typeof specAnatomySchema>;
 export type SpecCriterion = z.infer<typeof specCriterionSchema>;
@@ -514,8 +607,8 @@ export function validateSpecEntity(input: unknown): SpecEntity {
 }
 
 export function compareSpecVersions(a: string, b: string): number {
-  const [aCore, aPre] = a.split('-', 2);
-  const [bCore, bPre] = b.split('-', 2);
+  const [aCore, aPre] = splitSpecVersion(a);
+  const [bCore, bPre] = splitSpecVersion(b);
   const aParts = aCore.split('.').map(Number);
   const bParts = bCore.split('.').map(Number);
 
@@ -524,11 +617,38 @@ export function compareSpecVersions(a: string, b: string): number {
     if (diff !== 0) return diff;
   }
 
-  if (!aPre && bPre) return 1;
-  if (aPre && !bPre) return -1;
-  if (!aPre && !bPre) return 0;
+  if (aPre === undefined && bPre !== undefined) return 1;
+  if (aPre !== undefined && bPre === undefined) return -1;
+  if (aPre === undefined && bPre === undefined) return 0;
+  if (aPre === undefined || bPre === undefined) return 0;
 
-  return aPre.localeCompare(bPre);
+  const aIdentifiers = aPre.split('.');
+  const bIdentifiers = bPre.split('.');
+  const length = Math.max(aIdentifiers.length, bIdentifiers.length);
+
+  for (let index = 0; index < length; index += 1) {
+    const aIdentifier = aIdentifiers[index];
+    const bIdentifier = bIdentifiers[index];
+    if (aIdentifier === undefined) return -1;
+    if (bIdentifier === undefined) return 1;
+    if (aIdentifier === bIdentifier) continue;
+
+    const aNumeric = /^\d+$/.test(aIdentifier);
+    const bNumeric = /^\d+$/.test(bIdentifier);
+    if (aNumeric && bNumeric) return Number(aIdentifier) - Number(bIdentifier);
+    if (aNumeric) return -1;
+    if (bNumeric) return 1;
+    return aIdentifier.localeCompare(bIdentifier);
+  }
+
+  return 0;
+}
+
+function splitSpecVersion(version: string): [string, string | undefined] {
+  const separator = version.indexOf('-');
+  return separator === -1
+    ? [version, undefined]
+    : [version.slice(0, separator), version.slice(separator + 1)];
 }
 
 export function isVersionInRange(

@@ -2,7 +2,7 @@ id: T-BASE-TRANSITION-0001
 type: test
 title: Base Transition prototype protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Base Transition direct and authored-asHook entries, standalone execution, public surface, perceptual and ViewIntent sequencing, fallback completion, interruption, configuration, host neutrality, and reduced-motion compatibility.
 cases:
   - id: T-BASE-TRANSITION-0001-CASE-AUTHORING-ENTRIES
@@ -67,7 +67,7 @@ exercises:
   prototypes: [P-BASE-TRANSITION]
   contracts: [C-AS-TRANSITION-0001, C-LIFECYCLE-0008, C-DELAY-0001]
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added prototype-level coverage for standalone and authored Transition entries, public behavior, ViewIntent sequencing, interruption, configuration, and reduced-motion fallback.
 tags: [prototype, base, transition, test, reduced-motion, accessibility]

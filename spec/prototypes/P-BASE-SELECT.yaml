@@ -2,7 +2,7 @@ id: P-BASE-SELECT
 type: prototype
 title: Base Select is a root-owned select-only single-selection protocol
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Base Select is a compound select-only protocol whose Root owns open state, committed value, selected text, collection order, request arbitration, and shared selection facts.
 statement:
   zh-CN: >-
@@ -81,7 +81,7 @@ dependsOn:
   decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-BASE-PROTOTYPE-INDEPENDENCE-0001]
 verifies: { tests: [T-BASE-SELECT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Select Root ownership, request arbitration, selection invariants, text derivation, anatomy, and extension boundaries.
 tags: [prototype, base, select, select-only, single-selection, compound]

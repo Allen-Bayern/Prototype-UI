@@ -2,7 +2,7 @@ id: T-SHADCN-DIALOG-MASK-0001
 type: test
 title: Shadcn Dialog Mask delta protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Mask Base inheritance, public-boundary narrowing, 150ms fade surface, asChild omission, and bounded Overlay parity.
 cases:
   - id: T-SHADCN-DIALOG-MASK-0001-CASE-CURRENT-PROTOCOL
@@ -51,5 +51,5 @@ verifies:
         ]
 exercises: { prototypes: [P-SHADCN-DIALOG-MASK, P-BASE-DIALOG-MASK] }
 revisions:
-  [{ version: 0.2.0, change: introduced, summary: Added Shadcn Dialog Mask delta coverage. }]
+  [{ version: 0.2.0-rc.0, change: introduced, summary: Added Shadcn Dialog Mask delta coverage. }]
 tags: [prototype, shadcn, dialog, mask, overlay, transition, delta, compatibility, test]

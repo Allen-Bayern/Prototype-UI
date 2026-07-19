@@ -2,7 +2,7 @@ id: T-BASE-DIALOG-TITLE-0001
 type: test
 title: Base Dialog Title protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Title authoring parity, stable labelling identity, and presentation-only ownership.
 cases:
   - id: T-BASE-DIALOG-TITLE-0001-CASE-LABEL
@@ -28,5 +28,5 @@ verifies:
         - P-BASE-DIALOG-TITLE-NO-BEHAVIOR
 exercises: { prototypes: [P-BASE-DIALOG-TITLE] }
 revisions:
-  - { version: 0.2.0, change: introduced, summary: Added Dialog Title protocol coverage. }
+  - { version: 0.2.0-rc.0, change: introduced, summary: Added Dialog Title protocol coverage. }
 tags: [prototype, base, dialog, title, test]

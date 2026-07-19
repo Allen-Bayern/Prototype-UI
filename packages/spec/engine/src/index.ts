@@ -29,6 +29,20 @@ export type SpecWorkspace = {
   entities: SpecEntity[];
 };
 
+export type SpecReleaseEntry = {
+  entityId: string;
+  status: 'draft' | 'active';
+  version: string;
+  channel: 'prerelease' | 'stable';
+  gitTag: string;
+  npmDistTag: string;
+  packageVersionPolicy: 'exact';
+  packageScope: 'public-@proto.ui';
+  publishedAt?: string;
+  commit?: string;
+  specSnapshotDigest?: string;
+};
+
 export function sortSpecEntities(entities: SpecEntity[]): SpecEntity[] {
   return [...entities].sort((a, b) => a.id.localeCompare(b.id));
 }
@@ -45,6 +59,28 @@ export function createSpecWorkspace(entities: SpecEntity[]): SpecWorkspace {
   }
 
   return { entities: sortSpecEntities(entities) };
+}
+
+export function getSpecReleases(workspace: SpecWorkspace): SpecReleaseEntry[] {
+  return workspace.entities
+    .filter(
+      (entity): entity is SpecEntity & { release: NonNullable<SpecEntity['release']> } =>
+        entity.type === 'version' && entity.release !== undefined
+    )
+    .map((entity) => ({
+      entityId: entity.id,
+      status: entity.status as 'draft' | 'active',
+      version: entity.release.version,
+      channel: entity.release.channel,
+      gitTag: entity.release.gitTag,
+      npmDistTag: entity.release.npmDistTag,
+      packageVersionPolicy: entity.release.packageVersionPolicy,
+      packageScope: entity.release.packageScope,
+      publishedAt: entity.release.publishedAt,
+      commit: entity.release.commit,
+      specSnapshotDigest: entity.release.specSnapshotDigest,
+    }))
+    .sort((a, b) => compareSpecVersions(a.version, b.version));
 }
 
 export function getSpecSnapshot(workspace: SpecWorkspace, version: string): SpecSnapshot {

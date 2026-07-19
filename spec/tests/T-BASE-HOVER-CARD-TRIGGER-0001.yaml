@@ -2,7 +2,7 @@ id: T-BASE-HOVER-CARD-TRIGGER-0001
 type: test
 title: Base Hover Card Trigger protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers Trigger focus and hover intent, disabled suppression, link-preview role, authoring parity, and independence from Button activation.
 cases:
   - id: T-BASE-HOVER-CARD-TRIGGER-0001-CASE-INTERACTION
@@ -39,7 +39,7 @@ verifies:
         - P-BASE-HOVER-CARD-TRIGGER-NO-ACTIVATION
 exercises: { prototypes: [P-BASE-HOVER-CARD-TRIGGER] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added Trigger interaction and protocol-independence coverage.
 tags: [prototype, base, hover-card, trigger, test]

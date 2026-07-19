@@ -2,7 +2,7 @@ id: P-SHADCN-BUTTON
 type: prototype
 title: Shadcn Button inherits Base Button and layers a pinned visual API subset
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Shadcn Button is an unofficial Proto UI-maintained projection that inherits Base Button by default, may declare setup-time negative patches explicitly, and adds a pinned, currently partial shadcn/ui visual API without duplicating Base semantics.
 statement:
   zh-CN: >-
@@ -122,7 +122,7 @@ inherits:
       note: Default inherited protocol; explicit setup-time negative-patch criteria may override individual guarantees.
 verifies: { tests: [T-SHADCN-BUTTON-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced the delta-style Shadcn Button catalog template with reversible Base inheritance, pinned upstream identity, current visual API guarantees, intentional asChild omission, and centralized compatibility differences.
 tags: [prototype, shadcn, button, upstream-derived, delta, compatibility, visual]

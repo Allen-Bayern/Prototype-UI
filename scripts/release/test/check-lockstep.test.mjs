@@ -32,7 +32,7 @@ function runCheck(root) {
   });
 }
 
-test('check passes when all @proto.ui packages share VERSION minor', () => {
+test('check passes when all public @proto.ui packages exactly match VERSION', () => {
   const root = makeFixture({
     version: '0.1.0',
     packages: [
@@ -49,7 +49,7 @@ test('check passes when all @proto.ui packages share VERSION minor', () => {
   }
 });
 
-test('check passes when patches differ but minor matches', () => {
+test('check fails when patches differ even if minor matches', () => {
   const root = makeFixture({
     version: '0.1.0',
     packages: [
@@ -60,7 +60,8 @@ test('check passes when patches differ but minor matches', () => {
   });
   try {
     const result = runCheck(root);
-    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr + result.stdout, /expected exact version: 0\.1\.0/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -79,6 +80,22 @@ test('check fails when any package is on a different minor', () => {
     assert.notEqual(result.status, 0);
     assert.match(result.stderr + result.stdout, /@proto\.ui\/core/);
     assert.match(result.stderr + result.stdout, /0\.2\.0/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('check supports exact prerelease lockstep', () => {
+  const root = makeFixture({
+    version: '0.2.0-rc.0',
+    packages: [
+      { relPath: 'cli', name: '@proto.ui/cli', version: '0.2.0-rc.0' },
+      { relPath: 'core', name: '@proto.ui/core', version: '0.2.0-rc.0' },
+    ],
+  });
+  try {
+    const result = runCheck(root);
+    assert.equal(result.status, 0, result.stderr || result.stdout);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

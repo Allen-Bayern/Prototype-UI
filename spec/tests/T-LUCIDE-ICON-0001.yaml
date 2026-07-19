@@ -2,7 +2,7 @@ id: T-LUCIDE-ICON-0001
 type: test
 title: Lucide Icon shared protocol contract tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers the shared name-based and fixed-glyph Lucide protocol, exact upstream metadata, visual props and SVG projection, generated distribution surfaces, and the explicit accessibility gap.
 cases:
   - id: T-LUCIDE-ICON-0001-CASE-SHARED-PROTOCOL
@@ -62,7 +62,7 @@ verifies:
         - P-LUCIDE-ICON-A11Y-DEFERRED
 exercises: { prototypes: [P-LUCIDE-ICON] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added shared Lucide Icon protocol coverage across generated provenance, SVG rendering, per-icon projections, distribution helpers, and the deferred accessibility surface.
 tags: [prototype, lucide, icon, svg, generated, test]

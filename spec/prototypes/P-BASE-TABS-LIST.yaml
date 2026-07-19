@@ -169,10 +169,10 @@ revisions:
   - version: 0.1.1
     change: refined
     summary: Added host-neutral a11yLabel as the Tabs List accessible name input.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: refined
     summary: Removed the deprecated useFocusRoving dependency and assigned active-member movement to asFocusRoving.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Removed the temporary Tabs-specific focusSelected bridge after Focus gained semantic selected and active member facts.
 tags:

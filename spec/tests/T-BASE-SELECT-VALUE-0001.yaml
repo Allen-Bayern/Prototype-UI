@@ -2,7 +2,7 @@ id: T-BASE-SELECT-VALUE-0001
 type: test
 title: Base Select Value value-class protocol tests
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Covers context-derived display, placeholder fallback, renderer refresh, displayValue exposure, and non-interactive value-class boundaries.
 cases:
   - id: T-BASE-SELECT-VALUE-0001-CASE-CONTEXT-FALLBACK
@@ -48,7 +48,7 @@ verifies:
         ]
 exercises: { prototypes: [P-BASE-SELECT-VALUE] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Added the first value-class display, refresh, expose, and non-interaction coverage.
 tags: [prototype, base, select, value, value-class, test]

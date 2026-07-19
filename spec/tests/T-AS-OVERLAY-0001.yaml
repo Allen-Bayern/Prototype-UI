@@ -166,10 +166,10 @@ revisions:
   - version: 0.1.4
     change: refined
     summary: Added runtime coverage for post-callback Overlay host-resource reconciliation.
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: extended
     summary: Added delegated anchored positioning and active-view lease coverage.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Added resolved Anatomy anchor sharing between Positioning and Boundary classification.
 tags:

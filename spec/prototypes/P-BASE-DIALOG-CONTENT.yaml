@@ -2,7 +2,7 @@ id: P-BASE-DIALOG-CONTENT
 type: prototype
 title: Base Dialog Content owns the active dialog surface
 status: draft
-since: 0.2.0
+since: 0.2.0-rc.0
 summary: Dialog Content is the modal surface that owns dialog semantics, focus containment, dismissal requests, transition presence, and title/description relationships.
 statement:
   zh-CN: Dialog Content 是至多一个的 active modal surface。它从 Root open 派生 Overlay/Transition presence，active 时包含 focus，并把 Escape/outside 转换为 Root request。普通模式投射 dialog；alert 模式投射 alertdialog 且不允许 outside dismiss。
@@ -56,13 +56,13 @@ dependsOn:
     ]
 verifies: { tests: [T-BASE-DIALOG-CONTENT-0001] }
 revisions:
-  - version: 0.2.0
+  - version: 0.2.0-rc.0
     change: introduced
     summary: Cataloged Dialog Content semantics and lifecycle.
-  - version: 0.2.1
+  - version: 0.2.0-rc.0
     change: refined
     summary: Clarified that alert mode is owned by Root context.
-  - version: 0.2.2
+  - version: 0.2.0-rc.0
     change: refined
     summary: Made title and description relations conditional on live anatomy and added the Root a11yLabel fallback.
 tags: [prototype, base, dialog, content, accessibility]
