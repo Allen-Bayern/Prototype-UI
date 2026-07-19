@@ -23,7 +23,7 @@ CI runs for pull requests, pushes to `main`, and manual dispatch. In addition to
 
 Every new numeric version must therefore be a reviewed release train; a package-local bump cannot bypass the gate.
 
-`release-consumer-react` additionally builds tarballs for every public package and installs the current declared release closure in a temporary React + Vite project outside the monorepo. The gate prevents `@proto.ui/*` from falling back to the npm registry or workspace sources, then verifies CLI facade generation, TypeScript, a production build, and baseline runtime behavior.
+`release-consumer-react` additionally builds tarballs for every public package and installs the current declared release closure in a temporary React + Vite project outside the monorepo. The gate prevents `@proto.ui/*` from falling back to the npm registry or workspace sources, validates every non-wildcard export target in staged manifests, then verifies CLI facade generation, TypeScript, a production build, and baseline runtime behavior. Before expanding the full fixture, it generates only Shadcn Button and checks that the final Rollup module graph contains no other Base/Shadcn prototype family. This is a family-boundary assertion rather than a fixed bundle-size budget.
 
 ## Release Workflow (`release-packages.yml`)
 

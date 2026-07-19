@@ -10,17 +10,17 @@ function createFileHeader(): string[] {
 }
 
 function groupImports(componentIds: string[]): Map<string, Set<string>> {
-  const packages = new Map<string, Set<string>>();
+  const importPaths = new Map<string, Set<string>>();
 
   for (const componentId of componentIds) {
     const entry = getComponentEntry(componentId);
     if (!entry) continue;
-    const set = packages.get(entry.packageName) ?? new Set<string>();
+    const set = importPaths.get(entry.importPath) ?? new Set<string>();
     for (const item of entry.items) set.add(item.prototypeImport);
-    packages.set(entry.packageName, set);
+    importPaths.set(entry.importPath, set);
   }
 
-  return packages;
+  return importPaths;
 }
 
 export function renderHostIndex(host: string, componentIds: string[]): string {
@@ -37,8 +37,8 @@ export function renderHostIndex(host: string, componentIds: string[]): string {
   if (adapter.runtimeImport) lines.push(adapter.runtimeImport);
 
   const grouped = groupImports(componentIds);
-  for (const [packageName, imports] of grouped) {
-    lines.push(`import { ${Array.from(imports).sort().join(', ')} } from '${packageName}';`);
+  for (const [importPath, imports] of grouped) {
+    lines.push(`import { ${Array.from(imports).sort().join(', ')} } from '${importPath}';`);
   }
 
   lines.push('');

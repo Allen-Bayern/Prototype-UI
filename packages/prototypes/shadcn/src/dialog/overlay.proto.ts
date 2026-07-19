@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogMask } from '@proto.ui/prototypes-base';
+import { asDialogMask } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogMaskExposes, ShadcnDialogMaskProps } from './types';
 
 const dialogMask = definePrototype<ShadcnDialogMaskProps, ShadcnDialogMaskExposes>({

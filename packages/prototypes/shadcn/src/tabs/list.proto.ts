@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asTabsList } from '@proto.ui/prototypes-base';
+import { asTabsList } from '@proto.ui/prototypes-base/tabs';
 import type { ShadcnTabsListExposes, ShadcnTabsListProps } from './types';
 
 const tabsList = definePrototype<ShadcnTabsListProps, ShadcnTabsListExposes>({

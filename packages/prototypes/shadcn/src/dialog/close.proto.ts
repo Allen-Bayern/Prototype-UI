@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogClose } from '@proto.ui/prototypes-base';
+import { asDialogClose } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogCloseExposes, ShadcnDialogCloseProps } from './types';
 
 type ShadcnDialogCloseVariant =

@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asTabsTrigger } from '@proto.ui/prototypes-base';
+import { asTabsTrigger } from '@proto.ui/prototypes-base/tabs';
 import type { ShadcnTabsTriggerExposes, ShadcnTabsTriggerProps } from './types';
 
 const BASE_TOKENS = [

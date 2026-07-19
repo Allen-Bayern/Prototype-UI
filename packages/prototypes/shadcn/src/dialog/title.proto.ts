@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogTitle } from '@proto.ui/prototypes-base';
+import { asDialogTitle } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogTitleExposes, ShadcnDialogTitleProps } from './types';
 
 const dialogTitle = definePrototype<ShadcnDialogTitleProps, ShadcnDialogTitleExposes>({

@@ -1,5 +1,5 @@
 import { definePrototype, type RendererHandle, tw } from '@proto.ui/core';
-import { asSelectTrigger } from '@proto.ui/prototypes-base';
+import { asSelectTrigger } from '@proto.ui/prototypes-base/select';
 import type { ShadcnSelectTriggerExposes, ShadcnSelectTriggerProps } from './types';
 
 function renderChevron(renderer: Pick<RendererHandle<any>, 'svg' | 'el'>) {

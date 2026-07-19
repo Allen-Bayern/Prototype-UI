@@ -22,6 +22,7 @@ test('workspace dependencies use exact package versions in published manifests',
         name: '@proto.ui/adapter-react',
         version: '0.1.1',
         type: 'module',
+        sideEffects: false,
         dependencies: {
           '@proto.ui/core': 'workspace:*',
           '@proto.ui/runtime': 'workspace:*',
@@ -33,6 +34,10 @@ test('workspace dependencies use exact package versions in published manifests',
           '.': {
             types: './src/index.ts',
             default: './src/index.ts',
+          },
+          './button': {
+            types: './src/button/index.ts',
+            default: './src/button/index.ts',
           },
         },
       },
@@ -52,4 +57,10 @@ test('workspace dependencies use exact package versions in published manifests',
   assert.equal(manifest.dependencies['@proto.ui/core'], '0.1.0');
   assert.equal(manifest.dependencies['@proto.ui/runtime'], '0.1.0');
   assert.equal(manifest.peerDependencies['@proto.ui/types'], '0.1.0');
+  assert.equal(manifest.sideEffects, false);
+  assert.equal(manifest.exports['.'].types, './dist/index.d.ts');
+  assert.deepEqual(manifest.exports['./button'], {
+    types: './dist/button/index.d.ts',
+    default: './dist/button/index.js',
+  });
 });

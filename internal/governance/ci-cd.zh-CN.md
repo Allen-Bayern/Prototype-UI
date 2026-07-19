@@ -23,7 +23,7 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 
 任何新数字版本都必须先成为受评审的 release train，不能通过局部 package 改版绕过。
 
-`release-consumer-react` 进一步从当前源码构建全部公开 package tarball，并在 monorepo 外的临时 React + Vite 项目中安装当前发布依赖闭包。该门禁禁止 `@proto.ui/*` 回退到 npm registry 或 workspace 源码，并验证 CLI facade 生成、TypeScript、production build 和基础运行时行为。
+`release-consumer-react` 进一步从当前源码构建全部公开 package tarball，并在 monorepo 外的临时 React + Vite 项目中安装当前发布依赖闭包。该门禁禁止 `@proto.ui/*` 回退到 npm registry 或 workspace 源码，验证 staged manifest 的全部非通配 export target，并验证 CLI facade 生成、TypeScript、production build 和基础运行时行为。在扩展完整 fixture 前，它还会先只生成 Shadcn Button，并检查最终 Rollup module graph 不包含其他 Base/Shadcn prototype family；这是一项 family 边界检测，不是固定 bundle 大小预算。
 
 ## 发布工作流（`release-packages.yml`）
 

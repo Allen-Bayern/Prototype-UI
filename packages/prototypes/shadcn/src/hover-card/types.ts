@@ -8,7 +8,7 @@ import type {
   HoverCardTriggerAsHookContract,
   HoverCardTriggerExposes,
   HoverCardTriggerProps,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/hover-card';
 
 export type ShadcnHoverCardRootProps = HoverCardRootProps;
 export type ShadcnHoverCardRootExposes = HoverCardRootExposes;

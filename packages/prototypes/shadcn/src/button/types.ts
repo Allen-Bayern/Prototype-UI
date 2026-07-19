@@ -1,4 +1,4 @@
-import type { ButtonExposes, ButtonProps } from '@proto.ui/prototypes-base';
+import type { ButtonExposes, ButtonProps } from '@proto.ui/prototypes-base/button';
 
 export type ShadcnButtonVariant =
   | 'default'

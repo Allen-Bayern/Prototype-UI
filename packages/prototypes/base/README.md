@@ -13,20 +13,35 @@ Prototype library package intended to be consumed together with Proto UI adapter
 ## Install
 
 ```bash
-npm install @proto.ui/prototypes-base@0.0.1
+npm install @proto.ui/prototypes-base@0.2.0-rc.0
 ```
+
+## Family Imports
+
+Prefer anatomy-family subpaths so consumers and generated facades do not load unrelated prototypes:
+
+```ts
+import button, { asButton } from '@proto.ui/prototypes-base/button';
+import { selectRoot, selectTrigger } from '@proto.ui/prototypes-base/select';
+```
+
+The root package export remains available for compatibility. Compound anatomy parts share one family subpath. Shared authoring capabilities are available through `transition`, `tools`, and `behaviors` subpaths.
 
 ## Internal Structure
 
 - `src/behaviors/`
 - `src/button/`
+- `src/checkbox/`
+- `src/dialog/`
 - `src/dropdown/`
 - `src/hover-card/`
 - `src/index.ts`
+- `src/select/`
 - `src/switch/`
 - `src/tabs/`
 - `src/toggle/`
 - `src/tools/`
+- `src/transition/`
 
 ## Behavior Authoring Constraints
 

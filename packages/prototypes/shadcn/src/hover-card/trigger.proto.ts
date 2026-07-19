@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asHoverCardTrigger } from '@proto.ui/prototypes-base';
+import { asHoverCardTrigger } from '@proto.ui/prototypes-base/hover-card';
 import type { ShadcnHoverCardTriggerExposes, ShadcnHoverCardTriggerProps } from './types';
 
 const TRIGGER_BASE_TOKENS =

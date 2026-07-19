@@ -1,5 +1,5 @@
 import { definePrototype, delay, type RendererHandle, tw } from '@proto.ui/core';
-import { asSelectItem } from '@proto.ui/prototypes-base';
+import { asSelectItem } from '@proto.ui/prototypes-base/select';
 import type { ShadcnSelectItemExposes, ShadcnSelectItemProps } from './types';
 
 function renderCheck(renderer: Pick<RendererHandle<any>, 'svg' | 'el'>, selected: boolean) {

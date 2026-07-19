@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asSelectContent } from '@proto.ui/prototypes-base';
+import { asSelectContent } from '@proto.ui/prototypes-base/select';
 import type { ShadcnSelectContentExposes, ShadcnSelectContentProps } from './types';
 
 const selectContent = definePrototype<ShadcnSelectContentProps, ShadcnSelectContentExposes>({

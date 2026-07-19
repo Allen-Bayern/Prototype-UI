@@ -246,6 +246,8 @@ Proto UI 的 package surface 可以大致理解为以下几层：
 - `Maker`
 - `Prototype Author`
 
+完整 package 是安装、版本与发布单位；`button`、`select`、`dialog` 等 anatomy family subpath 是推荐 import 单位。Base component family 不应依赖 sibling component family，但可以显式复用 `transition`、`tools`、`behaviors` 等共享能力。
+
 ### 8.2 `@proto.ui/prototypes-shadcn`
 
 `@proto.ui/prototypes-shadcn` 是建立在 base library 之上的 styled prototype library。
@@ -258,6 +260,8 @@ Proto UI 的 package surface 可以大致理解为以下几层：
 - `Prototype Author`
 
 在维护这层时，应优先考虑对 base 的继承关系和行为忠实度，而不是短期样式便利性。
+
+Shadcn family 应通过对应的 Base family subpath 表达继承边界，默认不依赖其他 Shadcn family。CLI 安装完整 package，但生成的 facade 使用 family subpath。
 
 ---
 

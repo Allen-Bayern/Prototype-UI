@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogContent } from '@proto.ui/prototypes-base';
+import { asDialogContent } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogContentExposes, ShadcnDialogContentProps } from './types';
 
 const dialogContent = definePrototype<ShadcnDialogContentProps, ShadcnDialogContentExposes>({

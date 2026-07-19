@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDropdownItem } from '@proto.ui/prototypes-base';
+import { asDropdownItem } from '@proto.ui/prototypes-base/dropdown';
 import type { ShadcnDropdownItemExposes, ShadcnDropdownItemProps } from './types';
 
 const ITEM_BASE_TOKENS =

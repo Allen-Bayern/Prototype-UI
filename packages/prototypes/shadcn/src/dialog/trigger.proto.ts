@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogTrigger } from '@proto.ui/prototypes-base';
+import { asDialogTrigger } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogTriggerExposes, ShadcnDialogTriggerProps } from './types';
 
 type ShadcnDialogTriggerVariant =

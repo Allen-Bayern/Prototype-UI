@@ -395,6 +395,20 @@ export function stagePackage(pkg, options) {
   writeFileSync(join(stageDir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   writeSupportingFiles(pkg, stageDir);
 
+  if (buildResult.status === 0) {
+    const missingExportTargets = flattenExportTargets(manifest.exports).filter((target) => {
+      if (typeof target !== 'string' || target.includes('*') || !target.startsWith('./')) {
+        return false;
+      }
+      return !existsSync(join(stageDir, target));
+    });
+    if (missingExportTargets.length > 0) {
+      throw new Error(
+        `Stage export validation failed for ${pkg.name}: missing ${missingExportTargets.join(', ')}`
+      );
+    }
+  }
+
   const binDir = join(pkg.dir, 'bin');
   if (existsSync(binDir)) {
     cpSync(binDir, join(stageDir, 'bin'), { recursive: true });
@@ -672,13 +686,13 @@ function rewriteManifestField(manifest, field) {
   manifest[field] = rewritePath(manifest[field], field === 'types');
 }
 
-function rewriteExports(value) {
-  if (typeof value === 'string') return rewritePath(value, value.endsWith('.d.ts'));
-  if (Array.isArray(value)) return value.map((item) => rewriteExports(item));
+function rewriteExports(value, isTypes = false) {
+  if (typeof value === 'string') return rewritePath(value, isTypes || value.endsWith('.d.ts'));
+  if (Array.isArray(value)) return value.map((item) => rewriteExports(item, isTypes));
   if (value && typeof value === 'object') {
     const next = {};
     for (const [key, entry] of Object.entries(value)) {
-      next[key] = rewriteExports(entry);
+      next[key] = rewriteExports(entry, isTypes || key === 'types');
     }
     return next;
   }
@@ -690,6 +704,9 @@ function rewritePath(value, isTypes = false) {
   let next = value;
   next = next.replace('./src/', './dist/');
   next = next.replace('./dist/src/', './dist/');
+  if (next.endsWith('.d.ts')) {
+    return next;
+  }
   if (next.endsWith('.ts')) {
     next = `${next.slice(0, -3)}${isTypes ? '.d.ts' : '.js'}`;
   }

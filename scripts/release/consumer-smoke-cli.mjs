@@ -2,25 +2,30 @@ import {
   cpSync,
   existsSync,
   mkdtempSync,
+  mkdirSync,
   readFileSync,
   readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, relative } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { getAllPackages, ROOT_DIR, selectPackages } from './lib.mjs';
 import { readVersion } from './version-utils.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const FIXTURE_DIR = join(__dirname, 'consumer-smoke', 'react-vite');
-const RELEASE_ROOTS = ['@proto.ui/cli', '@proto.ui/adapter-react', '@proto.ui/prototypes-shadcn'];
+const RENDER_FIXTURE_DIR = join(ROOT_DIR, 'packages', 'cli', 'test', 'smoke-render');
+const RELEASE_ROOTS = [
+  '@proto.ui/cli',
+  '@proto.ui/adapter-react',
+  '@proto.ui/adapter-vue',
+  '@proto.ui/adapter-web-component',
+  '@proto.ui/prototypes-base',
+  '@proto.ui/prototypes-shadcn',
+];
 
-const args = parseArgs(process.argv.slice(2));
-const workDir = args.workDir ?? mkdtempSync(join(tmpdir(), 'proto-ui-react-consumer-'));
+const workDir = mkdtempSync(join(tmpdir(), 'proto-ui-cli-consumer-'));
 const releaseDir = join(workDir, 'release');
 const consumerDir = join(workDir, 'consumer');
 let succeeded = false;
@@ -33,8 +38,7 @@ try {
     releaseDir,
   ]);
 
-  const packManifestPath = join(releaseDir, 'pack-manifest.json');
-  const packManifest = JSON.parse(readFileSync(packManifestPath, 'utf8'));
+  const packManifest = JSON.parse(readFileSync(join(releaseDir, 'pack-manifest.json'), 'utf8'));
   const releaseVersion = readVersion().raw;
   const expectedPackages = selectPackages(getAllPackages())
     .map((pkg) => pkg.name)
@@ -47,9 +51,9 @@ try {
     `packed package set drifted: expected ${expectedPackages.length}, got ${packedPackages.length}`
   );
 
-  cpSync(FIXTURE_DIR, consumerDir, { recursive: true });
+  mkdirSync(consumerDir, { recursive: true });
   const packageByName = new Map(packManifest.packages.map((pkg) => [pkg.name, pkg]));
-  const consumerPackageNames = collectDeclaredClosure(RELEASE_ROOTS, packageByName, releaseDir);
+  const consumerPackageNames = collectDeclaredClosure(RELEASE_ROOTS, packageByName);
   const protoDependencies = Object.fromEntries(
     consumerPackageNames.map((name) => {
       const entry = packageByName.get(name);
@@ -59,31 +63,27 @@ try {
     })
   );
 
-  const packageJson = {
-    name: 'proto-ui-react-consumer-smoke',
-    private: true,
-    version: '0.0.0',
-    type: 'module',
-    scripts: {
-      build: 'tsc --noEmit && vite build',
-      'build:button-boundary': 'vite build --config vite.button-boundary.mjs',
-      smoke: 'node --import tsx ./smoke.tsx',
-    },
-    dependencies: {
-      ...protoDependencies,
-      react: '19.2.6',
-      'react-dom': '19.2.6',
-    },
-    devDependencies: {
-      '@happy-dom/global-registrator': '20.11.0',
-      '@types/react': '19.2.14',
-      '@types/react-dom': '19.2.3',
-      tsx: '4.21.0',
-      typescript: '5.9.3',
-      vite: '6.4.1',
-    },
-  };
-  writeFileSync(join(consumerDir, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
+  writeFileSync(
+    join(consumerDir, 'package.json'),
+    `${JSON.stringify(
+      {
+        name: 'proto-ui-cli-consumer-smoke',
+        private: true,
+        version: '0.0.0',
+        type: 'module',
+        dependencies: {
+          ...protoDependencies,
+          '@happy-dom/global-registrator': '20.11.0',
+          react: '19.2.6',
+          'react-dom': '19.2.6',
+          tsx: '4.21.0',
+          vue: '3.5.29',
+        },
+      },
+      null,
+      2
+    )}\n`
+  );
 
   run('npm', ['install', '--no-audit', '--no-fund'], { cwd: consumerDir });
   verifyInstalledRelease({
@@ -93,40 +93,37 @@ try {
   });
 
   const cli = join(consumerDir, 'node_modules', '@proto.ui', 'cli', 'bin', 'proto-ui.js');
-  run(process.execPath, [cli, 'init', '--yes', '--no-interactive', '--no-styles'], {
-    cwd: consumerDir,
-  });
-  run(
-    process.execPath,
-    [cli, 'add', 'react', 'shadcn-button', '--no-install', '--no-interactive'],
-    {
-      cwd: consumerDir,
-    }
-  );
-  run('npm', ['run', 'build:button-boundary'], { cwd: consumerDir });
-
-  for (const component of ['shadcn-switch', 'shadcn-select', 'shadcn-dialog']) {
-    run(process.execPath, [cli, 'add', 'react', component, '--no-install', '--no-interactive'], {
+  run(process.execPath, [cli, '--help'], { cwd: consumerDir, quiet: true });
+  run(process.execPath, [cli, 'init', '--yes', '--no-interactive'], { cwd: consumerDir });
+  for (const [host, component] of [
+    ['react', 'shadcn-button'],
+    ['react', 'base-button'],
+    ['vue', 'shadcn-button'],
+    ['wc', 'shadcn-button'],
+  ]) {
+    run(process.execPath, [cli, 'add', host, component, '--no-install', '--no-interactive'], {
       cwd: consumerDir,
     });
   }
 
-  run('npm', ['run', 'build'], { cwd: consumerDir });
-  run('npm', ['run', 'smoke'], { cwd: consumerDir });
+  verifyGeneratedConsumer(consumerDir);
+  for (const renderer of ['react.mjs', 'vue.mjs', 'wc.mjs']) {
+    cpSync(join(RENDER_FIXTURE_DIR, renderer), join(consumerDir, renderer));
+    run(process.execPath, ['--import', 'tsx', `./${renderer}`], { cwd: consumerDir });
+  }
 
   succeeded = true;
   console.log(
-    `release consumer smoke: react ok (${consumerPackageNames.length}/${expectedPackages.length} packed packages consumed)`
+    `release consumer smoke: cli ok (${consumerPackageNames.length}/${expectedPackages.length} packed packages consumed)`
   );
-  if (args.keep) console.log(`artifacts kept at ${workDir}`);
 } catch (error) {
   console.error(`release consumer smoke failed; artifacts kept at ${workDir}`);
   throw error;
 } finally {
-  if (succeeded && !args.keep) rmSync(workDir, { recursive: true, force: true });
+  if (succeeded) rmSync(workDir, { recursive: true, force: true });
 }
 
-function collectDeclaredClosure(rootNames, packageByName, releaseDir) {
+function collectDeclaredClosure(rootNames, packageByName) {
   const closure = new Set();
   const queue = [...rootNames];
   while (queue.length > 0) {
@@ -182,21 +179,49 @@ function verifyInstalledRelease({ consumerDir, expectedNames, releaseVersion }) 
     JSON.stringify(installedDirs) === JSON.stringify(expectedNames),
     'node_modules Proto UI packages do not match the declared tarball closure'
   );
+}
 
-  for (const name of expectedNames) {
-    const manifest = JSON.parse(
-      readFileSync(join(protoScopeDir, name.slice('@proto.ui/'.length), 'package.json'), 'utf8')
-    );
-    assert(manifest.version === releaseVersion, `${name} manifest version drifted`);
-    for (const field of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
-      for (const [dependencyName, dependencyVersion] of Object.entries(manifest[field] ?? {})) {
-        if (!dependencyName.startsWith('@proto.ui/')) continue;
-        assert(
-          dependencyVersion === releaseVersion,
-          `${name} has non-exact ${field} edge ${dependencyName}@${dependencyVersion}`
-        );
-      }
-    }
+function verifyGeneratedConsumer(root) {
+  const config = readFileSync(join(root, 'proto-ui', 'config.json'), 'utf8');
+  const react = readFileSync(join(root, 'proto-ui', 'components', 'react', 'index.ts'), 'utf8');
+  const vue = readFileSync(join(root, 'proto-ui', 'components', 'vue', 'index.ts'), 'utf8');
+  const wc = readFileSync(join(root, 'proto-ui', 'components', 'wc', 'index.ts'), 'utf8');
+  const index = readFileSync(join(root, 'proto-ui', 'components', 'index.ts'), 'utf8');
+
+  for (const expected of [
+    '@proto.ui/adapter-react',
+    '@proto.ui/adapter-vue',
+    '@proto.ui/adapter-web-component',
+    'shadcn-button',
+    'base-button',
+  ]) {
+    assert(config.includes(expected), `generated config is missing ${expected}`);
+  }
+  for (const expected of [
+    'createReactAdapter(React)',
+    'export const ShadcnButton = adapt(shadcnButton)',
+    'export const BaseButton = adapt(button)',
+    "from '@proto.ui/prototypes-shadcn/button'",
+    "from '@proto.ui/prototypes-base/button'",
+  ]) {
+    assert(react.includes(expected), `generated React facade is missing ${expected}`);
+  }
+  assert(vue.includes('createVueAdapter(Vue)'), 'generated Vue facade is missing its adapter');
+  assert(
+    vue.includes('export const ShadcnButton = adapt(shadcnButton)'),
+    'generated Vue facade is missing ShadcnButton'
+  );
+  assert(
+    wc.includes('AdaptToWebComponent(shadcnButton'),
+    'generated Web Component facade is missing ShadcnButton'
+  );
+  for (const expected of [
+    'ShadcnButton as ReactShadcnButton',
+    'BaseButton as ReactBaseButton',
+    'ShadcnButton as VueShadcnButton',
+    "ShadcnButtonElement } from './wc'",
+  ]) {
+    assert(index.includes(expected), `generated root facade is missing ${expected}`);
   }
 }
 
@@ -204,7 +229,7 @@ function run(command, commandArgs, options = {}) {
   const result = spawnSync(command, commandArgs, {
     cwd: options.cwd ?? ROOT_DIR,
     encoding: 'utf8',
-    stdio: 'inherit',
+    stdio: options.quiet ? 'ignore' : 'inherit',
     shell: process.platform === 'win32',
     env: process.env,
   });
@@ -212,31 +237,6 @@ function run(command, commandArgs, options = {}) {
   if (result.status !== 0) {
     throw new Error(`${command} ${commandArgs.join(' ')} exited with ${result.status}`);
   }
-}
-
-function parseArgs(argv) {
-  const parsed = { keep: false, workDir: null };
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index];
-    if (arg === '--') continue;
-    else if (arg === '--keep') parsed.keep = true;
-    else if (arg === '--work-dir') {
-      const value = argv[++index];
-      if (!value) throw new Error('--work-dir expects a path');
-      parsed.workDir = isAbsolute(value) ? value : resolve(ROOT_DIR, value);
-    } else if (arg === '--help' || arg === '-h') {
-      console.log(
-        'Usage: node scripts/release/consumer-smoke-react.mjs [--keep] [--work-dir <path>]'
-      );
-      process.exit(0);
-    } else {
-      throw new Error(`Unknown argument: ${arg}`);
-    }
-  }
-  if (parsed.workDir) {
-    rmSync(parsed.workDir, { recursive: true, force: true });
-  }
-  return parsed;
 }
 
 function toFileSpec(path) {

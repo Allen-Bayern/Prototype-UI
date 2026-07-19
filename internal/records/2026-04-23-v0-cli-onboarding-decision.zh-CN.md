@@ -197,6 +197,8 @@ v0 首发不把 Git 源码写入式 prototype 按需安装作为硬门槛。
 
 如果用户直接添加 base prototype，则 CLI 可按 registry 规则安装 `@proto.ui/prototypes-base`。
 
+> 2026-07-19 follow-up：根 package 仍是安装单位，但生成 facade 的推荐入口已经收窄为 anatomy family subpath；见 `internal/records/2026-07-19-prototype-family-import-boundary.zh-CN.md`。下方根入口示例保留为当时决策上下文。
+
 ### 4.5 component facade 是首发 generated surface
 
 v0 的本地生成重点不是写入 prototype 源码，而是生成 components facade。
