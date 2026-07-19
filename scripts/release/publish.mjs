@@ -1,6 +1,6 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import {
   buildPrerequisitePackages,
   ROOT_DIR,
@@ -19,6 +19,7 @@ function printHelp() {
 
 Options:
   --dry-run                     Run npm publish --dry-run against staged packages
+  --pack                        Create installable tarballs for every staged package
   --publish                     Run npm publish for real
   --resume-published            Recovery only: skip an existing identical registry tarball
   --tag <tag>                   Override npm dist-tag for dry-run inspection only
@@ -63,7 +64,7 @@ if (args.publish) assertPublishSource();
 const releaseVersion = readVersion();
 args.tag ??= releaseVersion.isPrerelease ? 'next' : 'latest';
 
-if (!args.publish && !args.dryRun) {
+if (!args.publish && !args.dryRun && !args.pack) {
   args.dryRun = true;
 }
 
@@ -140,6 +141,23 @@ for (const [index, pkg] of ordered.entries()) {
   results.push(result);
 }
 
+if (args.pack) {
+  const manifestPath = join(args.outDir, 'pack-manifest.json');
+  const packManifest = {
+    schemaVersion: 1,
+    releaseVersion: releaseVersion.raw,
+    packages: results.map((result) => ({
+      name: result.name,
+      version: releaseVersion.raw,
+      stage: relative(args.outDir, result.stageDir).replaceAll('\\', '/'),
+      tarball: relative(args.outDir, result.packResult.path).replaceAll('\\', '/'),
+      integrity: result.packResult.integrity,
+      shasum: result.packResult.shasum,
+    })),
+  };
+  writeFileSync(manifestPath, `${JSON.stringify(packManifest, null, 2)}\n`);
+}
+
 console.log(`Staged ${results.length} packages into ${args.outDir}`);
 console.log('');
 
@@ -176,6 +194,9 @@ for (const result of results) {
         `  npm publish attempt: ${result.publishResult.attempt}/${result.publishResult.maxAttempts}`
       );
     }
+  }
+  if (result.packResult) {
+    console.log(`  tarball: ${result.packResult.filename}`);
   }
 }
 

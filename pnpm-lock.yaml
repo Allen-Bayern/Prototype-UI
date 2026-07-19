@@ -248,6 +248,9 @@ importers:
       '@proto.ui/prototypes-base':
         specifier: workspace:*
         version: link:../../prototypes/base
+      '@types/react':
+        specifier: ^19.2.0
+        version: 19.2.14
 
   packages/adapters/vue:
     dependencies:

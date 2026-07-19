@@ -48,7 +48,10 @@ export type ReactRuntime = ReactRenderRuntime & {
   createElement: (type: any, props?: any, ...children: any[]) => any;
   createPortal?: (children: any, container: Element) => any;
   createContext?: <T>(defaultValue: T) => { Provider: any };
-  useContext?: <T>(context: { Provider: any }) => T;
+  // Context is an opaque runtime handle to the adapter. Keeping the input
+  // structural would incorrectly require React.useContext to accept a partial
+  // Context object, which the real React type correctly rejects.
+  useContext?: <T>(context: any) => T;
 };
 
 export type ReactAdapterHandle = {
@@ -430,6 +433,10 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const rendered = renderTemplateToReact(runtime, renderChildren, {
         slot: props.children,
       });
+      // Template roots are a static child list. Passing that list as one array
+      // makes React treat it as a dynamic collection and warn that anatomy
+      // siblings such as Select Value + Chevron need authored keys.
+      const renderedChildren = Array.isArray(rendered) ? rendered : [rendered];
 
       const overlayPort = ownerRef.current?.session?.caps.getPort<OverlayPort>('overlay');
       const portalContainer =
@@ -453,7 +460,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
               'data-pui-style': serializeStyleTokens(hostTokens),
               'data-demo-ref': props['data-demo-ref' as keyof typeof props] as string | undefined,
             },
-            rendered
+            ...renderedChildren
           );
       const projectedContent = portalContainer
         ? runtime.createPortal!(content, portalContainer)

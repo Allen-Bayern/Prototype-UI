@@ -23,6 +23,8 @@ CI runs for pull requests, pushes to `main`, and manual dispatch. In addition to
 
 Every new numeric version must therefore be a reviewed release train; a package-local bump cannot bypass the gate.
 
+`release-consumer-react` additionally builds tarballs for every public package and installs the current declared release closure in a temporary React + Vite project outside the monorepo. The gate prevents `@proto.ui/*` from falling back to the npm registry or workspace sources, then verifies CLI facade generation, TypeScript, a production build, and baseline runtime behavior.
+
 ## Release Workflow (`release-packages.yml`)
 
 The workflow is triggered manually through `workflow_dispatch`.
@@ -60,8 +62,9 @@ These tiers do not control the real npm publish set. Global exact-version govern
 1. Create or update the draft V entity and align `VERSION` plus package manifests in one PR.
 2. Run `pnpm check:release-version` and `pnpm release:scan:launch`; review the launch product scope.
 3. Run `pnpm release:stage` to rehearse the final tarballs for every public package.
-4. After merge to `main`, run `publish-all` with the `workspace` profile.
-5. Verify the GitHub release/spec-snapshot evidence and promote the V entity to `active` in a follow-up PR.
+4. Run `pnpm release:smoke:react` to verify that an isolated React + Vite project can consume the exact tarballs.
+5. After merge to `main`, run `publish-all` with the `workspace` profile.
+6. Verify the GitHub release/spec-snapshot evidence and promote the V entity to `active` in a follow-up PR.
 
 ## Local Shortcuts
 
@@ -69,5 +72,6 @@ These tiers do not control the real npm publish set. Global exact-version govern
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`
+- `pnpm release:smoke:react`
 
 There is no package-local real-publish shortcut. Package-local fixes enter the next global release train.
