@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asToggle } from '@proto.ui/prototypes-base';
+import { asToggle } from '@proto.ui/prototypes-base/toggle';
 import type { ShadcnToggleExposes, ShadcnToggleProps } from './types';
 
 const TOGGLE_BASE_TOKENS = [

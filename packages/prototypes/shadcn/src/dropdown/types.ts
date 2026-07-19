@@ -11,7 +11,7 @@ import type {
   DropdownTriggerAsHookContract,
   DropdownTriggerExposes,
   DropdownTriggerProps,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/dropdown';
 
 export type ShadcnDropdownTriggerIndicatorIcon = 'chevron-down' | 'chevrons-up-down';
 

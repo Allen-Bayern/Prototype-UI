@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { COMPONENT_REGISTRY } from '../src/registry/components';
+
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const CLI_DIR = path.resolve(TEST_DIR, '..');
 const BIN_PATH = path.join(CLI_DIR, 'bin/proto-ui.js');
@@ -46,6 +48,15 @@ async function createTempProject(name: string, packageJson: Record<string, unkno
 }
 
 describe('@proto.ui/cli', () => {
+  it('keeps installation packages separate from family import paths', () => {
+    for (const entry of Object.values(COMPONENT_REGISTRY)) {
+      expect(entry.importPath).toBe(
+        `${entry.packageName}/${entry.id.replace(/^(?:base|shadcn)-/, '')}`
+      );
+      expect(entry.importPath).not.toBe(entry.packageName);
+    }
+  });
+
   it('prints the new help text', () => {
     const result = runCli(process.cwd(), ['--help']);
     expect(result.status).toBe(0);
@@ -175,6 +186,10 @@ describe('@proto.ui/cli', () => {
 
     expect(reactIndex).toContain(`createReactAdapter`);
     expect(reactIndex).toContain(`shadcnButton`);
+    expect(reactIndex).toContain(
+      `import { shadcnButton } from '@proto.ui/prototypes-shadcn/button';`
+    );
+    expect(reactIndex).not.toContain(`from '@proto.ui/prototypes-shadcn';`);
     expect(reactIndex).toContain(`export const ShadcnButton = adapt(shadcnButton);`);
     expect(rootIndex).toContain(`export { ShadcnButton as ReactShadcnButton } from './react';`);
     expect(config.components.react).toEqual(['shadcn-button']);
@@ -200,6 +215,7 @@ describe('@proto.ui/cli', () => {
     );
     const config = JSON.parse(await fs.readFile(path.join(cwd, 'proto-ui/config.json'), 'utf8'));
 
+    expect(reactIndex).toContain(`from '@proto.ui/prototypes-shadcn/select';`);
     for (const part of ['Root', 'Trigger', 'Value', 'Content', 'Item']) {
       expect(reactIndex).toContain(
         `export const ShadcnSelect${part} = adapt(shadcnSelect${part});`
@@ -227,6 +243,7 @@ describe('@proto.ui/cli', () => {
 
     expect(wcIndex).toContain(`AdaptToWebComponent`);
     expect(wcIndex).toContain(`dialogRoot`);
+    expect(wcIndex).toContain(`from '@proto.ui/prototypes-base/dialog';`);
     expect(wcIndex).toContain(`export const BaseDialogRootElement = AdaptToWebComponent`);
     expect(wcIndex).toContain(`registerAs: 'proto-ui-base-dialog-root'`);
     expect(rootIndex).toContain(`export { BaseDialogRootElement } from './wc';`);
@@ -249,6 +266,7 @@ describe('@proto.ui/cli', () => {
     const wcIndex = await fs.readFile(path.join(cwd, 'proto-ui/components/wc/index.ts'), 'utf8');
     const rootIndex = await fs.readFile(path.join(cwd, 'proto-ui/components/index.ts'), 'utf8');
 
+    expect(wcIndex).toContain(`from '@proto.ui/prototypes-shadcn/button';`);
     expect(wcIndex).toContain(`export const ShadcnButtonElement = AdaptToWebComponent`);
     expect(rootIndex).toContain(`export { ShadcnButtonElement } from './wc';`);
   });

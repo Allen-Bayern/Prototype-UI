@@ -1,4 +1,4 @@
-export { default } from './toggle.proto';
+export { default, default as shadcnToggle } from './toggle.proto';
 export type {
   ShadcnToggleProps,
   ShadcnToggleExposes,

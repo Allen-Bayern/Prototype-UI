@@ -14,7 +14,7 @@ import type {
   SelectValueAsHookContract,
   SelectValueExposes,
   SelectValueProps,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/select';
 
 export type ShadcnSelectRootProps = SelectRootProps;
 export type ShadcnSelectRootExposes = SelectRootExposes;

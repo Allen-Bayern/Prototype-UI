@@ -247,6 +247,8 @@ Primary audience:
 - `Maker`
 - `Prototype Author`
 
+The complete package is the installation, versioning, and release unit; anatomy-family subpaths such as `button`, `select`, and `dialog` are the recommended import units. A Base component family must not depend on a sibling component family, but it may explicitly reuse shared capabilities such as `transition`, `tools`, and `behaviors`.
+
 ### 8.2 `@proto.ui/prototypes-shadcn`
 
 `@proto.ui/prototypes-shadcn` is a styled prototype library built on top of the base library.
@@ -259,6 +261,8 @@ Primary audience:
 - `Prototype Author`
 
 Contributors should treat base inheritance and behavior fidelity as more important than short-term styling convenience.
+
+A Shadcn family should express inheritance through its corresponding Base family subpath and must not depend on another Shadcn family by default. The CLI installs the complete package while generated facades use family subpaths.
 
 ---
 

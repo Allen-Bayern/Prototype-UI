@@ -1,5 +1,5 @@
 import { definePrototype } from '@proto.ui/core';
-import { asSelectValue } from '@proto.ui/prototypes-base';
+import { asSelectValue } from '@proto.ui/prototypes-base/select';
 import type { ShadcnSelectValueExposes, ShadcnSelectValueProps } from './types';
 
 const selectValue = definePrototype<ShadcnSelectValueProps, ShadcnSelectValueExposes>({

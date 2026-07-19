@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDialogRoot } from '@proto.ui/prototypes-base';
+import { asDialogRoot } from '@proto.ui/prototypes-base/dialog';
 import type { ShadcnDialogRootExposes, ShadcnDialogRootProps } from './types';
 
 const dialogRoot = definePrototype<ShadcnDialogRootProps, ShadcnDialogRootExposes>({

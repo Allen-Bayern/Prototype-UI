@@ -3,6 +3,7 @@
   "version": "0.2.0-rc.0",
   "private": false,
   "type": "module",
+  "sideEffects": false,
   "dependencies": {
     "@proto.ui/core": "workspace:*",
     "@proto.ui/hooks": "workspace:*"
@@ -19,6 +20,54 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./behaviors": {
+      "types": "./src/behaviors/index.ts",
+      "default": "./src/behaviors/index.ts"
+    },
+    "./button": {
+      "types": "./src/button/index.ts",
+      "default": "./src/button/index.ts"
+    },
+    "./checkbox": {
+      "types": "./src/checkbox/index.ts",
+      "default": "./src/checkbox/index.ts"
+    },
+    "./dialog": {
+      "types": "./src/dialog/index.ts",
+      "default": "./src/dialog/index.ts"
+    },
+    "./dropdown": {
+      "types": "./src/dropdown/index.ts",
+      "default": "./src/dropdown/index.ts"
+    },
+    "./hover-card": {
+      "types": "./src/hover-card/index.ts",
+      "default": "./src/hover-card/index.ts"
+    },
+    "./select": {
+      "types": "./src/select/index.ts",
+      "default": "./src/select/index.ts"
+    },
+    "./switch": {
+      "types": "./src/switch/index.ts",
+      "default": "./src/switch/index.ts"
+    },
+    "./tabs": {
+      "types": "./src/tabs/index.ts",
+      "default": "./src/tabs/index.ts"
+    },
+    "./toggle": {
+      "types": "./src/toggle/index.ts",
+      "default": "./src/toggle/index.ts"
+    },
+    "./tools": {
+      "types": "./src/tools/index.ts",
+      "default": "./src/tools/index.ts"
+    },
+    "./transition": {
+      "types": "./src/transition/index.ts",
+      "default": "./src/transition/index.ts"
     }
   },
   "description": "Base Proto UI prototype library for reusable interaction prototypes.",

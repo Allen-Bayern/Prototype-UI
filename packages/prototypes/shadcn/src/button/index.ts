@@ -1,4 +1,4 @@
-export { default } from './button.proto';
+export { default, default as shadcnButton } from './button.proto';
 export type {
   ShadcnButtonExposes,
   ShadcnButtonProps,

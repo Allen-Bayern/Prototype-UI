@@ -12,7 +12,7 @@ import type {
   TabsTriggerExposes,
   TabsTriggerProps,
   TabsTriggerStateHandles,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/tabs';
 
 export interface ShadcnTabsRootProps extends TabsRootProps {}
 export type ShadcnTabsRootExposes = TabsRootExposes;

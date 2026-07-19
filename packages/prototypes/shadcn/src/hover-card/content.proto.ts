@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asHoverCardContent } from '@proto.ui/prototypes-base';
+import { asHoverCardContent } from '@proto.ui/prototypes-base/hover-card';
 import type { ShadcnHoverCardContentExposes, ShadcnHoverCardContentProps } from './types';
 
 const hoverCardContent = definePrototype<

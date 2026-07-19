@@ -3,6 +3,11 @@ export { default as selectTrigger } from './trigger.proto';
 export { default as selectValue } from './value.proto';
 export { default as selectContent } from './content.proto';
 export { default as selectItem } from './item.proto';
+export { default as shadcnSelectRoot } from './root.proto';
+export { default as shadcnSelectTrigger } from './trigger.proto';
+export { default as shadcnSelectValue } from './value.proto';
+export { default as shadcnSelectContent } from './content.proto';
+export { default as shadcnSelectItem } from './item.proto';
 
 export type {
   ShadcnSelectRootProps,

@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asSwitchRoot } from '@proto.ui/prototypes-base';
+import { asSwitchRoot } from '@proto.ui/prototypes-base/switch';
 import type { ShadcnSwitchRootExposes, ShadcnSwitchRootProps } from './types';
 
 const ROOT_BASE_TOKENS = [

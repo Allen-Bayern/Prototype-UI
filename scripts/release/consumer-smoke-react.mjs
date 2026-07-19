@@ -66,6 +66,7 @@ try {
     type: 'module',
     scripts: {
       build: 'tsc --noEmit && vite build',
+      'build:button-boundary': 'vite build --config vite.button-boundary.mjs',
       smoke: 'node --import tsx ./smoke.tsx',
     },
     dependencies: {
@@ -95,7 +96,16 @@ try {
   run(process.execPath, [cli, 'init', '--yes', '--no-interactive', '--no-styles'], {
     cwd: consumerDir,
   });
-  for (const component of ['shadcn-button', 'shadcn-switch', 'shadcn-select', 'shadcn-dialog']) {
+  run(
+    process.execPath,
+    [cli, 'add', 'react', 'shadcn-button', '--no-install', '--no-interactive'],
+    {
+      cwd: consumerDir,
+    }
+  );
+  run('npm', ['run', 'build:button-boundary'], { cwd: consumerDir });
+
+  for (const component of ['shadcn-switch', 'shadcn-select', 'shadcn-dialog']) {
     run(process.execPath, [cli, 'add', 'react', component, '--no-install', '--no-interactive'], {
       cwd: consumerDir,
     });

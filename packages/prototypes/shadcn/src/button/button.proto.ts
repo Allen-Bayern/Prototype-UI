@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asButton } from '@proto.ui/prototypes-base';
+import { asButton } from '@proto.ui/prototypes-base/button';
 import type {
   ShadcnButtonExposes,
   ShadcnButtonProps,

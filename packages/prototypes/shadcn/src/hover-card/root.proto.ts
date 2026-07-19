@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asHoverCardRoot } from '@proto.ui/prototypes-base';
+import { asHoverCardRoot } from '@proto.ui/prototypes-base/hover-card';
 import type { ShadcnHoverCardRootExposes, ShadcnHoverCardRootProps } from './types';
 
 const hoverCardRoot = definePrototype<ShadcnHoverCardRootProps, ShadcnHoverCardRootExposes>({

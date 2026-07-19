@@ -5,7 +5,7 @@ import {
   type TemplateChildren,
   tw,
 } from '@proto.ui/core';
-import { asDropdownTrigger } from '@proto.ui/prototypes-base';
+import { asDropdownTrigger } from '@proto.ui/prototypes-base/dropdown';
 import type { ShadcnDropdownTriggerExposes, ShadcnDropdownTriggerProps } from './types';
 
 const TRIGGER_BASE_TOKENS = [

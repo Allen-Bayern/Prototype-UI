@@ -7,7 +7,7 @@ import type {
   SwitchThumbExposes,
   SwitchThumbProps,
   SwitchThumbStateHandles,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/switch';
 
 export interface ShadcnSwitchRootProps extends SwitchRootProps {}
 

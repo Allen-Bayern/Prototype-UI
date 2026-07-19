@@ -87,6 +87,19 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 
 如果某个 package 不在这个名单里，那么它不会因为“存在于 workspace 中”或“技术上可以发布”而自动进入首发承诺面。
 
+### 3.1 组件原型库的消费粒度
+
+对于 Base、Shadcn 这类组件原型库，完整 npm package 是安装、版本与发布单位，anatomy family subpath 是推荐 import 单位。例如，Button 应从 `@proto.ui/prototypes-base/button` 或 `@proto.ui/prototypes-shadcn/button` 消费。
+
+- 根 package export 必须继续兼容已有消费者，但不作为 CLI 生成代码的默认入口。
+- 一个复合 anatomy family 的全部 part 共用同一个 family subpath，不拆成 part 级 package 或 public subpath。
+- Base component family 不应依赖 sibling component family，但可以显式复用 `transition`、`tools`、`behaviors` 等共享能力。
+- Shadcn family 默认只依赖对应的 Base family，不应依赖其他 Shadcn family。
+- CLI 可以安装完整根 package，但生成的 facade 必须使用 family subpath；未来改为把源码写入调用者本地时，应继续复用同一 family 依赖边界。
+- 对不存在 import-time 注册或其他副作用的 prototype library，应声明正确的 `sideEffects` 元数据。
+
+首发 CI 应验证单 family 消费不会把无关 prototype family 带入最终 module graph。Adapter/runtime 的总体 bundle 大小可以记录趋势，但 `v0.2.0-rc.0` 不以固定体积预算作为发布门禁。
+
 ---
 
 ## 4. `v0.2.0-rc.0` 公开但非首发承诺包

@@ -41,5 +41,6 @@
 ## 5）观察与非目标
 
 - 当前示例 production chunk 约为 561 kB、gzip 约为 150 kB，并触发 Vite 默认 chunk-size warning。本轮只记录该信号，不把未经拆分的单页 fixture bundle 直接解释为稳定的 package 成本；后续真实项目试用需要继续检查 tree-shaking 和按需加载。
+- 2026-07-19 follow-up 已建立 Base/Shadcn family subpath 与 Button-only module-graph 门禁；详见 `internal/records/2026-07-19-prototype-family-import-boundary.zh-CN.md`。
 - happy-dom smoke 不是完整浏览器、视觉回归或辅助技术测试，不能替代真实浏览器中的焦点、Portal、CSS 和 reduced-motion 验证。
 - 本轮只建立 React 模板。Vue 与原生 Web Component 应复用相同的 tarball manifest、registry 泄漏检查和隔离安装规则，分别增加自己的 build/runtime 断言。

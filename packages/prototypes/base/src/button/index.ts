@@ -1,5 +1,5 @@
 export { asButton } from './button.proto';
-export { default } from './button.proto';
+export { default, default as button } from './button.proto';
 export type {
   ButtonProps,
   ButtonExposes,

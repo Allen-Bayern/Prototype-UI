@@ -19,7 +19,7 @@ import type {
   DialogTriggerAsHookContract,
   DialogTriggerExposes,
   DialogTriggerProps,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/dialog';
 
 export type ShadcnDialogRootProps = DialogRootProps;
 export type ShadcnDialogRootExposes = DialogRootExposes;

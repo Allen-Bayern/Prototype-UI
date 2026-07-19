@@ -3,7 +3,7 @@ import type {
   ToggleExposes,
   ToggleProps,
   ToggleStateHandles,
-} from '@proto.ui/prototypes-base';
+} from '@proto.ui/prototypes-base/toggle';
 
 export interface ShadcnToggleProps extends ToggleProps {
   variant?: 'default' | 'outline';

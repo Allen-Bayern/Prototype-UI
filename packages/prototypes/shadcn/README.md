@@ -22,14 +22,28 @@ Prototype library package intended to be consumed together with Proto UI adapter
 ## Install
 
 ```bash
-npm install @proto.ui/prototypes-shadcn@0.0.1
+npm install @proto.ui/prototypes-shadcn@0.2.0-rc.0
 ```
+
+## Family Imports
+
+Prefer anatomy-family subpaths so only the selected Shadcn family and its corresponding Base family enter the prototype module graph:
+
+```ts
+import { shadcnButton } from '@proto.ui/prototypes-shadcn/button';
+import { shadcnSelectRoot, shadcnSelectTrigger } from '@proto.ui/prototypes-shadcn/select';
+```
+
+The root package export remains available for compatibility. Shadcn families do not depend on sibling Shadcn families.
 
 ## Internal Structure
 
 - `src/button/`
+- `src/dialog/`
+- `src/dropdown/`
 - `src/hover-card/`
 - `src/index.ts`
+- `src/select/`
 - `src/switch/`
 - `src/tabs/`
 - `src/toggle/`

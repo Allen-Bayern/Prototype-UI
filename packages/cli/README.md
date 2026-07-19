@@ -54,4 +54,6 @@ proto-ui theme shadcn --out ./src/styles/shadcn-theme.css
 
 The v0 CLI installs Proto UI adapter/prototype packages through the project package manager and generates local component facade files.
 
+Prototype packages remain the installation and versioning unit. Generated facades import the selected anatomy family through a package subpath such as `@proto.ui/prototypes-shadcn/button`, so unrelated prototype families do not enter the consumer module graph.
+
 It does not yet vendor styled prototype source into the user project. That remains a planned follow-up path for editable styled libraries such as shadcn.

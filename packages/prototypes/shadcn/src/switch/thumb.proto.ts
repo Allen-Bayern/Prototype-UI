@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asSwitchThumb } from '@proto.ui/prototypes-base';
+import { asSwitchThumb } from '@proto.ui/prototypes-base/switch';
 import type { ShadcnSwitchThumbExposes, ShadcnSwitchThumbProps } from './types';
 
 const THUMB_TOKENS = [

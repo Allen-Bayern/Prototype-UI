@@ -1,5 +1,5 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asDropdownContent } from '@proto.ui/prototypes-base';
+import { asDropdownContent } from '@proto.ui/prototypes-base/dropdown';
 import type { ShadcnDropdownContentExposes, ShadcnDropdownContentProps } from './types';
 
 const dropdownContent = definePrototype<ShadcnDropdownContentProps, ShadcnDropdownContentExposes>({

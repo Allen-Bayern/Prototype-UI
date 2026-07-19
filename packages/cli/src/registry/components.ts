@@ -10,6 +10,7 @@ export interface ComponentEntry {
   id: string;
   label: string;
   packageName: string;
+  importPath: string;
   stylePreset: string | null;
   items: ComponentItem[];
 }
@@ -18,6 +19,7 @@ function defineSimple(
   id: string,
   label: string,
   packageName: string,
+  importPath: string,
   prototypeImport: string,
   exportBaseName: string,
   options: { stylePreset?: string | null; elementName?: string } = {}
@@ -26,6 +28,7 @@ function defineSimple(
     id,
     label,
     packageName,
+    importPath,
     stylePreset: options.stylePreset ?? null,
     items: [
       createItem({
@@ -41,6 +44,7 @@ function defineCompound(
   id: string,
   label: string,
   packageName: string,
+  importPath: string,
   parts: { prototypeImport: string; exportBaseName: string; elementName: string }[],
   options: { stylePreset?: string | null } = {}
 ): ComponentEntry {
@@ -48,6 +52,7 @@ function defineCompound(
     id,
     label,
     packageName,
+    importPath,
     stylePreset: options.stylePreset ?? null,
     items: parts.map((part) =>
       createItem({
@@ -78,27 +83,52 @@ function createItem({
 }
 
 const shadcn = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
-  defineSimple(id, label, '@proto.ui/prototypes-shadcn', prototypeImport, exportBaseName, {
-    stylePreset: 'shadcn',
-  });
+  defineSimple(
+    id,
+    label,
+    '@proto.ui/prototypes-shadcn',
+    `@proto.ui/prototypes-shadcn/${id.slice('shadcn-'.length)}`,
+    prototypeImport,
+    exportBaseName,
+    { stylePreset: 'shadcn' }
+  );
 
 const shadcnCompound = (
   id: string,
   label: string,
   parts: { prototypeImport: string; exportBaseName: string; elementName: string }[]
 ) =>
-  defineCompound(id, label, '@proto.ui/prototypes-shadcn', parts, {
-    stylePreset: 'shadcn',
-  });
+  defineCompound(
+    id,
+    label,
+    '@proto.ui/prototypes-shadcn',
+    `@proto.ui/prototypes-shadcn/${id.slice('shadcn-'.length)}`,
+    parts,
+    { stylePreset: 'shadcn' }
+  );
 
 const base = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
-  defineSimple(id, label, '@proto.ui/prototypes-base', prototypeImport, exportBaseName);
+  defineSimple(
+    id,
+    label,
+    '@proto.ui/prototypes-base',
+    `@proto.ui/prototypes-base/${id.slice('base-'.length)}`,
+    prototypeImport,
+    exportBaseName
+  );
 
 const baseCompound = (
   id: string,
   label: string,
   parts: { prototypeImport: string; exportBaseName: string; elementName: string }[]
-) => defineCompound(id, label, '@proto.ui/prototypes-base', parts);
+) =>
+  defineCompound(
+    id,
+    label,
+    '@proto.ui/prototypes-base',
+    `@proto.ui/prototypes-base/${id.slice('base-'.length)}`,
+    parts
+  );
 
 export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
   'shadcn-button': shadcn('shadcn-button', 'shadcn Button', 'shadcnButton', 'ShadcnButton'),
