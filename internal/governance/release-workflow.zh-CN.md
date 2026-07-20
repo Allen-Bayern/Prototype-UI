@@ -52,6 +52,8 @@
 
 普通 package 局部修复不会使用 `publish-single`。它进入下一次全局 release train。
 
+每条 release train 在 `internal/releases/<version>/` 下维护 `release-notes.md`、对应中文投射与确定性的 `package-bom.json`。`pnpm release:bom` 根据公开 workspace package 图和 launch governance 角色重新生成 BOM；`pnpm release:assets:check` 会在已评审 BOM 漂移或任一 release note 缺失时失败。英文说明作为 GitHub Release 正文，BOM、中文说明、spec snapshot 与 checksum 作为 release evidence 附件。
+
 ## 4. 发布流程
 
 真实发布只允许从 `main` 手动触发，并由 GitHub `npm` environment 审批保护。
@@ -83,11 +85,14 @@
 ## 6. 必须通过的检查
 
 - `pnpm check:release-version`
+- `pnpm release:assets:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage`
 - spec workspace 0 issue
 - 全仓类型与测试
 - 当前源码 tarball consumer smoke
 - Quick Start 与实际安装命令一致
+
+`pnpm release:rehearse` 是不发布的一键准备门禁。它会依次执行发行身份与物料检查、编目和测试、类型检查、临时 spec snapshot、launch scan、package publish dry-run、React 与 CLI 多宿主 tarball consumer smoke，以及官网构建。该命令可能因 dry-run 或临时 consumer 安装访问 npm registry，但绝不会进入真实 publish 路径。
 
 纯文档或内部 app 的变化可以不立即触发 release；但一旦创建新的数字版本或修改 `VERSION`，就必须通过上述 release train 流程。

@@ -52,6 +52,8 @@ The main Quick Start always follows npm `latest` and must not silently switch or
 
 Package-local fixes do not use `publish-single`; they enter the next global release train.
 
+Each release train owns `internal/releases/<version>/release-notes.md`, its Chinese projection, and a deterministic `package-bom.json`. `pnpm release:bom` regenerates the BOM from the public workspace package graph and launch-governance roles; `pnpm release:assets:check` fails when the reviewed BOM drifts or either release note is absent. The English note becomes the GitHub Release body, while the BOM, Chinese note, spec snapshot, and checksum are attached as release evidence.
+
 ## 4. Publication
 
 Real publication is manually triggered from `main` and protected by the GitHub `npm` environment approval.
@@ -83,11 +85,14 @@ Historical `0.1.x` package versions are fragmented releases from before global l
 ## 6. Required Checks
 
 - `pnpm check:release-version`
+- `pnpm release:assets:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage`
 - zero spec workspace issues
 - repository types and tests
 - current-source tarball consumer smoke
 - Quick Start commands matching the verified install path
+
+`pnpm release:rehearse` is the non-publishing, one-command preparation gate. It runs the identity and asset checks, catalog and test suites, type checks, a temporary spec snapshot, launch scan, package publish dry-run, React and multi-host CLI tarball consumer smokes, and the documentation build. It may access the npm registry for dry-run or temporary consumer dependency installation, but it never invokes the real publish path.
 
 Docs-only or private-app changes do not need to publish immediately. Creating a new numeric version or changing `VERSION`, however, must enter this release-train workflow.
