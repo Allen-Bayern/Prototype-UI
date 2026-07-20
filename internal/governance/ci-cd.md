@@ -44,6 +44,7 @@ The workflow does not accept ad hoc `version`, `tag`, or `only` inputs. Version 
 - `publish-all` is allowed only on `main`.
 - `publish-all` requires the `workspace` profile; `launch` is for product-scope audit and rehearsal only.
 - Real publication is protected by the GitHub `npm` environment and npm Trusted Publishing through OIDC.
+- `stage` and `publish-all` fail before package staging unless every public package identity is already readable from the npm registry. The check cannot inspect private Trusted Publisher settings, which remain a maintainer responsibility.
 - Concurrency prevents overlapping release runs for the same ref.
 - The workflow creates `v<version>` only after every public package publishes successfully.
 
@@ -61,16 +62,18 @@ These tiers do not control the real npm publish set. Global exact-version govern
 
 1. Create or update the draft V entity and align `VERSION` plus package manifests in one PR.
 2. Regenerate and review the release BOM and notes, then run `pnpm release:assets:check`.
-3. Run `pnpm release:rehearse` for the complete sequential non-publishing gate. CI keeps the same checks split into parallel jobs for feedback speed.
-4. Review the launch product scope and isolated React plus multi-host CLI tarball consumer results.
-5. After merge to `main`, run `publish-all` with the `workspace` profile.
-6. Verify the GitHub release/spec-snapshot evidence and promote the V entity to `active` in a follow-up PR.
+3. For every newly named public package, publish a clearly non-release bootstrap version and configure its Trusted Publisher before the release rehearsal.
+4. Run `pnpm release:rehearse` for the complete sequential non-publishing gate. CI keeps the same checks split into parallel jobs for feedback speed.
+5. Review the launch product scope and isolated React plus multi-host CLI tarball consumer results.
+6. After merge to `main`, run `publish-all` with the `workspace` profile.
+7. Verify the GitHub release/spec-snapshot evidence and promote the V entity to `active` in a follow-up PR.
 
 ## Local Shortcuts
 
 - `pnpm check:release-version`
 - `pnpm release:bom`
 - `pnpm release:assets:check`
+- `pnpm release:registry:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`

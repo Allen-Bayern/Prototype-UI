@@ -44,6 +44,7 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 - `publish-all` 仅允许在 `main` 上运行。
 - `publish-all` 必须使用 `workspace` profile；`launch` 只用于产品范围审计和彩排。
 - 真实发布由 GitHub `npm` environment 审批与 npm Trusted Publishing OIDC 保护。
+- `stage` 与 `publish-all` 在 package 暂存前检查全部公开 package identity 均已可从 npm registry 读取；该检查无法读取私有的 Trusted Publisher 设置，后者仍由维护者负责核对。
 - 同一 ref 上启用并发互斥，避免重叠发布任务。
 - 全部公开 package 发布成功后才创建 `v<version>` tag。
 
@@ -61,16 +62,18 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 
 1. 创建或更新 draft V 实体，并在 PR 中统一 `VERSION` 与 package manifests。
 2. 重新生成并评审 release BOM 与说明，然后运行 `pnpm release:assets:check`。
-3. 运行 `pnpm release:rehearse`，完成整套顺序执行的不发布门禁。CI 为了缩短反馈时间，仍将同一组检查拆成并行 job。
-4. 审阅 launch 产品范围，以及隔离 React 与 CLI 多宿主 tarball consumer 结果。
-5. 合入 `main` 后，用 `workspace` profile 运行 `publish-all`。
-6. 发布成功后核对 GitHub release/spec snapshot 证据，再通过后续 PR 将 V 实体转为 `active`。
+3. 对每个首次出现的公开 package 名称，先发布明确不属于正式发行的 bootstrap 版本，并配置 Trusted Publisher。
+4. 运行 `pnpm release:rehearse`，完成整套顺序执行的不发布门禁。CI 为了缩短反馈时间，仍将同一组检查拆成并行 job。
+5. 审阅 launch 产品范围，以及隔离 React 与 CLI 多宿主 tarball consumer 结果。
+6. 合入 `main` 后，用 `workspace` profile 运行 `publish-all`。
+7. 发布成功后核对 GitHub release/spec snapshot 证据，再通过后续 PR 将 V 实体转为 `active`。
 
 ## 本地快捷命令
 
 - `pnpm check:release-version`
 - `pnpm release:bom`
 - `pnpm release:assets:check`
+- `pnpm release:registry:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`

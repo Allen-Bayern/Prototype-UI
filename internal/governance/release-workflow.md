@@ -54,9 +54,13 @@ Package-local fixes do not use `publish-single`; they enter the next global rele
 
 Each release train owns `internal/releases/<version>/release-notes.md`, its Chinese projection, and a deterministic `package-bom.json`. `pnpm release:bom` regenerates the BOM from the public workspace package graph and launch-governance roles; `pnpm release:assets:check` fails when the reviewed BOM drifts or either release note is absent. The English note becomes the GitHub Release body, while the BOM, Chinese note, spec snapshot, and checksum are attached as release evidence.
 
+npm Trusted Publisher configuration is package-scoped and therefore cannot be attached before a package identity exists. Every newly named public package must be created before the release train with a clearly non-release bootstrap version, configured for the reviewed release workflow, and kept out of `latest` and release-channel dist-tags. `pnpm release:registry:check` proves that every identity is publicly readable; it does not claim to inspect the private Trusted Publisher configuration.
+
 ## 4. Publication
 
 Real publication is manually triggered from `main` and protected by the GitHub `npm` environment approval.
+
+Both `stage` and `publish-all` run the registry-identity preflight before any package is staged or published. A missing identity aborts the run with the complete missing-package list, preventing an avoidable partial publication.
 
 The workflow:
 

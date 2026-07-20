@@ -32,6 +32,7 @@
     "release:sync-metadata": "node scripts/release/sync-metadata.mjs",
     "release:bom": "node scripts/release/check-release-assets.mjs --write",
     "release:assets:check": "node scripts/release/check-release-assets.mjs --check",
+    "release:registry:check": "node scripts/release/check-registry-readiness.mjs",
     "release:rehearse": "node scripts/release/rehearse.mjs",
     "release:stage": "node scripts/release/publish.mjs --dry-run",
     "release:stage:launch": "node scripts/release/publish.mjs --dry-run --profile launch --check-governance",
