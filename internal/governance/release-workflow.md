@@ -48,6 +48,8 @@ A V entity becomes `active` only after npm packages, the Git tag, and the spec s
 5. Run version governance, spec, types, tests, release scan, and tarball consumer smoke.
 6. Merge through pull request review.
 
+The main Quick Start always follows npm `latest` and must not silently switch ordinary users to a prerelease. A separate prerelease trial page must pin the exact V-entity version for reproducible verification; `@next` may remain a convenience channel but is not the recorded test identity. When the CLI installs Adapter and Prototype packages, it must pin each package spec to the CLI's own exact version and save an exact dependency in the consumer manifest. An unversioned `latest` resolution or an automatically widening semver range must not mix another release train into the project.
+
 Package-local fixes do not use `publish-single`; they enter the next global release train.
 
 ## 4. Publication

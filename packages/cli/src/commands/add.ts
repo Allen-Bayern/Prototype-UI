@@ -9,6 +9,7 @@ import {
   hasPackage,
   installPackages,
   readProjectPackageJson,
+  toExactProtoUiInstallSpec,
 } from '../services/package-manager.js';
 import { ensureRuntimePackages } from '../services/runtime-check.js';
 import { isInteractiveDisabled, parseArgv } from '../utils/args.js';
@@ -70,14 +71,17 @@ export async function runAddCommand(argv: string[]): Promise<void> {
     (pkg, index, list) => list.indexOf(pkg) === index
   );
   const missingPackages = requiredPackages.filter((pkg) => !hasPackage(projectPkg, pkg));
+  const missingInstallSpecs = missingPackages.map((pkg) => toExactProtoUiInstallSpec(pkg));
 
   if (!noInstall && missingPackages.length > 0) {
-    installPackages(packageManager, cwd, missingPackages);
-    console.log(`[proto-ui] add: installed ${missingPackages.join(', ')} via ${packageManager}`);
+    installPackages(packageManager, cwd, missingInstallSpecs, { exact: true });
+    console.log(
+      `[proto-ui] add: installed ${missingInstallSpecs.join(', ')} via ${packageManager}`
+    );
   } else if (noInstall && missingPackages.length > 0) {
     console.log('[proto-ui] add: required Proto UI packages are not installed yet:');
-    for (const pkg of missingPackages) {
-      console.log(`  ${formatInstallCommand(packageManager, [pkg])}`);
+    for (const spec of missingInstallSpecs) {
+      console.log(`  ${formatInstallCommand(packageManager, [spec], { exact: true })}`);
     }
   }
 

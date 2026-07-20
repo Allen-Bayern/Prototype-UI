@@ -48,6 +48,8 @@
 5. 运行版本治理、spec、类型、测试、release scan 和 tarball consumer smoke。
 6. 通过 PR 评审后合入 `main`。
 
+官网主 Quick Start 始终跟随 npm `latest`，不得把普通使用者静默切换到预发布版本。独立的 prerelease trial 页面必须固定到 V 实体声明的精确版本，以便复现验证；`@next` 可以作为便利 channel，但不是试用记录的版本身份。CLI 在安装 Adapter 与 Prototype package 时，必须把 package spec 固定为 CLI 自身的精确版本并以 exact dependency 写入 consumer manifest；不得让未标注版本的 `latest` 或自动扩张的 semver range 混入其他 release train。
+
 普通 package 局部修复不会使用 `publish-single`。它进入下一次全局 release train。
 
 ## 4. 发布流程
