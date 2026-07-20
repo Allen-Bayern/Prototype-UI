@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
@@ -11,8 +11,12 @@ import { COMPONENT_REGISTRY } from '../src/registry/components';
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const CLI_DIR = path.resolve(TEST_DIR, '..');
 const BIN_PATH = path.join(CLI_DIR, 'bin/proto-ui.js');
+let cliVersion = '';
 
-beforeAll(() => {
+beforeAll(async () => {
+  const manifest = JSON.parse(await fs.readFile(path.join(CLI_DIR, 'package.json'), 'utf8'));
+  cliVersion = manifest.version;
+
   // bin/proto-ui.js imports ../dist/index.js, so the cli must be compiled
   // before any spawnSync call below. building unconditionally here keeps
   // the test hermetic — `pnpm -s test` from the repo root works even when
@@ -48,6 +52,40 @@ async function createTempProject(name: string, packageJson: Record<string, unkno
 }
 
 describe('@proto.ui/cli', () => {
+  it('pins official packages to the exact built CLI release train', () => {
+    const moduleUrl = pathToFileURL(
+      path.join(CLI_DIR, 'dist', 'services', 'package-manager.js')
+    ).href;
+    const script = `
+      import {
+        CLI_RELEASE_VERSION,
+        formatInstallCommand,
+        toExactProtoUiInstallSpec,
+      } from ${JSON.stringify(moduleUrl)};
+      console.log(JSON.stringify({
+        version: CLI_RELEASE_VERSION,
+        proto: toExactProtoUiInstallSpec('@proto.ui/adapter-react'),
+        external: toExactProtoUiInstallSpec('react'),
+        npm: formatInstallCommand('npm', ['@proto.ui/adapter-react@${cliVersion}'], { exact: true }),
+        pnpm: formatInstallCommand('pnpm', ['@proto.ui/adapter-react@${cliVersion}'], { exact: true }),
+        yarn: formatInstallCommand('yarn', ['@proto.ui/adapter-react@${cliVersion}'], { exact: true }),
+      }));
+    `;
+    const result = spawnSync('node', ['--input-type=module', '--eval', script], {
+      encoding: 'utf8',
+    });
+
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      version: cliVersion,
+      proto: `@proto.ui/adapter-react@${cliVersion}`,
+      external: 'react',
+      npm: `npm install --save --save-exact @proto.ui/adapter-react@${cliVersion}`,
+      pnpm: `pnpm add --save-exact @proto.ui/adapter-react@${cliVersion}`,
+      yarn: `yarn add --exact @proto.ui/adapter-react@${cliVersion}`,
+    });
+  });
+
   it('keeps installation packages separate from family import paths', () => {
     for (const entry of Object.values(COMPONENT_REGISTRY)) {
       expect(entry.importPath).toBe(
@@ -174,8 +212,8 @@ describe('@proto.ui/cli', () => {
     const result = runCli(cwd, ['add', 'react', 'shadcn-button', '--no-install']);
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('@proto.ui/adapter-react');
-    expect(result.stdout).toContain('@proto.ui/prototypes-shadcn');
+    expect(result.stdout).toContain(`@proto.ui/adapter-react@${cliVersion}`);
+    expect(result.stdout).toContain(`@proto.ui/prototypes-shadcn@${cliVersion}`);
 
     const reactIndex = await fs.readFile(
       path.join(cwd, 'proto-ui/components/react/index.ts'),

@@ -60,18 +60,22 @@ These tiers do not control the real npm publish set. Global exact-version govern
 ## Suggested Release Runbook
 
 1. Create or update the draft V entity and align `VERSION` plus package manifests in one PR.
-2. Run `pnpm check:release-version` and `pnpm release:scan:launch`; review the launch product scope.
-3. Run `pnpm release:stage` to rehearse the final tarballs for every public package.
-4. Run `pnpm release:smoke:react` to verify that an isolated React + Vite project can consume the exact tarballs.
+2. Regenerate and review the release BOM and notes, then run `pnpm release:assets:check`.
+3. Run `pnpm release:rehearse` for the complete sequential non-publishing gate. CI keeps the same checks split into parallel jobs for feedback speed.
+4. Review the launch product scope and isolated React plus multi-host CLI tarball consumer results.
 5. After merge to `main`, run `publish-all` with the `workspace` profile.
 6. Verify the GitHub release/spec-snapshot evidence and promote the V entity to `active` in a follow-up PR.
 
 ## Local Shortcuts
 
 - `pnpm check:release-version`
+- `pnpm release:bom`
+- `pnpm release:assets:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`
 - `pnpm release:smoke:react`
+- `pnpm release:smoke:cli`
+- `pnpm release:rehearse`
 
 There is no package-local real-publish shortcut. Package-local fixes enter the next global release train.

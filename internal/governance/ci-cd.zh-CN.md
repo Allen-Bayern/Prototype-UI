@@ -60,18 +60,22 @@ CI 在 pull request、`main` push 和手动触发时运行。除常规类型与�
 ## 建议发版流程
 
 1. 创建或更新 draft V 实体，并在 PR 中统一 `VERSION` 与 package manifests。
-2. 运行 `pnpm check:release-version` 与 `pnpm release:scan:launch`，审阅首发产品范围。
-3. 运行 `pnpm release:stage`，彩排全部公开 package 的最终 tarball。
-4. 运行 `pnpm release:smoke:react`，验证精确 tarball 能被隔离 React + Vite 项目消费。
+2. 重新生成并评审 release BOM 与说明，然后运行 `pnpm release:assets:check`。
+3. 运行 `pnpm release:rehearse`，完成整套顺序执行的不发布门禁。CI 为了缩短反馈时间，仍将同一组检查拆成并行 job。
+4. 审阅 launch 产品范围，以及隔离 React 与 CLI 多宿主 tarball consumer 结果。
 5. 合入 `main` 后，用 `workspace` profile 运行 `publish-all`。
 6. 发布成功后核对 GitHub release/spec snapshot 证据，再通过后续 PR 将 V 实体转为 `active`。
 
 ## 本地快捷命令
 
 - `pnpm check:release-version`
+- `pnpm release:bom`
+- `pnpm release:assets:check`
 - `pnpm release:scan:launch`
 - `pnpm release:stage:launch`
 - `pnpm release:stage`
 - `pnpm release:smoke:react`
+- `pnpm release:smoke:cli`
+- `pnpm release:rehearse`
 
 仓库不提供局部真实发布快捷命令；package 局部修复进入下一次全局 release train。

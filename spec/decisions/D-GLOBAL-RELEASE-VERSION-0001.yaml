@@ -24,10 +24,18 @@ criteria:
     text:
       en: Equal release versions are a necessary compatibility precondition, while full Prototype and Adapter compatibility still requires conformance evidence.
       zh-CN: 相同 release version 是兼容性的必要前提；Prototype 与 Adapter 的完全兼容仍需 conformance 证据。
+  - id: D-GLOBAL-RELEASE-VERSION-0001-CLI-INSTALL
+    text:
+      en: The official CLI must install required public Proto UI packages from its own exact release version rather than allowing npm dist-tags or semver ranges to mix release trains.
+      zh-CN: 官方 CLI 必须按自身精确 release version 安装所需的公开 Proto UI package，不得让 npm dist-tag 或 semver range 混合不同 release train。
 openQuestions: []
 sources:
+  - path: internal/governance/versioning-policy.md
   - path: internal/governance/versioning-policy.zh-CN.md
+  - path: internal/governance/release-workflow.md
   - path: internal/governance/release-workflow.zh-CN.md
+  - path: packages/cli/src/commands/add.ts
+  - path: packages/cli/src/services/package-manager.ts
 revisions:
   - version: 0.2.0-rc.0
     change: introduced
