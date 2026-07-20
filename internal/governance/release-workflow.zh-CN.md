@@ -54,9 +54,13 @@
 
 每条 release train 在 `internal/releases/<version>/` 下维护 `release-notes.md`、对应中文投射与确定性的 `package-bom.json`。`pnpm release:bom` 根据公开 workspace package 图和 launch governance 角色重新生成 BOM；`pnpm release:assets:check` 会在已评审 BOM 漂移或任一 release note 缺失时失败。英文说明作为 GitHub Release 正文，BOM、中文说明、spec snapshot 与 checksum 作为 release evidence 附件。
 
+npm Trusted Publisher 是 package 级配置，因此 package identity 不存在时无法预先绑定。每个首次出现的公开 package 都必须在 release train 前使用明确不属于正式发行的 bootstrap 版本完成创建，绑定到已评审的发布 workflow，并且不得占据 `latest` 或发行 channel dist-tag。`pnpm release:registry:check` 只证明所有 identity 已可公开读取，不宣称能够检查私有的 Trusted Publisher 配置。
+
 ## 4. 发布流程
 
 真实发布只允许从 `main` 手动触发，并由 GitHub `npm` environment 审批保护。
+
+`stage` 与 `publish-all` 都会在任何 package 暂存或发布前运行 registry identity preflight。任一 identity 缺失都会一次性列出全部缺口并中止，避免形成可预防的部分发布。
 
 发布 workflow：
 

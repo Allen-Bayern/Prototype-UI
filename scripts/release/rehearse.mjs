@@ -31,6 +31,11 @@ const steps = [
     process.execPath,
     ['scripts/release/scan.mjs', '--profile', 'launch', '--check-governance'],
   ],
+  [
+    'Registry package identities',
+    process.execPath,
+    ['scripts/release/check-registry-readiness.mjs'],
+  ],
   ['Package publish dry-run', 'corepack', [packageManager, '-s', 'release:stage']],
   ['React tarball consumer', 'corepack', [packageManager, '-s', 'release:smoke:react']],
   ['CLI multi-host tarball consumer', 'corepack', [packageManager, '-s', 'release:smoke:cli']],

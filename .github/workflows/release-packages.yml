@@ -162,6 +162,10 @@ jobs:
       - name: Validate reviewed release notes and package BOM
         run: node scripts/release/check-release-assets.mjs --check
 
+      - name: Validate npm package identities
+        if: ${{ inputs.mode == 'stage' || inputs.mode == 'publish-all' }}
+        run: node scripts/release/check-registry-readiness.mjs
+
       - name: Generate deterministic spec release snapshot
         if: ${{ inputs.mode == 'publish-all' }}
         run: |
