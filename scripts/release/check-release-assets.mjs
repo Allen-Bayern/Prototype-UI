@@ -16,7 +16,8 @@ const notePaths = [
   join(releaseDir, 'release-notes.md'),
   join(releaseDir, 'release-notes.zh-CN.md'),
 ];
-const expectedBom = createBom();
+const selectedPackages = topoSortPackages(selectPackages(getAllPackages()));
+const expectedBom = createBom(selectedPackages);
 const prettierConfig = (await resolveConfig(bomPath)) ?? {};
 const expectedContents = await format(JSON.stringify(expectedBom), {
   ...prettierConfig,
@@ -48,6 +49,42 @@ for (const notePath of notePaths) {
   }
 }
 
+const requiredAttribution = new Map([
+  ['@proto.ui/prototypes-lucide', ['Lucide Icons and Contributors', 'Cole Bemis']],
+  ['@proto.ui/prototypes-shadcn', ['Copyright (c) 2023 shadcn']],
+]);
+const packagesByName = new Map(selectedPackages.map((pkg) => [pkg.name, pkg]));
+for (const [packageName, requiredMarkers] of requiredAttribution) {
+  const pkg = packagesByName.get(packageName);
+  if (!pkg) {
+    violations.push(`missing attributed release package: ${packageName}`);
+    continue;
+  }
+
+  const noticeFiles = pkg.manifest.protoUi?.release?.thirdPartyNotices;
+  if (!Array.isArray(noticeFiles) || noticeFiles.length === 0) {
+    violations.push(`${packageName} must declare protoUi.release.thirdPartyNotices`);
+    continue;
+  }
+
+  const noticeContents = [];
+  for (const noticeFile of noticeFiles) {
+    const noticePath = join(pkg.dir, noticeFile);
+    if (!existsSync(noticePath)) {
+      violations.push(`${packageName} declares missing third-party notice: ${noticeFile}`);
+      continue;
+    }
+    noticeContents.push(readFileSync(noticePath, 'utf8'));
+  }
+
+  const combinedNotice = noticeContents.join('\n');
+  for (const marker of requiredMarkers) {
+    if (!combinedNotice.includes(marker)) {
+      violations.push(`${packageName} third-party notice is missing attribution: ${marker}`);
+    }
+  }
+}
+
 if (violations.length > 0) {
   console.error(`check-release-assets: ${violations.length} violation(s)`);
   for (const violation of violations) console.error(`- ${violation}`);
@@ -58,9 +95,8 @@ console.log(
   `check-release-assets: ${version.raw}, ${expectedBom.packageCount} packages, release notes present`
 );
 
-function createBom() {
+function createBom(selected) {
   const governance = loadLaunchPackageGovernance();
-  const selected = topoSortPackages(selectPackages(getAllPackages()));
   const releaseRoles = new Map();
 
   register(governance.launchCommitmentPackages, 'launch-commitment');

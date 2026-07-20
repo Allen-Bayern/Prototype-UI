@@ -65,7 +65,7 @@ export default defineConfig({
           attrs: { name: 'theme-color', content: '#0a0a0a', media: '(prefers-color-scheme: dark)' },
         },
       ],
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/Proto-UI/Proto-UI' }],
       sidebar: [
         {
           label: 'Start Here',

@@ -5,7 +5,7 @@ description: 'The current scope, expectations, and stage of Proto UI'
 
 # Current Status
 
-Proto UI is currently in its pre-release stage (v0). The CLI availability and first public launch are both currently targeted for **May 14, 2026**.
+Proto UI is currently in its pre-release stage (v0) and is closing the **0.2** release line. Stable onboarding always follows the npm `latest` channel, while release-candidate validation uses the exact version documented in the [0.2 RC Trial](/en/start-here/rc-trial/) so that test results remain reproducible.
 
 At this stage, the priority is not to expand surface-level features as quickly as possible, but to first clarify the core semantics between prototypes, adapters, and runtimes, and to verify whether this system can be translated and implemented consistently across different hosts.
 
