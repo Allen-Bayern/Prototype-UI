@@ -3,6 +3,13 @@
   "version": "0.2.0-rc.0",
   "private": false,
   "type": "module",
+  "protoUi": {
+    "release": {
+      "thirdPartyNotices": [
+        "THIRD_PARTY_NOTICES.md"
+      ]
+    }
+  },
   "dependencies": {
     "@proto.ui/core": "workspace:*",
     "lucide-static": "^1.8.0"

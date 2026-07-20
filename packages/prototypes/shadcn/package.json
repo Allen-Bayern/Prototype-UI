@@ -4,6 +4,13 @@
   "private": false,
   "type": "module",
   "sideEffects": false,
+  "protoUi": {
+    "release": {
+      "thirdPartyNotices": [
+        "THIRD_PARTY_NOTICES.md"
+      ]
+    }
+  },
   "dependencies": {
     "@proto.ui/core": "workspace:*",
     "@proto.ui/prototypes-base": "workspace:*"

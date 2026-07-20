@@ -1,7 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
-import { createPublishManifest, parseArgs } from '../lib.mjs';
+import { createPublishManifest, parseArgs, writeSupportingFiles } from '../lib.mjs';
 
 test('partial recovery is an explicit release argument', () => {
   assert.equal(parseArgs([]).resumePublished, false);
@@ -63,4 +66,42 @@ test('workspace dependencies use exact package versions in published manifests',
     types: './dist/button/index.d.ts',
     default: './dist/button/index.js',
   });
+});
+
+test('declared package-local third-party notices enter the published tarball', (t) => {
+  const packageDir = mkdtempSync(join(tmpdir(), 'proto-ui-notice-package-'));
+  const stageDir = mkdtempSync(join(tmpdir(), 'proto-ui-notice-stage-'));
+  t.after(() => {
+    rmSync(packageDir, { recursive: true, force: true });
+    rmSync(stageDir, { recursive: true, force: true });
+  });
+
+  const noticeFile = 'THIRD_PARTY_NOTICES.md';
+  const noticeContents = '# Third-Party Notices\n\nUpstream notice.\n';
+  const readmePath = join(packageDir, 'README.md');
+  writeFileSync(readmePath, '# Fixture package\n');
+  writeFileSync(join(packageDir, noticeFile), noticeContents);
+  mkdirSync(join(stageDir, 'dist'));
+
+  const pkg = {
+    dir: packageDir,
+    localReadme: readmePath,
+    name: '@proto.ui/fixture',
+    version: '0.2.0-rc.0',
+    manifest: {
+      name: '@proto.ui/fixture',
+      version: '0.2.0-rc.0',
+      protoUi: {
+        release: {
+          thirdPartyNotices: [noticeFile],
+        },
+      },
+    },
+  };
+
+  const manifest = createPublishManifest(pkg, { access: 'public' });
+  assert.deepEqual(manifest.files, ['dist', 'README.md', 'LICENSE', noticeFile]);
+
+  writeSupportingFiles(pkg, stageDir);
+  assert.equal(readFileSync(join(stageDir, noticeFile), 'utf8'), noticeContents);
 });

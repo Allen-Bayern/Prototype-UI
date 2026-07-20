@@ -25,7 +25,7 @@ Prototype-oriented icon utilities for Proto UI render templates.
 ## Install
 
 ```bash
-npm install @proto.ui/prototypes-lucide@0.0.1
+npm install @proto.ui/prototypes-lucide@0.2.0-rc.0
 ```
 
 ## Internal Structure
@@ -80,4 +80,4 @@ The generator formats every emitted TypeScript file with the repository Prettier
 
 ## License
 
-The Proto UI integration code is MIT-licensed. Generated icon definitions are derived from `lucide-static` and retain the upstream Lucide/Feather notices. The current upstream package declares ISC and includes an additional MIT notice for Feather-derived icons. Do not interpret the Proto UI package license field as replacing those upstream notices.
+The Proto UI integration code is MIT-licensed. Generated icon definitions are derived from `lucide-static` and retain the upstream Lucide/Feather notices in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). The current upstream package declares ISC and includes an additional MIT notice for Feather-derived icons. Do not interpret the Proto UI package license field as replacing those upstream notices.

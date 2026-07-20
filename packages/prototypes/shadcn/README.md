@@ -55,4 +55,4 @@ The root package export remains available for compatibility. Shadcn families do 
 
 ## License
 
-MIT
+The Proto UI integration code is MIT-licensed. The pinned shadcn/ui attribution and upstream MIT license are distributed in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md); the Proto UI package license does not replace that upstream notice.

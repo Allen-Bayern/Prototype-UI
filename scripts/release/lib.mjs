@@ -636,7 +636,7 @@ export function createPublishManifest(pkg, options) {
 
   manifest.version = version ?? manifest.version;
   manifest.license ??= readRootLicenseId();
-  const files = ['dist', 'README.md', 'LICENSE'];
+  const files = ['dist', 'README.md', 'LICENSE', ...getThirdPartyNoticeFiles(pkg)];
   if (manifest.bin && !files.includes('bin')) files.push('bin');
   if (pkg.manifest.files && pkg.manifest.files.length > 0) {
     console.warn(
@@ -740,7 +740,7 @@ function sanitizePackageName(name) {
   return name.replace('@', '').replaceAll('/', '__');
 }
 
-function writeSupportingFiles(pkg, stageDir) {
+export function writeSupportingFiles(pkg, stageDir) {
   if (pkg.localReadme) {
     copyFileSync(pkg.localReadme, join(stageDir, 'README.md'));
   } else if (existsSync(ROOT_README)) {
@@ -753,6 +753,34 @@ function writeSupportingFiles(pkg, stageDir) {
   if (existsSync(ROOT_LICENSE)) {
     copyFileSync(ROOT_LICENSE, join(stageDir, 'LICENSE'));
   }
+
+  for (const noticeFile of getThirdPartyNoticeFiles(pkg)) {
+    copyFileSync(join(pkg.dir, noticeFile), join(stageDir, noticeFile));
+  }
+}
+
+function getThirdPartyNoticeFiles(pkg) {
+  const files = pkg.manifest?.protoUi?.release?.thirdPartyNotices ?? [];
+  if (!Array.isArray(files)) {
+    throw new Error(`${pkg.name}: protoUi.release.thirdPartyNotices must be an array`);
+  }
+
+  return [...new Set(files)].map((file) => {
+    if (
+      typeof file !== 'string' ||
+      file.length === 0 ||
+      file.includes('/') ||
+      file.includes('\\') ||
+      file === '.' ||
+      file === '..'
+    ) {
+      throw new Error(`${pkg.name}: third-party notice must be a package-root filename: ${file}`);
+    }
+    if (!pkg.dir || !existsSync(join(pkg.dir, file))) {
+      throw new Error(`${pkg.name}: missing declared third-party notice: ${file}`);
+    }
+    return file;
+  });
 }
 
 function readRootLicenseId() {

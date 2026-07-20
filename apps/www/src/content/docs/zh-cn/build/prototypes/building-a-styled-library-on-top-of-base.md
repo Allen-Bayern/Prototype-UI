@@ -39,7 +39,7 @@ description: '当你想做新的表现层，而不是新的交互边界时，该
 
 ### `button`
 
-在 [packages/prototypes/shadcn/src/button/button.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/button/button.proto.ts) 里，`shadcn-button` 不是从零处理 button 交互，而是先：
+在 [packages/prototypes/shadcn/src/button/button.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/shadcn/src/button/button.proto.ts) 里，`shadcn-button` 不是从零处理 button 交互，而是先：
 
 ```ts
 asButton();
@@ -56,7 +56,7 @@ asButton();
 
 ### `switch`
 
-在 [packages/prototypes/shadcn/src/switch/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/switch/root.proto.ts) 里，`shadcn-switch-root` 同样是先：
+在 [packages/prototypes/shadcn/src/switch/root.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/shadcn/src/switch/root.proto.ts) 里，`shadcn-switch-root` 同样是先：
 
 ```ts
 asSwitchRoot();
@@ -74,7 +74,7 @@ asSwitchRoot();
 
 ### `tabs`
 
-在 [packages/prototypes/shadcn/src/tabs/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/shadcn/src/tabs/root.proto.ts) 里，`shadcn-tabs-root` 更极端，它几乎就是：
+在 [packages/prototypes/shadcn/src/tabs/root.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/shadcn/src/tabs/root.proto.ts) 里，`shadcn-tabs-root` 更极端，它几乎就是：
 
 ```ts
 asTabsRoot();

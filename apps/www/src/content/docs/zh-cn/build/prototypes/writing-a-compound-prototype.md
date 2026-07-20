@@ -31,10 +31,10 @@ description: '如何按 Proto UI 的原型边界拆分复合组件。'
 
 对应文件见：
 
-- [packages/prototypes/base/src/tabs/root.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/root.proto.ts)
-- [packages/prototypes/base/src/tabs/list.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/list.proto.ts)
-- [packages/prototypes/base/src/tabs/trigger.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/trigger.proto.ts)
-- [packages/prototypes/base/src/tabs/content.proto.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/content.proto.ts)
+- [packages/prototypes/base/src/tabs/root.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/base/src/tabs/root.proto.ts)
+- [packages/prototypes/base/src/tabs/list.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/base/src/tabs/list.proto.ts)
+- [packages/prototypes/base/src/tabs/trigger.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/base/src/tabs/trigger.proto.ts)
+- [packages/prototypes/base/src/tabs/content.proto.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/base/src/tabs/content.proto.ts)
 
 ## 复合原型不是先拆文件，而是先拆交互主体
 
@@ -60,7 +60,7 @@ Proto UI 更关心的是：
 
 在 Proto UI 里，复合原型不是一堆松散 part 的约定俗成，而是显式的 anatomy family。
 
-在 [packages/prototypes/base/src/tabs/shared.ts](/Users/yangguangliang/Desktop/projects/Proto-UI/packages/prototypes/base/src/tabs/shared.ts) 里，`TABS_FAMILY` 定义了：
+在 [packages/prototypes/base/src/tabs/shared.ts](https://github.com/Proto-UI/Proto-UI/blob/main/packages/prototypes/base/src/tabs/shared.ts) 里，`TABS_FAMILY` 定义了：
 
 - 有哪些 role
 - 每个 role 的 cardinality
