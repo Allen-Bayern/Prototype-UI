@@ -9,4 +9,6 @@ export * from './host/view-visibility';
 export * from './events/web-event-router';
 export * from './platform/instance-tree';
 export * from './platform/layout-ready';
+export * from './platform/web-preferences';
+export * from './public-types';
 export * from './types';

@@ -1,10 +1,11 @@
 {
   "name": "@proto.ui/adapter-base",
-  "version": "0.2.0-rc.0",
+  "version": "0.2.0-rc.1",
   "private": false,
   "type": "module",
   "dependencies": {
     "@proto.ui/core": "workspace:*",
+    "@proto.ui/module-expose-state": "workspace:*",
     "@proto.ui/runtime": "workspace:*",
     "@proto.ui/types": "workspace:*"
   },

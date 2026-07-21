@@ -1,6 +1,6 @@
 {
   "name": "@proto.ui/adapter-vue",
-  "version": "0.2.0-rc.0",
+  "version": "0.2.0-rc.1",
   "private": false,
   "type": "module",
   "dependencies": {
@@ -27,7 +27,11 @@
     "@proto.ui/module-rule-meta": "workspace:*"
   },
   "devDependencies": {
-    "@proto.ui/prototypes-base": "workspace:*"
+    "@proto.ui/prototypes-base": "workspace:*",
+    "vue": "^3.5.13"
+  },
+  "peerDependencies": {
+    "vue": ">=3.4.0 <4"
   },
   "exports": {
     ".": {

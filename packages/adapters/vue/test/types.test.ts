@@ -1,6 +1,9 @@
 import { describe, expectTypeOf, it } from 'vitest';
 import { definePrototype, type ExposeEvent, type ExposeState } from '@proto.ui/core';
+import type { ExposeStateExternalHandle } from '@proto.ui/module-expose-state';
+import * as Vue from 'vue';
 
+import { createVueAdapter } from '../src/adapt';
 import type { ProtoVueEmits, ProtoVueEventProps, ProtoVueProps } from '../src/types';
 
 type DemoProps = {
@@ -20,6 +23,8 @@ const proto = definePrototype<DemoProps, DemoExposes>({
     return (r) => [r.el('div', 'ok')];
   },
 });
+
+const Component = createVueAdapter(Vue)(proto);
 
 describe('adapter-vue: type helpers', () => {
   it('maps exposed events to onX listener props', () => {
@@ -46,5 +51,29 @@ describe('adapter-vue: type helpers', () => {
       click: [];
       checkedChange: [payload: { checked: boolean }, options?: Record<string, unknown>];
     }>({} as any);
+  });
+
+  it('preserves the Prototype types on the adapted component', () => {
+    type ComponentInstance = InstanceType<typeof Component>;
+    type ComponentProps = ComponentInstance['$props'];
+
+    expectTypeOf(Component).not.toBeAny();
+    expectTypeOf<
+      Pick<ComponentProps, 'label' | 'disabled' | 'onClick' | 'onCheckedChange'>
+    >().toEqualTypeOf<{
+      label?: string;
+      disabled?: boolean;
+      onClick?: () => void;
+      onCheckedChange?: (payload: { checked: boolean }, options?: Record<string, unknown>) => void;
+    }>();
+    expectTypeOf<ReturnType<ComponentInstance['getExposes']>>().toEqualTypeOf<{
+      checked: ExposeStateExternalHandle<boolean>;
+    }>();
+
+    const valid: ComponentProps = { label: 'Save', onClick: () => undefined };
+    // @ts-expect-error Unknown props must not be accepted through an `any` component boundary.
+    const invalid: ComponentProps = { unknownProtoProp: true };
+    void valid;
+    void invalid;
   });
 });

@@ -8,19 +8,19 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 当前 spec 版本 | `0.2.0-rc.0` |
+| 当前 spec 版本 | `0.2.0-rc.1` |
 | Release channel | `prerelease` |
-| Version entity | [`V-PROTO-UI-0001`](../../spec/versions/V-PROTO-UI-0001.yaml) |
-| 工作区实体数 | 377 |
+| Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
+| 工作区实体数 | 380 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:595e42d33bdf3b06960d2da50e8fbec87fd19162dd7c16ff69e52dde593ebe37` |
-| 已发布 release snapshot digest | `sha256:45244d4adfa478384f07dc9721338c3f3f43ed09836fde03f13bfe52bbfdfae1` |
+| 工作区快照指纹 | `sha256:8808ff1ed38b0fbc1604c9af32d024bb3cccfa6d75b9026bd7acdab9955f2e19` |
+| 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 35 个 active、337 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 35 个 active、340 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -61,24 +61,24 @@ flowchart LR
 | --- | --: | --: | --: | --: | --: | --: | --: |
 | `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
 | `decision` | 44 | 6 | 36 | 2 | 29 | 14 | 3 |
-| `contract` | 143 | 15 | 125 | 3 | 140 | 140 | 22 |
+| `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
 | `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 33 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 116 | 12 | 104 | 0 | 0 | 0 | 4 |
-| `version` | 1 | 1 | 0 | 0 | 1 | 1 | 0 |
+| `test` | 117 | 12 | 105 | 0 | 0 | 0 | 4 |
+| `version` | 2 | 1 | 1 | 0 | 2 | 2 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
 | `relates`    |  199 |
-| `dependsOn`  |  758 |
+| `dependsOn`  |  762 |
 | `inherits`   |   27 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  280 |
+| `verifies`   |  281 |
 | `explains`   |   36 |
 | `exercises`  |  161 |
 | `requires`   |    4 |
@@ -167,6 +167,12 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
 | [`C-A11Y-0001`](../../spec/contracts/C-A11Y-0001.yaml) | `draft` | Accessibility exposes projectable semantic objects | 10 | 1 | The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior. |
+
+### ADAPTER（1）
+
+| Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
+| --- | --- | --- | --: | --: | --- |
+| [`C-ADAPTER-TYPES-0001`](../../spec/contracts/C-ADAPTER-TYPES-0001.yaml) | `draft` | TypeScript adapters preserve the Prototype public surface | 5 | 1 | Official TypeScript adapter entrypoints preserve Prototype props, outward signals, and instance exposes instead of erasing generated host components to any. |
 
 ### ANATOMY（13）
 
@@ -668,18 +674,18 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  239 |
+| `passing` |  244 |
 | `planned` |   14 |
 
 ### Implementation 类型
 
 | Kind              | 数量 |
 | ----------------- | ---: |
-| `adapter-test`    |   62 |
+| `adapter-test`    |   66 |
 | `fixture`         |   17 |
 | `module-test`     |  118 |
 | `runtime-test`    |   70 |
-| `workspace-check` |    4 |
+| `workspace-check` |    5 |
 
 ### Test entities
 
@@ -688,6 +694,12 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-A11Y-0001`](../../spec/tests/T-A11Y-0001.yaml) | `draft` | A11y semantic object contract tests | 4 | `passing` 3 | `C-A11Y-0001`<br>`HC-A11Y-0001` | — |
+
+### ADAPTER（1）
+
+| Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
+| --- | --- | --- | --: | --- | --- | --- |
+| [`T-ADAPTER-TYPES-0001`](../../spec/tests/T-ADAPTER-TYPES-0001.yaml) | `draft` | Adapter public type projection tests | 4 | `passing` 5 | `C-ADAPTER-TYPES-0001` | — |
 
 ### ANATOMY（4）
 
@@ -935,6 +947,20 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Commit          | `8252e6eaf26e98b15746a712f356cb6770a88075`                                |
 | Snapshot digest | `sha256:45244d4adfa478384f07dc9721338c3f3f43ed09836fde03f13bfe52bbfdfae1` |
 
+### [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) Proto UI 0.2.0-rc.1
+
+| Field           | Value                        |
+| --------------- | ---------------------------- |
+| Entity status   | `draft`                      |
+| Version         | `0.2.0-rc.1`                 |
+| Channel         | `prerelease`                 |
+| Git tag         | `v0.2.0-rc.1`                |
+| npm dist-tag    | `next`                       |
+| Package policy  | `exact` / `public-@proto.ui` |
+| Published at    | `—`                          |
+| Commit          | `—`                          |
+| Snapshot digest | `—`                          |
+
 ## 九、显式 Open Questions
 
 当前实体共声明 77 个 open question。它们是已知断口，不应由 Agent 静默补全。
@@ -1045,7 +1071,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 337/377 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 340/380 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。

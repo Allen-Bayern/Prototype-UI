@@ -172,6 +172,9 @@ importers:
       '@proto.ui/core':
         specifier: workspace:*
         version: link:../../core
+      '@proto.ui/module-expose-state':
+        specifier: workspace:*
+        version: link:../../modules/expose-state
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -244,6 +247,9 @@ importers:
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types
+      react:
+        specifier: '>=18.2.0 <20'
+        version: 19.2.6
     devDependencies:
       '@proto.ui/prototypes-base':
         specifier: workspace:*
@@ -321,6 +327,9 @@ importers:
       '@proto.ui/prototypes-base':
         specifier: workspace:*
         version: link:../../prototypes/base
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.31(typescript@5.9.3)
 
   packages/adapters/web-component:
     dependencies:

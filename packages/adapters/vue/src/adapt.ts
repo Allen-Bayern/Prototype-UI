@@ -11,6 +11,8 @@ import {
   createWebProtoEventRouter,
   installViewVisibilityRule,
   PUI_VIEW_PENDING_ATTR,
+  type ProtoAdapterExposes,
+  type ProtoAdapterProps,
   scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
@@ -24,6 +26,7 @@ import type { RawPropsSource } from '@proto.ui/module-props';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { createDefaultMetaGetter } from './platform/meta';
+import type { ProtoVueComponent, VueAdapterHandle } from './types';
 import {
   bindLogicalParent,
   createLogicalInstance,
@@ -54,11 +57,7 @@ export type VueRuntime = VueRenderRuntime & {
   inject?: <T>(key: symbol, defaultValue: T) => T;
 };
 
-export type VueAdapterHandle = {
-  update(): void;
-  getExposes(): Record<string, unknown>;
-  invokeInCallbackScope?(fn: () => void): void;
-};
+export type { VueAdapterHandle } from './types';
 
 export type VueAdapterProps<Props extends PropsBaseType> = Props &
   PropsBaseType & {
@@ -115,10 +114,11 @@ export function createVueAdapter(runtime: VueRuntime) {
   const sharedOverlayLayerScheduler = createZIndexOverlayLayerScheduler();
   const logicalOwnerKey = Symbol('@proto.ui/adapter-vue/logical-owner');
 
-  return function AdaptToVue<Props extends PropsBaseType>(
-    proto: Prototype<Props>,
-    opt: VueAdapterOptions<Props> = {}
-  ) {
+  return function AdaptToVue<TProto extends Prototype<any, any>>(
+    proto: TProto,
+    opt: VueAdapterOptions<ProtoAdapterProps<TProto>> = {}
+  ): ProtoVueComponent<TProto> {
+    type Props = ProtoAdapterProps<TProto>;
     const schedule = opt.schedule ?? ((task) => queueMicrotask(task));
     const getProps = opt.getProps ?? defaultGetProps;
     const getMeta = opt.getMeta ?? createDefaultMetaGetter();
@@ -140,7 +140,7 @@ export function createVueAdapter(runtime: VueRuntime) {
           })
         : sharedOverlayLayerScheduler);
 
-    return runtime.defineComponent({
+    const Component = runtime.defineComponent({
       name: `Proto(${proto.name})`,
       inheritAttrs: false,
       props: {
@@ -266,9 +266,9 @@ export function createVueAdapter(runtime: VueRuntime) {
 
         ctx.expose({
           update: () => controllerRef.value?.update(),
-          getExposes: () => ({ ...(exposesRef.value ?? {}) }),
+          getExposes: () => ({ ...(exposesRef.value ?? {}) }) as ProtoAdapterExposes<TProto>,
           invokeInCallbackScope: (fn: () => void) => invokeRef.value?.(fn),
-        } satisfies VueAdapterHandle);
+        } satisfies VueAdapterHandle<TProto>);
 
         let lastHostProps = rawPropsSource.get();
         const notifyPropsChange = () => {
@@ -486,7 +486,9 @@ export function createVueAdapter(runtime: VueRuntime) {
           return content;
         };
       },
-    }) as any;
+    }) as ProtoVueComponent<TProto>;
+
+    return Component;
   };
 }
 

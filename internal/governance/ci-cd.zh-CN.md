@@ -2,7 +2,7 @@
 
 本文说明仓库内 GitHub Actions 工作流的职责，以及它们与全局精确版本和首发 package 治理的关系。
 
-当前 release train 为 `0.2.0-rc.0`；发布日期尚未固定。
+当前已评审的 draft release train 为 `0.2.0-rc.1`；它尚未发布，发布日期也尚未固定。
 
 ## 工作流总览
 

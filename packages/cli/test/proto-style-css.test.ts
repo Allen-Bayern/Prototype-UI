@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { renderProtoStyleTokenCss } from '../src/services/proto-style-css';
+import { renderPrefixedThemeCss, renderProtoStyleTokenCss } from '../src/services/proto-style-css';
 
 describe('proto style css renderer', () => {
   it('renders space-between layout utilities used by compound controls', () => {
@@ -19,6 +19,35 @@ describe('proto style css renderer', () => {
     );
     expect(css).toContain('background-color: var(--pui-muted);');
     expect(css).not.toContain('Unsupported Proto UI style tokens');
+  });
+
+  it('lets dark tokens follow the system preference when the host has no explicit theme', () => {
+    const css = renderProtoStyleTokenCss(['dark:bg-input/30']);
+
+    expect(css).toContain(':where(.dark)');
+    expect(css).toContain(":where([data-theme='dark'])");
+    expect(css).toContain('@media (prefers-color-scheme: dark)');
+    expect(css).toContain(
+      ":where(:root:not(.dark):not(.light):not([data-theme='dark']):not([data-theme='light']))"
+    );
+  });
+
+  it('adds a system dark fallback to generated theme variables', () => {
+    const css = renderPrefixedThemeCss(`:root {
+  --background: white;
+}
+
+:root.dark,
+:root[data-theme='dark'] {
+  --background: black;
+}`);
+
+    expect(css).toContain('--pui-background: white;');
+    expect(css).toContain('@media (prefers-color-scheme: dark)');
+    expect(css).toContain(
+      ":root:not(.dark):not(.light):not([data-theme='dark']):not([data-theme='light']) {"
+    );
+    expect(css).toContain('--pui-background: black;');
   });
 
   it('renders composable enter and exit animation utilities', () => {

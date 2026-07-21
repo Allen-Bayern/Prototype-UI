@@ -70,6 +70,8 @@ import './styles/proto-ui-style.css';
 
 Adjust the relative path if your app entry is not next to `src/styles`.
 
+The generated Shadcn theme follows the system `prefers-color-scheme` when the application has not declared a theme. If the application manages its own theme, set `data-theme="light"` / `data-theme="dark"` on the root element, or use the compatible `.light` / `.dark` classes. An explicit theme overrides the system preference.
+
 ---
 
 ## Add a component

@@ -11,6 +11,7 @@ import {
   createViewEpochOwner,
   scheduleAfterWebLayout,
   type LogicalInstanceToken,
+  type ProtoAdapterProps,
 } from '@proto.ui/adapter-base';
 import {
   createZIndexOverlayLayerScheduler,
@@ -36,6 +37,7 @@ import {
 import { createWebEffectsPort } from './runtime/effects-port';
 import { createWebComponentModules, createWebComponentOwnerModules } from './runtime/modules';
 import { createWebComponentHostSession } from './runtime/session';
+import type { WebComponentAdapterConstructor } from './types';
 import type {
   RuntimeCheckpoint,
   RuntimeController,
@@ -43,6 +45,11 @@ import type {
 } from '@proto.ui/runtime';
 
 export { __WC_DEBUG_SYS } from './debug/hooks';
+export type {
+  WebComponentAdapterConstructor,
+  WebComponentAdapterHandle,
+  WebComponentAdapterElement,
+} from './types';
 
 function assertKebabCase(tag: string) {
   if (!tag.includes('-') || tag.toLowerCase() !== tag) {
@@ -73,25 +80,14 @@ export interface WebComponentAdapterOptions<Props extends PropsBaseType = PropsB
     | undefined;
 }
 
-export type WebComponentAdapterHandle = {
-  update(): void;
-  getExposes(): Record<string, unknown>;
-};
-
-export type WebComponentAdapterElement = HTMLElement & WebComponentAdapterHandle;
-
-export type WebComponentAdapterConstructor = {
-  new (): WebComponentAdapterElement;
-  prototype: WebComponentAdapterElement;
-};
-
 const SHARED_OVERLAY_LAYER_SCHEDULER = createZIndexOverlayLayerScheduler();
 const NOTIFY_FOCUS_TARGET_READY = Symbol('proto-ui.notify-focus-target-ready');
 
-export function AdaptToWebComponent<Props extends PropsBaseType>(
-  proto: Prototype<Props>,
-  opt: WebComponentAdapterOptions<Props> = {}
-): WebComponentAdapterConstructor {
+export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
+  proto: TProto,
+  opt: WebComponentAdapterOptions<ProtoAdapterProps<TProto>> = {}
+): WebComponentAdapterConstructor<TProto> {
+  type Props = ProtoAdapterProps<TProto>;
   const register = opt.register ?? true;
   const tagName = opt.registerAs ?? proto.name;
   assertKebabCase(tagName);
@@ -510,5 +506,5 @@ export function AdaptToWebComponent<Props extends PropsBaseType>(
     customElements.define(tagName, ProtoElement);
   }
 
-  return ProtoElement as unknown as WebComponentAdapterConstructor;
+  return ProtoElement as unknown as WebComponentAdapterConstructor<TProto>;
 }
