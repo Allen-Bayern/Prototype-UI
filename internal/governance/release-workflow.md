@@ -100,3 +100,61 @@ Historical `0.1.x` package versions are fragmented releases from before global l
 `pnpm release:rehearse` is the non-publishing, one-command preparation gate. It runs the identity and asset checks, catalog and test suites, type checks, a temporary spec snapshot, launch scan, package publish dry-run, React and multi-host CLI tarball consumer smokes, and the documentation build. It may access the npm registry for dry-run or temporary consumer dependency installation, but it never invokes the real publish path.
 
 Docs-only or private-app changes do not need to publish immediately. Creating a new numeric version or changing `VERSION`, however, must enter this release-train workflow.
+
+## 7. End-to-End Maintainer Checklist
+
+This checklist turns the policy above into the required sequence for each release train. Preparation, publication, and evidence capture are separate reviewable phases; completing one phase does not imply that the next phase has happened.
+
+### 7.1 Prepare The Release Train In A Pull Request
+
+1. Fetch the current default branch and create a short-lived release topic branch from `origin/main`.
+2. Update root `VERSION`, create the new `draft` V entity, and align the launch-governance release line.
+3. Run `node scripts/release/stamp-version.mjs` so all public package manifests use the exact version, then refresh the lockfile with the repository-declared pnpm version.
+4. Update both release notes and run `pnpm release:bom`. Update package-local documentation that ships in the tarball when it refers to its own version.
+5. Regenerate spec-derived projections with `pnpm spec:docs:agent` and review the entity graph affected by the new V entity.
+6. Run `pnpm release:rehearse`, `pnpm check:agent-doc`, and `git diff --check` before committing.
+7. Open a Draft PR that states the release scope, checks, package count, and the fact that no publication has occurred.
+
+The published prerelease trial page, repository status, and release link must continue to name the last verified release during this phase. They move to the new version only in the post-publication evidence PR. This avoids presenting a reviewed draft as installable. A package README included in the new tarball may already name its own exact version because it becomes visible only when that tarball is published.
+
+### 7.2 Run The Protected Publication
+
+After the preparation PR merges, manually dispatch `.github/workflows/release-packages.yml` from `main` with:
+
+- `mode=publish-all`
+- `profile=workspace`
+- `resume_published=false` for a normal release
+- `include_approved_candidates=false` unless launch governance explicitly approved candidates
+
+Approve the protected `npm` environment only after confirming that the workflow head SHA is the reviewed merge commit and that `VERSION` still names the intended release. Do not publish from the topic branch and do not use the `launch` profile for a real publication. The workflow must publish the complete public package set before creating the tag, GitHub Release, or snapshot assets.
+
+If the run becomes partial, keep the same version and commit. Audit registry integrity, record the failure, and rerun the complete workspace set with `resume_published=true`; never create a replacement tag or silently advance the release train.
+
+### 7.3 Audit Immutable Release Evidence
+
+Before activating the V entity, verify and record all of the following:
+
+- the successful workflow URL, its `headSha`, start time, and completion time
+- every package named by `package-bom.json` has the exact version in npm; checking only the CLI is insufficient
+- every package's intended dist-tag resolves to that exact version
+- `v<version>` resolves to the same 40-character workflow head SHA
+- the GitHub Release has the correct prerelease/stable state and contains the reviewed BOM, localized notes, spec snapshot, and checksum
+- the digest of the uploaded spec snapshot matches its checksum and the digest recorded by the V entity
+
+`release.publishedAt` uses the GitHub Release publication time, after the complete package set, tag, and release assets exist. npm first/last publication times and workflow timing may be recorded as supporting evidence but do not replace this canonical timestamp.
+
+The V entity must use the digest of the immutable draft snapshot attached to the tag. Do not regenerate a snapshot after changing the V entity to `active` and substitute that digest: the lifecycle change alters snapshot bytes and would make the evidence self-referential.
+
+### 7.4 Merge The Evidence Pull Request
+
+Create a new topic branch from the latest `origin/main`; do not reuse the preparation branch. The evidence change must:
+
+1. change the V entity from `draft` to `active`
+2. add `publishedAt`, the tagged 40-character commit, and `specSnapshotDigest`
+3. add an `updated` revision describing the verified publication
+4. change release notes from draft wording to published wording
+5. update the bilingual repository status, exact prerelease trial commands, release links, and current-release CI/CD prose
+6. add a dated record containing the workflow, npm, tag, GitHub Release, and snapshot facts
+7. regenerate spec-derived projections and run `check:release-version`, `release:assets:check`, `check:agent-doc`, type checks, and the documentation build
+
+The evidence PR does not bump `VERSION` or package manifests and does not republish packages. Its purpose is to make repository truth match already immutable external facts. Only after it merges may the release be described in the catalog as `active` and in public documentation as the current reproducible prerelease.

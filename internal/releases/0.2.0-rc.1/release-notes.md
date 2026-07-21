@@ -1,6 +1,6 @@
-# Proto UI 0.2.0-rc.1 (Unreleased Draft)
+# Proto UI 0.2.0-rc.1
 
-> `0.2.0-rc.1` is now the reviewed draft release train. `VERSION`, all public package manifests, and the draft V entity are aligned, but the release is not published. Publication still requires the complete release rehearsal, merge to `main`, the protected `publish-all` workflow, and a follow-up evidence PR that activates the V entity.
+> Published on July 21, 2026 under the npm `next` channel. All 37 public packages, the `v0.2.0-rc.1` tag, the GitHub prerelease, and the immutable spec snapshot share this exact release identity.
 
 ## Fixed
 
@@ -24,4 +24,4 @@
 
 - Meta subscription and rule reevaluation during live theme changes.
 - Local light/dark scopes nested below the document root.
-- Additional installation, type, runtime, CSS, accessibility, bundle, and API findings from continued external `0.2.0-rc.0` trials.
+- Additional installation, type, runtime, CSS, accessibility, bundle, and API findings from post-publication `0.2.0-rc.1` trials will enter a later release train.

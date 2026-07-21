@@ -2,7 +2,7 @@
 
 This document describes the repository's GitHub Actions workflows and how they relate to global exact-version and launch-package governance.
 
-The current reviewed draft release train is `0.2.0-rc.1`; it remains unpublished and has no committed release date.
+The current published prerelease release train is `0.2.0-rc.1` under the npm `next` channel.
 
 ## Workflows
 
