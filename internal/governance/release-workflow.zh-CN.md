@@ -100,3 +100,61 @@ npm Trusted Publisher 是 package 级配置，因此 package identity 不存在�
 `pnpm release:rehearse` 是不发布的一键准备门禁。它会依次执行发行身份与物料检查、编目和测试、类型检查、临时 spec snapshot、launch scan、package publish dry-run、React 与 CLI 多宿主 tarball consumer smoke，以及官网构建。该命令可能因 dry-run 或临时 consumer 安装访问 npm registry，但绝不会进入真实 publish 路径。
 
 纯文档或内部 app 的变化可以不立即触发 release；但一旦创建新的数字版本或修改 `VERSION`，就必须通过上述 release train 流程。
+
+## 7. 维护者端到端执行清单
+
+本清单把上述策略展开为每条 release train 必须遵循的实际顺序。准备、真实发布与证据回填是三个可独立评审的阶段；完成前一阶段不代表后一阶段已经发生。
+
+### 7.1 通过 PR 准备 release train
+
+1. 获取最新默认分支，并从 `origin/main` 创建短期 release topic branch。
+2. 更新根 `VERSION`、创建新的 `draft` V 实体，并对齐 launch governance release line。
+3. 运行 `node scripts/release/stamp-version.mjs`，使全部公开 package manifest 使用同一精确版本，再用仓库声明的 pnpm 版本刷新 lockfile。
+4. 更新双语 release notes 并运行 `pnpm release:bom`。随 tarball 分发且会引用自身版本的 package README 也在此阶段更新。
+5. 运行 `pnpm spec:docs:agent` 重新生成 spec 投影，并审阅新 V 实体影响的 entity graph。
+6. 提交前运行 `pnpm release:rehearse`、`pnpm check:agent-doc` 与 `git diff --check`。
+7. 创建 Draft PR，明确发行范围、检查结果、package 数量，以及尚未执行真实发布这一事实。
+
+这一阶段的公开 prerelease trial 页面、仓库状态与 Release 链接必须继续指向上一个已验证版本，只能在发布后的证据 PR 中切换到新版本，避免把已评审的 draft 表现为可安装发行。包含在新 tarball 内的 package README 可以预先写入自身精确版本，因为它只会在该 tarball 真正发布后对外可见。
+
+### 7.2 执行受保护的真实发布
+
+准备 PR 合入后，从 `main` 手动触发 `.github/workflows/release-packages.yml`，使用：
+
+- `mode=publish-all`
+- `profile=workspace`
+- 正常发布使用 `resume_published=false`
+- 除非 launch governance 已明确批准候选包，否则使用 `include_approved_candidates=false`
+
+只有在确认 workflow head SHA 等于已评审的 merge commit，且 `VERSION` 仍是目标版本后，才能批准受保护的 `npm` environment。不得从 topic branch 发布，也不得使用 `launch` profile 执行真实发布。workflow 必须先完成全部公开 package 发布，之后才能创建 tag、GitHub Release 与 snapshot assets。
+
+如果运行形成部分发布，必须保持同一版本与 commit。审计 registry integrity、记录失败事实，并使用 `resume_published=true` 恢复完整 workspace 发布集合；不得创建替代 tag，也不得静默推进到另一条 release train。
+
+### 7.3 核对不可变发行证据
+
+将 V 实体转为 active 前，必须核对并记录：
+
+- 成功 workflow 的 URL、`headSha`、开始时间与结束时间
+- `package-bom.json` 中每一个 package 都在 npm 存在精确版本；只检查 CLI 不足以证明全局发布完成
+- 每一个 package 的目标 dist-tag 都指向该精确版本
+- `v<version>` 解析到与 workflow head SHA 相同的 40 位 commit
+- GitHub Release 的 prerelease/stable 状态正确，并包含已评审 BOM、本地化说明、spec snapshot 与 checksum
+- 上传的 spec snapshot digest 与 checksum 一致，并等于 V 实体记录的 digest
+
+`release.publishedAt` 统一使用 GitHub Release 的发布时间，此时完整 package set、tag 与 release assets 均已存在。npm 首尾 package 发布时间与 workflow 时段可以作为辅助证据记录，但不能替代这一规范时间。
+
+V 实体必须记录 tag 所附不可变 draft snapshot 的 digest。不得在 V 实体转为 `active` 后重新生成 snapshot，再用新 digest 替换发行证据；生命周期变化会改变 snapshot bytes，从而形成自指证据。
+
+### 7.4 合入证据 PR
+
+从最新 `origin/main` 创建新的 topic branch，不复用准备分支。证据变更必须：
+
+1. 将 V 实体从 `draft` 转为 `active`
+2. 填写 `publishedAt`、tag 对应的 40 位 commit 与 `specSnapshotDigest`
+3. 新增一条描述已验证发行的 `updated` revision
+4. 将 release notes 从草稿措辞切换为已发布措辞
+5. 更新双语仓库状态、精确 prerelease trial 命令、Release 链接与当前版本 CI/CD 说明
+6. 新增 dated record，记录 workflow、npm、tag、GitHub Release 与 snapshot 事实
+7. 重新生成 spec 投影，并运行 `check:release-version`、`release:assets:check`、`check:agent-doc`、类型检查与文档构建
+
+证据 PR 不改动 `VERSION` 或 package manifest，也不会重新发布 package。它的职责是让仓库真理与已经不可变的外部事实一致。只有该 PR 合入后，release 才能在 catalog 中表述为 `active`，并在公共文档中表述为当前可复现的 prerelease。
