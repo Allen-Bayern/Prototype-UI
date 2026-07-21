@@ -10,6 +10,7 @@
 - `prevValid` 仍用于恢复“key 仍被提供、但本轮值为空或无效”的输入，避免删除语义与非法输入容错相互混淆。
 - React、Vue 与 Web Component 共享这一语义；修正位于 Props Kernel，不需要 Adapter 层的宿主特例。
 - React Shadcn Button 删除 `disabled` 后会恢复为 enabled，删除 `variant` 或 `size` 后会恢复对应 default tokens。
+- Lucide Icon 删除 `size`、`strokeWidth`、`stroke` 等 visual props 后会恢复 24、2、currentColor 等协议默认值。
 - 跨 Adapter resolved-snapshot 合约、Base Button 行为测试与 Shadcn Button visual-token 测试覆盖了 provided-to-missing 转换。
 
 ## 仍在验证

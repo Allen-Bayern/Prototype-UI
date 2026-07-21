@@ -10,6 +10,7 @@
 - `prevValid` remains available when a key is still provided but its current value is empty or invalid, keeping invalid-input recovery separate from prop-removal semantics.
 - React, Vue, and Web Component hosts share this behavior through the Props Kernel without adapter-specific exceptions.
 - Removing `disabled` from a React Shadcn Button restores the enabled state, while removing `variant` or `size` restores the corresponding default tokens.
+- Removing Lucide Icon visual props such as `size`, `strokeWidth`, or `stroke` restores protocol defaults such as 24, 2, and currentColor.
 - Cross-adapter resolved-snapshot conformance, Base Button behavior tests, and Shadcn Button visual-token tests cover provided-to-missing transitions.
 
 ## Still under validation

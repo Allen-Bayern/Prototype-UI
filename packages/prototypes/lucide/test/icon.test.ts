@@ -100,9 +100,9 @@ describe('prototypes/lucide: icon', () => {
 
     const nextRoot = committed as any;
     expect(nextRoot.tag).toBe('svg');
-    expect(nextRoot.props.width).toBe(18);
-    expect(nextRoot.props.strokeWidth).toBe(1.25);
-    expect(nextRoot.props.stroke).toBe('red');
+    expect(nextRoot.props.width).toBe(24);
+    expect(nextRoot.props.strokeWidth).toBe(2);
+    expect(nextRoot.props.stroke).toBe('currentColor');
     expect(nextRoot.children?.tag).toBe('path');
   });
 

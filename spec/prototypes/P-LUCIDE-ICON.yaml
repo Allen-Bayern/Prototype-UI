@@ -32,10 +32,10 @@ criteria:
       en: Generated output must identify `lucide-static/icon-nodes.json` as its source, and the manifest must expose exact upstream package, version, and license metadata; updating the upstream version requires regeneration, verification, and a recorded P revision.
   - id: P-LUCIDE-ICON-NAME-BASED-PROPS
     text:
-      zh-CN: name-based entry 必须接受 `name`、`size`、`strokeWidth`、`stroke` 与 `fill`；默认值分别为 circle、24、2、currentColor 与 none，无效 name 必须回落到 circle。
-      en: The name-based entry must accept `name`, `size`, `strokeWidth`, `stroke`, and `fill` with defaults of circle, 24, 2, currentColor, and none respectively, and an invalid name must fall back to circle.
+      zh-CN: name-based entry 必须接受 `name`、`size`、`strokeWidth`、`stroke` 与 `fill`；默认值分别为 circle、24、2、currentColor 与 none，无效 name 必须回落到 circle，移除已提供的 visual prop 必须恢复其协议默认值。
+      en: The name-based entry must accept `name`, `size`, `strokeWidth`, `stroke`, and `fill` with defaults of circle, 24, 2, currentColor, and none respectively; an invalid name must fall back to circle, and removing a provided visual prop must restore its protocol default.
     dependsOn:
-      contracts: [C-PROPS-0001, C-PROPS-0003]
+      contracts: [C-PROPS-0001, C-PROPS-0003, C-PROPS-0009]
   - id: P-LUCIDE-ICON-FIXED-PROPS
     text:
       zh-CN: fixed-glyph entry 不接受可变 name，但必须接受与 name-based entry 一致的 `size`、`strokeWidth`、`stroke` 与 `fill` visual props。
