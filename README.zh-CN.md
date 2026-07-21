@@ -1,99 +1,136 @@
 # Proto UI
 
-**Proto UI 是一份人机交互（HCI）协议，也是一个面向任意框架/平台的组件生成器。**
+**Proto UI 是一份与框架无关的组件交互协议，也是一套把同一个原型投射到不同宿主的工具链。**
 
-它将交互逻辑抽象为协议层的模型（_原型_），并映射为不同技术栈中的具体组件实现。目标是让交互逻辑可描述、可复用、可跨生态迁移。
+Proto UI 的“原型（Prototype）”描述组件的身份与交互语义，Adapter 再把这份协议翻译为 React、Vue、Web Components，以及未来更多平台中的具体组件。目标是让交互逻辑变得明确、可测试、可复用，并能跨生态迁移。
 
 中文 | [English](README.md)
 
----
+> **当前状态：** Proto UI 处于 v0 预发布阶段。精确版本 `0.2.0-rc.0` 已通过 npm `next` channel 发布，可用于可复现试用；它不是稳定的 `latest` 上手路径，也不推荐用于关键生产业务。
 
-## 为什么现在做
+## 核心思路
 
-我们已经有太多框架，但它们的组件交互逻辑大同小异。Proto UI 希望把这份“公共交互资产”抽离出来，让同一套交互在 React、Vue、Web Components 甚至更多技术中被一致地生成。
+组件实现在不同框架中会发生变化，但它所表达的交互主体应当保持可识别。Proto UI 将这两个层次拆开：
 
----
+```text
+Prototype protocol -> Adapter -> Host component instance
+```
 
-## Proto UI 不是
+Prototype 负责可移植行为和语义身份，Adapter 负责将它翻译到具体宿主。应用仍然使用原生框架的方式组合和消费最终组件。
 
-- **还不能用于关键生产环境。** 目前“能用”，但尚未稳定到用于关键业务。适合 Demo、实验和可控的小项目。
-- **不是新框架。** Proto UI 不要求你放弃现有技术栈。它生成你现有技术的组件；v1 目标是 **零运行时依赖**。
+因此，Proto UI 并不是要再发明一个应用框架，而是希望与现有技术栈协作。
 
----
+基于 Compiler 的输出仍是长期方向：
 
-## 工作原理（简版）
+```text
+Prototype protocol -> Compiler -> Host component code
+```
 
-Proto UI 有两条路径：
+当前发布采用 Adapter 架构；Compiler 输出与零运行时交付还不是已经发布的保证。
 
-- **Adapter（v0）：** `Prototype -> Adapter -> Component Instance`
-- **Compiler（v1）：** `Prototype -> Compiler -> Component Code`
+## 试用当前候选版本
 
-v0 用 Adapter 验证可行性，v1 将用 Compiler 保证零运行时开销。
+请使用精确版本，确保 CLI、Adapter、Prototype package 与试用结果都属于同一条 release train：
 
----
+```sh
+npx @proto.ui/cli@0.2.0-rc.0 --help
+npx @proto.ui/cli@0.2.0-rc.0 init
+npx @proto.ui/cli@0.2.0-rc.0 add react shadcn-button
+```
 
-## 现在能做什么
+请在已有应用项目中执行 `init` 和 `add`。CLI 会创建本地 `proto-ui/` workspace，安装版本完全一致的官方 package，生成样式预设和宿主专用的 component facade。
 
-- 使用 **React / Vue / Web Components** 适配器，从同一原型生成原生组件实例。
-- 构建跨框架 Demo，保持一致的交互逻辑。
-- 探索 Web Components 版 Headless UI、跨技术栈的设计系统等实验方向。
+完整的生成路径、样式引入、组件使用、多宿主方式和当前限制见 [0.2 RC 试用](https://proto-ui.com/zh-cn/start-here/rc-trial/)。不可变发行证据见 [v0.2.0-rc.0 Release](https://github.com/Proto-UI/Proto-UI/releases/tag/v0.2.0-rc.0)。
 
----
+## 目前已经具备的能力
 
-## 当前阶段与路线
+- 面向 **React**、**Vue** 和 **Web Components** 的官方 Adapter。
+- 用于表达可复用交互协议的 Base prototype library。
+- 在 Base 协议之上叠加设计语言表面的 Shadcn 衍生 prototype library。
+- 支持按图标路径引入的 Lucide 衍生 icon prototype library。
+- 用于初始化、精确版本安装、样式生成和宿主组件 facade 的 CLI。
+- 经过机器校验的 spec catalog，将 Knowledge、Decision、Contract、Prototype、Module、Host Capability、conformance case 与可执行测试路径连接起来。
 
-- **v0（现在）：** 验证协议，完善主流 Web 技术的适配器，并研究非 Web 技术（如 Flutter）的适配路径。
-- **v1（下一阶段）：** 转向编译输出，保证零运行时开销，并扩展非 Web 平台支持。
-- **当前首发目标：** CLI 上线与首次公开发布目前都暂定为 **2026 年 5 月 14 日**。
+## 当前边界
 
-架构已足够稳定，能够从 v0 平滑演进到 v1。
+- API、生成结构和部分协议细节在稳定版 `0.2.0` 前仍可能调整。
+- 当前 CLI 会安装官方 Prototype package 并生成本地 component facade；暂时还不会把 styled prototype 源码写入应用项目供直接编辑。
+- Shadcn 兼容是明确目标，但尚不完整；当前模型有意不提供 Radix 风格的 `asChild`。
+- Adapter 架构仍然携带 runtime；Compiler 输出与零运行时交付属于未来工作。
+- 文档、真实项目试用证据、SSR 覆盖、可访问性验证和 bundle 分析仍在补充。
+- 当前大部分 catalog 实体仍为 `draft`；进入 catalog 不等于已经成为稳定公共保证。
 
----
+Proto UI 当前更适合实验、可控项目、组件系统研究，以及愿意参与预发布验证的贡献者。
+
+## 项目真理之源与文档
+
+Proto UI 以 [`spec/**`](spec/) 下的版本化实体作为机器治理的真理之源。实体生命周期必须参与判断：`active` 表示当前稳定保证，`draft` 表示已经编目但仍在推进中的定义。
+
+旧的 [`internal/contracts/**`](internal/contracts/) 文档正在被逐步取缔。它们仍可用于解释和补充尚未完全编目的领域，但不能覆盖适用的 spec 实体。短期方向和日常工程历史放在 [`internal/records/**`](internal/records/)，并且始终是非规范记录。
+
+面向贡献者与 Agent 的入口：
+
+- [Agent 仓库指引](AGENTS.md)
+- [Spec catalog 指引](spec/README.md)
+- [自动生成的项目理解](internal/agent/PROJECT-UNDERSTANDING.zh-CN.md)
+- [贡献指南](CONTRIBUTING.md)
 
 ## 仓库导航
 
-- **契约（类似 RFC）：** `/internal/contracts`
-- **Adapters：** `/packages/adapters`
-- **Prototype libs：** `/packages/prototypes`（当前首发库为 `base` 与 `shadcn`）
-- **CLI 辅助工具：** `/packages/cli`
-- **官网/文档应用：** `/apps/www`
-- **首发治理：** `/internal/governance`
-- **CI/CD 说明：** `/internal/governance/ci-cd.zh-CN.md`
-
----
+- [`spec/`](spec/)：机器治理的项目实体。
+- [`packages/spec/`](packages/spec/)：schema、校验、快照与关系图工具。
+- [`packages/core/`](packages/core/)：核心协议语法与基础原语。
+- [`packages/runtime/`](packages/runtime/)：Adapter 阶段的 runtime 与编排。
+- [`packages/modules/`](packages/modules/)：可复用语义 Module。
+- [`packages/adapters/`](packages/adapters/)：React、Vue、Web Component 及共享 Adapter 实现。
+- [`packages/prototypes/`](packages/prototypes/)：Base、Shadcn 与 Lucide prototype library。
+- [`packages/cli/`](packages/cli/)：项目初始化、facade 生成与样式工具。
+- [`apps/www/`](apps/www/)：公开文档与 Demo。
+- [`apps/workspace/`](apps/workspace/)：内部 spec workspace UI。
+- [`internal/governance/`](internal/governance/)：发布与 package 治理。
+- [`internal/releases/`](internal/releases/)：release note、BOM 与发行证据。
 
 ## 本地开发
 
-请使用 `package.json` 中声明的 pnpm 版本；该版本已与 `pnpm-lock.yaml` 和 CI 对齐。
+请使用 `package.json` 中声明的 pnpm 版本；该版本已与 lockfile 和 CI 对齐。
 
 ```sh
 corepack pnpm@10.32.1 install --frozen-lockfile
 corepack pnpm@10.32.1 docs:dev
 ```
 
----
+常用仓库检查：
 
-## 谁会感兴趣
+```sh
+corepack pnpm@10.32.1 check:types
+corepack pnpm@10.32.1 test
+```
 
-- 组件库作者
-- 关注交互质量的前端开发者
-- HCI 从业者 / 研究人员
-- 设计系统维护者 / UED 团队
-- 希望探索基础性 UI 工作的学生
+## 近期方向
 
----
+当前工作的重点是：在真实项目中试用 `0.2.0-rc.0`，修复上手或语义 blocker，按照试用暴露的真实缺口补充文档，并在不无序扩张 Prototype 表面的前提下完成 `0.2` release line 收口。
+
+Module、Host Capability 与 Adapter 的系统编目会根据真实消费证据，以完整垂直切片继续推进。Compiler 方向和可在本地编辑的 styled prototype 工作流仍属于长期方向，而不是当前版本承诺。
+
+路线方向记录在 [`internal/records/**`](internal/records/)；发行身份与稳定语义仍由 spec 和发布证据治理。
+
+## 谁可能会感兴趣
+
+- 组件库与设计系统作者
+- 关注交互质量的前端工程师
+- HCI 从业者和研究人员
+- Adapter、Compiler 与跨平台工具作者
+- 希望探索基础 UI 架构的贡献者
 
 ## 贡献与讨论
 
-- **官网：** [proto-ui.com](https://proto-ui.com)（文档与 Demo 正在准备中）
-- **Issues：** GitHub Issues 是主要贡献入口。
-- **开始贡献：** 参见 `CONTRIBUTING.md` 和 Issue 模板。
+- **官网：** [proto-ui.com](https://proto-ui.com)
+- **GitHub Issues：** [Proto-UI/Proto-UI](https://github.com/Proto-UI/Proto-UI/issues)
+- **贡献指南：** [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Discord：** [加入社区](https://discord.gg/MrWQd7h34R)
 - **邮箱：** guangliang2018@foxmail.com
 
-欢迎参与适配器、原型库、文档或社区建设。
-
----
+欢迎参与协议、测试、Adapter、Prototype library、文档和消费证据建设。
 
 ## License
 
