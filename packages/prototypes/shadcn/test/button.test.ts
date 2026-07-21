@@ -71,6 +71,14 @@ describe('prototypes/shadcn: button', () => {
     controller.applyRawProps(rawProps as any);
     tokens = controller.getRuleStyleTokens();
     expect(tokens).toContain('border-border');
+
+    rawProps = {};
+    controller.applyRawProps(rawProps as any);
+    tokens = controller.getRuleStyleTokens();
+    expect(tokens).toContain('bg-primary');
+    expect(tokens).not.toContain('border-border');
+    expect(tokens).toContain('h-8');
+    expect(tokens).not.toContain('opacity-50');
   });
 
   it('derives hover/focus/press style rules from asButton state handles', () => {

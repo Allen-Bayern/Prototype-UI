@@ -14,11 +14,11 @@ cases:
       - P-SHADCN-BUTTON-DIRECT-ENTRY
     expectation: shadcn-button-direct-entry-inherits-as-button-protocol
   - id: T-SHADCN-BUTTON-0001-CASE-VARIANT-AND-SIZE
-    title: current variant and size props project the passing visual token subset
+    title: current variant and size props project tokens and omission restores defaults
     covers:
       - P-SHADCN-BUTTON-VARIANT-PROP
       - P-SHADCN-BUTTON-SIZE-PROP
-    expectation: shadcn-button-current-variant-and-size-matrix
+    expectation: shadcn-button-current-variant-size-and-removal-defaults
   - id: T-SHADCN-BUTTON-0001-CASE-INTERACTION-STYLES
     title: inherited Button facts drive hover focus press and disabled visual rules
     covers:

@@ -133,16 +133,21 @@ describe('prototypes/base: asButton', () => {
       focusable: false,
     });
 
+    controller.applyRawProps({});
+    expect(ctx.getA11ySnapshot()?.states.disabled).toBe(false);
+    expect(exposes.disabled.get()).toBe(false);
+    expect(focusPort?.getFocusableConfig().disabled).toBe(false);
+
     ctx.rootTarget.dispatchEvent(new CustomEvent('pointer.enter'));
     ctx.rootTarget.dispatchEvent(new CustomEvent('host:focus'));
     ctx.rootTarget.dispatchEvent(new CustomEvent('pointer.down'));
     ctx.rootTarget.dispatchEvent(new CustomEvent('press.commit'));
 
-    expect(exposes.hovered.get()).toBe(false);
-    expect(exposes.focused.get()).toBe(false);
+    expect(exposes.hovered.get()).toBe(true);
+    expect(exposes.focused.get()).toBe(true);
     expect(exposes.focusVisible.get()).toBe(false);
     expect(exposes.pressed.get()).toBe(false);
-    expect(ctx.emitted).toEqual(['click']);
+    expect(ctx.emitted).toEqual(['click', 'click']);
   });
 
   it('prevents Space default action when focused', () => {

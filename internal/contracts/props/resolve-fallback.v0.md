@@ -53,20 +53,32 @@ For each declared key:
 
 ### 4.2 empty=fallback (default)
 
-- missing / provided-empty / invalid → fallback chain
+- missing → defaults-only fallback chain
+- provided-empty / invalid → recoverable fallback chain
 
 ### 4.3 empty=error
 
-- missing / provided-empty / invalid → must find a **non-empty valid fallback**, otherwise throw
+- missing → must find a **non-empty valid default**, otherwise throw
+- provided-empty / invalid → must find a **non-empty valid fallback**, otherwise throw
 
 ---
 
-## 5. Fallback Chain (order)
+## 5. Fallback Chains (order)
+
+For `missing` input:
+
+1. setDefaults (latest-first)
+2. decl.default
+3. null (only if empty != error)
+
+For provided-empty or invalid input entering fallback:
 
 1. prevValid (last non-empty valid value)
 2. setDefaults (latest-first)
 3. decl.default
 4. null (only if empty != error)
+
+Omitting a prop releases the previous host-provided value. `prevValid` is only a recovery candidate for a key that remains provided but is empty or invalid.
 
 ---
 

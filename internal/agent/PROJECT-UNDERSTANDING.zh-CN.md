@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
 | 工作区实体数 | 380 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:8a0d304817d49dc266d652a7182a082e311b080c099ab3c9c2c4b46e6849e496` |
+| 工作区快照指纹 | `sha256:8a571ea821a72011bf08c9ee312221862c9f695f51636f68a733348d20d619ee` |
 | 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -373,7 +373,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | [`C-PROPS-0006`](../../spec/contracts/C-PROPS-0006.yaml) | `active` | Prop declaration descriptors have constrained shape | 8 | 1 | Incoming prop declarations must satisfy the minimal v0 descriptor shape for `type`, `empty`, enum `options`, `range`, and JSON-valued `default`. |
 | [`C-PROPS-0007`](../../spec/contracts/C-PROPS-0007.yaml) | `active` | Prop declaration merge preserves evolution safety | 8 | 1 | Prop declaration merging must reject breaking narrowing and keep widening changes traceable. |
 | [`C-PROPS-0008`](../../spec/contracts/C-PROPS-0008.yaml) | `active` | Runtime props resolution produces a declared-key resolved snapshot | 7 | 1 | `Resolved props` contain all and only declared keys, never expose `undefined`, and use `null` as the canonical empty value. |
-| [`C-PROPS-0009`](../../spec/contracts/C-PROPS-0009.yaml) | `active` | Empty and invalid prop values resolve through deterministic fallback | 8 | 1 | `Missing`, `empty`, and `invalid` prop values resolve through the configured `empty` behavior and fallback chain. |
+| [`C-PROPS-0009`](../../spec/contracts/C-PROPS-0009.yaml) | `active` | Missing, empty, and invalid prop values resolve through state-specific fallback | 9 | 1 | `Missing` input releases prior host values, while provided-empty and invalid values may recover through `prevValid` before defaults. |
 | [`C-PROPS-0010`](../../spec/contracts/C-PROPS-0010.yaml) | `active` | Failed declaration merge must not partially apply | 3 | 1 | Blocking diagnostics during `setup`-time prop declaration merge reject the merge transaction without partially applying changes. |
 | [`C-PROPS-0011`](../../spec/contracts/C-PROPS-0011.yaml) | `active` | Resolved props watchers observe resolved snapshot changes | 10 | 1 | Resolved props watchers fire from declared-key `resolved snapshot` diffs, skip `hydration`, may observe coalesced update windows, and preserve shared registration order. |
 | [`C-PROPS-0012`](../../spec/contracts/C-PROPS-0012.yaml) | `active` | Raw props APIs expose raw input as an escape hatch | 12 | 1 | `Raw props` APIs expose the adapter-supplied pre-resolution props snapshot as an escape hatch without extending portable props semantics. |
@@ -865,7 +865,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-PROPS-0003`](../../spec/tests/T-PROPS-0003.yaml) | `active` | Prop declaration descriptor shape tests | 7 | `passing` 2 | `C-PROPS-0006` | `C-PROPS-0003` |
 | [`T-PROPS-0004`](../../spec/tests/T-PROPS-0004.yaml) | `active` | Prop declaration merge safety tests | 10 | `passing` 1 | `C-PROPS-0007`<br>`C-PROPS-0010` | `C-PROPS-0006` |
 | [`T-PROPS-0005`](../../spec/tests/T-PROPS-0005.yaml) | `active` | Resolved props snapshot shape tests | 7 | `active` 1<br>`passing` 8 | `C-PROPS-0008` | `C-PROPS-0003`<br>`C-PROPS-0004`<br>`C-PROPS-0009`<br>`C-CORE-VALUE-0001` |
-| [`T-PROPS-0006`](../../spec/tests/T-PROPS-0006.yaml) | `active` | Empty and fallback resolution tests | 8 | `passing` 3 | `C-PROPS-0009` | `C-PROPS-0004`<br>`C-PROPS-0008`<br>`C-CORE-VALUE-0001` |
+| [`T-PROPS-0006`](../../spec/tests/T-PROPS-0006.yaml) | `active` | Empty and fallback resolution tests | 9 | `passing` 3 | `C-PROPS-0009` | `C-PROPS-0004`<br>`C-PROPS-0008`<br>`C-CORE-VALUE-0001` |
 | [`T-PROPS-0007`](../../spec/tests/T-PROPS-0007.yaml) | `active` | Resolved props watcher tests | 10 | `passing` 3 | `C-PROPS-0011` | `C-PROPS-0008`<br>`C-PROPS-0009` |
 | [`T-PROPS-0008`](../../spec/tests/T-PROPS-0008.yaml) | `active` | Raw props escape hatch tests | 10 | `passing` 5 | `C-PROPS-0012` | `C-PROPS-0003`<br>`C-PROPS-0008`<br>`C-PROPS-0011`<br>`C-PROPS-0013` |
 | [`T-PROPS-0009`](../../spec/tests/T-PROPS-0009.yaml) | `active` | Props watcher run handle binding tests | 5 | `passing` 2 | `C-PROPS-0013` | `C-CORE-SYNTAX-0002`<br>`C-PROPS-0011`<br>`C-PROPS-0012` |

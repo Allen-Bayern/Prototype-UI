@@ -224,7 +224,8 @@ export class PropsKernel<P extends PropsBaseType> {
       const isProvidedEmpty = provided && (rawVal === null || rawVal === undefined);
       const isMissing = !provided;
 
-      // 1) Missing => fallback chain (may include prevValid)
+      // 1) Missing => defaults only. Omitting a key releases the previous
+      // host-provided value and must not revive it through prevValid.
       if (isMissing) {
         const requireNonEmpty = strict && eb === 'error';
         const fb = this.pickFallbackMissingOnly(k, decl, requireNonEmpty);
@@ -373,12 +374,6 @@ export class PropsKernel<P extends PropsBaseType> {
       if (!valid.ok) return { ok: false, usedDefault, isNonEmpty: false };
       return { ok: true, value: valid.value, usedDefault, isNonEmpty: true };
     };
-
-    if (hasOwn(this.prevValid, key)) {
-      const v = (this.prevValid as any)[key];
-      const r = tryTake(v, false);
-      if (r.ok) return r;
-    }
 
     // defaultStack latest-first
     for (const layer of this.defaultStack) {

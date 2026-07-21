@@ -172,7 +172,7 @@ export function describeAdapterResolvedSnapshotShapeConformance(
 
         expect(observation?.resolved).toEqual({
           valid: 42,
-          missing: 'initial',
+          missing: 'missing-fallback',
           empty: null,
           invalid: false,
         });

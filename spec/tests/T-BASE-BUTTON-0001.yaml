@@ -6,14 +6,14 @@ since: 0.1.0
 summary: Contract test coverage for the Base Button prototype protocol and its asButton authoring entry.
 cases:
   - id: T-BASE-BUTTON-0001-CASE-DISABLED-CONTROLLED
-    title: disabled props synchronize disabled exposure and interaction capabilities
+    title: disabled props synchronize state and omission restores the enabled default
     covers:
       - P-BASE-BUTTON-PROP-DISABLED
       - P-BASE-BUTTON-PROP-DISABLED-CONTROLLED
       - P-BASE-BUTTON-DISABLED-EXPOSE
       - P-BASE-BUTTON-DISABLED-CLEAR-TRANSIENT
       - P-BASE-BUTTON-DISABLED-REJECT-FOCUS
-    expectation: disabled-props-synchronize-button-state-and-capabilities
+    expectation: disabled-props-synchronize-and-removal-restores-enabled-default
   - id: T-BASE-BUTTON-0001-CASE-INTERACTION-STATES
     title: pointer, focus, and press interactions are exposed as button state
     covers:
