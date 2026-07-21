@@ -45,16 +45,16 @@ criteria:
       contracts: [C-CORE-SYNTAX-0003, C-TEMPLATE-0001]
   - id: P-SHADCN-BUTTON-VARIANT-PROP
     text:
-      zh-CN: 当前 passing API 必须提供 `variant`，可选 default、destructive、outline、secondary、ghost、link，默认 default；每个值必须投射对应的 shadcn-style surface tokens。
-      en: The current passing API must provide `variant` with default, destructive, outline, secondary, ghost, and link options and a default of default; each value must project its corresponding shadcn-style surface tokens.
+      zh-CN: 当前 passing API 必须提供 `variant`，可选 default、destructive、outline、secondary、ghost、link，默认 default；每个值必须投射对应的 shadcn-style surface tokens，移除该 prop 必须恢复 default tokens。
+      en: The current passing API must provide `variant` with default, destructive, outline, secondary, ghost, and link options and a default of default; each value must project its corresponding shadcn-style surface tokens, and removing the prop must restore the default tokens.
     dependsOn:
-      contracts: [C-PROPS-0001, C-PROPS-0003, C-RULE-INTENT-FEEDBACK-STYLE-0001]
+      contracts: [C-PROPS-0001, C-PROPS-0003, C-PROPS-0009, C-RULE-INTENT-FEEDBACK-STYLE-0001]
   - id: P-SHADCN-BUTTON-SIZE-PROP
     text:
-      zh-CN: 当前 passing API 必须提供 `size`，可选 default、sm、lg、icon，默认 default；每个值必须投射对应的尺寸与间距 tokens。
-      en: The current passing API must provide `size` with default, sm, lg, and icon options and a default of default; each value must project its corresponding size and spacing tokens.
+      zh-CN: 当前 passing API 必须提供 `size`，可选 default、sm、lg、icon，默认 default；每个值必须投射对应的尺寸与间距 tokens，移除该 prop 必须恢复 default tokens。
+      en: The current passing API must provide `size` with default, sm, lg, and icon options and a default of default; each value must project its corresponding size and spacing tokens, and removing the prop must restore the default tokens.
     dependsOn:
-      contracts: [C-PROPS-0001, C-PROPS-0003, C-RULE-INTENT-FEEDBACK-STYLE-0001]
+      contracts: [C-PROPS-0001, C-PROPS-0003, C-PROPS-0009, C-RULE-INTENT-FEEDBACK-STYLE-0001]
   - id: P-SHADCN-BUTTON-INTERACTION-STYLES
     text:
       zh-CN: Shadcn Button 必须从 inherited hovered、focusVisible、pressed 与 disabled state 派生 hover、focus ring、press offset 与 disabled visual rules；视觉 rule 不得成为另一套交互状态真相。

@@ -3,16 +3,25 @@ type: test
 title: Empty and fallback resolution tests
 status: active
 since: 0.1.0
-summary: Tests that verify `missing`, `provided-empty`, and `invalid` prop values resolve through deterministic fallback behavior.
+summary: Tests that verify missing input releases previous host values while provided-empty and invalid values resolve through deterministic fallback behavior.
 cases:
   - id: T-PROPS-0006-CASE-MISSING-FALLBACK
     title: '`missing` input enters the fallback chain'
     covers:
       - C-PROPS-0009-A
     valueKind: missing-input
-    expectation: fallback-chain-used
+    expectation: defaults-only-fallback-chain-used
     notes:
       - A declared key must remain in the `resolved snapshot` even when raw props omit it.
+      - Missing input must not reuse `prevValid`.
+  - id: T-PROPS-0006-CASE-PROVIDED-TO-MISSING-RESET
+    title: A valid provided value resets to defaults when the host omits the key
+    covers:
+      - C-PROPS-0009-I
+    valueKind: provided-to-missing-transition
+    expectation: previous-host-value-released-and-default-restored
+    notes:
+      - This transition models prop removal in React, Vue, and Web Component hosts without host-specific adapter patches.
   - id: T-PROPS-0006-CASE-EMPTY-ACCEPT
     title: '`provided-empty` with `empty: "accept"` resolves to `null`'
     covers:
@@ -38,13 +47,14 @@ cases:
     notes:
       - Invalid non-empty input is not the same state as `provided-empty`.
   - id: T-PROPS-0006-CASE-FALLBACK-ORDER
-    title: Fallback order is `prevValid`, `setDefaults`, declaration `default`, then `null`
+    title: Fallback order distinguishes missing from provided-unusable input
     covers:
       - C-PROPS-0009-E
     valueKind: fallback-candidates
-    expectation: deterministic-candidate-order
+    expectation: deterministic-state-specific-candidate-order
     notes:
-      - '`prevValid` should win over configured defaults once established.'
+      - '`prevValid` should win over configured defaults only for provided-empty or invalid input entering fallback.'
+      - Missing input must start at `setDefaults`, then declaration `default`, then canonical `null`.
   - id: T-PROPS-0006-CASE-FALLBACK-TO-NULL
     title: Default fallback may end in `null` as canonical empty result
     covers:
@@ -60,7 +70,8 @@ cases:
     valueKind: error-empty-behavior
     expectation: throws-without-non-empty-fallback
     notes:
-      - '`empty: "error"` may still resolve through `prevValid` when a non-empty valid previous value exists.'
+      - '`empty: "error"` may still resolve provided-empty or invalid input through `prevValid` when a non-empty valid previous value exists.'
+      - 'Missing input must not use `prevValid`, even with `empty: "error"`.'
   - id: T-PROPS-0006-CASE-PREV-VALID-NON-EMPTY
     title: '`prevValid` stores only non-empty valid values'
     covers:
@@ -77,6 +88,7 @@ implementations:
     required: true
     consumesCases:
       - T-PROPS-0006-CASE-MISSING-FALLBACK
+      - T-PROPS-0006-CASE-PROVIDED-TO-MISSING-RESET
       - T-PROPS-0006-CASE-EMPTY-ACCEPT
       - T-PROPS-0006-CASE-EMPTY-FALLBACK
       - T-PROPS-0006-CASE-INVALID-FALLBACK
@@ -98,6 +110,7 @@ implementations:
     required: false
     consumesCases:
       - T-PROPS-0006-CASE-MISSING-FALLBACK
+      - T-PROPS-0006-CASE-PROVIDED-TO-MISSING-RESET
       - T-PROPS-0006-CASE-EMPTY-ACCEPT
       - T-PROPS-0006-CASE-EMPTY-FALLBACK
       - T-PROPS-0006-CASE-INVALID-FALLBACK
@@ -138,6 +151,7 @@ verifies:
         - C-PROPS-0009-F
         - C-PROPS-0009-G
         - C-PROPS-0009-H
+        - C-PROPS-0009-I
 exercises:
   contracts:
     - id: C-PROPS-0004

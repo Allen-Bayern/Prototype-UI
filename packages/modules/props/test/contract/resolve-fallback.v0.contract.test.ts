@@ -72,7 +72,7 @@ describe('props: resolve & fallback semantics (v0)', () => {
     expect(pm.get().a).toBe(10);
   });
 
-  it('PROP-V0-1300: empty="fallback" fallback chain order: prevValid > setDefaults > decl.default > null', () => {
+  it('PROP-V0-1300: fallback order distinguishes missing from provided-unusable input', () => {
     type P = { a: number };
     const pm = new PropsKernel<P>();
 
@@ -87,6 +87,10 @@ describe('props: resolve & fallback semantics (v0)', () => {
     // provided-empty => prevValid wins
     pm.applyRaw({ a: null } as any);
     expect(pm.get().a).toBe(2);
+
+    // missing releases prevValid and uses the declaration default
+    pm.applyRaw({} as any);
+    expect(pm.get().a).toBe(1);
 
     // clear situation: new kernel to test setDefaults > decl.default > null
     const pm2 = new PropsKernel<P>();
@@ -109,7 +113,7 @@ describe('props: resolve & fallback semantics (v0)', () => {
     expect(pm4.get().a).toBeNull();
   });
 
-  it('PROP-V0-1400: empty="error" throws when no non-empty fallback exists; but uses prevValid when available', () => {
+  it('PROP-V0-1400: empty="error" uses prevValid only for provided-unusable input', () => {
     type P = { a: number };
     const pm = new PropsKernel<P>();
 
@@ -130,6 +134,9 @@ describe('props: resolve & fallback semantics (v0)', () => {
 
     pm.applyRaw({ a: null } as any);
     expect(pm.get().a).toBe(2);
+
+    // missing never reuses prevValid
+    expect(() => pm.applyRaw({} as any)).toThrow(/empty="error"|missing/i);
   });
 
   it('PROP-V0-1500: prevValid stores only non-null values (accept-null MUST NOT write prevValid)', () => {

@@ -16,6 +16,23 @@ describe('props: fallback resolution (T-PROPS-0006)', () => {
     expect(pm.get()).toEqual({ value: 1 });
   });
 
+  it('T-PROPS-0006-CASE-PROVIDED-TO-MISSING-RESET / C-PROPS-0009-I: missing input releases prevValid and restores defaults', () => {
+    const pm = new PropsKernel<{ value: number }>();
+
+    pm.define({
+      value: { type: 'number', default: 1 },
+    });
+    pm.setDefaults({ value: 9 });
+
+    pm.applyRaw({ value: 2 });
+    expect(pm.get()).toEqual({ value: 2 });
+
+    const { report } = pm.applyRaw({});
+    expect(pm.isProvided('value')).toBe(false);
+    expect(pm.get()).toEqual({ value: 9 });
+    expect(report?.changedAllResolved).toEqual(['value']);
+  });
+
   it('T-PROPS-0006-CASE-EMPTY-ACCEPT / C-PROPS-0009-B: empty accept resolves to null and does not update prevValid', () => {
     const pm = new PropsKernel<{ value: number | null }>();
 
@@ -30,7 +47,7 @@ describe('props: fallback resolution (T-PROPS-0006)', () => {
     expect(pm.get()).toEqual({ value: null });
 
     pm.applyRaw({});
-    expect(pm.get()).toEqual({ value: 2 });
+    expect(pm.get()).toEqual({ value: 1 });
   });
 
   it('T-PROPS-0006-CASE-EMPTY-FALLBACK / C-PROPS-0009-C: empty fallback enters fallback chain', () => {
@@ -59,21 +76,22 @@ describe('props: fallback resolution (T-PROPS-0006)', () => {
     expect(pm.get()).toEqual({ value: 1 });
   });
 
-  it('T-PROPS-0006-CASE-FALLBACK-ORDER / C-PROPS-0009-E: fallback order is prevValid, setDefaults, declaration default, then null', () => {
-    const prevValid = new PropsKernel<{ value: number }>();
-    prevValid.define({
+  it('T-PROPS-0006-CASE-FALLBACK-ORDER / C-PROPS-0009-E: fallback order depends on whether input is missing or unusable', () => {
+    const providedUnusable = new PropsKernel<{ value: number }>();
+    providedUnusable.define({
       value: { type: 'number', default: 1 },
     });
-    prevValid.setDefaults({ value: 9 });
-    prevValid.applyRaw({ value: 2 });
-    prevValid.applyRaw({});
-    expect(prevValid.get()).toEqual({ value: 2 });
+    providedUnusable.setDefaults({ value: 9 });
+    providedUnusable.applyRaw({ value: 2 });
+    providedUnusable.applyRaw({ value: null });
+    expect(providedUnusable.get()).toEqual({ value: 2 });
 
     const setDefaults = new PropsKernel<{ value: number }>();
     setDefaults.define({
       value: { type: 'number', default: 1 },
     });
     setDefaults.setDefaults({ value: 9 });
+    setDefaults.applyRaw({ value: 2 });
     setDefaults.applyRaw({});
     expect(setDefaults.get()).toEqual({ value: 9 });
 
@@ -118,9 +136,10 @@ describe('props: fallback resolution (T-PROPS-0006)', () => {
       value: { type: 'number', empty: 'error' },
     });
     withPrevValid.applyRaw({ value: 2 });
-    withPrevValid.applyRaw({});
+    withPrevValid.applyRaw({ value: null });
 
     expect(withPrevValid.get()).toEqual({ value: 2 });
+    expect(() => withPrevValid.applyRaw({})).toThrow(/empty="error"|missing/i);
   });
 
   it('T-PROPS-0006-CASE-PREV-VALID-NON-EMPTY / C-PROPS-0009-H: prevValid stores only non-empty valid values', () => {

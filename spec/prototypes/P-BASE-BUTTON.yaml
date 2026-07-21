@@ -57,11 +57,12 @@ criteria:
         - C-PROPS-0003
   - id: P-BASE-BUTTON-PROP-DISABLED-CONTROLLED
     text:
-      zh-CN: 当 App Maker 更新 `disabled` props input 时，Button 必须同步自身 disabled state 与相关交互能力。
-      en: When the App Maker updates the `disabled` props input, Button must synchronize its disabled state and related interaction capabilities.
+      zh-CN: 当 App Maker 更新 `disabled` props input 时，Button 必须同步自身 disabled state 与相关交互能力；移除该 prop 必须释放此前的 provided value 并恢复默认 `false`。
+      en: When the App Maker updates the `disabled` props input, Button must synchronize its disabled state and related interaction capabilities; removing the prop must release the prior provided value and restore the default `false`.
     dependsOn:
       contracts:
         - C-PROPS-0001
+        - C-PROPS-0009
         - C-STATE-INTERACTION-0001
         - C-AS-FOCUSABLE-0001
   - id: P-BASE-BUTTON-DISABLED-EXPOSE

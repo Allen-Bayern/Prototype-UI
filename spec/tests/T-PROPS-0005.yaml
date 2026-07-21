@@ -47,6 +47,7 @@ cases:
     expectation: one-key-state-does-not-change-other-key-resolution
     notes:
       - A missing, empty, or invalid value for one prop key must not invalidate the whole props record or alter other keys' resolved values.
+      - A key that transitions from provided to missing must independently return to its default rather than reuse `prevValid`.
   - id: T-PROPS-0005-CASE-RECORD-JSON-VALUES
     title: '`resolved snapshot` is a string-keyed record of JSON values'
     covers:

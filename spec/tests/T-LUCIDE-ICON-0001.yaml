@@ -17,13 +17,13 @@ cases:
       - P-LUCIDE-ICON-UPSTREAM-PROVENANCE
     expectation: lucide-manifest-records-exact-upstream-generation-baseline
   - id: T-LUCIDE-ICON-0001-CASE-PROPS-AND-SVG
-    title: name-based and fixed entries normalize visual props and project Lucide SVG structure
+    title: name-based and fixed entries normalize visual props, restore omitted defaults, and project Lucide SVG structure
     covers:
       - P-LUCIDE-ICON-NAME-BASED-PROPS
       - P-LUCIDE-ICON-FIXED-PROPS
       - P-LUCIDE-ICON-SVG-PROJECTION
       - P-LUCIDE-ICON-VISUAL-NORMALIZATION
-    expectation: lucide-visual-props-project-normalized-svg
+    expectation: lucide-visual-props-restore-defaults-and-project-normalized-svg
   - id: T-LUCIDE-ICON-0001-CASE-DISTRIBUTION
     title: manifest snippets static modules and dynamic loaders stay consistent
     covers:

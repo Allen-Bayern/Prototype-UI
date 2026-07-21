@@ -30,7 +30,7 @@ describe('adapter-react: rule props -> style', () => {
     expect(mounted.root?.classList.contains('opacity-50')).toBe(false);
     expect(mounted.root?.getAttribute('data-pui-style')).toBe('opacity-50');
 
-    mounted.update({ active: false });
+    mounted.update({});
     expect(mounted.root?.classList.contains('opacity-50')).toBe(false);
     expect(mounted.root?.hasAttribute('data-pui-style')).toBe(false);
 
