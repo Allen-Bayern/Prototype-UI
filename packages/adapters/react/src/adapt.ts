@@ -12,6 +12,7 @@ import {
   createWebProtoEventRouter,
   installViewVisibilityRule,
   PUI_VIEW_PENDING_ATTR,
+  type ProtoAdapterProps,
   scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
@@ -25,6 +26,7 @@ import type { RawPropsSource } from '@proto.ui/module-props';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { createDefaultMetaGetter } from './platform/meta';
+import type { ProtoReactComponent, ReactAdapterHandle } from './types';
 import {
   bindLogicalParent,
   createLogicalInstance,
@@ -54,11 +56,7 @@ export type ReactRuntime = ReactRenderRuntime & {
   useContext?: <T>(context: any) => T;
 };
 
-export type ReactAdapterHandle = {
-  update(): void;
-  getExposes(): Record<string, unknown>;
-  invokeInCallbackScope?(fn: () => void): void;
-};
+export type { ReactAdapterHandle } from './types';
 
 export type ReactAdapterProps<Props extends PropsBaseType> = Props &
   PropsBaseType & {
@@ -110,10 +108,11 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
     typeof createLogicalInstance
   > | null>(null);
 
-  return function AdaptToReact<Props extends PropsBaseType>(
-    proto: Prototype<Props>,
-    opt: ReactAdapterOptions<Props> = {}
-  ) {
+  return function AdaptToReact<TProto extends Prototype<any, any>>(
+    proto: TProto,
+    opt: ReactAdapterOptions<ProtoAdapterProps<TProto>> = {}
+  ): ProtoReactComponent<TProto> {
+    type Props = ProtoAdapterProps<TProto>;
     const schedule = opt.schedule ?? ((task) => queueMicrotask(task));
     const getProps = opt.getProps ?? defaultGetProps;
     const getMeta = opt.getMeta ?? createDefaultMetaGetter();
@@ -471,7 +470,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         { value: instanceTokenRef.current },
         projectedContent
       );
-    });
+    }) as ProtoReactComponent<TProto>;
 
     Component.displayName = `Proto(${proto.name})`;
     return Component;

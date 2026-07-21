@@ -1,8 +1,16 @@
 # Proto UI 0.2.0-rc.1（未发布草稿）
 
-> 本文件是在 `0.2.0-rc.0` 外部人工试用期间持续收集的候选更新日志。它不代表 `0.2.0-rc.1` release train 已创建或发布；当前 `VERSION`、公开 package manifest 与 V 实体仍保持 `0.2.0-rc.0`。正式准备发布时必须补齐 draft V 实体、全局精确版本投射、package BOM、spec snapshot 与完整 release checks。
+> `0.2.0-rc.1` 现在是已评审的 draft release train。`VERSION`、全部公开 package manifest 与 draft V 实体已完成对齐，但该版本尚未发布。正式发布仍须完成全套 release rehearsal、合入 `main`、受保护的 `publish-all` workflow，以及将 V 实体转为 active 的后续证据 PR。
 
 ## 已修正
+
+### Adapter 公共类型保真
+
+- React 与 Vue Adapter 生成宿主组件时会保留完整 Prototype identity，使 CLI facade 获得精确 props 与 outward-event listener 类型，不再退化为 `any`。
+- React ref、Vue exposed instance 与 Web Component element 现在会投影带类型的 expose value、method 与只读 external state handle。
+- Web Component constructor 会携带来源 Prototype 类型，并导出可供宿主工具复用的 props 投影 utility。
+- 打包消费发布检查现在会对 React、Vue 与 Web Component facade 同时验证合法用法、非法 variant 与 unknown prop 拒绝。
+- Adapter 只声明当前运行时确实支持的 host props；本次修正不会假装完整 native-element prop forwarding 已经存在。
 
 ### Web 主题默认解析
 

@@ -2,7 +2,7 @@
 
 This document describes the repository's GitHub Actions workflows and how they relate to global exact-version and launch-package governance.
 
-The current release train is `0.2.0-rc.0`; no release date is committed yet.
+The current reviewed draft release train is `0.2.0-rc.1`; it remains unpublished and has no committed release date.
 
 ## Workflows
 

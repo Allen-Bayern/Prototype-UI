@@ -1,0 +1,37 @@
+id: V-PROTO-UI-0002
+type: version
+title: Proto UI 0.2.0-rc.1
+status: draft
+since: 0.2.0-rc.1
+summary: Second release candidate collecting fixes from external 0.2.0-rc.0 trials.
+statement:
+  en: Proto UI 0.2.0-rc.1 is one reviewed draft ecosystem release identity shared exactly by every public @proto.ui package and the corresponding spec snapshot.
+  zh-CN: Proto UI 0.2.0-rc.1 是由全部公开 @proto.ui package 与对应 spec snapshot 精确共享、处于评审阶段的一次生态发行身份。
+release:
+  version: 0.2.0-rc.1
+  channel: prerelease
+  gitTag: v0.2.0-rc.1
+  npmDistTag: next
+  packageVersionPolicy: exact
+  packageScope: public-@proto.ui
+dependsOn:
+  decisions:
+    - D-GLOBAL-RELEASE-VERSION-0001
+criteria:
+  - id: V-PROTO-UI-0002-IDENTITY
+    text:
+      en: VERSION, every public @proto.ui package manifest, staged internal dependency versions, and the spec snapshot use 0.2.0-rc.1 exactly.
+      zh-CN: VERSION、全部公开 @proto.ui package manifest、暂存发布包的内部依赖版本以及 spec snapshot 均精确使用 0.2.0-rc.1。
+  - id: V-PROTO-UI-0002-PUBLICATION
+    text:
+      en: The entity may become active only after npm publication, the v0.2.0-rc.1 Git tag, and snapshot digest evidence all exist.
+      zh-CN: 仅当 npm 发布、v0.2.0-rc.1 Git tag 与 snapshot digest 证据均存在后，本实体才可转为 active。
+openQuestions: []
+revisions:
+  - version: 0.2.0-rc.1
+    change: introduced
+    summary: Prepared the second globally exact Proto UI release candidate from external trial fixes.
+tags:
+  - release
+  - prerelease
+  - global-version

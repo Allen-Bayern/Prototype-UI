@@ -7,13 +7,13 @@ Proto UI command line tooling for initializing a local `proto-ui/` workspace, ge
 Initialize the local workspace:
 
 ```bash
-npx @proto.ui/cli@0.2.0-rc.0 init
+npx @proto.ui/cli@0.2.0-rc.1 init
 ```
 
 Add a component for a host adapter:
 
 ```bash
-npx @proto.ui/cli@0.2.0-rc.0 add react shadcn-button
+npx @proto.ui/cli@0.2.0-rc.1 add react shadcn-button
 ```
 
 The generated component facade is written under:
@@ -54,7 +54,7 @@ The generated Shadcn theme follows `prefers-color-scheme` when the application d
 
 ## Current Scope
 
-The v0 CLI installs Proto UI adapter/prototype packages through the project package manager and generates local component facade files. This prerelease README pins `0.2.0-rc.0` for reproducible trials; the CLI saves required official packages at its own exact version so a consumer cannot accidentally mix release trains.
+The v0 CLI installs Proto UI adapter/prototype packages through the project package manager and generates local component facade files. This prerelease README pins `0.2.0-rc.1` for reproducible trials; the CLI saves required official packages at its own exact version so a consumer cannot accidentally mix release trains.
 
 Prototype packages remain the installation and versioning unit. Generated facades import the selected anatomy family through a package subpath such as `@proto.ui/prototypes-shadcn/button`, so unrelated prototype families do not enter the consumer module graph.
 

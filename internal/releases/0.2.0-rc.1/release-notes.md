@@ -1,8 +1,16 @@
 # Proto UI 0.2.0-rc.1 (Unreleased Draft)
 
-> This file collects candidate changes while external `0.2.0-rc.0` trials continue. It does not mean that the `0.2.0-rc.1` release train has been created or published. `VERSION`, public package manifests, and the V entity remain on `0.2.0-rc.0`. Formal release preparation must still add a draft V entity, project the global exact version, generate the package BOM and spec snapshot, and pass the complete release checks.
+> `0.2.0-rc.1` is now the reviewed draft release train. `VERSION`, all public package manifests, and the draft V entity are aligned, but the release is not published. Publication still requires the complete release rehearsal, merge to `main`, the protected `publish-all` workflow, and a follow-up evidence PR that activates the V entity.
 
 ## Fixed
+
+### Adapter public type preservation
+
+- React and Vue adapters now preserve the complete Prototype identity when producing host components, so generated facades retain exact props and outward-event listener types instead of degrading to `any`.
+- React refs, Vue exposed instances, and Web Component elements now project typed expose values, methods, and read-only external state handles.
+- Web Component constructors carry their source Prototype type and export a reusable props projection utility for host tooling.
+- Packed-consumer release checks now exercise React, Vue, and Web Component facades with both valid usage and negative assertions for invalid variants and unknown props.
+- Adapter packages only claim host props that their runtimes currently support; this fix does not pretend that full native-element prop forwarding already exists.
 
 ### Default Web theme resolution
 

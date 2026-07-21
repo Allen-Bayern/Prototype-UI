@@ -1,6 +1,6 @@
 {
   "name": "@proto.ui/adapter-react",
-  "version": "0.2.0-rc.0",
+  "version": "0.2.0-rc.1",
   "private": false,
   "type": "module",
   "dependencies": {
@@ -29,6 +29,9 @@
   "devDependencies": {
     "@types/react": "^19.2.0",
     "@proto.ui/prototypes-base": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0 <20"
   },
   "exports": {
     ".": {

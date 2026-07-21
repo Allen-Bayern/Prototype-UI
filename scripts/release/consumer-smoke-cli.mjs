@@ -16,6 +16,7 @@ import { getAllPackages, ROOT_DIR, selectPackages } from './lib.mjs';
 import { readVersion } from './version-utils.mjs';
 
 const RENDER_FIXTURE_DIR = join(ROOT_DIR, 'packages', 'cli', 'test', 'smoke-render');
+const CONSUMER_FIXTURE_DIR = join(ROOT_DIR, 'scripts', 'release', 'consumer-smoke');
 const RELEASE_ROOTS = [
   '@proto.ui/cli',
   '@proto.ui/adapter-react',
@@ -74,9 +75,11 @@ try {
         dependencies: {
           ...protoDependencies,
           '@happy-dom/global-registrator': '20.11.0',
+          '@types/react': '19.2.14',
           react: '19.2.6',
           'react-dom': '19.2.6',
           tsx: '4.21.0',
+          typescript: '5.9.3',
           vue: '3.5.29',
         },
       },
@@ -107,6 +110,20 @@ try {
   }
 
   verifyGeneratedConsumer(consumerDir);
+  cpSync(join(CONSUMER_FIXTURE_DIR, 'adapter-types.tsx'), join(consumerDir, 'adapter-types.tsx'));
+  cpSync(
+    join(CONSUMER_FIXTURE_DIR, 'adapter-types.tsconfig.json'),
+    join(consumerDir, 'adapter-types.tsconfig.json')
+  );
+  run(
+    process.execPath,
+    [
+      join(consumerDir, 'node_modules', 'typescript', 'bin', 'tsc'),
+      '-p',
+      'adapter-types.tsconfig.json',
+    ],
+    { cwd: consumerDir }
+  );
   for (const renderer of ['react.mjs', 'vue.mjs', 'wc.mjs']) {
     cpSync(join(RENDER_FIXTURE_DIR, renderer), join(consumerDir, renderer));
     run(process.execPath, ['--import', 'tsx', `./${renderer}`], { cwd: consumerDir });
