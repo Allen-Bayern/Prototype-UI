@@ -140,6 +140,11 @@ describe('@proto.ui/cli', () => {
     expect(styleCss).toContain(`@import './proto-ui-tokens.generated.css';`);
     expect(themeCss).toContain('--pui-background');
     expect(themeCss).not.toContain('--background:');
+    expect(themeCss).toContain('@media (prefers-color-scheme: dark)');
+    expect(themeCss).toContain(
+      ":root:not(.dark):not(.light):not([data-theme='dark']):not([data-theme='light'])"
+    );
+    expect(tokensCss).toContain('@media (prefers-color-scheme: dark)');
     await expect(fs.stat(path.join(cwd, 'src/styles/shadcn-theme.css'))).resolves.toBeTruthy();
   });
 

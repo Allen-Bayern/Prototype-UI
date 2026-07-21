@@ -70,6 +70,8 @@ import './styles/proto-ui-style.css';
 
 如果你的项目入口与 `src/styles` 的相对位置不同，请按实际路径调整。
 
+生成的 Shadcn theme 在应用没有声明主题时会跟随系统的 `prefers-color-scheme`。如果应用自行管理主题，请在根元素上设置 `data-theme="light"` / `data-theme="dark"`，或使用兼容的 `.light` / `.dark` class；显式主题会覆盖系统偏好。
+
 ---
 
 ## 添加一个组件

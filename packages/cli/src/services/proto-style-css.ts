@@ -1,4 +1,7 @@
 const PUI_STYLE_ATTR = 'data-pui-style';
+const SYSTEM_DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
+const SYSTEM_THEME_FALLBACK_ROOT =
+  ":root:not(.dark):not(.light):not([data-theme='dark']):not([data-theme='light'])";
 
 type CssRule = {
   token: string;
@@ -198,6 +201,21 @@ export function renderProtoStyleTokenCss(tokens: string[]): string {
     lines.push('');
   }
 
+  const systemDarkRules = rules.filter((rule) => hasDarkVariant(rule.token));
+  if (systemDarkRules.length > 0) {
+    lines.push(`  @media ${SYSTEM_DARK_MEDIA_QUERY} {`);
+    for (const rule of systemDarkRules) {
+      const selectors = buildSelectors(rule.token, { systemPreferenceFallback: true });
+      if (selectors.length === 0 || rule.css.length === 0) continue;
+      lines.push(`    ${selectors.join(',\n    ')} {`);
+      for (const decl of rule.css) lines.push(`      ${decl}`);
+      lines.push('    }');
+      lines.push('');
+    }
+    lines.push('  }');
+    lines.push('');
+  }
+
   if (unknown.length > 0) {
     lines.push('  /* Unsupported Proto UI style tokens:');
     for (const token of unknown) lines.push(`   * - ${token}`);
@@ -254,7 +272,32 @@ export function renderPrefixedThemeCss(input: string): string {
     ].join('\n')
   );
 
+  css = appendSystemDarkThemeFallback(css);
+
   return `${css.trimEnd()}\n`;
+}
+
+function appendSystemDarkThemeFallback(css: string): string {
+  const darkRule = css.match(
+    /:root\.dark,\s*:root\[data-theme=(?:'dark'|"dark")\]\s*\{([\s\S]*?)\n\s*\}/
+  );
+  if (!darkRule) return css;
+
+  const declarations = (darkRule[1] ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (declarations.length === 0) return css;
+
+  return [
+    css.trimEnd(),
+    '',
+    `@media ${SYSTEM_DARK_MEDIA_QUERY} {`,
+    `  ${SYSTEM_THEME_FALLBACK_ROOT} {`,
+    ...declarations.map((declaration) => `    ${declaration}`),
+    '  }',
+    '}',
+  ].join('\n');
 }
 
 function renderTokenRule(token: string): CssRule | null {
@@ -361,7 +404,10 @@ function renderTransformUtility(utility: string): string[] | null {
   return null;
 }
 
-function buildSelectors(token: string): string[] {
+function buildSelectors(
+  token: string,
+  { systemPreferenceFallback = false }: { systemPreferenceFallback?: boolean } = {}
+): string[] {
   const parts = splitVariants(token);
   const variants = parts.slice(0, -1);
   let selectors = [`:where([${PUI_STYLE_ATTR}~="${escapeCssString(token)}"])`];
@@ -376,6 +422,10 @@ function buildSelectors(token: string): string[] {
   }
 
   if (dark) {
+    if (systemPreferenceFallback) {
+      return selectors.map((selector) => `:where(${SYSTEM_THEME_FALLBACK_ROOT}) ${selector}`);
+    }
+
     selectors = selectors.flatMap((selector) => [
       `:where(.dark) ${selector}`,
       `:where(.dark)${selector}`,
@@ -385,6 +435,10 @@ function buildSelectors(token: string): string[] {
   }
 
   return selectors;
+}
+
+function hasDarkVariant(token: string): boolean {
+  return splitVariants(token).slice(0, -1).includes('dark');
 }
 
 function applyVariant(selector: string, variant: string): string[] {
