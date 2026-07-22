@@ -16,6 +16,13 @@
 - App Makers can call `dialogRef.current?.getExposes().close('save')` directly without knowing or manually invoking an adapter-internal scope helper.
 - Validation or persistence can therefore remain ordinary Button application behavior that closes the Dialog only after success, rather than forcing Save to be a Dialog Close part.
 
+### React refs no longer cause false props update loops
+
+- The React adapter now compares adapter-projected raw props snapshots instead of treating React's internal props-object identity as a runtime input change.
+- React 19 may reconstruct a props object while stripping `ref` for `forwardRef`; that host implementation detail no longer creates an infinite cycle between feedback commits, `setHostTokens()`, and adapter updates.
+- CLI presets also avoid writing an empty `ref` key to raw facades when no forwarded ref exists, while preserving transparent forwarding for real refs.
+- Real ReactDOM regression coverage and the isolated tarball consumer smoke exercise a styled Dialog Content with a ref, genuine prop updates, and the generated facade.
+
 ### CLI component presets and the Switch default Thumb
 
 - The CLI registry and facade generator now support a `replaceable-default-part` component preset with distinct states for an absent input that adopts the default, a compatible replacement, and explicit omission.

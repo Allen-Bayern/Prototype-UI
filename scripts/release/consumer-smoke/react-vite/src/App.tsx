@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
 
 import {
   ShadcnButton,
@@ -20,6 +20,7 @@ import {
 
 export function App() {
   const [ready, setReady] = useState(false);
+  const dialogContentRef = useRef<ComponentRef<typeof ShadcnDialogContent>>(null);
 
   useEffect(() => {
     Promise.resolve().then(() => setReady(true));
@@ -52,7 +53,7 @@ export function App() {
       <ShadcnDialogRoot defaultOpen a11yLabel="Preference details">
         <ShadcnDialogTrigger>Open details</ShadcnDialogTrigger>
         <ShadcnDialogMask />
-        <ShadcnDialogContent className="consumer-dialog-content">
+        <ShadcnDialogContent ref={dialogContentRef} className="consumer-dialog-content">
           <ShadcnDialogTitle>Preference details</ShadcnDialogTitle>
           <ShadcnDialogDescription>Review the selected preference.</ShadcnDialogDescription>
           <ShadcnDialogClose>Close</ShadcnDialogClose>

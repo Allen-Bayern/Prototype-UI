@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0003`](../../spec/versions/V-PROTO-UI-0003.yaml) |
 | 工作区实体数 | 391 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:aec57fce0ac1d75dfac69360ba02137b65160a4d3bc853fd884cc6ef52762458` |
+| 工作区快照指纹 | `sha256:57358b80d48704868e12e660c637c33ae8e52bcfd8c75b73e9c11c601e0de0b6` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -701,14 +701,14 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  256 |
+| `passing` |  257 |
 | `planned` |   14 |
 
 ### Implementation 类型
 
 | Kind              | 数量 |
 | ----------------- | ---: |
-| `adapter-test`    |   70 |
+| `adapter-test`    |   71 |
 | `fixture`         |   17 |
 | `module-test`     |  124 |
 | `runtime-test`    |   70 |
@@ -900,7 +900,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-PROPS-0005`](../../spec/tests/T-PROPS-0005.yaml) | `active` | Resolved props snapshot shape tests | 7 | `active` 1<br>`passing` 8 | `C-PROPS-0008` | `C-PROPS-0003`<br>`C-PROPS-0004`<br>`C-PROPS-0009`<br>`C-CORE-VALUE-0001` |
 | [`T-PROPS-0006`](../../spec/tests/T-PROPS-0006.yaml) | `active` | Empty and fallback resolution tests | 9 | `passing` 3 | `C-PROPS-0009` | `C-PROPS-0004`<br>`C-PROPS-0008`<br>`C-CORE-VALUE-0001` |
 | [`T-PROPS-0007`](../../spec/tests/T-PROPS-0007.yaml) | `active` | Resolved props watcher tests | 10 | `passing` 3 | `C-PROPS-0011` | `C-PROPS-0008`<br>`C-PROPS-0009` |
-| [`T-PROPS-0008`](../../spec/tests/T-PROPS-0008.yaml) | `active` | Raw props escape hatch tests | 10 | `passing` 5 | `C-PROPS-0012` | `C-PROPS-0003`<br>`C-PROPS-0008`<br>`C-PROPS-0011`<br>`C-PROPS-0013` |
+| [`T-PROPS-0008`](../../spec/tests/T-PROPS-0008.yaml) | `active` | Raw props escape hatch tests | 10 | `passing` 6 | `C-PROPS-0012` | `C-PROPS-0003`<br>`C-PROPS-0008`<br>`C-PROPS-0011`<br>`C-PROPS-0013` |
 | [`T-PROPS-0009`](../../spec/tests/T-PROPS-0009.yaml) | `active` | Props watcher run handle binding tests | 5 | `passing` 2 | `C-PROPS-0013` | `C-CORE-SYNTAX-0002`<br>`C-PROPS-0011`<br>`C-PROPS-0012` |
 | [`T-PROPS-0010`](../../spec/tests/T-PROPS-0010.yaml) | `active` | Props API surface tests | 6 | `passing` 6 | `C-PROPS-0002` | `C-CORE-SYNTAX-0001`<br>`C-CORE-SYNTAX-0002`<br>`C-PROPS-0008`<br>`C-PROPS-0012` |
 | [`T-PROPS-0011`](../../spec/tests/T-PROPS-0011.yaml) | `active` | Runtime applyRawProps boundary tests | 5 | `passing` 2 | `C-PROPS-0014` | `C-PROPS-0011`<br>`C-PROPS-0012`<br>`C-PROPS-0013` |

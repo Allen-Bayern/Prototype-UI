@@ -104,6 +104,24 @@ function defaultGetProps<Props extends PropsBaseType>(
   return filtered as Partial<Props>;
 }
 
+function snapshotRawProps<Props extends PropsBaseType>(
+  value: Partial<Props> | null | undefined
+): Record<string, unknown> {
+  return { ...(value ?? {}) };
+}
+
+function hasSameRawProps(
+  previous: Readonly<Record<string, unknown>>,
+  next: Readonly<Record<string, unknown>>
+): boolean {
+  const previousKeys = Object.keys(previous);
+  const nextKeys = Object.keys(next);
+  if (previousKeys.length !== nextKeys.length) return false;
+  return previousKeys.every(
+    (key) => Object.prototype.hasOwnProperty.call(next, key) && Object.is(previous[key], next[key])
+  );
+}
+
 export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
   const runtime = normalizeRuntime(runtimeInput);
   const sharedOverlayLayerScheduler = createZIndexOverlayLayerScheduler();
@@ -177,6 +195,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
 
       const subsRef = runtime.useRef<Set<() => void>>(new Set());
       const rawPropsSourceRef = runtime.useRef<RawPropsSource<Props> | null>(null);
+      const deliveredRawPropsRef = runtime.useRef<Record<string, unknown> | null>(null);
 
       const pendingCommitRef = runtime.useRef(false);
       const pendingSignalRef = runtime.useRef<CommitSignal | null>(null);
@@ -222,6 +241,11 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       );
 
       runtime.useEffect(() => {
+        const nextRawProps = snapshotRawProps(getProps(propsRef.current));
+        const previousRawProps = deliveredRawPropsRef.current;
+        deliveredRawPropsRef.current = nextRawProps;
+        if (previousRawProps && hasSameRawProps(previousRawProps, nextRawProps)) return;
+
         for (const cb of subsRef.current) cb();
         if (autoUpdate) controllerRef.current?.update();
       }, [props, autoUpdate]);

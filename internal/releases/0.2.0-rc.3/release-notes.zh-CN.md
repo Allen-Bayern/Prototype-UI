@@ -16,6 +16,13 @@
 - App Maker 可以直接调用 `dialogRef.current?.getExposes().close('save')`，无需理解或手工调用 adapter 内部的 scope helper。
 - 这使校验、持久化成功后再关闭 Dialog 等应用语义保持在普通 Button 中，而不必把 Save 强制建模为 Dialog Close。
 
+### React ref 不再造成伪 props 更新循环
+
+- React adapter 现在比较 adapter 投射后的 raw props snapshot，而不是把 React 内部 props 对象的引用变化直接解释为 runtime input 更新。
+- React 19 `forwardRef` 在剥离 `ref` 时可能重新构造 props 对象；该宿主实现细节不再触发 feedback commit、`setHostTokens()` 与 adapter update 之间的无限循环。
+- CLI preset 在没有 forwarded ref 时也不再向 raw facade 主动写入空 `ref` 键；真正提供 ref 时仍保持透明转发。
+- 真实 ReactDOM 回归测试与隔离 tarball consumer smoke 覆盖带 ref 的 styled Dialog Content、实际 prop 更新与生成 facade。
+
 ### CLI component preset 与 Switch 默认 Thumb
 
 - CLI registry 与 facade generator 新增 `replaceable-default-part` component preset，明确区分“未提供而采用默认部分”“提供兼容替换”“显式省略”三种状态。

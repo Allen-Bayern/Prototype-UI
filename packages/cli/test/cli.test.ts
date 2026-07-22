@@ -102,6 +102,7 @@ describe('@proto.ui/cli', () => {
     expect(react).toContain('export const ShadcnSwitchThumb = adapt(shadcnSwitchThumb);');
     expect(react).toContain('export const ShadcnSwitch = React.forwardRef');
     expect(react).toContain('thumb === null || hasDirectDefaultPart');
+    expect(react).toContain('const rootProps = ref == null ? props : { ...props, ref };');
 
     const vue = renderHostIndex('vue', ['shadcn-switch']);
     expect(vue).toContain('export const ShadcnSwitch = Vue.defineComponent({');
