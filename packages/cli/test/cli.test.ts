@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { COMPONENT_REGISTRY } from '../src/registry/components';
+import { renderHostIndex, renderRootIndex } from '../src/services/codegen';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const CLI_DIR = path.resolve(TEST_DIR, '..');
@@ -93,6 +94,33 @@ describe('@proto.ui/cli', () => {
       );
       expect(entry.importPath).not.toBe(entry.packageName);
     }
+  });
+
+  it('materializes the replaceable shadcn Switch Thumb preset for every adapter', () => {
+    const react = renderHostIndex('react', ['shadcn-switch']);
+    expect(react).toContain('export const ShadcnSwitchRoot = adapt(shadcnSwitchRoot);');
+    expect(react).toContain('export const ShadcnSwitchThumb = adapt(shadcnSwitchThumb);');
+    expect(react).toContain('export const ShadcnSwitch = React.forwardRef');
+    expect(react).toContain('thumb === null || hasDirectDefaultPart');
+
+    const vue = renderHostIndex('vue', ['shadcn-switch']);
+    expect(vue).toContain('export const ShadcnSwitch = Vue.defineComponent({');
+    expect(vue).toContain('const resolvedDefaultPart = slots.thumb');
+    expect(vue).toContain('child.type === ShadcnSwitchThumb');
+
+    const wc = renderHostIndex('wc', ['shadcn-switch']);
+    expect(wc).toContain('export class ShadcnSwitchElement extends ShadcnSwitchRootElement');
+    expect(wc).toContain("!this.hasAttribute('data-pui-no-default-thumb')");
+    expect(wc).toContain("document.createElement('proto-ui-shadcn-switch-thumb')");
+
+    const root = renderRootIndex({
+      react: ['shadcn-switch'],
+      vue: ['shadcn-switch'],
+      wc: ['shadcn-switch'],
+    });
+    expect(root).toContain('ShadcnSwitch as ReactShadcnSwitch');
+    expect(root).toContain('ShadcnSwitch as VueShadcnSwitch');
+    expect(root).toContain('export { ShadcnSwitchElement }');
   });
 
   it('prints the new help text', () => {
