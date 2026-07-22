@@ -8,6 +8,7 @@ import type {
 import {
   createDeferredOwnerDisposal,
   createEventGate,
+  createScopedExposesReader,
   createViewEpochOwner,
   createWebProtoEventRouter,
   installViewVisibilityRule,
@@ -165,6 +166,9 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
       const eventGateRef = runtime.useRef<ReturnType<typeof createEventGate> | null>(null);
       const exposesRef = runtime.useRef<Record<string, unknown>>({});
       const invokeInCallbackScopeRef = runtime.useRef<((fn: () => void) => void) | null>(null);
+      const scopedExposesReaderRef = runtime.useRef(
+        createScopedExposesReader(() => invokeInCallbackScopeRef.current)
+      );
 
       const propsRef = runtime.useRef<ReactAdapterProps<Props>>(props);
       propsRef.current = props;
@@ -211,7 +215,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         ref,
         () => ({
           update: () => controllerRef.current?.update(),
-          getExposes: () => ({ ...(exposesRef.current ?? {}) }),
+          getExposes: () => scopedExposesReaderRef.current.read(exposesRef.current ?? {}),
           invokeInCallbackScope: (fn: () => void) => invokeInCallbackScopeRef.current?.(fn),
         }),
         []

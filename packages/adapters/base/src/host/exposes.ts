@@ -1,0 +1,53 @@
+export type CallbackScopeInvoker = (fn: () => void) => void;
+
+export interface ScopedExposesReader {
+  read(record: Record<string, unknown>): Record<string, unknown>;
+}
+
+/**
+ * Keeps an adapter expose snapshot stable while ensuring every outward method
+ * enters the owning Proto instance's callback scope before it runs.
+ */
+export function createScopedExposesReader(
+  getInvoker: () => CallbackScopeInvoker | null | undefined
+): ScopedExposesReader {
+  let lastRaw: Record<string, unknown> | null = null;
+  let lastWrapped: Record<string, unknown> = {};
+
+  const wrapRecord = (record: Record<string, unknown>): Record<string, unknown> => {
+    const wrapped: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(record)) {
+      if (typeof value === 'function') {
+        wrapped[key] = (...args: unknown[]) => {
+          let result: unknown;
+          const invoke = getInvoker();
+          const call = () => {
+            result = (value as (...methodArgs: unknown[]) => unknown)(...args);
+          };
+
+          if (invoke) invoke(call);
+          else call();
+
+          return result;
+        };
+      } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        wrapped[key] = wrapRecord(value as Record<string, unknown>);
+      } else {
+        wrapped[key] = value;
+      }
+    }
+
+    return wrapped;
+  };
+
+  return {
+    read(record) {
+      if (record !== lastRaw) {
+        lastRaw = record;
+        lastWrapped = wrapRecord(record);
+      }
+      return { ...lastWrapped };
+    },
+  };
+}
