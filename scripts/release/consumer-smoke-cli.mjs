@@ -200,6 +200,10 @@ function verifyInstalledRelease({ consumerDir, expectedNames, releaseVersion }) 
 
 function verifyGeneratedConsumer(root) {
   const config = readFileSync(join(root, 'proto-ui', 'config.json'), 'utf8');
+  const tokensCss = readFileSync(
+    join(root, 'src', 'styles', 'proto-ui-tokens.generated.css'),
+    'utf8'
+  );
   const react = readFileSync(join(root, 'proto-ui', 'components', 'react', 'index.ts'), 'utf8');
   const vue = readFileSync(join(root, 'proto-ui', 'components', 'vue', 'index.ts'), 'utf8');
   const wc = readFileSync(join(root, 'proto-ui', 'components', 'wc', 'index.ts'), 'utf8');
@@ -213,6 +217,18 @@ function verifyGeneratedConsumer(root) {
     'base-button',
   ]) {
     assert(config.includes(expected), `generated config is missing ${expected}`);
+  }
+  for (const expected of [
+    '@keyframes pui-enter',
+    '@keyframes pui-exit',
+    '[data-pui-style~="animate-in"]',
+    '[data-pui-style~="animate-out"]',
+    '[data-pui-style~="fade-in-0"]',
+    '[data-pui-style~="fade-out-0"]',
+    '[data-pui-style~="zoom-in-95"]',
+    '[data-pui-style~="zoom-out-95"]',
+  ]) {
+    assert(tokensCss.includes(expected), `generated token CSS is missing ${expected}`);
   }
   for (const expected of [
     'createReactAdapter(React)',

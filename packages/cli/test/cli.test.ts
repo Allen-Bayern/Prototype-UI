@@ -137,6 +137,14 @@ describe('@proto.ui/cli', () => {
       `data-[hovered]:not-[data-active]:bg-muted"])[data-hovered]:not([data-active])`
     );
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
+    expect(tokensCss).toContain(`[data-pui-style~="animate-in"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="animate-out"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="fade-in-0"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="fade-out-0"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="zoom-in-95"]`);
+    expect(tokensCss).toContain(`[data-pui-style~="zoom-out-95"]`);
+    expect(tokensCss).toContain('@keyframes pui-enter');
+    expect(tokensCss).toContain('@keyframes pui-exit');
     expect(tokensCss).not.toContain(`aria-checked:bg-primary"])[aria-checked='true']`);
     expect(tokensCss).not.toContain('@source');
     expect(tokensCss).not.toContain('Unsupported Proto UI style tokens');
@@ -151,6 +159,17 @@ describe('@proto.ui/cli', () => {
     );
     expect(tokensCss).toContain('@media (prefers-color-scheme: dark)');
     await expect(fs.stat(path.join(cwd, 'src/styles/shadcn-theme.css'))).resolves.toBeTruthy();
+
+    const scannedTokensFile = path.join(cwd, 'shadcn-source-tokens.css');
+    const scanResult = runCli(process.cwd(), [
+      'tokens',
+      '--input',
+      'packages/prototypes/shadcn/src',
+      '--out',
+      scannedTokensFile,
+    ]);
+    expect(scanResult.status).toBe(0);
+    await expect(fs.readFile(scannedTokensFile, 'utf8')).resolves.toBe(tokensCss);
   });
 
   it('renders the official prototype token set without unsupported-token comments', async () => {
