@@ -13,7 +13,7 @@ const ROOT_BASE_TOKENS = [
   'border',
   'border-transparent',
   'pl-0.5',
-  'pr-[20px]',
+  'pr-5',
   'shadow-xs',
   'transition-all',
   'duration-200',
@@ -39,8 +39,7 @@ const switchRoot = definePrototype<ShadcnSwitchRootProps, ShadcnSwitchRootExpose
     // P-SHADCN-SWITCH-STATE-DRIVEN-STYLES
     def.rule({
       when: (w) => w.state(checked).eq(true),
-      intent: (i) =>
-        i.feedback.style.use(tw('pl-[20px] pr-0.5 bg-primary text-primary-foreground')),
+      intent: (i) => i.feedback.style.use(tw('pl-5 pr-0.5 bg-primary text-primary-foreground')),
     });
 
     def.rule({

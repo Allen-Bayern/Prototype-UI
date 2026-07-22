@@ -1,0 +1,43 @@
+id: D-WEB-STYLE-BASELINE-0001
+type: decision
+title: Web physical CSS provides a scoped Proto UI box-model baseline
+status: draft
+since: 0.2.0-rc.1
+summary: Proto UI-generated Web CSS applies border-box only to styled Proto UI elements and their pseudo-elements, preserving component dimensions without installing a document-wide reset or coupling the baseline to a theme.
+statement:
+  zh-CN: >-
+    Proto UI 的 Web 物理 CSS 必须为带有 `data-pui-style` 的元素及其 `::before`、`::after` 伪元素提供 scoped `box-sizing: border-box` 基线。该基线属于 style translation 输出，而不是 Shadcn theme；它用于在宿主未安装 Tailwind Preflight 或其他全局 reset 时保持 width、height、padding 与 border token 的组合尺寸。生成器不得为此写入 document-wide `*` reset，也不得修改未进入 Proto UI style projection 的普通宿主元素或用户内容。
+
+
+  en: >-
+    Proto UI Web physical CSS must provide a scoped `box-sizing: border-box` baseline for elements carrying `data-pui-style` and their `::before` and `::after` pseudo-elements. This baseline belongs to style translation output rather than the Shadcn theme and preserves the composed dimensions of width, height, padding, and border tokens when the host has not installed Tailwind Preflight or another global reset. The generator must not emit a document-wide `*` reset or modify ordinary host elements or user content outside Proto UI style projection.
+
+
+criteria:
+  - id: D-WEB-STYLE-BASELINE-0001-A
+    text:
+      zh-CN: '生成的 Web token CSS 必须对 `[data-pui-style]`、`[data-pui-style]::before` 与 `[data-pui-style]::after` 写入 `box-sizing: border-box`。'
+      en: 'Generated Web token CSS must write `box-sizing: border-box` for `[data-pui-style]`, `[data-pui-style]::before`, and `[data-pui-style]::after`.'
+  - id: D-WEB-STYLE-BASELINE-0001-B
+    text:
+      zh-CN: box-model 基线不得使用 document-wide `*`、裸 `::before` 或裸 `::after` selector，不得改变没有 `data-pui-style` 的宿主元素。
+      en: The box-model baseline must not use document-wide `*`, bare `::before`, or bare `::after` selectors and must not alter host elements without `data-pui-style`.
+  - id: D-WEB-STYLE-BASELINE-0001-C
+    text:
+      zh-CN: box-model 基线必须由 physical token CSS 生成器提供，不得放入 Shadcn theme variable 文件，也不得要求每个尺寸敏感 prototype 重复声明私有 `box-border` token。
+      en: The box-model baseline must be provided by the physical token CSS generator rather than the Shadcn theme-variable file, and size-sensitive prototypes must not each repeat a private `box-border` token.
+sources:
+  - path: internal/records/2026-07-22-web-box-model-baseline.zh-CN.md
+  - path: packages/cli/src/services/proto-style-css.ts
+  - path: packages/cli/test/proto-style-css.test.ts
+  - path: packages/prototypes/shadcn/src/switch/root.proto.ts
+relates:
+  contracts: [C-FEEDBACK-STYLE-0003]
+  prototypes: [P-SHADCN-SWITCH, P-SHADCN-SWITCH-THUMB]
+verifies:
+  tests: [T-WEB-STYLE-BASELINE-0001]
+revisions:
+  - version: 0.2.0-rc.1
+    change: introduced
+    summary: Chose a generated data-pui-style-scoped border-box baseline over a global preflight or per-prototype compensation.
+tags: [web, style, css, box-sizing, border-box, compiler, shadcn]

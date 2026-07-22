@@ -3,6 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { renderPrefixedThemeCss, renderProtoStyleTokenCss } from '../src/services/proto-style-css';
 
 describe('proto style css renderer', () => {
+  it('gives Proto UI styled elements a scoped border-box baseline without a global reset', () => {
+    const css = renderProtoStyleTokenCss(['h-6', 'w-11', 'border']);
+
+    expect(css).toContain(
+      `[data-pui-style],\n[data-pui-style]::before,\n[data-pui-style]::after {`
+    );
+    expect(css).toContain('box-sizing: border-box;');
+    expect(css).not.toMatch(/(^|\n)\*\s*,/);
+    expect(css).not.toMatch(/(^|\n)::before\s*,/);
+    expect(css).not.toMatch(/(^|\n)::after\s*\{/);
+  });
+
   it('renders space-between layout utilities used by compound controls', () => {
     const css = renderProtoStyleTokenCss(['flex', 'justify-between']);
 

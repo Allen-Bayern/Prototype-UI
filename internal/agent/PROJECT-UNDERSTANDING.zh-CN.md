@@ -11,16 +11,16 @@
 | 当前 spec 版本 | `0.2.0-rc.1` |
 | Release channel | `prerelease` |
 | Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
-| 工作区实体数 | 380 |
+| 工作区实体数 | 382 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:a88e8753d31a211bf7a175f150eaceb8d2a61aa78ef0d12dd62c3aa3bb476ff3` |
+| 工作区快照指纹 | `sha256:a987430fc90380599078a87e19a9a995a54af05db3bb4f39af6be29abbb8bbbe` |
 | 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 36 个 active、339 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 36 个 active、341 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -60,25 +60,25 @@ flowchart LR
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
 | `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
-| `decision` | 44 | 6 | 36 | 2 | 29 | 14 | 3 |
+| `decision` | 45 | 6 | 37 | 2 | 30 | 15 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
 | `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 33 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 117 | 12 | 105 | 0 | 0 | 0 | 4 |
+| `test` | 118 | 12 | 106 | 0 | 0 | 0 | 4 |
 | `version` | 2 | 2 | 0 | 0 | 2 | 2 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  199 |
+| `relates`    |  202 |
 | `dependsOn`  |  762 |
 | `inherits`   |   27 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  281 |
+| `verifies`   |  284 |
 | `explains`   |   36 |
 | `exercises`  |  161 |
 | `requires`   |    4 |
@@ -337,7 +337,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | [`C-FEEDBACK-0002`](../../spec/contracts/C-FEEDBACK-0002.yaml) | `draft` | Feedback separates setup planning from runtime effects | 5 | 0 | Feedback APIs must distinguish setup-time feedback planning from runtime feedback effects. |
 | [`C-FEEDBACK-STYLE-0001`](../../spec/contracts/C-FEEDBACK-STYLE-0001.yaml) | `draft` | feedback.style is the visual feedback surface | 5 | 2 | `feedback.style` describes visual feedback that can change component appearance without triggering render or changing template structure. |
 | [`C-FEEDBACK-STYLE-0002`](../../spec/contracts/C-FEEDBACK-STYLE-0002.yaml) | `draft` | Setup style plans are setup-only and reversible during setup | 5 | 1 | Setup-time `feedback.style` records style plans, and each setup plan contribution can be removed only during setup. |
-| [`C-FEEDBACK-STYLE-0003`](../../spec/contracts/C-FEEDBACK-STYLE-0003.yaml) | `draft` | feedback.style values are style token sets | 4 | 1 | `feedback.style` values are sets of author-side Proto UI style tokens, currently based on a subset of Tailwind atomic-class syntax. |
+| [`C-FEEDBACK-STYLE-0003`](../../spec/contracts/C-FEEDBACK-STYLE-0003.yaml) | `draft` | feedback.style values are style token sets | 5 | 2 | `feedback.style` values are sets of author-side Proto UI style tokens, currently based on a subset of Tailwind atomic-class syntax. |
 | [`C-FEEDBACK-STYLE-0004`](../../spec/contracts/C-FEEDBACK-STYLE-0004.yaml) | `draft` | Author style tokens must not carry state or selector logic | 5 | 1 | Prototype-author-side `feedback.style` tokens must describe style only and must not encode state, event, selector, or host-realization dependencies. |
 | [`C-FEEDBACK-STYLE-0005`](../../spec/contracts/C-FEEDBACK-STYLE-0005.yaml) | `draft` | Runtime style patch is the final pre-translation feedback.style escape hatch | 8 | 1 | `run.feedback.style.patch`, `suppress`, and `clearPatch` modify the current runtime style patch layer before style translation. |
 
@@ -665,6 +665,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | --- | --- | --- | --: | --- |
 | [`D-USE-FOCUS-ROVING-DEPRECATION-0001`](../../spec/decisions/D-USE-FOCUS-ROVING-DEPRECATION-0001.yaml) | `deprecated` | useFocusRoving was removed after the asFocusRoving migration | 3 | useFocusRoving was removed in 0.2 after Dropdown Menu and Select assigned sibling-local movement and default-action control to asFocusRoving. |
 
+### WEB（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-WEB-STYLE-BASELINE-0001`](../../spec/decisions/D-WEB-STYLE-BASELINE-0001.yaml) | `draft` | Web physical CSS provides a scoped Proto UI box-model baseline | 3 | Proto UI-generated Web CSS applies border-box only to styled Proto UI elements and their pseudo-elements, preserving component dimensions without installing a document-wide reset or coupling the baseline to a theme. |
+
 ## 七、Conformance 与测试映射
 
 Test 实体连接可寻址 case、被验证的实体准则和仓库中的 executable implementation。`verifies` 表示验证责任，`exercises` 只表示经过某个表面，不能等同于完整验证。
@@ -674,7 +680,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  244 |
+| `passing` |  246 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -683,7 +689,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   66 |
 | `fixture`         |   17 |
-| `module-test`     |  118 |
+| `module-test`     |  120 |
 | `runtime-test`    |   70 |
 | `workspace-check` |    5 |
 
@@ -907,7 +913,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-SHADCN-SELECT-ITEM-0001`](../../spec/tests/T-SHADCN-SELECT-ITEM-0001.yaml) | `draft` | Shadcn Select Item delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-ITEM` | `P-SHADCN-SELECT-ITEM`<br>`P-BASE-SELECT-ITEM` |
 | [`T-SHADCN-SELECT-TRIGGER-0001`](../../spec/tests/T-SHADCN-SELECT-TRIGGER-0001.yaml) | `draft` | Shadcn Select Trigger delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-TRIGGER` | `P-SHADCN-SELECT-TRIGGER`<br>`P-BASE-SELECT-TRIGGER` |
 | [`T-SHADCN-SELECT-VALUE-0001`](../../spec/tests/T-SHADCN-SELECT-VALUE-0001.yaml) | `draft` | Shadcn Select Value delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-VALUE` | `P-SHADCN-SELECT-VALUE`<br>`P-BASE-SELECT-VALUE` |
-| [`T-SHADCN-SWITCH-0001`](../../spec/tests/T-SHADCN-SWITCH-0001.yaml) | `draft` | Shadcn Switch Root delta protocol contract tests | 3 | `passing` 1 | `P-SHADCN-SWITCH` | `P-SHADCN-SWITCH`<br>`P-BASE-SWITCH` |
+| [`T-SHADCN-SWITCH-0001`](../../spec/tests/T-SHADCN-SWITCH-0001.yaml) | `draft` | Shadcn Switch Root delta protocol contract tests | 3 | `passing` 1 | `C-FEEDBACK-STYLE-0003`<br>`P-SHADCN-SWITCH` | `P-SHADCN-SWITCH`<br>`P-BASE-SWITCH` |
 | [`T-SHADCN-SWITCH-THUMB-0001`](../../spec/tests/T-SHADCN-SWITCH-THUMB-0001.yaml) | `draft` | Shadcn Switch Thumb delta protocol contract tests | 3 | `passing` 1 | `P-SHADCN-SWITCH-THUMB` | `P-SHADCN-SWITCH-THUMB`<br>`P-BASE-SWITCH-THUMB` |
 | [`T-SHADCN-TABS-0001`](../../spec/tests/T-SHADCN-TABS-0001.yaml) | `draft` | Shadcn Tabs Root delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-TABS` | `P-SHADCN-TABS`<br>`P-BASE-TABS` |
 | [`T-SHADCN-TABS-CONTENT-0001`](../../spec/tests/T-SHADCN-TABS-CONTENT-0001.yaml) | `draft` | Shadcn Tabs Content delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-TABS-CONTENT` | `P-SHADCN-TABS-CONTENT`<br>`P-BASE-TABS-CONTENT` |
@@ -930,6 +936,12 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-TEMPLATE-0001`](../../spec/tests/T-TEMPLATE-0001.yaml) | `draft` | Template authoring and adapter boundary tests | 6 | `active` 1<br>`passing` 5 | `C-TEMPLATE-0001`<br>`C-TEMPLATE-0002`<br>`C-TEMPLATE-0003`<br>`C-TEMPLATE-0004`<br>`C-TEMPLATE-0005`<br>`C-TEMPLATE-0006` | — |
+
+### WEB（1）
+
+| Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
+| --- | --- | --- | --: | --- | --- | --- |
+| [`T-WEB-STYLE-BASELINE-0001`](../../spec/tests/T-WEB-STYLE-BASELINE-0001.yaml) | `draft` | Web physical CSS scoped box-model baseline tests | 3 | `passing` 2 | `D-WEB-STYLE-BASELINE-0001` | — |
 
 ## 八、版本与发布身份
 
@@ -1071,7 +1083,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 339/380 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 341/382 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。

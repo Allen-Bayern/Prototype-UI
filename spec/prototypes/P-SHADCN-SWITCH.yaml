@@ -45,10 +45,13 @@ criteria:
       contracts: [C-CORE-SYNTAX-0003]
   - id: P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE
     text:
-      zh-CN: Root 必须提供当前已实现的 track 尺寸、圆角、边框、阴影、transition 与 unchecked surface；这些 tokens 是当前 passing surface，不表示与 upstream 精确一致。
-      en: Root must provide the currently implemented track dimensions, radius, border, shadow, transition, and unchecked surface; these tokens form the current passing surface and do not imply exact upstream parity.
+      zh-CN: Root 必须提供当前已实现的 track 尺寸、圆角、边框、阴影、transition 与 unchecked surface；checked/unchecked inline padding 必须使用 canonical `pl-5` / `pr-5` spacing tokens，Web 物理 CSS 必须在宿主没有全局 reset 时仍以 scoped border-box 保持声明的外部尺寸。这些 tokens 是当前 passing surface，不表示与 upstream 精确一致。
+      en: Root must provide the currently implemented track dimensions, radius, border, shadow, transition, and unchecked surface; checked and unchecked inline padding must use the canonical `pl-5` and `pr-5` spacing tokens, and Web physical CSS must preserve the declared outer dimensions through a scoped border-box baseline when the host has no global reset. These tokens form the current passing surface and do not imply exact upstream parity.
     dependsOn:
       contracts: [C-RULE-INTENT-FEEDBACK-STYLE-0001]
+      decisions:
+        - id: D-WEB-STYLE-BASELINE-0001
+          since: 0.2.0-rc.1
   - id: P-SHADCN-SWITCH-STATE-DRIVEN-STYLES
     text:
       zh-CN: checked、hovered、pressed、focusVisible、disabled 与 colorScheme 视觉 rule 必须从 inherited Switch state 或 host meta 派生，不得建立第二套 checked 或 interaction truth。

@@ -49,10 +49,13 @@ criteria:
             ]
   - id: P-SHADCN-SWITCH-THUMB-CURRENT-VISUAL-SURFACE
     text:
-      zh-CN: Thumb 必须提供当前已实现的尺寸、圆角、背景、边框、阴影、transition 与初始 translate tokens；这些是当前 passing surface，不表示 upstream 的 state-driven translation 已对齐。
-      en: Thumb must provide the currently implemented size, radius, background, border, shadow, transition, and initial translate tokens; these form the current passing surface and do not imply parity with upstream state-driven translation.
+      zh-CN: Thumb 必须提供当前已实现的尺寸、圆角、背景、边框、阴影、transition 与初始 translate tokens；Web 物理 CSS 必须在宿主没有全局 reset 时仍以 scoped border-box 保持声明的外部尺寸。这些是当前 passing surface，不表示 upstream 的 state-driven translation 已对齐。
+      en: Thumb must provide the currently implemented size, radius, background, border, shadow, transition, and initial translate tokens; Web physical CSS must preserve the declared outer dimensions through a scoped border-box baseline when the host has no global reset. These form the current passing surface and do not imply parity with upstream state-driven translation.
     dependsOn:
       contracts: [C-RULE-INTENT-FEEDBACK-STYLE-0001]
+      decisions:
+        - id: D-WEB-STYLE-BASELINE-0001
+          since: 0.2.0-rc.1
   - id: P-SHADCN-SWITCH-THUMB-COMPATIBILITY-SUBSET
     text:
       zh-CN: 当前实体只声明已测试的 inherited indicator behavior 与视觉 surface；公开组合模型和 upstream token 的全部差异必须集中在唯一 compatibility open question。

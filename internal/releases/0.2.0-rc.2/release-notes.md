@@ -13,6 +13,13 @@
 - Removing Lucide Icon visual props such as `size`, `strokeWidth`, or `stroke` restores protocol defaults such as 24, 2, and currentColor.
 - Cross-adapter resolved-snapshot conformance, Base Button behavior tests, and Shadcn Button visual-token tests cover provided-to-missing transitions.
 
+### Scoped Web box-model baseline
+
+- Generated Proto UI token CSS now applies `box-sizing: border-box` to elements carrying `data-pui-style` and their `::before` / `::after` pseudo-elements, preserving declared component dimensions when a host has no Tailwind Preflight or global reset.
+- The baseline is scoped to Proto UI style projection. It does not install a document-wide `*` reset, alter unrelated host elements, or enter the Shadcn theme-variable file.
+- Shadcn Switch track movement now uses canonical `pl-5` / `pr-5` spacing tokens instead of the equivalent `[20px]` arbitrary values.
+- CSS renderer, CLI init, and Shadcn Switch tests cover the generated baseline, output ownership, and canonical spacing-token surface.
+
 ## Still under validation
 
 - Additional installation, runtime, CSS, accessibility, bundle, and API findings from post-publication `0.2.0-rc.1` trials.
