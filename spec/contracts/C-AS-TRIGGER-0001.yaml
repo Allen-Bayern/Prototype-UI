@@ -84,7 +84,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured asTrigger as a minimal privileged asHook contract for nested trigger event route merging.
-  - version: 0.2.0-rc.2
+  - version: 0.2.0-rc.1
     change: revised
     summary: Separated opaque logical trigger ownership from physical EventTarget projection and required late, repeatable view binding.
 tags:

@@ -100,7 +100,7 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Mapped existing runtime asTrigger contract tests to the asTrigger core contract.
-  - version: 0.2.0-rc.2
+  - version: 0.2.0-rc.1
     change: implemented
     summary: Added logical-target separation, repeatable view projection, and real React, Vue, and Web Component nested-trigger coverage.
 tags:
