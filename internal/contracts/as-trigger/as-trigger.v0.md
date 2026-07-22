@@ -19,6 +19,7 @@ It is not a general event helper and is not an authored `defineAsHook(...)` prod
 - asHook privileged and trace semantics
 - the event path
 - host-cap-provided instance, parent, and prototype lookup
+- host-cap-provided logical route ownership and event-target projection
 
 `asTrigger()` does not depend on:
 
@@ -55,14 +56,18 @@ In the current implementation, these are supplied through as-trigger host capabi
 - `AS_TRIGGER_INSTANCE_CAP`
 - `AS_TRIGGER_PARENT_CAP`
 - `AS_TRIGGER_GET_PROTO_CAP`
+- `AS_TRIGGER_SET_ROUTE_OWNER_CAP`
+- `AS_TRIGGER_GET_EVENT_TARGET_CAP`
 
 The parent relation is a logical direct-parent relation supplied by the host. It must not be inferred by `asTrigger()` from DOM containment or another host-specific tree rule.
+
+Logical instance identities are opaque and are not required to implement `EventTarget`. After resolving the outermost logical route owner, `asTrigger()` obtains a bindable event target through the host projection. The projection must support setup before a physical view exists and must move existing registrations when that owner's view target is replaced.
 
 ---
 
 ## 3. Trigger Ownership
 
-When applied, `asTrigger()` marks the current caller target as a trigger confirmation owner.
+When applied, `asTrigger()` records the resolved logical trigger route owner for the current caller. The host projects that identity to its event router rather than treating the logical instance itself as a DOM or `EventTarget` object.
 
 Event routing may use this ownership marker to resolve which prototype owns activation confirmation for nested native targets.
 
