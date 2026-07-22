@@ -1,0 +1,49 @@
+id: D-TRIGGER-GROUP-SURFACE-0001
+type: decision
+title: Continuous triggers share behavior ownership and one host interaction surface
+status: draft
+since: 0.2.0-rc.3
+summary: Continuous trigger chains retain one outer behavior route while projecting focus and accessibility through one default inner host surface.
+statement:
+  zh-CN: >-
+    连续嵌套且均声明 `asTrigger()` 的 prototype instances 必须形成同一个 trigger group。最外层连续 trigger 继续作为 behavior owner 汇集 activation/event route；默认最内层连续 trigger 作为 surface owner，承担唯一宿主 focus target 与 accessibility semantic object projection。`asTrigger` 只建立可供 Event、Focus 与 A11y 消费的 group ownership，不反向吞并这些 domain；Focus 可以让 group 成员观察共享 interaction facts，但不得投射多个宿主 focus target，A11y 也不得为同一 trigger group 投射多个 control semantic objects。
+
+  en: >-
+    Directly and continuously nested prototype instances that declare `asTrigger()` form one trigger group. The outermost continuous trigger remains the behavior owner that collects the activation and event route, while the innermost continuous trigger is the default surface owner that carries the sole host focus target and accessibility semantic-object projection. `asTrigger` establishes group ownership for Event, Focus, and A11y to consume without absorbing those domains. Focus may let group members observe shared interaction facts but must not project multiple host focus targets, and A11y must not project multiple control semantic objects for one trigger group.
+
+criteria:
+  - id: D-TRIGGER-GROUP-SURFACE-0001-A
+    text:
+      zh-CN: 连续 trigger group 必须区分最外层 behavior owner 与默认最内层 surface owner；两者 identity 可以不同。
+      en: A continuous trigger group must distinguish its outermost behavior owner from its default innermost surface owner; those identities may differ.
+  - id: D-TRIGGER-GROUP-SURFACE-0001-B
+    text:
+      zh-CN: Event 必须继续把 group activation route 合并到 behavior owner，不得因 surface projection 改回逐实例 activation。
+      en: Event must continue merging the group activation route into the behavior owner and must not regress to per-instance activation because of surface projection.
+  - id: D-TRIGGER-GROUP-SURFACE-0001-C
+    text:
+      zh-CN: Focus 必须为 trigger group 投射至多一个宿主 focus target；group 成员可以共享 focused、focusVisible 等事实以驱动各自 feedback。
+      en: Focus must project at most one host focus target for a trigger group; group members may share facts such as focused and focusVisible for their own feedback.
+  - id: D-TRIGGER-GROUP-SURFACE-0001-D
+    text:
+      zh-CN: A11y 必须为 trigger group 投射至多一个 control semantic object；相同 role/action 可以合并，不兼容声明必须诊断而不是产生重复 controls。
+      en: A11y must project at most one control semantic object for a trigger group; compatible roles and actions may merge, while incompatible declarations require diagnostics rather than duplicate controls.
+  - id: D-TRIGGER-GROUP-SURFACE-0001-E
+    text:
+      zh-CN: Trigger group ownership 必须保持 domain-neutral；Event、Focus 与 A11y 消费 ownership，但 `asTrigger` module 不得直接实现这些 domain 的完整策略。
+      en: Trigger-group ownership must remain domain-neutral; Event, Focus, and A11y consume the ownership, while the asTrigger module must not directly implement the full policy of those domains.
+sources:
+  - path: internal/records/2026-07-22-trigger-surface-and-component-preset.zh-CN.md
+  - path: spec/contracts/C-AS-TRIGGER-0001.yaml
+  - path: spec/contracts/C-FOCUS-0001.yaml
+  - path: spec/contracts/C-A11Y-0001.yaml
+  - path: packages/adapters/base/src/platform/instance-tree.ts
+relates:
+  contracts: [C-AS-TRIGGER-0001, C-FOCUS-0001, C-FOCUS-0002, C-A11Y-0001]
+  decisions: [D-AS-CHILD-OMISSION-0001, D-A11Y-SEMANTIC-DOMAIN-0001]
+  prototypes: [P-SHADCN-BUTTON, P-SHADCN-DIALOG-TRIGGER, P-SHADCN-DIALOG-CLOSE]
+revisions:
+  - version: 0.2.0-rc.3
+    change: introduced
+    summary: Separated outer behavior ownership from the single inner host interaction surface for continuous trigger groups.
+tags: [as-trigger, event, focus, a11y, interaction-surface, composition]
