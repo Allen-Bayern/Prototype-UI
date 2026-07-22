@@ -8,9 +8,11 @@ import { executeWithHost } from '../../src';
 import type { PropsBaseType } from '@proto.ui/types';
 import { EVENT_ROOT_TARGET_CAP, EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import {
+  AS_TRIGGER_GET_EVENT_TARGET_CAP,
+  AS_TRIGGER_GET_PROTO_CAP,
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
-  AS_TRIGGER_GET_PROTO_CAP,
+  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
 } from '@proto.ui/module-as-trigger';
 
 class FakeTarget implements EventTarget {
@@ -75,8 +77,11 @@ describe('runtime contract: asTrigger (v0)', () => {
   });
 
   it('AS-TRIGGER-0100: when parent is trigger, redirect root target to parent', () => {
+    const parentInstance = {};
+    const childInstance = {};
     const parentTarget = new FakeTarget();
     const childTarget = new FakeTarget();
+    const routeOwners = new Map<unknown, unknown>();
 
     const parentProto: Prototype = {
       name: 'x-parent-trigger',
@@ -106,9 +111,17 @@ describe('runtime contract: asTrigger (v0)', () => {
       ]);
 
       wiring.attach('as-trigger', [
-        [AS_TRIGGER_INSTANCE_CAP, childTarget],
-        [AS_TRIGGER_PARENT_CAP, (inst: any) => (inst === childTarget ? parentTarget : null)],
-        [AS_TRIGGER_GET_PROTO_CAP, (inst: any) => (inst === parentTarget ? parentProto : null)],
+        [AS_TRIGGER_INSTANCE_CAP, childInstance],
+        [AS_TRIGGER_PARENT_CAP, (inst: any) => (inst === childInstance ? parentInstance : null)],
+        [AS_TRIGGER_GET_PROTO_CAP, (inst: any) => (inst === parentInstance ? parentProto : null)],
+        [
+          AS_TRIGGER_SET_ROUTE_OWNER_CAP,
+          (inst: unknown, owner: unknown) => routeOwners.set(inst, owner),
+        ],
+        [
+          AS_TRIGGER_GET_EVENT_TARGET_CAP,
+          (inst: unknown) => (inst === parentInstance ? parentTarget : null),
+        ],
       ]);
     };
 
@@ -116,12 +129,17 @@ describe('runtime contract: asTrigger (v0)', () => {
 
     expect(parentTarget.logs).toEqual(['add']);
     expect(childTarget.logs).toEqual([]);
+    expect(routeOwners.get(childInstance)).toBe(parentInstance);
   });
 
   it('AS-TRIGGER-0150: multi-level trigger chain redirects to outermost trigger', () => {
+    const grandInstance = {};
+    const parentInstance = {};
+    const childInstance = {};
     const grandTarget = new FakeTarget();
     const parentTarget = new FakeTarget();
     const childTarget = new FakeTarget();
+    const routeOwners = new Map<unknown, unknown>();
 
     const grandProto: Prototype = { name: 'x-grand-trigger', setup() {} } as any;
     const parentProto: Prototype = { name: 'x-parent-trigger', setup() {} } as any;
@@ -154,16 +172,28 @@ describe('runtime contract: asTrigger (v0)', () => {
       ]);
 
       wiring.attach('as-trigger', [
-        [AS_TRIGGER_INSTANCE_CAP, childTarget],
+        [AS_TRIGGER_INSTANCE_CAP, childInstance],
         [
           AS_TRIGGER_PARENT_CAP,
           (inst: any) =>
-            inst === childTarget ? parentTarget : inst === parentTarget ? grandTarget : null,
+            inst === childInstance
+              ? parentInstance
+              : inst === parentInstance
+                ? grandInstance
+                : null,
         ],
         [
           AS_TRIGGER_GET_PROTO_CAP,
           (inst: any) =>
-            inst === parentTarget ? parentProto : inst === grandTarget ? grandProto : null,
+            inst === parentInstance ? parentProto : inst === grandInstance ? grandProto : null,
+        ],
+        [
+          AS_TRIGGER_SET_ROUTE_OWNER_CAP,
+          (inst: unknown, owner: unknown) => routeOwners.set(inst, owner),
+        ],
+        [
+          AS_TRIGGER_GET_EVENT_TARGET_CAP,
+          (inst: unknown) => (inst === grandInstance ? grandTarget : null),
         ],
       ]);
     };
@@ -173,6 +203,7 @@ describe('runtime contract: asTrigger (v0)', () => {
     expect(grandTarget.logs).toEqual(['add']);
     expect(parentTarget.logs).toEqual([]);
     expect(childTarget.logs).toEqual([]);
+    expect(routeOwners.get(childInstance)).toBe(grandInstance);
   });
 
   it('AS-TRIGGER-0200: when parent is NOT trigger, use self root target', () => {

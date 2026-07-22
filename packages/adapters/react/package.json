@@ -28,7 +28,10 @@
   },
   "devDependencies": {
     "@types/react": "^19.2.0",
-    "@proto.ui/prototypes-base": "workspace:*"
+    "@types/react-dom": "^19.2.0",
+    "@proto.ui/prototypes-base": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "peerDependencies": {
     "react": ">=18.2.0 <20"

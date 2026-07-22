@@ -20,6 +20,14 @@
 - Shadcn Switch track movement now uses canonical `pl-5` / `pr-5` spacing tokens instead of the equivalent `[20px]` arbitrary values.
 - CSS renderer, CLI init, and Shadcn Switch tests cover the generated baseline, output ownership, and canonical spacing-token surface.
 
+### Nested trigger routing
+
+- React, Vue, and Web Component adapters now keep continuous nested-trigger logical route owners separate from physical `EventTarget` objects instead of forcing opaque logical tokens through the event target path.
+- Structures such as nested Buttons or Buttons inside Dialog Trigger / Close can activate through the outermost continuous trigger route without throwing `redirectRoot() requires an EventTarget-like object`.
+- Logical owners use a stable dynamic event-target projection, so existing event registrations bind or migrate to the current router target when an owner view appears after setup or a presence/lifecycle transition creates a new view epoch.
+- Failed adapter-owner initialization now rolls back partial wiring and session state, preventing React recovery from producing the misleading follow-up `owner is already initialized` error.
+- Runtime, adapter-base, real ReactDOM, Vue renderer, and Web Component Dialog tests cover logical/physical identity separation, late targets, repeatable view binding, and click and keyboard activation.
+
 ## Still under validation
 
 - Additional installation, runtime, CSS, accessibility, bundle, and API findings from post-publication `0.2.0-rc.1` trials.

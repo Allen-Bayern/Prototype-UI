@@ -20,6 +20,14 @@
 - Shadcn Switch track 位移改用 canonical `pl-5` / `pr-5` spacing tokens，不再使用等价的 `[20px]` arbitrary values。
 - CSS renderer、CLI init 与 Shadcn Switch 测试覆盖生成基线、输出归属与 canonical spacing-token surface。
 
+### 嵌套 trigger 路由
+
+- React、Vue 与 Web Component adapter 现在会把连续嵌套 trigger 的 logical route owner 与物理 `EventTarget` 分开处理，不再把 opaque logical token 强制作为 event target。
+- nested Button、Dialog Trigger / Close 内嵌 Button 等结构可以在最外层连续 trigger route 上完成 activation，不再抛出 `redirectRoot() requires an EventTarget-like object`。
+- logical owner 使用稳定的 dynamic event target projection；即使 owner view 在 setup 后才出现，或 presence / lifecycle 产生新的 view epoch，既有 event registrations 也会绑定或迁移到当前 router target。
+- Adapter owner 初始化失败现在会回滚部分 wiring/session 状态，避免 React 恢复流程继续抛出误导性的 `owner is already initialized`。
+- runtime、adapter-base、真实 ReactDOM、Vue renderer 与 Web Component Dialog 测试覆盖逻辑/物理身份分离、late target、重复 view binding、click 与键盘 activation。
+
 ## 仍在验证
 
 - `0.2.0-rc.1` 后续人工试用发现的安装、运行时、CSS、a11y、bundle 与 API 问题。

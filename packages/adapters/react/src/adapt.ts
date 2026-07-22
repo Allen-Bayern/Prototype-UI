@@ -29,9 +29,11 @@ import { createDefaultMetaGetter } from './platform/meta';
 import type { ProtoReactComponent, ReactAdapterHandle } from './types';
 import {
   bindLogicalParent,
+  bindLogicalEventTarget,
   createLogicalInstance,
   markProtoInstance,
   unbindProtoInstance,
+  unbindLogicalEventTarget,
 } from './platform/instance-tree';
 import { createReactEffectsPort } from './runtime/effects-port';
 import { createReactModules, createReactOwnerModules } from './runtime/modules';
@@ -313,15 +315,18 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
 
         const router = createWebProtoEventRouter({
           rootEl,
+          instanceToken: instanceTokenRef.current,
           globalEl: typeof window === 'undefined' ? rootEl : window,
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
+        bindLogicalEventTarget(instanceTokenRef.current, router.rootTarget);
         let viewDisposed = false;
         const disposeView = () => {
           if (viewDisposed) return;
           viewDisposed = true;
           eventGate.disable();
           eventGate.dispose();
+          unbindLogicalEventTarget(instanceTokenRef.current, router.rootTarget);
           router.dispose();
           unbindProtoInstance(instanceTokenRef.current, boundRootRef.current ?? undefined);
           if (boundRootRef.current === rootEl) boundRootRef.current = null;

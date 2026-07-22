@@ -24,8 +24,8 @@ criteria:
       en: '`asTrigger()` must record itself in the caller prototype asHook trace with a privileged trigger identity.'
   - id: C-AS-TRIGGER-0001-C
     text:
-      zh-CN: '`asTrigger()` 必须把当前 caller 的宿主 target 标记为 trigger confirmation owner，使 event routing 能识别 trigger ownership。'
-      en: '`asTrigger()` must mark the current caller host target as a trigger confirmation owner so event routing can recognize trigger ownership.'
+      zh-CN: '`asTrigger()` 必须为当前 caller 的逻辑 instance 记录解析后的 trigger route owner，并由 host 将该 owner identity 投影给 event routing；该 identity 不等同于宿主 DOM target。'
+      en: '`asTrigger()` must record the resolved trigger route owner for the current caller logical instance and let the host project that owner identity to event routing; that identity is not the host DOM target.'
   - id: C-AS-TRIGGER-0001-D
     text:
       zh-CN: 当当前 trigger 的直接 parent 也是 trigger，并且该关系连续成立时，activation/event root route 必须合并到连续 trigger 链的最外层 trigger。
@@ -36,8 +36,16 @@ criteria:
       en: When the parent is missing, the parent prototype is missing, the parent is not a trigger, or host caps cannot prove direct trigger parenthood, merging must stop and the current trigger remains its own route owner.
   - id: C-AS-TRIGGER-0001-F
     text:
-      zh-CN: '`asTrigger()` 的稳定依赖只应包括 asHook privileged/trace 语义、event 通路，以及 host-cap 提供的 instance、parent 和 prototype 查询；不得要求 focus、state interaction、overlay、boundary 或 hit-participation 参与其核心语义。'
-      en: '`asTrigger()` stable dependencies should include only asHook privileged/trace semantics, the event path, and host-cap-provided instance, parent, and prototype lookup; it must not require focus, state interaction, overlay, boundary, or hit-participation for its core semantics.'
+      zh-CN: '`asTrigger()` 的稳定依赖只应包括 asHook privileged/trace 语义、event 通路，以及 host-cap 提供的逻辑 instance、parent、prototype 与 event route projection；不得要求 focus、state interaction、overlay、boundary 或 hit-participation 参与其核心语义。'
+      en: '`asTrigger()` stable dependencies should include only asHook privileged/trace semantics, the event path, and host-cap-provided logical instance, parent, prototype, and event-route projection; it must not require focus, state interaction, overlay, boundary, or hit-participation for its core semantics.'
+  - id: C-AS-TRIGGER-0001-G
+    text:
+      zh-CN: host-cap 提供的逻辑 instance identity 必须保持 opaque；`asTrigger()` 不得把该 identity 强制转换或假定为 `EventTarget`，而必须通过 host 提供的 route-target projection 获得可绑定的 event target。
+      en: Host-cap-provided logical instance identities must remain opaque; `asTrigger()` must not cast or assume such an identity to be an `EventTarget` and must obtain a bindable event target through the host-provided route-target projection.
+  - id: C-AS-TRIGGER-0001-H
+    text:
+      zh-CN: 当逻辑 trigger owner 在 setup 时尚无物理 view，或其 view epoch 后续被替换时，route-target projection 必须保留逻辑 owner，并把既有 event registrations 绑定或迁移到当前有效 target。
+      en: When a logical trigger owner has no physical view during setup or its view epoch is later replaced, route-target projection must preserve the logical owner and bind or migrate existing event registrations to the current live target.
 sources:
   - path: packages/hooks/src/as-trigger.ts
     sections:
@@ -54,6 +62,12 @@ sources:
   - path: packages/adapters/base/src/events/web-event-router.ts
     sections:
       - trigger owner routing
+  - path: packages/adapters/base/src/platform/instance-tree.ts
+    sections:
+      - logical event route owner and dynamic target projection
+  - path: packages/adapters/react/test/nested-trigger.integration.test.ts
+  - path: packages/adapters/vue/test/nested-trigger.integration.test.ts
+  - path: packages/adapters/web-component/test/dialog-overlay.test.ts
 dependsOn:
   contracts:
     - C-AS-HOOK-0001
@@ -70,6 +84,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured asTrigger as a minimal privileged asHook contract for nested trigger event route merging.
+  - version: 0.2.0-rc.1
+    change: revised
+    summary: Separated opaque logical trigger ownership from physical EventTarget projection and required late, repeatable view binding.
 tags:
   - as-trigger
   - as-hook

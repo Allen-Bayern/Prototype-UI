@@ -11,4 +11,9 @@ export const {
   getLogicalParent,
   getLogicalRoot,
   getLogicalPrototype,
+  setLogicalEventRouteOwner,
+  getLogicalEventRouteOwner,
+  getLogicalEventTarget,
+  bindLogicalEventTarget,
+  unbindLogicalEventTarget,
 } = createInstanceTreeMarkers('@proto.ui/adapter-web-component/__proto_instance');

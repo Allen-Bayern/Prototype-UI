@@ -28,6 +28,24 @@ cases:
       - C-AS-TRIGGER-0001-E
       - C-AS-TRIGGER-0001-F
     expectation: non-trigger-parent-stops-route-merge
+  - id: T-AS-TRIGGER-0001-CASE-LOGICAL-TARGET-SEPARATION
+    title: Logical trigger identities remain distinct from physical event targets
+    covers:
+      - C-AS-TRIGGER-0001-C
+      - C-AS-TRIGGER-0001-G
+    expectation: logical-owner-resolves-through-host-event-target-projection
+  - id: T-AS-TRIGGER-0001-CASE-REPEATABLE-VIEW-TARGET
+    title: Nested trigger event registrations follow late and replacement owner views
+    covers:
+      - C-AS-TRIGGER-0001-H
+    expectation: nested-trigger-route-follows-current-owner-view-target
+  - id: T-AS-TRIGGER-0001-CASE-ADAPTER-NESTING
+    title: Framework adapters render and activate directly nested triggers through one outer route
+    covers:
+      - C-AS-TRIGGER-0001-D
+      - C-AS-TRIGGER-0001-G
+      - C-AS-TRIGGER-0001-H
+    expectation: nested-adapter-triggers-mount-and-activate-once-without-event-target-errors
 implementations:
   - id: runtime-as-trigger-contract
     kind: runtime-test
@@ -39,6 +57,33 @@ implementations:
       - T-AS-TRIGGER-0001-CASE-PARENT-REDIRECT
       - T-AS-TRIGGER-0001-CASE-OUTERMOST-REDIRECT
       - T-AS-TRIGGER-0001-CASE-NON-TRIGGER-STOP
+      - T-AS-TRIGGER-0001-CASE-LOGICAL-TARGET-SEPARATION
+  - id: adapter-base-as-trigger-route-projection
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/base/test/instance-tree.test.ts
+    required: true
+    consumesCases:
+      - T-AS-TRIGGER-0001-CASE-LOGICAL-TARGET-SEPARATION
+      - T-AS-TRIGGER-0001-CASE-REPEATABLE-VIEW-TARGET
+  - id: adapter-react-nested-trigger-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/nested-trigger.integration.test.ts
+    required: true
+    consumesCases: [T-AS-TRIGGER-0001-CASE-ADAPTER-NESTING]
+  - id: adapter-vue-nested-trigger-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/nested-trigger.integration.test.ts
+    required: true
+    consumesCases: [T-AS-TRIGGER-0001-CASE-ADAPTER-NESTING]
+  - id: adapter-web-component-nested-trigger-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/web-component/test/dialog-overlay.test.ts
+    required: true
+    consumesCases: [T-AS-TRIGGER-0001-CASE-ADAPTER-NESTING]
 verifies:
   contracts:
     - id: C-AS-TRIGGER-0001
@@ -49,10 +94,15 @@ verifies:
         - C-AS-TRIGGER-0001-D
         - C-AS-TRIGGER-0001-E
         - C-AS-TRIGGER-0001-F
+        - C-AS-TRIGGER-0001-G
+        - C-AS-TRIGGER-0001-H
 revisions:
   - version: 0.1.0
     change: introduced
     summary: Mapped existing runtime asTrigger contract tests to the asTrigger core contract.
+  - version: 0.2.0-rc.1
+    change: implemented
+    summary: Added logical-target separation, repeatable view projection, and real React, Vue, and Web Component nested-trigger coverage.
 tags:
   - as-trigger
   - as-hook

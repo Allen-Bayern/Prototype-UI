@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
 | 工作区实体数 | 382 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:a987430fc90380599078a87e19a9a995a54af05db3bb4f39af6be29abbb8bbbe` |
+| 工作区快照指纹 | `sha256:0444ff77c27b2cc1fd9c0e65197917d50eead6a7ca77bda6b0029fdf9fd3477f` |
 | 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -251,7 +251,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
-| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger merges continuous nested trigger event routes to the outermost trigger | 6 | 1 | asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain. |
+| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger merges continuous nested trigger event routes to the outermost trigger | 8 | 1 | asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain. |
 
 ### BOUNDARY（1）
 
@@ -680,14 +680,14 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  246 |
+| `passing` |  250 |
 | `planned` |   14 |
 
 ### Implementation 类型
 
 | Kind              | 数量 |
 | ----------------- | ---: |
-| `adapter-test`    |   66 |
+| `adapter-test`    |   70 |
 | `fixture`         |   17 |
 | `module-test`     |  120 |
 | `runtime-test`    |   70 |
@@ -746,7 +746,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger nested event route contract tests | 4 | `passing` 1 | `C-AS-TRIGGER-0001` | — |
+| [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger nested event route contract tests | 7 | `passing` 5 | `C-AS-TRIGGER-0001` | — |
 
 ### BASE（31）
 

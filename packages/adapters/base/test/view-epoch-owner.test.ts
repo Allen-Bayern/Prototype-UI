@@ -99,4 +99,40 @@ describe('adapter-base: view epoch owner', () => {
     await Promise.resolve();
     expect(dispose).toHaveBeenCalledOnce();
   });
+
+  it('rolls back failed detached initialization so the owner remains retryable', () => {
+    const owner = createViewEpochOwner<any>({ prototypeName: 'x-retry-owner' });
+    const createSession = vi
+      .fn()
+      .mockImplementationOnce(() => {
+        throw new Error('setup failed');
+      })
+      .mockImplementationOnce(() => ({
+        viewIntent: {
+          getSnapshot: () => ({ present: true, version: 1 }),
+          subscribe: () => () => {},
+        },
+        mount: vi.fn(),
+        unmount: vi.fn(),
+        dispose: vi.fn(),
+      }));
+
+    expect(() =>
+      owner.initialize({
+        modules: {},
+        createSession,
+      })
+    ).toThrow('setup failed');
+    expect(owner.session).toBeNull();
+    expect(owner.viewIntent).toBeNull();
+
+    expect(() =>
+      owner.initialize({
+        modules: {},
+        createSession,
+      })
+    ).not.toThrow();
+    expect(owner.session).not.toBeNull();
+    expect(createSession).toHaveBeenCalledTimes(2);
+  });
 });

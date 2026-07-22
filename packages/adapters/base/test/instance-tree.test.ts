@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createInstanceTreeMarkers } from '../src';
 
 describe('adapter-base: logical instance tree', () => {
@@ -32,5 +32,49 @@ describe('adapter-base: logical instance tree', () => {
 
     expect(tree.getProtoParent(childRoot)).toBeNull();
     expect(tree.getLogicalParent(child)).toBe(parent);
+  });
+
+  it('moves route listeners across late and repeatable view targets', () => {
+    const tree = createInstanceTreeMarkers('@proto.ui/test/logical-event-route-tree');
+    const parent = tree.createLogicalInstance({ name: 'parent', setup: () => undefined });
+    const child = tree.createLogicalInstance({ name: 'child', setup: () => undefined });
+    const firstTarget = new EventTarget();
+    const secondTarget = new EventTarget();
+    const listener = vi.fn();
+
+    tree.setLogicalEventRouteOwner(child, parent);
+    const routeTarget = tree.getLogicalEventTarget(parent);
+    routeTarget.addEventListener('press.commit', listener);
+
+    firstTarget.dispatchEvent(new Event('press.commit'));
+    expect(listener).not.toHaveBeenCalled();
+
+    tree.bindLogicalEventTarget(parent, firstTarget);
+    firstTarget.dispatchEvent(new Event('press.commit'));
+    expect(listener).toHaveBeenCalledOnce();
+
+    tree.bindLogicalEventTarget(parent, secondTarget);
+    firstTarget.dispatchEvent(new Event('press.commit'));
+    secondTarget.dispatchEvent(new Event('press.commit'));
+    expect(listener).toHaveBeenCalledTimes(2);
+
+    tree.unbindLogicalEventTarget(parent, secondTarget);
+    secondTarget.dispatchEvent(new Event('press.commit'));
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+
+  it('projects the logical route owner token onto an attached trigger root', () => {
+    const tree = createInstanceTreeMarkers('@proto.ui/test/logical-route-owner-tree');
+    const parent = tree.createLogicalInstance({ name: 'parent', setup: () => undefined });
+    const child = tree.createLogicalInstance({ name: 'child', setup: () => undefined });
+    const childRoot = document.createElement('div') as unknown as HTMLElement &
+      Record<symbol, unknown>;
+    const ownerMark = Symbol.for('@proto.ui/as-trigger/confirm-owner');
+
+    tree.setLogicalEventRouteOwner(child, parent);
+    tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
+
+    expect(childRoot[ownerMark]).toBe(parent);
+    expect(tree.getLogicalEventRouteOwner(child)).toBe(parent);
   });
 });

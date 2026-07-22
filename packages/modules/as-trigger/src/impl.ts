@@ -5,8 +5,10 @@ import type { EventPort } from '@proto.ui/module-event';
 
 import {
   AS_TRIGGER_GET_PROTO_CAP,
+  AS_TRIGGER_GET_EVENT_TARGET_CAP,
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
+  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
   type AsTriggerParentGetter,
   type AsTriggerPrototypeGetter,
 } from './caps';
@@ -83,12 +85,25 @@ export class AsTriggerModuleImpl extends ModuleBase {
       cur = getParent(cur);
     }
 
-    if (self && (typeof self === 'object' || typeof self === 'function')) {
-      (self as any)[TRIGGER_OWNER_MARK] = true;
+    const routeOwner = lastTrigger ?? self;
+    if (this.caps.has(AS_TRIGGER_SET_ROUTE_OWNER_CAP)) {
+      this.caps.get(AS_TRIGGER_SET_ROUTE_OWNER_CAP)(self, routeOwner);
+    } else if (self && (typeof self === 'object' || typeof self === 'function')) {
+      // Backward-compatible fallback for hosts that still use EventTarget
+      // instances as their logical trigger identity.
+      (self as any)[TRIGGER_OWNER_MARK] = lastTrigger ?? true;
     }
 
     if (!lastTrigger) return;
 
-    this.eventPort.redirectRoot(lastTrigger as any as EventTarget);
+    const eventTarget = this.caps.has(AS_TRIGGER_GET_EVENT_TARGET_CAP)
+      ? this.caps.get(AS_TRIGGER_GET_EVENT_TARGET_CAP)(lastTrigger)
+      : (lastTrigger as EventTarget);
+    if (!eventTarget) {
+      throw capUnavailable(AS_TRIGGER_GET_EVENT_TARGET_CAP.id, {
+        prototypeName: this.prototypeName,
+      });
+    }
+    this.eventPort.redirectRoot(eventTarget);
   }
 }
