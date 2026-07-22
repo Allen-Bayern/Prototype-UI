@@ -31,6 +31,10 @@ describe('adapter-vue: nested trigger routing', () => {
 
     const roots = host.querySelectorAll<HTMLElement>('[data-pui-root]');
     expect(roots).toHaveLength(2);
+    expect(roots[0]!.tabIndex).toBe(-1);
+    expect(roots[0]!.hasAttribute('role')).toBe(false);
+    expect(roots[1]!.tabIndex).toBe(0);
+    expect(roots[1]!.getAttribute('role')).toBe('button');
 
     roots[1]!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await flushVue();

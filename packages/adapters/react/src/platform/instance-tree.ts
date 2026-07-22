@@ -1,4 +1,4 @@
-import { createInstanceTreeMarkers } from '@proto.ui/adapter-base';
+import { createInstanceTreeMarkers, releaseWebTriggerSurface } from '@proto.ui/adapter-base';
 
 export const {
   PROTO_INSTANCE: __REACT_PROTO_INSTANCE,
@@ -15,7 +15,12 @@ export const {
   getLogicalPrototype,
   setLogicalEventRouteOwner,
   getLogicalEventRouteOwner,
+  getLogicalTriggerSurfaceOwner,
+  getLogicalTriggerSurfaceRoot,
+  subscribeLogicalTriggerSurface,
   getLogicalEventTarget,
   bindLogicalEventTarget,
   unbindLogicalEventTarget,
-} = createInstanceTreeMarkers('@proto.ui/adapter-react/__proto_instance');
+} = createInstanceTreeMarkers('@proto.ui/adapter-react/__proto_instance', {
+  releaseTriggerSurface: releaseWebTriggerSurface,
+});

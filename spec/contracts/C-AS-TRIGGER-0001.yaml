@@ -46,6 +46,10 @@ criteria:
     text:
       zh-CN: 当逻辑 trigger owner 在 setup 时尚无物理 view，或其 view epoch 后续被替换时，route-target projection 必须保留逻辑 owner，并把既有 event registrations 绑定或迁移到当前有效 target。
       en: When a logical trigger owner has no physical view during setup or its view epoch is later replaced, route-target projection must preserve the logical owner and bind or migrate existing event registrations to the current live target.
+  - id: C-AS-TRIGGER-0001-I
+    text:
+      zh-CN: host 可以从同一连续 trigger chain 投射 domain-neutral 的 behavior owner 与 surface owner identity，供 Focus、A11y 等 domain 独立消费；这不得使 `asTrigger` 直接依赖或实现这些 domain。
+      en: A host may project domain-neutral behavior-owner and surface-owner identities from the same continuous trigger chain for domains such as Focus and A11y to consume independently; this must not make `asTrigger` directly depend on or implement those domains.
 sources:
   - path: packages/hooks/src/as-trigger.ts
     sections:
@@ -87,6 +91,9 @@ revisions:
   - version: 0.2.0-rc.1
     change: revised
     summary: Separated opaque logical trigger ownership from physical EventTarget projection and required late, repeatable view binding.
+  - version: 0.2.0-rc.3
+    change: clarified
+    summary: Allowed hosts to publish domain-neutral trigger-group surface ownership without adding Focus or A11y as asTrigger dependencies.
 tags:
   - as-trigger
   - as-hook

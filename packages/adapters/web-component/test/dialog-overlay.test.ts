@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { getLogicalTriggerSurfaceRoot } from '../src/platform/instance-tree';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 import {
   dialogRoot,
@@ -238,6 +239,14 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
+
+    const ownerMark = Symbol.for('@proto.ui/as-trigger/confirm-owner');
+    const ownerToken = (innerButton as unknown as Record<symbol, object>)[ownerMark]!;
+    expect(getLogicalTriggerSurfaceRoot(ownerToken)).toBe(innerButton);
+    expect(trigger.tabIndex).toBe(-1);
+    expect(trigger.hasAttribute('role')).toBe(false);
+    expect(innerButton.tabIndex).toBe(0);
+    expect(innerButton.getAttribute('role')).toBe('button');
 
     innerButton.focus();
     innerButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));

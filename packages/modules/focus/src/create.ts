@@ -119,6 +119,8 @@ class FocusModuleImpl extends ModuleBase {
   private rovingEventsWired = false;
   private pendingFocusRequest: { options?: FocusRequestOptions; syncFacts: boolean } | undefined;
   private offTargetReady: (() => void) | undefined;
+  private lastHostFocusableTarget: HTMLElement | null = null;
+  private lastHostEntryTarget: HTMLElement | null = null;
 
   private readonly focusedOwned: OwnedStateHandle<boolean>;
   private readonly focusVisibleOwned: OwnedStateHandle<boolean>;
@@ -340,6 +342,16 @@ class FocusModuleImpl extends ModuleBase {
 
   private syncHostFocusable() {
     const target = this.getRootTarget();
+
+    if (this.lastHostFocusableTarget && this.lastHostFocusableTarget !== target) {
+      if (this.caps.has(FOCUS_SET_FOCUSABLE_CAP)) {
+        this.caps.get(FOCUS_SET_FOCUSABLE_CAP)(this.lastHostFocusableTarget, false);
+      } else {
+        this.lastHostFocusableTarget.tabIndex = -1;
+      }
+    }
+
+    this.lastHostFocusableTarget = target;
     if (!target) return;
 
     const enabled =
@@ -362,6 +374,20 @@ class FocusModuleImpl extends ModuleBase {
 
   private syncHostEntry() {
     const target = this.getRootTarget();
+
+    if (this.lastHostEntryTarget && this.lastHostEntryTarget !== target) {
+      if (this.caps.has(FOCUS_SET_ENTRY_FOCUSABLE_CAP)) {
+        this.caps.get(FOCUS_SET_ENTRY_FOCUSABLE_CAP)(
+          this.lastHostEntryTarget,
+          this.entryConfig,
+          false
+        );
+      } else if (this.caps.has(FOCUS_SET_FOCUSABLE_CAP)) {
+        this.caps.get(FOCUS_SET_FOCUSABLE_CAP)(this.lastHostEntryTarget, false);
+      }
+    }
+
+    this.lastHostEntryTarget = target;
     if (!target || !this.entryDeclared) return;
 
     const enabled = !this.entryConfig.disabled;

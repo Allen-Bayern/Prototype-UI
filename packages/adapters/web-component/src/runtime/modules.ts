@@ -75,8 +75,38 @@ import {
   getLogicalParent,
   getLogicalPrototype,
   getLogicalRoot,
+  getLogicalTriggerSurfaceRoot,
+  releaseTriggerSurface,
   setLogicalEventRouteOwner,
+  subscribeLogicalTriggerSurface,
 } from '../platform/instance-tree';
+
+const TRIGGER_OWNER_MARK = Symbol.for('@proto.ui/as-trigger/confirm-owner');
+
+function resolveWebComponentTriggerSurface(
+  root: HTMLElement,
+  logicalSurface: HTMLElement | null
+): HTMLElement | null {
+  if (!(root as unknown as Record<symbol, unknown>)[TRIGGER_OWNER_MARK]) {
+    return logicalSurface;
+  }
+
+  let surface = root;
+  while (true) {
+    const next = Array.from(surface.querySelectorAll<HTMLElement>('[data-pui-root]')).find(
+      (candidate) => {
+        if (!(candidate as unknown as Record<symbol, unknown>)[TRIGGER_OWNER_MARK]) return false;
+        let parent = candidate.parentElement;
+        while (parent && parent !== surface && !parent.hasAttribute('data-pui-root')) {
+          parent = parent.parentElement;
+        }
+        return parent === surface;
+      }
+    );
+    if (!next) return surface;
+    surface = next;
+  }
+}
 
 type BodyWithOverflowSnapshot = HTMLElement & {
   __proto_ui_original_overflow?: string;
@@ -101,12 +131,29 @@ export function createWebComponentOwnerModules<Props extends PropsBaseType>(
   args: WebComponentOwnerModulesArgs<Props>
 ) {
   const { el, instanceToken, rawPropsSource, getMeta, setExposes } = args;
-
+  const getTriggerSurface = () => {
+    const target = getLogicalTriggerSurfaceRoot(instanceToken);
+    const surface = resolveWebComponentTriggerSurface(el, target);
+    return surface?.isConnected ? surface : null;
+  };
+  const normalizeOwnedSurface = () => {
+    const surface = getTriggerSurface();
+    if (surface && surface !== el) releaseTriggerSurface(el);
+  };
+  subscribeLogicalTriggerSurface(instanceToken, normalizeOwnedSurface);
+  queueMicrotask(() => queueMicrotask(normalizeOwnedSurface));
   // The custom element is the persistent owner shell, so semantic and
   // expose-state projection remain valid while its internal view is absent.
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
-    .use('a11y', [[A11Y_PROJECT_CAP, createWebA11yProjector(el)]])
+    .use('a11y', [
+      [
+        A11Y_PROJECT_CAP,
+        createWebA11yProjector(getTriggerSurface, (listener) =>
+          subscribeLogicalTriggerSurface(instanceToken, listener)
+        ),
+      ],
+    ])
     .use('event', [
       [
         EVENT_EMIT_CAP,
@@ -216,11 +263,31 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
   let mountedEl: HTMLElement | null = null;
   let originalParent: Node | null = null;
   let originalNext: Node | null = null;
+  const getTriggerSurface = () => {
+    const target = getLogicalTriggerSurfaceRoot(instanceToken);
+    const surface = resolveWebComponentTriggerSurface(el, target);
+    return args.isViewReady() && surface?.isConnected ? surface : null;
+  };
+  const subscribeFocusTarget = (listener: () => void) => {
+    const offReady = args.subscribeTargetReady(listener);
+    const offSurface = subscribeLogicalTriggerSurface(instanceToken, listener);
+    return () => {
+      offReady();
+      offSurface();
+    };
+  };
 
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
     .use('feedback', [[EFFECTS_CAP, effectsPort]])
-    .use('a11y', [[A11Y_PROJECT_CAP, createWebA11yProjector(el)]])
+    .use('a11y', [
+      [
+        A11Y_PROJECT_CAP,
+        createWebA11yProjector(getTriggerSurface, (listener) =>
+          subscribeLogicalTriggerSurface(instanceToken, listener)
+        ),
+      ],
+    ])
     .use('event', [
       [EVENT_ROOT_TARGET_CAP, () => router.rootTarget],
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],
@@ -248,19 +315,14 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
       [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
-      [FOCUS_TARGET_READY_CAP, args.subscribeTargetReady],
-      [
-        FOCUS_ROOT_TARGET_CAP,
-        () => {
-          const target = getLogicalRoot(instanceToken);
-          return args.isViewReady() && target?.isConnected ? target : null;
-        },
-      ],
+      [FOCUS_TARGET_READY_CAP, subscribeFocusTarget],
+      [FOCUS_ROOT_TARGET_CAP, getTriggerSurface],
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, (target: HTMLElement) => isNativelyFocusable(target)],
       [
         FOCUS_SET_FOCUSABLE_CAP,
         (target: HTMLElement, enabled: boolean) => {
-          target.tabIndex = enabled ? 0 : -1;
+          const surface = getLogicalTriggerSurfaceRoot(instanceToken);
+          target.tabIndex = enabled && (!surface || surface === target) ? 0 : -1;
         },
       ],
       [

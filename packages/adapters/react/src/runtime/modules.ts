@@ -72,8 +72,10 @@ import {
   getLogicalEventTarget,
   getLogicalPrototype,
   getLogicalRoot,
+  getLogicalTriggerSurfaceRoot,
   setLogicalEventRouteOwner,
   setProtoParent,
+  subscribeLogicalTriggerSurface,
 } from '../platform/instance-tree';
 
 type ReactOwnerModulesArgs<Props extends PropsBaseType> = {
@@ -195,10 +197,30 @@ export function createReactModules<Props extends PropsBaseType>(args: {
     setExposes,
   } = args;
 
+  const getTriggerSurface = () => {
+    const target = getLogicalTriggerSurfaceRoot(instanceToken);
+    return args.isViewReady() && target?.isConnected ? target : null;
+  };
+  const subscribeFocusTarget = (listener: () => void) => {
+    const offReady = args.subscribeTargetReady(listener);
+    const offSurface = subscribeLogicalTriggerSurface(instanceToken, listener);
+    return () => {
+      offReady();
+      offSurface();
+    };
+  };
+
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
     .use('feedback', [[EFFECTS_CAP, effectsPort]])
-    .use('a11y', [[A11Y_PROJECT_CAP, createWebA11yProjector(el)]])
+    .use('a11y', [
+      [
+        A11Y_PROJECT_CAP,
+        createWebA11yProjector(getTriggerSurface, (listener) =>
+          subscribeLogicalTriggerSurface(instanceToken, listener)
+        ),
+      ],
+    ])
     .use('event', [
       [EVENT_ROOT_TARGET_CAP, () => router.rootTarget],
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],
@@ -215,33 +237,26 @@ export function createReactModules<Props extends PropsBaseType>(args: {
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
       [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
-      [FOCUS_TARGET_READY_CAP, args.subscribeTargetReady],
-      [
-        FOCUS_ROOT_TARGET_CAP,
-        () => {
-          const target = args.getCurrentElement();
-          return args.isViewReady() && target?.isConnected ? target : null;
-        },
-      ],
+      [FOCUS_TARGET_READY_CAP, subscribeFocusTarget],
+      [FOCUS_ROOT_TARGET_CAP, getTriggerSurface],
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, isNativelyFocusable],
       [
         FOCUS_SET_FOCUSABLE_CAP,
         (target: HTMLElement, enabled: boolean) => {
-          target.tabIndex = enabled ? 0 : -1;
+          const surface = getLogicalTriggerSurfaceRoot(instanceToken);
+          target.tabIndex = enabled && (!surface || surface === target) ? 0 : -1;
         },
       ],
       [
         FOCUS_REQUEST_FOCUS_CAP,
-        (_target: HTMLElement, options?: FocusRequestOptions) => {
-          const current = args.getCurrentElement();
-          if (!current?.isConnected) return false;
-          current.focus(
+        (target: HTMLElement, options?: FocusRequestOptions) => {
+          if (!target.isConnected) return false;
+          target.focus(
             typeof options?.preventScroll === 'boolean'
               ? { preventScroll: options.preventScroll }
               : undefined
           );
-          const projected = args.getCurrentElement();
-          const applied = !!projected && projected.ownerDocument.activeElement === projected;
+          const applied = target.ownerDocument.activeElement === target;
           if (!applied) args.retryTargetReady();
           return applied;
         },
@@ -249,8 +264,8 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       [FOCUS_RUN_IN_CALLBACK_CAP, args.runInCallbackScope],
       [
         FOCUS_BLUR_CAP,
-        (_target: HTMLElement) => {
-          args.getCurrentElement()?.blur();
+        (target: HTMLElement) => {
+          target.blur();
         },
       ],
     ])

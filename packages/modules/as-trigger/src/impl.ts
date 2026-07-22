@@ -71,6 +71,7 @@ export class AsTriggerModuleImpl extends ModuleBase {
 
     let cur = getParent(self);
     let lastTrigger: unknown | null = null;
+    const triggerAncestors: unknown[] = [];
 
     while (cur) {
       const curProto = getPrototype(cur);
@@ -82,12 +83,15 @@ export class AsTriggerModuleImpl extends ModuleBase {
       if (!hasTrigger) break;
 
       lastTrigger = cur;
+      triggerAncestors.push(cur);
       cur = getParent(cur);
     }
 
     const routeOwner = lastTrigger ?? self;
     if (this.caps.has(AS_TRIGGER_SET_ROUTE_OWNER_CAP)) {
-      this.caps.get(AS_TRIGGER_SET_ROUTE_OWNER_CAP)(self, routeOwner);
+      const setRouteOwner = this.caps.get(AS_TRIGGER_SET_ROUTE_OWNER_CAP);
+      setRouteOwner(self, routeOwner);
+      for (const ancestor of triggerAncestors) setRouteOwner(ancestor, routeOwner);
     } else if (self && (typeof self === 'object' || typeof self === 'function')) {
       // Backward-compatible fallback for hosts that still use EventTarget
       // instances as their logical trigger identity.

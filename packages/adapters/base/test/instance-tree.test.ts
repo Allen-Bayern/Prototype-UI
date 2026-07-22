@@ -77,4 +77,25 @@ describe('adapter-base: logical instance tree', () => {
     expect(childRoot[ownerMark]).toBe(parent);
     expect(tree.getLogicalEventRouteOwner(child)).toBe(parent);
   });
+
+  it('keeps the deepest continuous trigger as the shared host surface regardless of setup order', () => {
+    const tree = createInstanceTreeMarkers('@proto.ui/test/logical-trigger-surface-tree');
+    const parent = tree.createLogicalInstance({ name: 'parent', setup: () => undefined });
+    const child = tree.createLogicalInstance({ name: 'child', setup: () => undefined });
+    const parentRoot = document.createElement('div');
+    const childRoot = document.createElement('button');
+    const listener = vi.fn();
+
+    tree.bindLogicalParent(child, parent);
+    tree.markProtoInstance(parentRoot, { name: 'parent', setup: () => undefined }, parent);
+    tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
+    tree.subscribeLogicalTriggerSurface(parent, listener);
+
+    tree.setLogicalEventRouteOwner(child, parent);
+    tree.setLogicalEventRouteOwner(parent, parent);
+
+    expect(tree.getLogicalTriggerSurfaceOwner(parent)).toBe(child);
+    expect(tree.getLogicalTriggerSurfaceRoot(parent)).toBe(childRoot);
+    expect(listener).toHaveBeenCalled();
+  });
 });
