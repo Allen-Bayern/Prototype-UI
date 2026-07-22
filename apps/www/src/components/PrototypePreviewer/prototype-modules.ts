@@ -237,6 +237,19 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('../../../../../packages/prototypes/shadcn/src/dialog/close.proto');
     registerPrototype('shadcn-dialog-close', mod.default);
   },
+  'shadcn-dialog-close-icon': async () => {
+    const mod =
+      await import('../../../../../packages/prototypes/shadcn/src/dialog/close-icon.proto');
+    registerPrototype('shadcn-dialog-close-icon', mod.default);
+  },
+  'shadcn-dialog-header': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/dialog/header.proto');
+    registerPrototype('shadcn-dialog-header', mod.default);
+  },
+  'shadcn-dialog-footer': async () => {
+    const mod = await import('../../../../../packages/prototypes/shadcn/src/dialog/footer.proto');
+    registerPrototype('shadcn-dialog-footer', mod.default);
+  },
 };
 
 /**

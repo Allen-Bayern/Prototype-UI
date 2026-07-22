@@ -19,28 +19,50 @@ export default {
         children: [
           {
             kind: 'proto',
-            prototypeId: 'shadcn-dialog-title',
-            children: ['Edit Profile'],
+            prototypeId: 'shadcn-dialog-close-icon',
           },
           {
             kind: 'proto',
-            prototypeId: 'shadcn-dialog-description',
-            children: ["Make changes to your profile here. Click save when you're done."],
+            prototypeId: 'shadcn-dialog-header',
+            children: [
+              {
+                kind: 'proto',
+                prototypeId: 'shadcn-dialog-title',
+                children: ['Edit Profile'],
+              },
+              {
+                kind: 'proto',
+                prototypeId: 'shadcn-dialog-description',
+                children: ["Make changes to your profile here. Click save when you're done."],
+              },
+            ],
           },
           {
-            kind: 'box',
-            className: 'flex gap-2 justify-end',
+            kind: 'proto',
+            prototypeId: 'shadcn-dialog-footer',
             children: [
               {
                 kind: 'proto',
                 prototypeId: 'shadcn-dialog-close',
-                props: { variant: 'outline' },
-                children: ['Cancel'],
+                children: [
+                  {
+                    kind: 'proto',
+                    prototypeId: 'shadcn-button',
+                    props: { variant: 'outline' },
+                    children: ['Cancel'],
+                  },
+                ],
               },
               {
                 kind: 'proto',
                 prototypeId: 'shadcn-dialog-close',
-                children: ['Save changes'],
+                children: [
+                  {
+                    kind: 'proto',
+                    prototypeId: 'shadcn-button',
+                    children: ['Save changes'],
+                  },
+                ],
               },
             ],
           },
