@@ -3,12 +3,15 @@ import { styleContains } from '../../test-utils/style';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 import {
   dialogClose,
+  dialogCloseIcon,
   dialogContent,
   dialogDescription,
   dialogMask,
   dialogRoot,
   dialogTitle,
   dialogTrigger,
+  dialogHeader,
+  dialogFooter,
 } from '../src/dialog';
 
 AdaptToWebComponent(dialogRoot as any);
@@ -18,6 +21,9 @@ AdaptToWebComponent(dialogContent as any);
 AdaptToWebComponent(dialogTitle as any);
 AdaptToWebComponent(dialogDescription as any);
 AdaptToWebComponent(dialogClose as any);
+AdaptToWebComponent(dialogCloseIcon as any);
+AdaptToWebComponent(dialogHeader as any);
+AdaptToWebComponent(dialogFooter as any);
 
 async function completeTransitions(...elements: any[]): Promise<void> {
   for (const element of elements) {
@@ -39,6 +45,9 @@ describe('prototypes/shadcn: dialog', () => {
     expect(dialogTitle.name).toBe('shadcn-dialog-title');
     expect(dialogDescription.name).toBe('shadcn-dialog-description');
     expect(dialogClose.name).toBe('shadcn-dialog-close');
+    expect(dialogCloseIcon.name).toBe('shadcn-dialog-close-icon');
+    expect(dialogHeader.name).toBe('shadcn-dialog-header');
+    expect(dialogFooter.name).toBe('shadcn-dialog-footer');
   });
 
   it('styles and opens a dialog compound prototype', async () => {
@@ -49,10 +58,16 @@ describe('prototypes/shadcn: dialog', () => {
     const title = document.createElement('shadcn-dialog-title') as any;
     const description = document.createElement('shadcn-dialog-description') as any;
     const close = document.createElement('shadcn-dialog-close') as any;
+    const closeIcon = document.createElement('shadcn-dialog-close-icon') as any;
+    const header = document.createElement('shadcn-dialog-header') as any;
+    const footer = document.createElement('shadcn-dialog-footer') as any;
 
-    content.appendChild(title);
-    content.appendChild(description);
-    content.appendChild(close);
+    header.appendChild(title);
+    header.appendChild(description);
+    footer.appendChild(close);
+    content.appendChild(header);
+    content.appendChild(footer);
+    content.appendChild(closeIcon);
     root.appendChild(trigger);
     root.appendChild(mask);
     root.appendChild(content);
@@ -87,6 +102,13 @@ describe('prototypes/shadcn: dialog', () => {
     expect(styleContains(mask, 'fade-in-0')).toBe(true);
     expect(styleContains(title, 'text-lg')).toBe(true);
     expect(styleContains(description, 'text-muted-foreground')).toBe(true);
+    expect(styleContains(header, 'flex-col')).toBe(true);
+    expect(styleContains(footer, 'items-center')).toBe(true);
+    expect(styleContains(close, 'rounded-lg')).toBe(false);
+    expect(styleContains(close, 'bg-primary')).toBe(false);
+    expect(styleContains(closeIcon, 'absolute')).toBe(true);
+    expect(closeIcon.querySelector('svg')).not.toBeNull();
+    expect(closeIcon.getAttribute('aria-label')).toBe('Close');
     expect(document.activeElement).toBe(close);
 
     close.dispatchEvent(new MouseEvent('click', { bubbles: true }));

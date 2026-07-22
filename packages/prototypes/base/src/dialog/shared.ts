@@ -66,6 +66,8 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
     content: { cardinality: { min: 0, max: 1 } },
     title: { cardinality: { min: 0, max: 1 } },
     description: { cardinality: { min: 0, max: 1 } },
+    header: { cardinality: { min: 0, max: 1 } },
+    footer: { cardinality: { min: 0, max: 1 } },
     close: { cardinality: { min: 0, max: 100 } },
   },
   relations: [
@@ -74,6 +76,8 @@ export const DIALOG_FAMILY = createAnatomyFamily('base-dialog', {
     { kind: 'contains', parent: 'root', child: 'content' },
     { kind: 'contains', parent: 'content', child: 'title' },
     { kind: 'contains', parent: 'content', child: 'description' },
+    { kind: 'contains', parent: 'content', child: 'header' },
+    { kind: 'contains', parent: 'content', child: 'footer' },
     { kind: 'contains', parent: 'content', child: 'close' },
   ],
 });

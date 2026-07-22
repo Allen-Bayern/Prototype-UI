@@ -267,43 +267,72 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
     },
   ]),
 
-  'shadcn-dialog': shadcnCompound('shadcn-dialog', 'shadcn Dialog', [
+  'shadcn-dialog': shadcnCompound(
+    'shadcn-dialog',
+    'shadcn Dialog',
+    [
+      {
+        prototypeImport: 'shadcnDialogRoot',
+        exportBaseName: 'ShadcnDialogRoot',
+        elementName: 'proto-ui-shadcn-dialog-root',
+      },
+      {
+        prototypeImport: 'shadcnDialogTrigger',
+        exportBaseName: 'ShadcnDialogTrigger',
+        elementName: 'proto-ui-shadcn-dialog-trigger',
+      },
+      {
+        prototypeImport: 'shadcnDialogMask',
+        exportBaseName: 'ShadcnDialogMask',
+        elementName: 'proto-ui-shadcn-dialog-mask',
+      },
+      {
+        prototypeImport: 'shadcnDialogContent',
+        exportBaseName: 'ShadcnDialogContentRaw',
+        elementName: 'proto-ui-shadcn-dialog-content-raw',
+      },
+      {
+        prototypeImport: 'shadcnDialogTitle',
+        exportBaseName: 'ShadcnDialogTitle',
+        elementName: 'proto-ui-shadcn-dialog-title',
+      },
+      {
+        prototypeImport: 'shadcnDialogDescription',
+        exportBaseName: 'ShadcnDialogDescription',
+        elementName: 'proto-ui-shadcn-dialog-description',
+      },
+      {
+        prototypeImport: 'shadcnDialogClose',
+        exportBaseName: 'ShadcnDialogClose',
+        elementName: 'proto-ui-shadcn-dialog-close',
+      },
+      {
+        prototypeImport: 'shadcnDialogCloseIcon',
+        exportBaseName: 'ShadcnDialogCloseIcon',
+        elementName: 'proto-ui-shadcn-dialog-close-icon',
+      },
+      {
+        prototypeImport: 'shadcnDialogHeader',
+        exportBaseName: 'ShadcnDialogHeader',
+        elementName: 'proto-ui-shadcn-dialog-header',
+      },
+      {
+        prototypeImport: 'shadcnDialogFooter',
+        exportBaseName: 'ShadcnDialogFooter',
+        elementName: 'proto-ui-shadcn-dialog-footer',
+      },
+    ],
     {
-      prototypeImport: 'shadcnDialogRoot',
-      exportBaseName: 'ShadcnDialogRoot',
-      elementName: 'proto-ui-shadcn-dialog-root',
-    },
-    {
-      prototypeImport: 'shadcnDialogTrigger',
-      exportBaseName: 'ShadcnDialogTrigger',
-      elementName: 'proto-ui-shadcn-dialog-trigger',
-    },
-    {
-      prototypeImport: 'shadcnDialogMask',
-      exportBaseName: 'ShadcnDialogMask',
-      elementName: 'proto-ui-shadcn-dialog-mask',
-    },
-    {
-      prototypeImport: 'shadcnDialogContent',
-      exportBaseName: 'ShadcnDialogContent',
+      kind: 'replaceable-default-part',
+      exportName: 'ShadcnDialogContent',
+      rootExport: 'ShadcnDialogContentRaw',
+      defaultPartExport: 'ShadcnDialogCloseIcon',
+      defaultPartElementName: 'proto-ui-shadcn-dialog-close-icon',
+      inputName: 'close',
       elementName: 'proto-ui-shadcn-dialog-content',
-    },
-    {
-      prototypeImport: 'shadcnDialogTitle',
-      exportBaseName: 'ShadcnDialogTitle',
-      elementName: 'proto-ui-shadcn-dialog-title',
-    },
-    {
-      prototypeImport: 'shadcnDialogDescription',
-      exportBaseName: 'ShadcnDialogDescription',
-      elementName: 'proto-ui-shadcn-dialog-description',
-    },
-    {
-      prototypeImport: 'shadcnDialogClose',
-      exportBaseName: 'ShadcnDialogClose',
-      elementName: 'proto-ui-shadcn-dialog-close',
-    },
-  ]),
+      omissionAttribute: 'data-pui-no-default-close',
+    }
+  ),
 
   'base-button': base('base-button', 'base Button', 'button', 'BaseButton'),
   'base-toggle': base('base-toggle', 'base Toggle', 'toggle', 'BaseToggle'),

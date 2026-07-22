@@ -6,6 +6,7 @@
 export const SHADCN_STYLE_TOKENS: string[] = [
   '-translate-x-1/2',
   '-translate-y-1/2',
+  'absolute',
   'active:translate-y-px',
   'animate-in',
   'animate-out',
@@ -163,6 +164,7 @@ export const SHADCN_STYLE_TOKENS: string[] = [
   'py-1.5',
   'py-2',
   'relative',
+  'right-0',
   'ring-0',
   'ring-2',
   'ring-3',
@@ -204,6 +206,7 @@ export const SHADCN_STYLE_TOKENS: string[] = [
   'text-secondary-foreground',
   'text-sm',
   'top-1/2',
+  'top-4',
   'tracking-tight',
   'transition-all',
   'transition-colors',

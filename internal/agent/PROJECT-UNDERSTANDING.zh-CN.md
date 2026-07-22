@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
 | 工作区实体数 | 384 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:13568be34703a99fc64d085dd6d322a79e93018c050b69995e8b6c06be912a65` |
+| 工作区快照指纹 | `sha256:f29bf14ac080359498142f04023a65539b7678d8849d3c385e4e50704c8768ea` |
 | 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -62,7 +62,7 @@ flowchart LR
 | `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
 | `decision` | 46 | 6 | 38 | 2 | 31 | 16 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 33 |
+| `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 32 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
 | `test` | 119 | 12 | 107 | 0 | 0 | 0 | 4 |
@@ -73,7 +73,7 @@ flowchart LR
 | Relation     | 边数 |
 | ------------ | ---: |
 | `relates`    |  206 |
-| `dependsOn`  |  762 |
+| `dependsOn`  |  759 |
 | `inherits`   |   27 |
 | `references` |    7 |
 | `refines`    |   18 |
@@ -251,7 +251,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
-| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger merges continuous nested trigger event routes to the outermost trigger | 8 | 1 | asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain. |
+| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger merges continuous nested trigger event routes to the outermost trigger | 9 | 1 | asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain. |
 
 ### BOUNDARY（1）
 
@@ -323,7 +323,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | [`C-EXPOSE-0004`](../../spec/contracts/C-EXPOSE-0004.yaml) | `draft` | Expose keys form an instance exposes record | 6 | 1 | Expose entries are identified by stable non-empty string keys and presented to the App Maker as an instance-level exposes record. |
 | [`C-EXPOSE-0005`](../../spec/contracts/C-EXPOSE-0005.yaml) | `draft` | Classified expose APIs declare value, state, method, and signal surfaces | 6 | 1 | Classified expose APIs add semantic categories over the base registration model without changing core registration, key, or lifecycle rules. |
 | [`C-EXPOSE-0006`](../../spec/contracts/C-EXPOSE-0006.yaml) | `draft` | Expose value represents read-only outward information | 5 | 1 | Expose value declares that a component provides a value-like piece of outward information to the App Maker. |
-| [`C-EXPOSE-0007`](../../spec/contracts/C-EXPOSE-0007.yaml) | `draft` | Expose method represents an App-Maker-callable capability | 5 | 1 | Expose method declares that a component provides an outward capability the App Maker may invoke through an adapter-defined calling surface. |
+| [`C-EXPOSE-0007`](../../spec/contracts/C-EXPOSE-0007.yaml) | `draft` | Expose method represents an App-Maker-callable capability | 6 | 1 | Expose method declares that a component provides an outward capability the App Maker may invoke through an adapter-defined calling surface. |
 | [`C-EXPOSE-0008`](../../spec/contracts/C-EXPOSE-0008.yaml) | `draft` | Expose entries are bound to instance lifecycle | 5 | 2 | Expose entries are valid only while the component instance remains under runtime responsibility and must be cleared or invalidated after dispose. |
 | [`C-EXPOSE-EVENT-0001`](../../spec/contracts/C-EXPOSE-EVENT-0001.yaml) | `draft` | Expose event represents outward signals | 6 | 1 | Expose event declares and emits Component-to-App-Maker outward signals; it is not the User-to-Component Event channel. |
 | [`C-EXPOSE-EVENT-0002`](../../spec/contracts/C-EXPOSE-EVENT-0002.yaml) | `draft` | Expose event payload semantics remain minimal in v0 | 5 | 1 | Expose event payload specs currently provide only minimal payload hints; stronger portable payload guarantees remain open. |
@@ -437,7 +437,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml) | `draft` | Base Button is a focusable command control | — | — | 30 | 2 |
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml) | `draft` | Base Checkbox is a checked input control with optional mixed display state | — | 2 roles / 0 profiles | 52 | 2 |
 | [`P-BASE-CHECKBOX-INDICATOR`](../../spec/prototypes/P-BASE-CHECKBOX-INDICATOR.yaml) | `draft` | Base Checkbox Indicator is a context-driven checkbox indicator | — | — | 17 | 2 |
-| [`P-BASE-DIALOG`](../../spec/prototypes/P-BASE-DIALOG.yaml) | `draft` | Base Dialog is a root-owned modal dialog protocol | — | 7 roles / 0 profiles | 10 | 3 |
+| [`P-BASE-DIALOG`](../../spec/prototypes/P-BASE-DIALOG.yaml) | `draft` | Base Dialog is a root-owned modal dialog protocol | — | 9 roles / 0 profiles | 10 | 3 |
 | [`P-BASE-DIALOG-CLOSE`](../../spec/prototypes/P-BASE-DIALOG-CLOSE.yaml) | `draft` | Base Dialog Close requests dismissal | — | — | 5 | 3 |
 | [`P-BASE-DIALOG-CONTENT`](../../spec/prototypes/P-BASE-DIALOG-CONTENT.yaml) | `draft` | Base Dialog Content owns the active dialog surface | — | — | 7 | 3 |
 | [`P-BASE-DIALOG-DESCRIPTION`](../../spec/prototypes/P-BASE-DIALOG-DESCRIPTION.yaml) | `draft` | Base Dialog Description describes Dialog Content | — | — | 3 | 3 |
@@ -478,7 +478,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | --- | --- | --- | --- | --- | --: | --: |
 | [`P-SHADCN-BUTTON`](../../spec/prototypes/P-SHADCN-BUTTON.yaml) | `draft` | Shadcn Button inherits Base Button and layers a pinned visual API subset | `P-BASE-BUTTON` | — | 10 | 2 |
 | [`P-SHADCN-DIALOG`](../../spec/prototypes/P-SHADCN-DIALOG.yaml) | `draft` | Shadcn Dialog Root inherits Base modal ownership and adds the current host layout | `P-BASE-DIALOG` | — | 6 | 2 |
-| [`P-SHADCN-DIALOG-CLOSE`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE.yaml) | `draft` | Shadcn Dialog Close inherits Base close-command behavior and adds button variants | `P-BASE-DIALOG-CLOSE` | — | 9 | 2 |
+| [`P-SHADCN-DIALOG-CLOSE`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE.yaml) | `draft` | Shadcn Dialog Close inherits Base close-command behavior without visual styling | `P-BASE-DIALOG-CLOSE` | — | 9 | 2 |
 | [`P-SHADCN-DIALOG-CONTENT`](../../spec/prototypes/P-SHADCN-DIALOG-CONTENT.yaml) | `draft` | Shadcn Dialog Content inherits Base modal content and adds a narrowed animated panel surface | `P-BASE-DIALOG-CONTENT` | — | 8 | 3 |
 | [`P-SHADCN-DIALOG-DESCRIPTION`](../../spec/prototypes/P-SHADCN-DIALOG-DESCRIPTION.yaml) | `draft` | Shadcn Dialog Description inherits Base description relations and adds muted typography | `P-BASE-DIALOG-DESCRIPTION` | — | 6 | 2 |
 | [`P-SHADCN-DIALOG-MASK`](../../spec/prototypes/P-SHADCN-DIALOG-MASK.yaml) | `draft` | Shadcn Dialog Mask inherits Base modal masking and adds a narrowed animated overlay surface | `P-BASE-DIALOG-MASK` | — | 8 | 3 |
@@ -496,7 +496,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-SHADCN-SELECT-ITEM`](../../spec/prototypes/P-SHADCN-SELECT-ITEM.yaml) | `draft` | Shadcn Select Item inherits Base option behavior and adds current styling and a selected check | `P-BASE-SELECT-ITEM` | — | 9 | 2 |
 | [`P-SHADCN-SELECT-TRIGGER`](../../spec/prototypes/P-SHADCN-SELECT-TRIGGER.yaml) | `draft` | Shadcn Select Trigger inherits Base combobox behavior and adds size, styling, and chevron | `P-BASE-SELECT-TRIGGER` | — | 10 | 2 |
 | [`P-SHADCN-SELECT-VALUE`](../../spec/prototypes/P-SHADCN-SELECT-VALUE.yaml) | `draft` | Shadcn Select Value inherits Base display derivation and renders the current text | `P-BASE-SELECT-VALUE` | — | 7 | 2 |
-| [`P-SHADCN-SWITCH`](../../spec/prototypes/P-SHADCN-SWITCH.yaml) | `draft` | Shadcn Switch Root inherits Base Switch and adds the current track surface | `P-BASE-SWITCH` | — | 8 | 2 |
+| [`P-SHADCN-SWITCH`](../../spec/prototypes/P-SHADCN-SWITCH.yaml) | `draft` | Shadcn Switch Root inherits Base Switch and adds the current track surface | `P-BASE-SWITCH` | — | 9 | 2 |
 | [`P-SHADCN-SWITCH-THUMB`](../../spec/prototypes/P-SHADCN-SWITCH-THUMB.yaml) | `draft` | Shadcn Switch Thumb inherits the Base indicator and adds its current visual surface | `P-BASE-SWITCH-THUMB` | — | 7 | 2 |
 | [`P-SHADCN-TABS`](../../spec/prototypes/P-SHADCN-TABS.yaml) | `draft` | Shadcn Tabs Root inherits Base Tabs and adds the current layout surface | `P-BASE-TABS` | — | 7 | 2 |
 | [`P-SHADCN-TABS-CONTENT`](../../spec/prototypes/P-SHADCN-TABS-CONTENT.yaml) | `draft` | Shadcn Tabs Content inherits Base Tabs Content and adds the current panel surface | `P-BASE-TABS-CONTENT` | — | 8 | 2 |
@@ -686,7 +686,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  253 |
+| `passing` |  254 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -695,7 +695,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   70 |
 | `fixture`         |   17 |
-| `module-test`     |  121 |
+| `module-test`     |  122 |
 | `runtime-test`    |   70 |
 | `workspace-check` |    7 |
 
@@ -925,7 +925,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-SHADCN-SELECT-ITEM-0001`](../../spec/tests/T-SHADCN-SELECT-ITEM-0001.yaml) | `draft` | Shadcn Select Item delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-ITEM` | `P-SHADCN-SELECT-ITEM`<br>`P-BASE-SELECT-ITEM` |
 | [`T-SHADCN-SELECT-TRIGGER-0001`](../../spec/tests/T-SHADCN-SELECT-TRIGGER-0001.yaml) | `draft` | Shadcn Select Trigger delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-TRIGGER` | `P-SHADCN-SELECT-TRIGGER`<br>`P-BASE-SELECT-TRIGGER` |
 | [`T-SHADCN-SELECT-VALUE-0001`](../../spec/tests/T-SHADCN-SELECT-VALUE-0001.yaml) | `draft` | Shadcn Select Value delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-SELECT-VALUE` | `P-SHADCN-SELECT-VALUE`<br>`P-BASE-SELECT-VALUE` |
-| [`T-SHADCN-SWITCH-0001`](../../spec/tests/T-SHADCN-SWITCH-0001.yaml) | `draft` | Shadcn Switch Root delta protocol contract tests | 3 | `passing` 1 | `C-FEEDBACK-STYLE-0003`<br>`P-SHADCN-SWITCH` | `P-SHADCN-SWITCH`<br>`P-BASE-SWITCH` |
+| [`T-SHADCN-SWITCH-0001`](../../spec/tests/T-SHADCN-SWITCH-0001.yaml) | `draft` | Shadcn Switch Root delta protocol contract tests | 4 | `passing` 2 | `C-FEEDBACK-STYLE-0003`<br>`P-SHADCN-SWITCH` | `P-SHADCN-SWITCH`<br>`P-BASE-SWITCH` |
 | [`T-SHADCN-SWITCH-THUMB-0001`](../../spec/tests/T-SHADCN-SWITCH-THUMB-0001.yaml) | `draft` | Shadcn Switch Thumb delta protocol contract tests | 3 | `passing` 1 | `P-SHADCN-SWITCH-THUMB` | `P-SHADCN-SWITCH-THUMB`<br>`P-BASE-SWITCH-THUMB` |
 | [`T-SHADCN-TABS-0001`](../../spec/tests/T-SHADCN-TABS-0001.yaml) | `draft` | Shadcn Tabs Root delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-TABS` | `P-SHADCN-TABS`<br>`P-BASE-TABS` |
 | [`T-SHADCN-TABS-CONTENT-0001`](../../spec/tests/T-SHADCN-TABS-CONTENT-0001.yaml) | `draft` | Shadcn Tabs Content delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-TABS-CONTENT` | `P-SHADCN-TABS-CONTENT`<br>`P-BASE-TABS-CONTENT` |
@@ -987,7 +987,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 九、显式 Open Questions
 
-当前实体共声明 77 个 open question。它们是已知断口，不应由 Agent 静默补全。
+当前实体共声明 76 个 open question。它们是已知断口，不应由 Agent 静默补全。
 
 | Entity | Question | Blocks |
 | --- | --- | --- |
@@ -1038,7 +1038,6 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`P-LUCIDE-ICON`](../../spec/prototypes/P-LUCIDE-ICON.yaml)<br>`P-LUCIDE-ICON-Q-A11Y-SURFACE` | Icon protocol 应直接提供 decorative/label/title，还是由 owning component 与 adapter 负责 SVG a11y 投射？ | icon accessibility protocol<br>svg adapter accessibility |
 | [`P-SHADCN-BUTTON`](../../spec/prototypes/P-SHADCN-BUTTON.yaml)<br>`P-SHADCN-BUTTON-Q-UPSTREAM-DIFFERENCES` | 相较固定的 shadcn/ui Button baseline，当前全部差异分别是有意偏离还是待实现 gap，以及待实现项应按什么顺序收敛？ | shadcn button parity roadmap |
 | [`P-SHADCN-DIALOG`](../../spec/prototypes/P-SHADCN-DIALOG.yaml)<br>`P-SHADCN-DIALOG-Q-UPSTREAM-DIFFERENCES` | Dialog family composition 与 Root API parity 应如何收敛？ | shadcn dialog parity roadmap |
-| [`P-SHADCN-DIALOG-CLOSE`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE.yaml)<br>`P-SHADCN-DIALOG-CLOSE-Q-UPSTREAM-DIFFERENCES` | Close 应对齐 transparent wrapper、Content X Close 还是 Footer Button composition？ | shadcn dialog close parity roadmap |
 | [`P-SHADCN-DIALOG-CONTENT`](../../spec/prototypes/P-SHADCN-DIALOG-CONTENT.yaml)<br>`P-SHADCN-DIALOG-CONTENT-Q-UPSTREAM-DIFFERENCES` | Content composition、public boundary 与 exact panel parity 应如何收敛？ | shadcn dialog content parity roadmap |
 | [`P-SHADCN-DIALOG-DESCRIPTION`](../../spec/prototypes/P-SHADCN-DIALOG-DESCRIPTION.yaml)<br>`P-SHADCN-DIALOG-DESCRIPTION-Q-UPSTREAM-DIFFERENCES` | Description forwarding parity 应如何收敛？ | shadcn dialog description parity roadmap |
 | [`P-SHADCN-DIALOG-MASK`](../../spec/prototypes/P-SHADCN-DIALOG-MASK.yaml)<br>`P-SHADCN-DIALOG-MASK-Q-UPSTREAM-DIFFERENCES` | Mask/Overlay naming、Transition boundary 与 exact surface 应如何收敛？ | shadcn dialog mask parity roadmap |

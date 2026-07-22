@@ -123,6 +123,25 @@ describe('@proto.ui/cli', () => {
     expect(root).toContain('export { ShadcnSwitchElement }');
   });
 
+  it('materializes the replaceable Dialog Content CloseIcon preset while keeping raw parts', () => {
+    const react = renderHostIndex('react', ['shadcn-dialog']);
+    expect(react).toContain('export const ShadcnDialogContentRaw = adapt(shadcnDialogContent);');
+    expect(react).toContain('export const ShadcnDialogCloseIcon = adapt(shadcnDialogCloseIcon);');
+    expect(react).toContain('export const ShadcnDialogHeader = adapt(shadcnDialogHeader);');
+    expect(react).toContain('export const ShadcnDialogFooter = adapt(shadcnDialogFooter);');
+    expect(react).toContain('export const ShadcnDialogContent = React.forwardRef');
+    expect(react).toContain('close === null || hasDirectDefaultPart');
+
+    const vue = renderHostIndex('vue', ['shadcn-dialog']);
+    expect(vue).toContain('const resolvedDefaultPart = slots.close');
+
+    const wc = renderHostIndex('wc', ['shadcn-dialog']);
+    expect(wc).toContain(
+      'export class ShadcnDialogContentElement extends ShadcnDialogContentRawElement'
+    );
+    expect(wc).toContain("!this.hasAttribute('data-pui-no-default-close')");
+  });
+
   it('prints the new help text', () => {
     const result = runCli(process.cwd(), ['--help']);
     expect(result.status).toBe(0);
