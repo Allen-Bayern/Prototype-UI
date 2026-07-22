@@ -34,6 +34,10 @@ criteria:
     text:
       zh-CN: expose method 不得被解释为 Event 通路 callback，也不得被解释为 Feedback。
       en: Expose methods must not be interpreted as Event-channel callbacks or as Feedback.
+  - id: C-EXPOSE-0007-F
+    text:
+      zh-CN: 当 adapter 将 expose method 投射为 JavaScript 可调用函数时，该函数必须自动进入所属 prototype instance 的 callback scope；App Maker 不得被要求手动建立内部 runtime scope。
+      en: When an adapter projects an expose method as a JavaScript-callable function, that function must automatically enter the owning prototype instance's callback scope; the App Maker must not be required to establish an internal runtime scope manually.
 openQuestions:
   - id: C-EXPOSE-0007-Q-CALL-SHAPE
     question:
@@ -55,6 +59,7 @@ sources:
   - path: packages/adapters/web-component/test/contract/anatomy.runtime-access.v0.contract.test.ts
     sections:
       - exposes from other parts
+  - path: packages/adapters/base/src/host/exposes.ts
 dependsOn:
   contracts:
     - C-EXPOSE-0005
@@ -65,6 +70,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Captured expose method as an App-Maker-callable capability while keeping invocation shape open.
+  - version: 0.2.0-rc.3
+    change: clarified
+    summary: Required JavaScript-callable adapter projections to enter the owning callback scope automatically.
 tags:
   - expose
   - method

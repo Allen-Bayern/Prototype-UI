@@ -1,16 +1,16 @@
 id: P-SHADCN-DIALOG-CLOSE
 type: prototype
-title: Shadcn Dialog Close inherits Base close-command behavior and adds button variants
+title: Shadcn Dialog Close inherits Base close-command behavior without visual styling
 status: draft
 since: 0.2.0-rc.0
-summary: Shadcn Dialog Close inherits Base close command, request, and disabled behavior and adds six visual variants and current interaction styling.
+summary: Shadcn Dialog Close is an unstyled semantic close boundary; button and default X surfaces are composed through separate prototypes or presets.
 statement:
   zh-CN: >-
-    Shadcn Dialog Close 是 `P-BASE-DIALOG-CLOSE` 之上的 direct part，保留 close command/request 与 disabled behavior，并增加六种 button-like `variant`、基础 surface 及 inherited state-driven feedback。upstream 独立 DialogClose wrapper 不提供这些默认 styles，Content 内置 X Close 又是另一 surface；`asChild` 明确不提供。
+    Shadcn Dialog Close 是 `P-BASE-DIALOG-CLOSE` 之上的无样式 direct part，保留 close command/request 与 disabled behavior，但不提供 button variant 或默认视觉 surface。Footer Button composition 通过嵌套 trigger 合并完成；Content 默认 X 由独立 `shadcn-dialog-close-icon` prototype 和 CLI preset 物化，二者不得被隐藏进本 prototype 边界。`asChild` 明确不提供。
 
 
   en: >-
-    Shadcn Dialog Close is a direct part over `P-BASE-DIALOG-CLOSE`. It retains close-command, request, and disabled behavior while adding six button-like `variant` values, a base surface, and inherited state-driven feedback. The upstream standalone DialogClose wrapper has no such default styles, while the built-in X Close inside Content has a different surface; `asChild` is explicitly unavailable.
+    Shadcn Dialog Close is an unstyled direct part over `P-BASE-DIALOG-CLOSE`. It retains close-command, request, and disabled behavior but provides neither button variants nor a default visual surface. Footer Button composition uses nested-trigger merging, while Content's default X is materialized by the independent `shadcn-dialog-close-icon` prototype and a CLI preset; neither may be hidden inside this prototype boundary. `asChild` is explicitly unavailable.
 
 
 criteria:
@@ -39,10 +39,10 @@ criteria:
   - id: P-SHADCN-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS
     text:
       {
-        zh-CN: 当前实现不反转 inherited close command/request 或 disabled guarantee；props/styles 是视觉增量。,
+        zh-CN: 当前实现不反转 inherited close command/request 或 disabled guarantee，也不添加视觉增量。,
         en: The current implementation reverses no inherited close-command,
         request,
-        or disabled guarantee; props and styles are visual deltas.,
+        or disabled guarantee and adds no visual delta.,
       }
   - id: P-SHADCN-DIALOG-CLOSE-DIRECT-ENTRY
     text:
@@ -50,43 +50,32 @@ criteria:
         zh-CN: 当前 Close protocol 以 `shadcn-dialog-close` direct prototype 公开。,
         en: The current Close protocol is exposed as the `shadcn-dialog-close` direct prototype.,
       }
-  - id: P-SHADCN-DIALOG-CLOSE-VARIANT-PROP
+  - id: P-SHADCN-DIALOG-CLOSE-UNSTYLED-SURFACE
     text:
       {
-        zh-CN: variant 必须提供 default/destructive/outline/secondary/ghost/link、默认 default，并投射对应 surface。,
-        en: Variant must provide default,
-        destructive,
-        outline,
-        secondary,
-        ghost,
-        and link,
-        default to default,
-        and project the corresponding surface.,
+        zh-CN: Close 不得声明 variant 或默认视觉 tokens；它只投射 inherited close-command semantic surface。,
+        en: Close must declare neither variants nor default visual tokens; it projects only the inherited close-command semantic surface.,
       }
-  - id: P-SHADCN-DIALOG-CLOSE-CURRENT-VISUAL-SURFACE
+  - id: P-SHADCN-DIALOG-CLOSE-COMPOSITION-BOUNDARY
     text:
       {
-        zh-CN: Close 必须提供当前 compact button layout、border、typography、transition 与 outline tokens。,
-        en: Close must provide the current compact-button layout,
-        border,
-        typography,
-        transition,
-        and outline tokens.,
+        zh-CN: Button 视觉必须由显式嵌套 Button 提供，并依 trigger-group 规则只保留一个宿主 focus/a11y surface。,
+        en: Button visuals must come from an explicitly nested Button and retain one host focus and accessibility surface under trigger-group rules.,
       }
-  - id: P-SHADCN-DIALOG-CLOSE-STATE-DRIVEN-STYLES
+  - id: P-SHADCN-DIALOG-CLOSE-DEFAULT-X-SEPARATION
     text:
       {
-        zh-CN: focusVisible、pressed、variant-specific hovered 与 disabled visuals 必须从 inherited states 派生。,
-        en: FocusVisible,
-        pressed,
-        variant-specific hover,
-        and disabled visuals must derive from inherited states.,
+        zh-CN: 默认 X 必须由独立 CloseIcon prototype 与 component preset 组合，不得成为 Close 或 Content 内部的隐藏交互实例。,
+        en: The default X must be composed from an independent CloseIcon prototype and component preset,
+        never as a hidden interactive instance inside Close or Content.,
       }
   - id: P-SHADCN-DIALOG-CLOSE-COMPATIBILITY-SUBSET
     text:
       {
-        zh-CN: 当前 button variants 与 upstream standalone/X-close 差异集中在唯一 open question。,
-        en: Current button variants and upstream standalone versus X-Close differences are centralized in one open question.,
+        zh-CN: standalone Close、Footer Button composition 与默认 X Close 必须保持为三个明确消费面。,
+        en: Standalone Close,
+        Footer Button composition,
+        and the default X Close must remain three explicit consumption surfaces.,
       }
   - id: P-SHADCN-DIALOG-CLOSE-AS-CHILD-OMISSION
     text:
@@ -95,33 +84,14 @@ criteria:
         en: Upstream Close `asChild` is omitted under the shared decision.,
       }
     dependsOn: { decisions: [D-AS-CHILD-OMISSION-0001] }
-openQuestions:
-  - id: P-SHADCN-DIALOG-CLOSE-Q-UPSTREAM-DIFFERENCES
-    question:
-      {
-        zh-CN: Close 应对齐 transparent wrapper、Content X Close 还是 Footer Button composition？,
-        en: Should Close align with the transparent wrapper,
-        Content X Close,
-        or Footer Button composition?,
-      }
-    context:
-      zh-CN: intentional deviation 是省略 `asChild`。upstream standalone DialogClose 仅 data-slot/forwarding；Content 内置 X Close 默认启用且有 icon/sr-only/absolute styles；Footer 可用 `DialogPrimitive.Close asChild` 包 Button。当前 Close 是六 variant compact button，未继承 `P-SHADCN-BUTTON`，需明确长期 API 与 visual governance。
-      en: The intentional deviation is omission of `asChild`. Upstream standalone DialogClose only adds data-slot and forwarding; Content's built-in X Close is enabled by default with icon, sr-only text, and absolute styles; Footer may wrap Button through Close asChild. Current Close is a six-variant compact button and does not inherit `P-SHADCN-BUTTON`, so its long-term API and visual governance need a decision.
-    blocks: [shadcn dialog close parity roadmap]
 sources:
   - path: packages/prototypes/shadcn/src/dialog/close.proto.ts
   - path: packages/prototypes/shadcn/test/dialog.test.ts
+  - path: packages/cli/src/services/codegen.ts
   - path: https://github.com/shadcn-ui/ui/blob/f31ed81983653919dd4fe77aee4b4859f610f1dc/apps/v4/registry/new-york-v4/ui/dialog.tsx
     label: shadcn/ui v4 new-york DialogClose pinned baseline
 dependsOn:
-  contracts:
-    [
-      C-AS-HOOK-0001,
-      C-PROPS-0001,
-      C-PROPS-0003,
-      C-RULE-WHEN-0002,
-      C-RULE-INTENT-FEEDBACK-STYLE-0001,
-    ]
+  contracts: [C-AS-HOOK-0001, C-AS-TRIGGER-0001]
   decisions: [D-PROTOTYPE-ENTITY-NAMING-0001, D-AS-CHILD-OMISSION-0001]
   prototypes: [P-SHADCN-DIALOG, P-SHADCN-DIALOG-CONTENT]
 inherits:
@@ -142,6 +112,12 @@ revisions:
       button variants,
       asChild omission,
       and centralized upstream surface questions.,
+    },
+    {
+      version: 0.2.0-rc.3,
+      change: revised,
+      summary: Removed button variants and default styles,
+      separated Footer Button composition from the preset-materialized default X Close.,
     },
   ]
 tags: [prototype, shadcn, dialog, close, upstream-derived, delta, compatibility, visual]

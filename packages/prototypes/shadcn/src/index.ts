@@ -33,6 +33,9 @@ export {
   dialogTitle,
   dialogDescription,
   dialogClose,
+  dialogCloseIcon,
+  dialogHeader,
+  dialogFooter,
 } from './dialog';
 export { default as shadcnDialogRoot } from './dialog/root.proto';
 export { default as shadcnDialogTrigger } from './dialog/trigger.proto';
@@ -41,6 +44,9 @@ export { default as shadcnDialogContent } from './dialog/content.proto';
 export { default as shadcnDialogTitle } from './dialog/title.proto';
 export { default as shadcnDialogDescription } from './dialog/description.proto';
 export { default as shadcnDialogClose } from './dialog/close.proto';
+export { default as shadcnDialogCloseIcon } from './dialog/close-icon.proto';
+export { default as shadcnDialogHeader } from './dialog/header.proto';
+export { default as shadcnDialogFooter } from './dialog/footer.proto';
 export type {
   ShadcnButtonProps,
   ShadcnButtonExposes,

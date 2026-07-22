@@ -7,6 +7,7 @@ import type {
 } from '@proto.ui/runtime';
 import {
   createEventGate,
+  createScopedExposesReader,
   createViewEpochOwner,
   createWebProtoEventRouter,
   installViewVisibilityRule,
@@ -266,9 +267,12 @@ export function createVueAdapter(runtime: VueRuntime) {
           shouldExist.value = initialIntent.present;
         }
 
+        const scopedExposesReader = createScopedExposesReader(() => invokeRef.value);
+
         ctx.expose({
           update: () => controllerRef.value?.update(),
-          getExposes: () => ({ ...(exposesRef.value ?? {}) }) as ProtoAdapterExposes<TProto>,
+          getExposes: () =>
+            scopedExposesReader.read(exposesRef.value ?? {}) as ProtoAdapterExposes<TProto>,
           invokeInCallbackScope: (fn: () => void) => invokeRef.value?.(fn),
         } satisfies VueAdapterHandle<TProto>);
 

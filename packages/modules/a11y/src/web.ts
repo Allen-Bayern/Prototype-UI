@@ -20,10 +20,56 @@ const ARIA_RELATION_ATTRS: Record<string, string> = {
   labelledBy: 'aria-labelledby',
 };
 
-export function createWebA11yProjector(el: HTMLElement): A11yProjector {
-  return (snapshot) => {
-    applyWebA11ySnapshot(el, snapshot);
+export function createWebA11yProjector(
+  target: HTMLElement | (() => HTMLElement | null),
+  subscribeTargetChange?: (listener: () => void) => () => void
+): A11yProjector {
+  const getTarget = typeof target === 'function' ? target : () => target;
+  let lastTarget: HTMLElement | null = null;
+  let lastSnapshot: A11ySemanticObjectSnapshot | null = null;
+
+  const project = (snapshot: A11ySemanticObjectSnapshot) => {
+    const nextTarget = getTarget();
+    if (lastTarget && lastTarget !== nextTarget && lastSnapshot) {
+      clearWebA11ySnapshot(lastTarget, lastSnapshot);
+    }
+    lastTarget = nextTarget;
+    lastSnapshot = snapshot;
+    if (nextTarget) applyWebA11ySnapshot(nextTarget, snapshot);
   };
+
+  subscribeTargetChange?.(() => {
+    if (lastSnapshot) project(lastSnapshot);
+  });
+
+  return project;
+}
+
+export function clearWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObjectSnapshot): void {
+  if (typeof snapshot.id !== 'undefined') el.removeAttribute('id');
+  if (typeof snapshot.role !== 'undefined') el.removeAttribute('role');
+  if (snapshot.name) el.removeAttribute('aria-label');
+  if (snapshot.description) el.removeAttribute('aria-description');
+
+  for (const [key, attr] of Object.entries(ARIA_STATE_ATTRS)) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.states, key)) el.removeAttribute(attr);
+  }
+  if (Object.prototype.hasOwnProperty.call(snapshot.states, 'hidden')) {
+    el.removeAttribute('aria-hidden');
+    el.removeAttribute('hidden');
+  }
+  for (const [key, attr] of Object.entries(ARIA_RELATION_ATTRS)) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.relations, key)) el.removeAttribute(attr);
+  }
+  if (Object.keys(snapshot.actions).length) el.removeAttribute('data-pui-a11y-actions');
+  if (snapshot.tree) {
+    if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'hidden')) {
+      el.removeAttribute('aria-hidden');
+    }
+    if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'mergeChildren')) {
+      el.removeAttribute('data-pui-a11y-merge-children');
+    }
+  }
 }
 
 export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObjectSnapshot): void {

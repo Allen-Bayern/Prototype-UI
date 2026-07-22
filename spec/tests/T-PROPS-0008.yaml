@@ -136,6 +136,17 @@ implementations:
       - C-PROPS-0008
     notes:
       - Shared adapter conformance harness verifies raw escape-hatch visibility without promoting host-local raw values to resolved portable props.
+  - id: adapter-react-ref-props-stability
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/ref-props-stability.integration.test.ts
+    required: true
+    consumesCases:
+      - T-PROPS-0008-CASE-RAW-DIFF
+    exercises:
+      - C-PROPS-0012
+    notes:
+      - Real React 19 forwardRef coverage verifies that ref-driven props-object cloning does not become a raw snapshot change or an adapter update loop, while changed prototype prop values still update feedback.
 verifies:
   contracts:
     - id: C-PROPS-0012
@@ -177,6 +188,9 @@ revisions:
   - version: 0.1.0
     change: introduced
     summary: Added criteria-level raw props escape hatch test mapping for `C-PROPS-0012`.
+  - version: 0.2.0-rc.3
+    change: revised
+    summary: Added real React 19 ref stability coverage for adapter-supplied raw snapshot diffing.
 tags:
   - props
   - contract-test

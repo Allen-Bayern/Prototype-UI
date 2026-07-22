@@ -7,6 +7,7 @@ import { type RawPropsSource } from '@proto.ui/module-props';
 import {
   createHostWiring,
   createEventGate,
+  createScopedExposesReader,
   createWebProtoEventRouter,
   createViewEpochOwner,
   scheduleAfterWebLayout,
@@ -131,8 +132,6 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
 
     private _applier: ReturnType<typeof createOwnedTwTokenApplier> | null = null;
     private _exposes: Record<string, unknown> = {};
-    private _wrappedExposes: Record<string, unknown> = {};
-    private _lastWrappedRaw: Record<string, unknown> | null = null;
 
     constructor() {
       super();
@@ -265,8 +264,6 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
           clearSlotProjector,
           onAfterUnmount: () => {
             this._exposes = {};
-            this._wrappedExposes = {};
-            this._lastWrappedRaw = null;
             this._applier?.clear();
             this._applier = null;
             this._hostDisplay?.disconnect();
@@ -416,34 +413,13 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
       installDebugHooks(thisEl, hostSession.caps);
 
       (this as any).update = () => controller.update();
-      const wrapExposes = (record: Record<string, unknown>): Record<string, unknown> => {
-        const out: Record<string, unknown> = {};
-        for (const [key, value] of Object.entries(record)) {
-          if (typeof value === 'function') {
-            out[key] = (...args: unknown[]) => {
-              let result: unknown;
-              hostSession.invokeInCallbackScope(() => {
-                result = (value as (...a: unknown[]) => unknown)(...args);
-              });
-              return result;
-            };
-          } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-            out[key] = wrapExposes(value as Record<string, unknown>);
-          } else {
-            out[key] = value;
-          }
-        }
-        return out;
-      };
+      const scopedExposesReader = createScopedExposesReader(
+        () => hostSession.invokeInCallbackScope
+      );
 
       (this as any).getExposes = () => {
         if (!this.isConnected) return {};
-        const raw = this._exposes ?? {};
-        if (this._lastWrappedRaw !== raw) {
-          this._lastWrappedRaw = raw;
-          this._wrappedExposes = wrapExposes(raw);
-        }
-        return { ...this._wrappedExposes };
+        return scopedExposesReader.read(this._exposes ?? {});
       };
 
       (this as unknown as { setProps?(v: Record<string, unknown>): void }).setProps = (

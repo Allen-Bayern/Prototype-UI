@@ -47,7 +47,7 @@ describe('adapter-react: expose', () => {
     mounted.unmount();
   });
 
-  it('supports invoking exposed control methods within callback scope', () => {
+  it('automatically invokes exposed control methods within callback scope', () => {
     const proto: Prototype = {
       name: 'react-expose-controls',
       setup(def) {
@@ -66,9 +66,7 @@ describe('adapter-react: expose', () => {
     expect(typeof handle.invokeInCallbackScope).toBe('function');
     expect(handle.getExposes().phase.get()).toBe('idle');
 
-    handle.invokeInCallbackScope(() => {
-      handle.getExposes().controls.run();
-    });
+    handle.getExposes().controls.run();
 
     expect(handle.getExposes().phase.get()).toBe('running');
 

@@ -52,8 +52,6 @@ export type ShadcnDialogDescriptionProps = DialogDescriptionProps;
 export type ShadcnDialogDescriptionExposes = DialogDescriptionExposes;
 export type ShadcnDialogDescriptionAsHookContract = DialogDescriptionAsHookContract;
 
-export type ShadcnDialogCloseProps = DialogCloseProps & {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-};
+export type ShadcnDialogCloseProps = DialogCloseProps;
 export type ShadcnDialogCloseExposes = DialogCloseExposes;
 export type ShadcnDialogCloseAsHookContract = DialogCloseAsHookContract;

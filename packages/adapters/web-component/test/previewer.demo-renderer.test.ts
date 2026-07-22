@@ -190,6 +190,10 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
       'shadcn-dialog-title',
       'shadcn-dialog-description',
       'shadcn-dialog-close',
+      'shadcn-dialog-close-icon',
+      'shadcn-dialog-header',
+      'shadcn-dialog-footer',
+      'shadcn-button',
     ]);
 
     const host = document.createElement('div');
@@ -207,10 +211,14 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     const content = host.querySelector('wc-shadcn-dialog-content') as HTMLElement | null;
     const mask = host.querySelector('wc-shadcn-dialog-mask') as HTMLElement | null;
     const close = host.querySelector('wc-shadcn-dialog-close') as HTMLElement | null;
+    const closeButton = close?.querySelector('wc-shadcn-button') as HTMLElement | null;
+    const closeIcon = host.querySelector('wc-shadcn-dialog-close-icon') as HTMLElement | null;
 
     expect(trigger).not.toBeNull();
     expect(content).not.toBeNull();
     expect(close).not.toBeNull();
+    expect(closeButton).not.toBeNull();
+    expect(closeIcon).not.toBeNull();
     expect(content?.hasAttribute('data-pui-view-detached')).toBe(true);
 
     trigger?.focus();
@@ -218,9 +226,9 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     await settle();
 
     expect(styleContains(content, 'hidden')).toBe(false);
-    expect(document.activeElement).toBe(close);
+    expect(document.activeElement).toBe(closeButton);
 
-    close?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    closeButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await settle();
     await completeTransitions(mask, content);
 

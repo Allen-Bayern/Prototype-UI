@@ -1,0 +1,44 @@
+id: P-SHADCN-DIALOG-CLOSE-ICON
+type: prototype
+title: Shadcn Dialog CloseIcon is the independent default X close surface
+status: draft
+since: 0.2.0-rc.3
+summary: CloseIcon inherits Base close-command semantics and adds the accessible X surface used by the Dialog Content preset.
+statement:
+  zh-CN: Shadcn Dialog CloseIcon 是独立的交互 prototype，继承 Base Dialog Close command，投射带 `Close` accessible name 的 X icon surface，并作为 CLI Dialog Content preset 的可替换默认 part；它不是 Content 内部隐藏实例。
+  en: Shadcn Dialog CloseIcon is an independent interaction prototype that inherits the Base Dialog Close command, projects an X icon surface with the accessible name `Close`, and serves as the replaceable default part of the CLI Dialog Content preset; it is not a hidden Content-internal instance.
+criteria:
+  - id: P-SHADCN-DIALOG-CLOSE-ICON-BASE-INHERITANCE
+    text:
+      zh-CN: CloseIcon 必须调用 `asDialogClose()` 并保留 close request、disabled、focus 与 a11y command semantics。
+      en: CloseIcon must call `asDialogClose()` and retain close-request, disabled, focus, and accessibility command semantics.
+  - id: P-SHADCN-DIALOG-CLOSE-ICON-SURFACE
+    text:
+      zh-CN: CloseIcon 必须投射 X icon、`Close` accessible name 以及独立的 state-driven visual feedback。
+      en: CloseIcon must project an X icon, the accessible name `Close`, and independent state-driven visual feedback.
+  - id: P-SHADCN-DIALOG-CLOSE-ICON-PRESET
+    text:
+      zh-CN: CLI Content preset 必须在未提供 close 时物化 CloseIcon，并允许兼容替换或显式关闭，同时保留 raw Content facade。
+      en: The CLI Content preset must materialize CloseIcon when no close is provided, allow compatible replacement or explicit omission, and retain a raw Content facade.
+    dependsOn:
+      decisions:
+        - id: D-COMPONENT-PRESET-MATERIALIZATION-0001
+          since: 0.2.0-rc.3
+sources:
+  - path: packages/prototypes/shadcn/src/dialog/close-icon.proto.ts
+  - path: packages/prototypes/shadcn/test/dialog.test.ts
+  - path: packages/cli/src/services/codegen.ts
+  - path: packages/cli/test/cli.test.ts
+inherits:
+  prototypes:
+    - id: P-BASE-DIALOG-CLOSE
+      note: Inherits the semantic close-command boundary before adding the X surface.
+dependsOn:
+  contracts: [C-AS-HOOK-0001, C-A11Y-0001, C-RULE-WHEN-0002]
+  prototypes: [P-SHADCN-DIALOG-CONTENT]
+verifies: { tests: [T-SHADCN-DIALOG-LAYOUT-0001] }
+revisions:
+  - version: 0.2.0-rc.3
+    change: introduced
+    summary: Added the independent accessible X close surface and preset mapping.
+tags: [prototype, shadcn, dialog, close, icon, preset]

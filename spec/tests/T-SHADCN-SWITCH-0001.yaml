@@ -3,7 +3,7 @@ type: test
 title: Shadcn Switch Root delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Switch Root identity, Base inheritance, Root/Thumb behavior, current styles, intentional asChild omission, and its bounded upstream compatibility claim.
+summary: Covers Switch Root identity, Base inheritance, Root/Thumb behavior, the replaceable default-Thumb preset, current styles, intentional asChild omission, and its bounded upstream compatibility claim.
 cases:
   - id: T-SHADCN-SWITCH-0001-CASE-IDENTITY-AND-INHERITANCE
     title: Root is a direct unofficial projection that inherits Base Switch
@@ -28,6 +28,10 @@ cases:
     title: intentional asChild omission and remaining upstream gaps stay outside the passing claim
     covers: [P-SHADCN-SWITCH-COMPATIBILITY-SUBSET, P-SHADCN-SWITCH-AS-CHILD-OMISSION]
     expectation: shadcn-switch-root-does-not-overclaim-upstream-parity
+  - id: T-SHADCN-SWITCH-0001-CASE-COMPONENT-PRESET
+    title: generated convenience facades materialize replaceable default Thumb parts before mount
+    covers: [P-SHADCN-SWITCH-COMPONENT-PRESET]
+    expectation: shadcn-switch-generated-facades-support-default-replacement-and-omission
 implementations:
   - id: prototypes-shadcn-switch-root-contract
     kind: module-test
@@ -43,6 +47,13 @@ implementations:
     exercises: [P-SHADCN-SWITCH, P-BASE-SWITCH]
     notes:
       - Positive tests cover only the current Proto UI guarantee; asChild omission and remaining parity gaps are bounded by the decision, declared surface, source review, and centralized compatibility question.
+  - id: cli-shadcn-switch-component-preset
+    kind: module-test
+    status: passing
+    path: packages/cli/test/cli.test.ts
+    required: true
+    consumesCases: [T-SHADCN-SWITCH-0001-CASE-COMPONENT-PRESET]
+    exercises: [P-SHADCN-SWITCH]
 verifies:
   contracts:
     - id: C-FEEDBACK-STYLE-0003
@@ -59,6 +70,7 @@ verifies:
           P-SHADCN-SWITCH-STATE-DRIVEN-STYLES,
           P-SHADCN-SWITCH-COMPATIBILITY-SUBSET,
           P-SHADCN-SWITCH-AS-CHILD-OMISSION,
+          P-SHADCN-SWITCH-COMPONENT-PRESET,
         ]
 exercises:
   prototypes: [P-SHADCN-SWITCH, P-BASE-SWITCH]
@@ -66,4 +78,7 @@ revisions:
   - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Switch Root delta coverage for Base inheritance, family behavior, current visual styles, and bounded upstream compatibility.
+  - version: 0.2.0-rc.3
+    change: expanded
+    summary: Added generated component-preset coverage for default, replacement, and omission paths across adapters.
 tags: [prototype, shadcn, switch, root, delta, compatibility, test]

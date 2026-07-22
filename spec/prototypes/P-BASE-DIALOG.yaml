@@ -6,11 +6,11 @@ since: 0.2.0-rc.0
 summary: Base Dialog is a compound modal-window protocol whose root owns open state, controlled requests, shared context, and the Dialog anatomy domain.
 statement:
   zh-CN: >-
-    Base Dialog 是 compound modal-window protocol。Root 持有 open state 与 Dialog context；Trigger、Mask、Content、Title、Description、Close 作为同域 parts 协作。受控与非受控交互都必须产生 `openChange` request，只有 owner input 或非受控 root 可以改变最终 open fact。Content 与 Mask 的感知 transition 和 L1 view materialization 不得成为第二套 open truth。
+    Base Dialog 是 compound modal-window protocol。Root 持有 open state 与 Dialog context；Trigger、Mask、Content、Header、Footer、Title、Description、Close 作为同域 parts 协作。受控与非受控交互都必须产生 `openChange` request，只有 owner input 或非受控 root 可以改变最终 open fact。Content 与 Mask 的感知 transition 和 L1 view materialization 不得成为第二套 open truth。
 
 
   en: >-
-    Base Dialog is a compound modal-window protocol. Root owns open state and Dialog context while Trigger, Mask, Content, Title, Description, and Close cooperate as parts in the same domain. Controlled and uncontrolled interactions both produce `openChange` requests, while only owner input or an uncontrolled root may change the final open fact. Content and Mask perceptual transitions and L1 view materialization must not become a second open truth.
+    Base Dialog is a compound modal-window protocol. Root owns open state and Dialog context while Trigger, Mask, Content, Header, Footer, Title, Description, and Close cooperate as parts in the same domain. Controlled and uncontrolled interactions both produce `openChange` requests, while only owner input or an uncontrolled root may change the final open fact. Content and Mask perceptual transitions and L1 view materialization must not become a second open truth.
 
 
 anatomy:
@@ -20,6 +20,8 @@ anatomy:
     trigger: { cardinality: { min: 0, max: '*' } }
     mask: { cardinality: { min: 0, max: 1 } }
     content: { cardinality: { min: 0, max: 1 } }
+    header: { cardinality: { min: 0, max: 1 } }
+    footer: { cardinality: { min: 0, max: 1 } }
     title: { cardinality: { min: 0, max: 1 } }
     description: { cardinality: { min: 0, max: 1 } }
     close: { cardinality: { min: 0, max: '*' } }
@@ -27,6 +29,8 @@ anatomy:
     - { kind: contains, parent: root, child: trigger }
     - { kind: contains, parent: root, child: mask }
     - { kind: contains, parent: root, child: content }
+    - { kind: contains, parent: content, child: header }
+    - { kind: contains, parent: content, child: footer }
     - { kind: contains, parent: content, child: title }
     - { kind: contains, parent: content, child: description }
     - { kind: contains, parent: content, child: close }
@@ -100,4 +104,7 @@ revisions:
   - version: 0.2.0-rc.0
     change: refined
     summary: Added the host-neutral a11yLabel fallback published to Content through Dialog context.
+  - version: 0.2.0-rc.3
+    change: revised
+    summary: Added optional layout-only Header and Footer roles under Content.
 tags: [prototype, base, dialog, modal, compound]

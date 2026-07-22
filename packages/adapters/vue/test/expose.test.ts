@@ -50,7 +50,7 @@ describe('adapter-vue: expose', () => {
     mounted.unmount();
   });
 
-  it('supports invoking exposed control methods within callback scope', async () => {
+  it('automatically invokes exposed control methods within callback scope', async () => {
     const proto: Prototype = {
       name: 'vue-expose-controls',
       setup(def) {
@@ -69,9 +69,7 @@ describe('adapter-vue: expose', () => {
     expect(typeof mounted.vm.invokeInCallbackScope).toBe('function');
     expect(mounted.vm.getExposes().phase.get()).toBe('idle');
 
-    mounted.vm.invokeInCallbackScope(() => {
-      mounted.vm.getExposes().controls.run();
-    });
+    mounted.vm.getExposes().controls.run();
     await flushVue();
 
     expect(mounted.vm.getExposes().phase.get()).toBe('running');
