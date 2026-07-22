@@ -19,10 +19,6 @@ export default {
         children: [
           {
             kind: 'proto',
-            prototypeId: 'shadcn-dialog-close-icon',
-          },
-          {
-            kind: 'proto',
             prototypeId: 'shadcn-dialog-header',
             children: [
               {
@@ -65,6 +61,10 @@ export default {
                 ],
               },
             ],
+          },
+          {
+            kind: 'proto',
+            prototypeId: 'shadcn-dialog-close-icon',
           },
         ],
       },
