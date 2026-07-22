@@ -3,10 +3,10 @@ type: version
 title: Proto UI 0.2.0-rc.3
 status: draft
 since: 0.2.0-rc.3
-summary: Draft release identity for composition and component-preset improvements collected after external rc.1 trials.
+summary: Draft release train for runtime, styling, composition, and component-preset improvements collected after external rc.1 trials.
 statement:
-  en: Proto UI 0.2.0-rc.3 is the draft ecosystem release identity used to catalog the current composition and component-preset direction. Declaring this draft makes entity version references valid but does not bump packages, create publication evidence, or authorize publishing.
-  zh-CN: Proto UI 0.2.0-rc.3 是用于编目当前组合能力与 component preset 方向的 draft 生态发行身份。声明该 draft 只使实体版本引用合法，不会更新 package 版本、创建发布证据或授权发布。
+  en: Proto UI 0.2.0-rc.3 is one reviewed draft ecosystem release identity shared exactly by every public @proto.ui package and the corresponding staged spec snapshot. It does not claim npm, Git tag, GitHub Release, or immutable snapshot evidence before publication.
+  zh-CN: Proto UI 0.2.0-rc.3 是由全部公开 @proto.ui package 与对应暂存 spec snapshot 精确共享、处于评审阶段的一次生态发行身份；发布前不声称已存在 npm、Git tag、GitHub Release 或不可变 snapshot 证据。
 release:
   version: 0.2.0-rc.3
   channel: prerelease
@@ -20,8 +20,8 @@ dependsOn:
 criteria:
   - id: V-PROTO-UI-0003-DRAFT-BOUNDARY
     text:
-      en: The draft entity may validate rc.3 catalog references before package iteration, but it must not claim npm, Git tag, GitHub Release, or immutable snapshot evidence.
-      zh-CN: 在 package 迭代前，本 draft 实体可以验证 rc.3 catalog 引用，但不得声称已存在 npm、Git tag、GitHub Release 或不可变 snapshot 证据。
+      en: The draft entity may govern aligned rc.3 package manifests, release assets, and catalog references, but it must not claim npm, Git tag, GitHub Release, or immutable snapshot evidence.
+      zh-CN: 本 draft 实体可以治理已对齐的 rc.3 package manifest、发行物料与 catalog 引用，但不得声称已存在 npm、Git tag、GitHub Release 或不可变 snapshot 证据。
   - id: V-PROTO-UI-0003-IDENTITY
     text:
       en: Before publication, VERSION, every public @proto.ui package manifest, staged internal dependency versions, and the spec snapshot must be prepared at 0.2.0-rc.3 exactly.
@@ -31,6 +31,7 @@ criteria:
       en: The entity may become active only after npm publication, the v0.2.0-rc.3 Git tag, and snapshot digest evidence all exist.
       zh-CN: 仅当 npm 发布、v0.2.0-rc.3 Git tag 与 snapshot digest 证据均存在后，本实体才可转为 active。
 sources:
+  - path: internal/releases/0.2.0-rc.3/package-bom.json
   - path: internal/releases/0.2.0-rc.3/release-notes.md
   - path: internal/releases/0.2.0-rc.3/release-notes.zh-CN.md
 openQuestions: []
@@ -38,6 +39,9 @@ revisions:
   - version: 0.2.0-rc.3
     change: introduced
     summary: Declared the draft rc.3 catalog identity without starting package iteration or publication.
+  - version: 0.2.0-rc.3
+    change: revised
+    summary: Opened the full rc.3 release train by aligning package manifests and reviewed release assets while keeping publication evidence pending.
 tags:
   - release
   - prerelease
