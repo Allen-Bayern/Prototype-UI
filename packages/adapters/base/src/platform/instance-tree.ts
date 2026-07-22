@@ -1,8 +1,87 @@
 import type { Prototype } from '@proto.ui/core';
 
 const PROTO_PARENT_INSTANCE = Symbol.for('@proto.ui/adapter-base/__proto_parent_instance');
+const TRIGGER_OWNER_MARK = Symbol.for('@proto.ui/as-trigger/confirm-owner');
 
 type ElementWithProtoParent = HTMLElement & Record<symbol, unknown>;
+
+type DynamicEventTarget = EventTarget & {
+  setTarget(target: EventTarget | null): void;
+  getTarget(): EventTarget | null;
+};
+
+function createDynamicEventTarget(): DynamicEventTarget {
+  type Registration = {
+    type: string;
+    listener: EventListenerOrEventListenerObject;
+    options?: boolean | AddEventListenerOptions;
+  };
+
+  let target: EventTarget | null = null;
+  const registrations: Registration[] = [];
+  const capture = (options?: boolean | AddEventListenerOptions | EventListenerOptions) =>
+    typeof options === 'boolean' ? options : options?.capture === true;
+
+  const bridge = {
+    addEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject | null,
+      options?: boolean | AddEventListenerOptions
+    ) {
+      if (!listener) return;
+      if (
+        registrations.some(
+          (entry) =>
+            entry.type === type &&
+            entry.listener === listener &&
+            capture(entry.options) === capture(options)
+        )
+      ) {
+        return;
+      }
+      registrations.push({ type, listener, options });
+      target?.addEventListener(type, listener, options);
+    },
+    removeEventListener(
+      type: string,
+      listener: EventListenerOrEventListenerObject | null,
+      options?: boolean | EventListenerOptions
+    ) {
+      if (!listener) return;
+      const index = registrations.findIndex(
+        (entry) =>
+          entry.type === type &&
+          entry.listener === listener &&
+          capture(entry.options) === capture(options)
+      );
+      if (index < 0) return;
+      const [entry] = registrations.splice(index, 1);
+      target?.removeEventListener(type, listener, entry?.options);
+    },
+    dispatchEvent(event: Event) {
+      return target?.dispatchEvent(event) ?? false;
+    },
+    setTarget(nextTarget: EventTarget | null) {
+      if (target === nextTarget) return;
+      if (target) {
+        for (const entry of registrations) {
+          target.removeEventListener(entry.type, entry.listener, entry.options);
+        }
+      }
+      target = nextTarget;
+      if (target) {
+        for (const entry of registrations) {
+          target.addEventListener(entry.type, entry.listener, entry.options);
+        }
+      }
+    },
+    getTarget() {
+      return target;
+    },
+  };
+
+  return bridge as DynamicEventTarget;
+}
 
 export type LogicalInstanceToken = object & {
   readonly __protoUiLogicalInstance?: true;
@@ -29,12 +108,23 @@ export function createInstanceTreeMarkers(symbolName: string) {
   const INSTANCE_BY_TOKEN = new WeakMap<LogicalInstanceToken, HTMLElement>();
   const PROTO_BY_TOKEN = new WeakMap<LogicalInstanceToken, Prototype<any>>();
   const PARENT_BY_TOKEN = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
+  const ROUTE_OWNER_BY_TOKEN = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
+  const EVENT_TARGET_BY_TOKEN = new WeakMap<LogicalInstanceToken, DynamicEventTarget>();
+
+  function projectRouteOwner(token: LogicalInstanceToken): void {
+    const root = INSTANCE_BY_TOKEN.get(token);
+    if (!root) return;
+    const owner = ROUTE_OWNER_BY_TOKEN.get(token);
+    if (owner) (root as ElementWithProtoParent)[TRIGGER_OWNER_MARK] = owner;
+    else delete (root as ElementWithProtoParent)[TRIGGER_OWNER_MARK];
+  }
 
   function createLogicalInstance(proto: Prototype<any>): LogicalInstanceToken {
     // Tokens intentionally remain extensible: semantic modules attach
     // cross-adapter ownership marks (for example as-trigger confirmation).
     const token = {} as LogicalInstanceToken;
     PROTO_BY_TOKEN.set(token, proto);
+    ROUTE_OWNER_BY_TOKEN.set(token, token);
     return token;
   }
 
@@ -56,6 +146,7 @@ export function createInstanceTreeMarkers(symbolName: string) {
     TOKEN_BY_INSTANCE.set(el, token);
     INSTANCE_BY_TOKEN.set(token, el);
     PROTO_BY_TOKEN.set(token, proto);
+    projectRouteOwner(token);
 
     const parentRoot = getProtoParent(el);
     const parentToken = parentRoot ? TOKEN_BY_INSTANCE.get(parentRoot) : undefined;
@@ -70,6 +161,39 @@ export function createInstanceTreeMarkers(symbolName: string) {
     TOKEN_BY_INSTANCE.delete(current);
     PROTO_BY_INSTANCE.delete(current);
     delete (current as any)[PROTO_INSTANCE];
+    delete (current as ElementWithProtoParent)[TRIGGER_OWNER_MARK];
+  }
+
+  function setLogicalEventRouteOwner(
+    token: LogicalInstanceToken,
+    owner: LogicalInstanceToken
+  ): void {
+    ROUTE_OWNER_BY_TOKEN.set(token, owner);
+    (token as Record<symbol, unknown>)[TRIGGER_OWNER_MARK] = owner;
+    projectRouteOwner(token);
+  }
+
+  function getLogicalEventRouteOwner(token: LogicalInstanceToken): LogicalInstanceToken {
+    return ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
+  }
+
+  function getLogicalEventTarget(token: LogicalInstanceToken): EventTarget {
+    let target = EVENT_TARGET_BY_TOKEN.get(token);
+    if (!target) {
+      target = createDynamicEventTarget();
+      EVENT_TARGET_BY_TOKEN.set(token, target);
+    }
+    return target;
+  }
+
+  function bindLogicalEventTarget(token: LogicalInstanceToken, target: EventTarget): void {
+    (getLogicalEventTarget(token) as DynamicEventTarget).setTarget(target);
+  }
+
+  function unbindLogicalEventTarget(token: LogicalInstanceToken, target?: EventTarget): void {
+    const bridge = EVENT_TARGET_BY_TOKEN.get(token);
+    if (!bridge || (target && bridge.getTarget() !== target)) return;
+    bridge.setTarget(null);
   }
 
   const PROTO_PARENT_BY_INSTANCE = new WeakMap<HTMLElement, HTMLElement>();
@@ -157,6 +281,11 @@ export function createInstanceTreeMarkers(symbolName: string) {
     getLogicalParent,
     getLogicalRoot,
     getLogicalPrototype,
+    setLogicalEventRouteOwner,
+    getLogicalEventRouteOwner,
+    getLogicalEventTarget,
+    bindLogicalEventTarget,
+    unbindLogicalEventTarget,
     isProtoInstance,
   };
 }

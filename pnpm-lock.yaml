@@ -247,9 +247,6 @@ importers:
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../../types
-      react:
-        specifier: '>=18.2.0 <20'
-        version: 19.2.6
     devDependencies:
       '@proto.ui/prototypes-base':
         specifier: workspace:*
@@ -257,6 +254,15 @@ importers:
       '@types/react':
         specifier: ^19.2.0
         version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.2.0
+        version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.6(react@19.2.6)
 
   packages/adapters/vue:
     dependencies:

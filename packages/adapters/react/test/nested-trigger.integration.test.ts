@@ -1,0 +1,56 @@
+import * as React from 'react';
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { button } from '@proto.ui/prototypes-base';
+
+import { createReactAdapter } from '../src';
+
+const mountedRoots: Array<{ unmount(): void }> = [];
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+afterEach(async () => {
+  for (const root of mountedRoots.splice(0)) {
+    await act(async () => root.unmount());
+  }
+  document.body.replaceChildren();
+});
+
+describe('adapter-react: nested trigger routing', () => {
+  it('mounts nested adapted triggers and routes one activation through the outermost owner', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    mountedRoots.push(root);
+
+    const adapt = createReactAdapter(React);
+    const Button = adapt(button, {
+      rootTag: 'div',
+      schedule: (task) => task(),
+    });
+    const outerClick = vi.fn();
+    const innerClick = vi.fn();
+
+    await act(async () => {
+      root.render(
+        React.createElement(
+          Button,
+          { onClick: outerClick },
+          React.createElement(Button, { onClick: innerClick }, 'Inner')
+        )
+      );
+      await Promise.resolve();
+    });
+
+    const roots = host.querySelectorAll<HTMLElement>('[data-pui-root]');
+    expect(roots).toHaveLength(2);
+
+    await act(async () => {
+      roots[1]!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(innerClick).toHaveBeenCalledOnce();
+    expect(outerClick).toHaveBeenCalledOnce();
+  });
+});

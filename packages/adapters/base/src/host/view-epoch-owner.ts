@@ -74,17 +74,34 @@ export function createViewEpochOwner<P extends PropsBaseType>(args: {
         throw new Error(`[AdapterHost] ${args.prototypeName} owner is already initialized`);
       }
 
-      wiring = createHostWiring({ prototypeName: args.prototypeName, modules: input.modules });
-      ownerModules = input.modules;
-      session = input.createSession(wiring);
+      const nextWiring = createHostWiring({
+        prototypeName: args.prototypeName,
+        modules: input.modules,
+      });
+      let nextSession: AdapterHostSession<P> | null = null;
+      let nextUnsubscribe: (() => void) | null = null;
 
-      const notify = (snapshot: ViewIntentSnapshot) => {
-        viewIntent = snapshot;
-        input.onViewIntent?.(snapshot);
-      };
-      unsubscribeIntent = session.viewIntent.subscribe(notify);
-      notify(session.viewIntent.getSnapshot());
-      return session;
+      try {
+        nextSession = input.createSession(nextWiring);
+        const notify = (snapshot: ViewIntentSnapshot) => {
+          viewIntent = snapshot;
+          input.onViewIntent?.(snapshot);
+        };
+        nextUnsubscribe = nextSession.viewIntent.subscribe(notify);
+        notify(nextSession.viewIntent.getSnapshot());
+
+        wiring = nextWiring;
+        ownerModules = input.modules;
+        session = nextSession;
+        unsubscribeIntent = nextUnsubscribe;
+        return nextSession;
+      } catch (error) {
+        nextUnsubscribe?.();
+        void nextSession?.dispose();
+        nextWiring.afterUnmount();
+        viewIntent = null;
+        throw error;
+      }
     },
     attachView(input) {
       if (disposed) {

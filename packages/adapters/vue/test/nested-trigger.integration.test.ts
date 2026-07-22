@@ -1,0 +1,44 @@
+import { describe, expect, it, vi } from 'vitest';
+import { button } from '@proto.ui/prototypes-base';
+
+import { createVueAdapter } from '../src';
+import { flushVue, VueAny } from './utils/vue';
+
+describe('adapter-vue: nested trigger routing', () => {
+  it('mounts nested adapted triggers and routes one activation through the outermost owner', async () => {
+    const adapt = createVueAdapter(VueAny);
+    const Button = adapt(button, {
+      rootTag: 'div',
+      schedule: (task: () => void) => task(),
+    });
+    const outerClick = vi.fn();
+    const innerClick = vi.fn();
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const app = VueAny.createApp({
+      setup() {
+        return () =>
+          VueAny.h(Button, { onClick: outerClick }, () => [
+            VueAny.h(Button, { onClick: innerClick }, () => 'Inner'),
+          ]);
+      },
+    });
+
+    app.mount(host);
+    await flushVue();
+    await flushVue();
+
+    const roots = host.querySelectorAll<HTMLElement>('[data-pui-root]');
+    expect(roots).toHaveLength(2);
+
+    roots[1]!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await flushVue();
+
+    expect(innerClick).toHaveBeenCalledOnce();
+    expect(outerClick).toHaveBeenCalledOnce();
+
+    app.unmount();
+    host.remove();
+  });
+});

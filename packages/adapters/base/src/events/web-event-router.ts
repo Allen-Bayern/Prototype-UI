@@ -23,6 +23,7 @@ const payloadStateByNativeEvent = new WeakMap<object, Record<PropertyKey, unknow
 
 export function createWebProtoEventRouter(opt: {
   rootEl: HTMLElement;
+  instanceToken?: object;
   globalEl?: EventTarget; // window by default
   isEnabled: () => boolean; // bridge to eventGate
 }) {
@@ -66,10 +67,13 @@ export function createWebProtoEventRouter(opt: {
     return PROTO_INSTANCE_MARKS.some((mark) => (target as ElementWithSymbols)[mark] === true);
   }
 
-  function isTriggerOwnerNode(target: EventTarget | null): target is HTMLElement {
-    return (
-      target instanceof HTMLElement && (target as ElementWithSymbols)[TRIGGER_OWNER_MARK] === true
-    );
+  function getTriggerRouteOwner(target: EventTarget | null): object | HTMLElement | null {
+    if (!(target instanceof HTMLElement)) return null;
+    const owner = (target as ElementWithSymbols)[TRIGGER_OWNER_MARK];
+    if (owner === true) return target;
+    return owner && (typeof owner === 'object' || typeof owner === 'function')
+      ? (owner as object)
+      : null;
   }
 
   function getNearestProtoInstance(target: EventTarget | null): HTMLElement | null {
@@ -97,20 +101,24 @@ export function createWebProtoEventRouter(opt: {
     return null;
   }
 
-  function getNearestTriggerOwner(target: EventTarget | null): HTMLElement | null {
+  function getNearestTriggerOwner(target: EventTarget | null): object | HTMLElement | null {
     let cur: Node | null = target instanceof Node ? target : null;
     while (cur) {
       if (typeof ShadowRoot !== 'undefined' && cur instanceof ShadowRoot) {
         cur = cur.host;
         continue;
       }
-      if (isTriggerOwnerNode(cur)) return cur;
+      const owner = getTriggerRouteOwner(cur);
+      if (owner) return owner;
       cur = cur.parentNode;
     }
     return null;
   }
 
-  function resolveOwningTrigger(native: Event, options?: { includeActiveFallback?: boolean }) {
+  function resolveOwningTrigger(
+    native: Event,
+    options?: { includeActiveFallback?: boolean }
+  ): object | HTMLElement | null {
     if (typeof native.composedPath === 'function') {
       for (const entry of native.composedPath()) {
         const owner = getNearestTriggerOwner(entry);
@@ -143,7 +151,7 @@ export function createWebProtoEventRouter(opt: {
 
   function shouldRouteToCurrentRoot(native: Event, options?: { includeActiveFallback?: boolean }) {
     const triggerOwner = resolveOwningTrigger(native, options);
-    if (triggerOwner) return triggerOwner === rootEl;
+    if (triggerOwner) return triggerOwner === (opt.instanceToken ?? rootEl);
 
     const owner = resolveOwningProtoInstance(native, options);
     if (owner) return owner === rootEl;

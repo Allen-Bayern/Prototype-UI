@@ -4,7 +4,11 @@ export {
   AS_TRIGGER_INSTANCE_CAP,
   AS_TRIGGER_PARENT_CAP,
   AS_TRIGGER_GET_PROTO_CAP,
+  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
+  AS_TRIGGER_GET_EVENT_TARGET_CAP,
   type AsTriggerInstanceToken,
   type AsTriggerParentGetter,
   type AsTriggerPrototypeGetter,
+  type AsTriggerRouteOwnerSetter,
+  type AsTriggerEventTargetGetter,
 } from './caps';

@@ -255,6 +255,20 @@ describe('adapter-web-component: dialog overlay', () => {
     await Promise.resolve();
 
     await completeTransitions(content);
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(true);
+
+    innerButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(styleContains(content, 'hidden')).toBe(false);
+
+    close.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await completeTransitions(content);
     root.remove();
     document.body.style.overflow = '';
   });

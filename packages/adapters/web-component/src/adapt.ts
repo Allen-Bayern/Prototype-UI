@@ -31,8 +31,10 @@ import {
 import { createDefaultMetaGetter } from './platform/meta';
 import {
   createLogicalInstance,
+  bindLogicalEventTarget,
   markProtoInstance,
   unbindProtoInstance,
+  unbindLogicalEventTarget,
 } from './platform/instance-tree';
 import { createWebEffectsPort } from './runtime/effects-port';
 import { createWebComponentModules, createWebComponentOwnerModules } from './runtime/modules';
@@ -284,9 +286,11 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
         const eventGate = createEventGate();
         const router = createWebProtoEventRouter({
           rootEl: thisEl,
+          instanceToken: this._instanceToken,
           globalEl: window,
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
+        bindLogicalEventTarget(this._instanceToken, router.rootTarget);
         const applier = createOwnedTwTokenApplier(thisEl, {
           onChange: () => {
             this._hostDisplay?.sync();
@@ -302,6 +306,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
           disposed = true;
           eventGate.disable();
           eventGate.dispose();
+          unbindLogicalEventTarget(this._instanceToken, router.rootTarget);
           router.dispose();
           applier.clear();
           releaseRenderedChildren();

@@ -29,9 +29,11 @@ import { createDefaultMetaGetter } from './platform/meta';
 import type { ProtoVueComponent, VueAdapterHandle } from './types';
 import {
   bindLogicalParent,
+  bindLogicalEventTarget,
   createLogicalInstance,
   markProtoInstance,
   unbindProtoInstance,
+  unbindLogicalEventTarget,
 } from './platform/instance-tree';
 import { createVueEffectsPort } from './runtime/effects-port';
 import { createVueModules, createVueOwnerModules } from './runtime/modules';
@@ -318,15 +320,18 @@ export function createVueAdapter(runtime: VueRuntime) {
 
           const router = createWebProtoEventRouter({
             rootEl,
+            instanceToken,
             globalEl: typeof window === 'undefined' ? rootEl : window,
             isEnabled: () => eventGate.isEnabled?.() ?? true,
           });
+          bindLogicalEventTarget(instanceToken, router.rootTarget);
           let viewDisposed = false;
           const disposeView = () => {
             if (viewDisposed) return;
             viewDisposed = true;
             eventGate.disable();
             eventGate.dispose();
+            unbindLogicalEventTarget(instanceToken, router.rootTarget);
             router.dispose();
             unbindProtoInstance(instanceToken, boundRoot ?? undefined);
             if (boundRoot === rootEl) boundRoot = null;

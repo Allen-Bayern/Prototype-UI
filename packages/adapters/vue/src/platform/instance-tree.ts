@@ -13,4 +13,9 @@ export const {
   getLogicalParent,
   getLogicalRoot,
   getLogicalPrototype,
+  setLogicalEventRouteOwner,
+  getLogicalEventRouteOwner,
+  getLogicalEventTarget,
+  bindLogicalEventTarget,
+  unbindLogicalEventTarget,
 } = createInstanceTreeMarkers('@proto.ui/adapter-vue/__proto_instance');
