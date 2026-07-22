@@ -8,19 +8,19 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 当前 spec 版本 | `0.2.0-rc.1` |
+| 当前 spec 版本 | `0.2.0-rc.3` |
 | Release channel | `prerelease` |
-| Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
-| 工作区实体数 | 384 |
+| Version entity | [`V-PROTO-UI-0003`](../../spec/versions/V-PROTO-UI-0003.yaml) |
+| 工作区实体数 | 391 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:f29bf14ac080359498142f04023a65539b7678d8849d3c385e4e50704c8768ea` |
-| 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
+| 工作区快照指纹 | `sha256:aec57fce0ac1d75dfac69360ba02137b65160a4d3bc853fd884cc6ef52762458` |
+| 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 36 个 active、343 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 36 个 active、350 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -60,27 +60,27 @@ flowchart LR
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
 | `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
-| `decision` | 46 | 6 | 38 | 2 | 31 | 16 | 3 |
+| `decision` | 48 | 6 | 40 | 2 | 33 | 18 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 32 |
+| `prototype` | 62 | 0 | 62 | 0 | 62 | 62 | 32 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 119 | 12 | 107 | 0 | 0 | 0 | 4 |
-| `version` | 2 | 2 | 0 | 0 | 2 | 2 | 0 |
+| `test` | 120 | 12 | 108 | 0 | 0 | 0 | 4 |
+| `version` | 3 | 2 | 1 | 0 | 3 | 3 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  206 |
-| `dependsOn`  |  759 |
-| `inherits`   |   27 |
+| `relates`    |  222 |
+| `dependsOn`  |  770 |
+| `inherits`   |   28 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  286 |
+| `verifies`   |  292 |
 | `explains`   |   36 |
-| `exercises`  |  163 |
+| `exercises`  |  166 |
 | `requires`   |    4 |
 | `owns`       |    1 |
 
@@ -472,15 +472,18 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | --- | --- | --- | --- | --- | --: | --: |
 | [`P-LUCIDE-ICON`](../../spec/prototypes/P-LUCIDE-ICON.yaml) | `draft` | Lucide Icon projects one upstream glyph protocol through generated Proto UI SVG | — | — | 9 | 2 |
 
-### SHADCN（27）
+### SHADCN（30）
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
 | [`P-SHADCN-BUTTON`](../../spec/prototypes/P-SHADCN-BUTTON.yaml) | `draft` | Shadcn Button inherits Base Button and layers a pinned visual API subset | `P-BASE-BUTTON` | — | 10 | 2 |
 | [`P-SHADCN-DIALOG`](../../spec/prototypes/P-SHADCN-DIALOG.yaml) | `draft` | Shadcn Dialog Root inherits Base modal ownership and adds the current host layout | `P-BASE-DIALOG` | — | 6 | 2 |
 | [`P-SHADCN-DIALOG-CLOSE`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE.yaml) | `draft` | Shadcn Dialog Close inherits Base close-command behavior without visual styling | `P-BASE-DIALOG-CLOSE` | — | 9 | 2 |
+| [`P-SHADCN-DIALOG-CLOSE-ICON`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE-ICON.yaml) | `draft` | Shadcn Dialog CloseIcon is the independent default X close surface | `P-BASE-DIALOG-CLOSE` | — | 3 | 2 |
 | [`P-SHADCN-DIALOG-CONTENT`](../../spec/prototypes/P-SHADCN-DIALOG-CONTENT.yaml) | `draft` | Shadcn Dialog Content inherits Base modal content and adds a narrowed animated panel surface | `P-BASE-DIALOG-CONTENT` | — | 8 | 3 |
 | [`P-SHADCN-DIALOG-DESCRIPTION`](../../spec/prototypes/P-SHADCN-DIALOG-DESCRIPTION.yaml) | `draft` | Shadcn Dialog Description inherits Base description relations and adds muted typography | `P-BASE-DIALOG-DESCRIPTION` | — | 6 | 2 |
+| [`P-SHADCN-DIALOG-FOOTER`](../../spec/prototypes/P-SHADCN-DIALOG-FOOTER.yaml) | `draft` | Shadcn Dialog Footer is an optional layout-only anatomy part | — | — | 2 | 2 |
+| [`P-SHADCN-DIALOG-HEADER`](../../spec/prototypes/P-SHADCN-DIALOG-HEADER.yaml) | `draft` | Shadcn Dialog Header is an optional layout-only anatomy part | — | — | 2 | 2 |
 | [`P-SHADCN-DIALOG-MASK`](../../spec/prototypes/P-SHADCN-DIALOG-MASK.yaml) | `draft` | Shadcn Dialog Mask inherits Base modal masking and adds a narrowed animated overlay surface | `P-BASE-DIALOG-MASK` | — | 8 | 3 |
 | [`P-SHADCN-DIALOG-TITLE`](../../spec/prototypes/P-SHADCN-DIALOG-TITLE.yaml) | `draft` | Shadcn Dialog Title inherits Base labeling and adds current heading typography | `P-BASE-DIALOG-TITLE` | — | 6 | 2 |
 | [`P-SHADCN-DIALOG-TRIGGER`](../../spec/prototypes/P-SHADCN-DIALOG-TRIGGER.yaml) | `draft` | Shadcn Dialog Trigger inherits Base command behavior and adds button variants | `P-BASE-DIALOG-TRIGGER` | — | 9 | 2 |
@@ -592,6 +595,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | --- | --- | --- | --: | --- |
 | [`D-COLLECTION-FOCUS-ROVING-RELATIONSHIP-0001`](../../spec/decisions/D-COLLECTION-FOCUS-ROVING-RELATIONSHIP-0001.yaml) | `draft` | Collection and focus roving share ordered member projection but are not the same abstraction | 3 | Collection should model explicitly declared Proto UI item sets, while focus roving may optionally consume collection but must also support non-collection focus candidate sources. |
 
+### COMPONENT（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-COMPONENT-PRESET-MATERIALIZATION-0001`](../../spec/decisions/D-COMPONENT-PRESET-MATERIALIZATION-0001.yaml) | `draft` | Component presets materialize replaceable defaults outside Anatomy | 5 | Component presets declare deterministic replaceable default parts that CLI or adapters materialize before Anatomy validates the resulting real structure. |
+
 ### CONTEXT（3）
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
@@ -665,6 +674,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | [`D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001`](../../spec/decisions/D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001.yaml) | `active` | State semantic accessors are deprecated | 5 | `def.state.fromInteraction` and `def.state.fromAccessibility` are deprecated compatibility accessors and should be removed in the 0.2 or 0.3 line after cataloged prototypes migrate to protocol-owned state handles. |
 | [`D-STATE-VALIDATION-0001`](../../spec/decisions/D-STATE-VALIDATION-0001.yaml) | `draft` | State value validation remains implementation debt | 0 | State specs define host-neutral value domains, but full runtime validation is not yet treated as an implemented v0 guarantee. |
 
+### TRIGGER（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-TRIGGER-GROUP-SURFACE-0001`](../../spec/decisions/D-TRIGGER-GROUP-SURFACE-0001.yaml) | `draft` | Continuous triggers share behavior ownership and one host interaction surface | 5 | Continuous trigger chains retain one outer behavior route while projecting focus and accessibility through one default inner host surface. |
+
 ### USE（1）
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
@@ -686,7 +701,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  254 |
+| `passing` |  256 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -695,7 +710,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   70 |
 | `fixture`         |   17 |
-| `module-test`     |  122 |
+| `module-test`     |  124 |
 | `runtime-test`    |   70 |
 | `workspace-check` |    7 |
 
@@ -901,7 +916,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-RULE-WHEN-0001`](../../spec/tests/T-RULE-WHEN-0001.yaml) | `draft` | Rule when expression tests | 5 | `planned` 2 | `C-RULE-WHEN-0001` | — |
 | [`T-RULE-WHEN-0002`](../../spec/tests/T-RULE-WHEN-0002.yaml) | `draft` | Rule when dependency dimension tests | 4 | `active` 1<br>`planned` 1 | `C-RULE-WHEN-0002` | `D-RULE-CONTEXT-PATH-0001`<br>`D-RULE-META-NAMING-0001` |
 
-### SHADCN（27）
+### SHADCN（28）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
@@ -910,6 +925,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-SHADCN-DIALOG-CLOSE-0001`](../../spec/tests/T-SHADCN-DIALOG-CLOSE-0001.yaml) | `draft` | Shadcn Dialog Close delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-CLOSE` | `P-SHADCN-DIALOG-CLOSE`<br>`P-BASE-DIALOG-CLOSE` |
 | [`T-SHADCN-DIALOG-CONTENT-0001`](../../spec/tests/T-SHADCN-DIALOG-CONTENT-0001.yaml) | `draft` | Shadcn Dialog Content delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-CONTENT` | `P-SHADCN-DIALOG-CONTENT`<br>`P-BASE-DIALOG-CONTENT` |
 | [`T-SHADCN-DIALOG-DESCRIPTION-0001`](../../spec/tests/T-SHADCN-DIALOG-DESCRIPTION-0001.yaml) | `draft` | Shadcn Dialog Description delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-DESCRIPTION` | `P-SHADCN-DIALOG-DESCRIPTION`<br>`P-BASE-DIALOG-DESCRIPTION` |
+| [`T-SHADCN-DIALOG-LAYOUT-0001`](../../spec/tests/T-SHADCN-DIALOG-LAYOUT-0001.yaml) | `draft` | Shadcn Dialog layout and default CloseIcon tests | 3 | `passing` 2 | `P-SHADCN-DIALOG-HEADER`<br>`P-SHADCN-DIALOG-FOOTER`<br>`P-SHADCN-DIALOG-CLOSE-ICON` | `P-SHADCN-DIALOG-HEADER`<br>`P-SHADCN-DIALOG-FOOTER`<br>`P-SHADCN-DIALOG-CLOSE-ICON` |
 | [`T-SHADCN-DIALOG-MASK-0001`](../../spec/tests/T-SHADCN-DIALOG-MASK-0001.yaml) | `draft` | Shadcn Dialog Mask delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-MASK` | `P-SHADCN-DIALOG-MASK`<br>`P-BASE-DIALOG-MASK` |
 | [`T-SHADCN-DIALOG-TITLE-0001`](../../spec/tests/T-SHADCN-DIALOG-TITLE-0001.yaml) | `draft` | Shadcn Dialog Title delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-TITLE` | `P-SHADCN-DIALOG-TITLE`<br>`P-BASE-DIALOG-TITLE` |
 | [`T-SHADCN-DIALOG-TRIGGER-0001`](../../spec/tests/T-SHADCN-DIALOG-TRIGGER-0001.yaml) | `draft` | Shadcn Dialog Trigger delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-TRIGGER` | `P-SHADCN-DIALOG-TRIGGER`<br>`P-BASE-DIALOG-TRIGGER` |
@@ -984,6 +1000,20 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Published at    | `2026-07-21T07:56:16Z`                                                    |
 | Commit          | `c29273a5031fbb4453e5a867b00e8114746bd442`                                |
 | Snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
+
+### [`V-PROTO-UI-0003`](../../spec/versions/V-PROTO-UI-0003.yaml) Proto UI 0.2.0-rc.3
+
+| Field           | Value                        |
+| --------------- | ---------------------------- |
+| Entity status   | `draft`                      |
+| Version         | `0.2.0-rc.3`                 |
+| Channel         | `prerelease`                 |
+| Git tag         | `v0.2.0-rc.3`                |
+| npm dist-tag    | `next`                       |
+| Package policy  | `exact` / `public-@proto.ui` |
+| Published at    | `—`                          |
+| Commit          | `—`                          |
+| Snapshot digest | `—`                          |
 
 ## 九、显式 Open Questions
 
@@ -1094,7 +1124,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 343/384 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 350/391 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
