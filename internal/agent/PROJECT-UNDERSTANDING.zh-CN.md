@@ -11,16 +11,16 @@
 | 当前 spec 版本 | `0.2.0-rc.1` |
 | Release channel | `prerelease` |
 | Version entity | [`V-PROTO-UI-0002`](../../spec/versions/V-PROTO-UI-0002.yaml) |
-| 工作区实体数 | 382 |
+| 工作区实体数 | 384 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:0444ff77c27b2cc1fd9c0e65197917d50eead6a7ca77bda6b0029fdf9fd3477f` |
+| 工作区快照指纹 | `sha256:13568be34703a99fc64d085dd6d322a79e93018c050b69995e8b6c06be912a65` |
 | 已发布 release snapshot digest | `sha256:accc1a869e2af1ca082fab4ae853862b9e00b13d021bcf866a03a294043a0bc4` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 36 个 active、341 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 36 个 active、343 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -60,27 +60,27 @@ flowchart LR
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
 | `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
-| `decision` | 45 | 6 | 37 | 2 | 30 | 15 | 3 |
+| `decision` | 46 | 6 | 38 | 2 | 31 | 16 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
 | `prototype` | 59 | 0 | 59 | 0 | 59 | 59 | 33 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 118 | 12 | 106 | 0 | 0 | 0 | 4 |
+| `test` | 119 | 12 | 107 | 0 | 0 | 0 | 4 |
 | `version` | 2 | 2 | 0 | 0 | 2 | 2 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  202 |
+| `relates`    |  206 |
 | `dependsOn`  |  762 |
 | `inherits`   |   27 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  284 |
+| `verifies`   |  286 |
 | `explains`   |   36 |
-| `exercises`  |  161 |
+| `exercises`  |  163 |
 | `requires`   |    4 |
 | `owns`       |    1 |
 
@@ -479,9 +479,9 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-SHADCN-BUTTON`](../../spec/prototypes/P-SHADCN-BUTTON.yaml) | `draft` | Shadcn Button inherits Base Button and layers a pinned visual API subset | `P-BASE-BUTTON` | — | 10 | 2 |
 | [`P-SHADCN-DIALOG`](../../spec/prototypes/P-SHADCN-DIALOG.yaml) | `draft` | Shadcn Dialog Root inherits Base modal ownership and adds the current host layout | `P-BASE-DIALOG` | — | 6 | 2 |
 | [`P-SHADCN-DIALOG-CLOSE`](../../spec/prototypes/P-SHADCN-DIALOG-CLOSE.yaml) | `draft` | Shadcn Dialog Close inherits Base close-command behavior and adds button variants | `P-BASE-DIALOG-CLOSE` | — | 9 | 2 |
-| [`P-SHADCN-DIALOG-CONTENT`](../../spec/prototypes/P-SHADCN-DIALOG-CONTENT.yaml) | `draft` | Shadcn Dialog Content inherits Base modal content and adds a narrowed animated panel surface | `P-BASE-DIALOG-CONTENT` | — | 8 | 2 |
+| [`P-SHADCN-DIALOG-CONTENT`](../../spec/prototypes/P-SHADCN-DIALOG-CONTENT.yaml) | `draft` | Shadcn Dialog Content inherits Base modal content and adds a narrowed animated panel surface | `P-BASE-DIALOG-CONTENT` | — | 8 | 3 |
 | [`P-SHADCN-DIALOG-DESCRIPTION`](../../spec/prototypes/P-SHADCN-DIALOG-DESCRIPTION.yaml) | `draft` | Shadcn Dialog Description inherits Base description relations and adds muted typography | `P-BASE-DIALOG-DESCRIPTION` | — | 6 | 2 |
-| [`P-SHADCN-DIALOG-MASK`](../../spec/prototypes/P-SHADCN-DIALOG-MASK.yaml) | `draft` | Shadcn Dialog Mask inherits Base modal masking and adds a narrowed animated overlay surface | `P-BASE-DIALOG-MASK` | — | 8 | 2 |
+| [`P-SHADCN-DIALOG-MASK`](../../spec/prototypes/P-SHADCN-DIALOG-MASK.yaml) | `draft` | Shadcn Dialog Mask inherits Base modal masking and adds a narrowed animated overlay surface | `P-BASE-DIALOG-MASK` | — | 8 | 3 |
 | [`P-SHADCN-DIALOG-TITLE`](../../spec/prototypes/P-SHADCN-DIALOG-TITLE.yaml) | `draft` | Shadcn Dialog Title inherits Base labeling and adds current heading typography | `P-BASE-DIALOG-TITLE` | — | 6 | 2 |
 | [`P-SHADCN-DIALOG-TRIGGER`](../../spec/prototypes/P-SHADCN-DIALOG-TRIGGER.yaml) | `draft` | Shadcn Dialog Trigger inherits Base command behavior and adds button variants | `P-BASE-DIALOG-TRIGGER` | — | 9 | 2 |
 | [`P-SHADCN-DROPDOWN-MENU`](../../spec/prototypes/P-SHADCN-DROPDOWN-MENU.yaml) | `draft` | Shadcn Dropdown Menu Root inherits Base action-menu ownership | `P-BASE-DROPDOWN-MENU` | — | 5 | 2 |
@@ -579,6 +579,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | --- | --- | --- | --: | --- |
 | [`D-BASE-PROTOTYPE-INDEPENDENCE-0001`](../../spec/decisions/D-BASE-PROTOTYPE-INDEPENDENCE-0001.yaml) | `draft` | Base prototypes stay independently consumable | 4 | Base prototype protocols should stay independently consumable; shared hooks with protocol names must serve their owning prototype protocol rather than becoming cross-prototype substrate. |
 | [`D-BASE-TABS-L1-MATERIALIZATION-0001`](../../spec/decisions/D-BASE-TABS-L1-MATERIALIZATION-0001.yaml) | `active` | Base Tabs Content defaults to lazy L1 materialization | 0 | Inactive Base Tabs Content will default to no view, detach on exit, and preserve its Proto instance; keepMounted remains the explicit full-view retention option. |
+
+### CLI（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-CLI-SHADCN-PRESET-CLOSURE-0001`](../../spec/decisions/D-CLI-SHADCN-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Shadcn preset is a generated closure of official prototype style tokens | 3 | The CLI keeps an install-time Shadcn token preset for first-run and offline use, but generates that manifest deterministically from official Shadcn prototype sources instead of maintaining an independent token list. |
 
 ### COLLECTION（1）
 
@@ -680,7 +686,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  250 |
+| `passing` |  253 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -689,9 +695,9 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   70 |
 | `fixture`         |   17 |
-| `module-test`     |  120 |
+| `module-test`     |  121 |
 | `runtime-test`    |   70 |
-| `workspace-check` |    5 |
+| `workspace-check` |    7 |
 
 ### Test entities
 
@@ -789,6 +795,12 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BOUNDARY-0001`](../../spec/tests/T-BOUNDARY-0001.yaml) | `draft` | Boundary observation, classification, stacking, and cleanup tests | 7 | `passing` 2 | `C-BOUNDARY-0001` | — |
+
+### CLI（1）
+
+| Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
+| --- | --- | --- | --: | --- | --- | --- |
+| [`T-CLI-SHADCN-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-SHADCN-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Shadcn preset source-closure tests | 3 | `passing` 3 | `D-CLI-SHADCN-PRESET-CLOSURE-0001` | `P-SHADCN-DIALOG-CONTENT`<br>`P-SHADCN-DIALOG-MASK` |
 
 ### COLLECTION（1）
 
@@ -1083,7 +1095,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 341/382 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 343/384 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。

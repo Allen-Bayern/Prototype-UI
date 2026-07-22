@@ -28,6 +28,12 @@
 - Adapter owner 初始化失败现在会回滚部分 wiring/session 状态，避免 React 恢复流程继续抛出误导性的 `owner is already initialized`。
 - runtime、adapter-base、真实 ReactDOM、Vue renderer 与 Web Component Dialog 测试覆盖逻辑/物理身份分离、late target、重复 view binding、click 与键盘 activation。
 
+### 完整的 CLI Shadcn 样式预设
+
+- `proto-ui init` 现在会生成与官方 Shadcn prototype 源码扫描结果一致的 token CSS closure，不再依赖可能发生漂移的独立人工 preset 清单。
+- 外部项目会获得 Dialog 进入/离开 keyframes 以及 animate、fade、zoom utilities，在保留 Mask 150ms、Content 200ms 既有生命周期时序的同时恢复可见动画。
+- preset manifest 由源码确定性生成，并由 stale check、init 与源码扫描的完整等价测试，以及打包 CLI consumer smoke 断言共同保护。
+
 ## 仍在验证
 
 - `0.2.0-rc.1` 后续人工试用发现的安装、运行时、CSS、a11y、bundle 与 API 问题。

@@ -28,6 +28,12 @@
 - Failed adapter-owner initialization now rolls back partial wiring and session state, preventing React recovery from producing the misleading follow-up `owner is already initialized` error.
 - Runtime, adapter-base, real ReactDOM, Vue renderer, and Web Component Dialog tests cover logical/physical identity separation, late targets, repeatable view binding, and click and keyboard activation.
 
+### Complete CLI Shadcn style presets
+
+- `proto-ui init` now emits the same token CSS closure as scanning the official Shadcn prototype sources, instead of relying on an independently maintained preset list that could drift.
+- External projects receive Dialog enter and leave keyframes plus animate, fade, and zoom utilities, restoring visible motion while preserving the existing 150ms Mask and 200ms Content lifecycle timing.
+- The preset manifest is generated deterministically and guarded by a stale check, exact init-to-source parity coverage, and packed CLI consumer smoke assertions.
+
 ## Still under validation
 
 - Additional installation, runtime, CSS, accessibility, bundle, and API findings from post-publication `0.2.0-rc.1` trials.
