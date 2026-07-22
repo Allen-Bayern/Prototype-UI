@@ -1,6 +1,38 @@
 # Proto UI 0.2.0-rc.3
 
-> Unpublished draft. This candidate records composition improvements derived from external `0.2.0-rc.1` trials. Its complete release train has not opened yet, so current installation and trial instructions must remain pinned to the published `0.2.0-rc.1`.
+> Release candidate draft prepared for review. This train aligns every public package and its reviewed release assets to `0.2.0-rc.3`, but it has not been published. Current installation and trial instructions therefore remain pinned to the published `0.2.0-rc.1` until immutable rc.3 evidence exists.
+
+## Fixed
+
+### Prop removal restores defaults
+
+- Props resolution now treats `missing` as the host withdrawing that input. When a valid provided value becomes an omitted key, resolution no longer retains the withdrawn value through `prevValid`; it returns to `setDefaults`, declaration `default`, or canonical `null`.
+- `prevValid` remains available when a key is still provided but its current value is empty or invalid, keeping invalid-input recovery separate from prop-removal semantics.
+- React, Vue, and Web Component hosts share this behavior through the Props Kernel without adapter-specific exceptions.
+- Removing `disabled` from a React Shadcn Button restores the enabled state, while removing `variant` or `size` restores the corresponding default tokens.
+- Removing Lucide Icon visual props such as `size`, `strokeWidth`, or `stroke` restores protocol defaults such as 24, 2, and currentColor.
+- Cross-adapter resolved-snapshot conformance, Base Button behavior tests, and Shadcn Button visual-token tests cover provided-to-missing transitions.
+
+### Scoped Web box-model baseline
+
+- Generated Proto UI token CSS now applies `box-sizing: border-box` to elements carrying `data-pui-style` and their `::before` / `::after` pseudo-elements, preserving declared component dimensions when a host has no Tailwind Preflight or global reset.
+- The baseline is scoped to Proto UI style projection. It does not install a document-wide `*` reset, alter unrelated host elements, or enter the Shadcn theme-variable file.
+- Shadcn Switch track movement now uses canonical `pl-5` / `pr-5` spacing tokens instead of the equivalent `[20px]` arbitrary values.
+- CSS renderer, CLI init, and Shadcn Switch tests cover the generated baseline, output ownership, and canonical spacing-token surface.
+
+### Nested trigger routing
+
+- React, Vue, and Web Component adapters now keep continuous nested-trigger logical route owners separate from physical `EventTarget` objects instead of forcing opaque logical tokens through the event target path.
+- Structures such as nested Buttons or Buttons inside Dialog Trigger / Close can activate through the outermost continuous trigger route without throwing `redirectRoot() requires an EventTarget-like object`.
+- Logical owners use a stable dynamic event-target projection, so existing event registrations bind or migrate to the current router target when an owner view appears after setup or a presence/lifecycle transition creates a new view epoch.
+- Failed adapter-owner initialization now rolls back partial wiring and session state, preventing React recovery from producing the misleading follow-up `owner is already initialized` error.
+- Runtime, adapter-base, real ReactDOM, Vue renderer, and Web Component Dialog tests cover logical/physical identity separation, late targets, repeatable view binding, and click and keyboard activation.
+
+### Complete CLI Shadcn style presets
+
+- `proto-ui init` now emits the same token CSS closure as scanning the official Shadcn prototype sources, instead of relying on an independently maintained preset list that could drift.
+- External projects receive Dialog enter and leave keyframes plus animate, fade, and zoom utilities, restoring visible motion while preserving the existing 150ms Mask and 200ms Content lifecycle timing.
+- The preset manifest is generated deterministically and guarded by a stale check, exact init-to-source parity coverage, and packed CLI consumer smoke assertions.
 
 ## Improved
 
@@ -40,4 +72,4 @@
 
 - The applicability of component presets across additional compound components and adapters; Switch Thumb and Dialog Content CloseIcon are the current validation slices.
 - More complex multi-level focus-visible, role transfer, and non-Web host projection for continuous nested triggers.
-- The complete `0.2.0-rc.3` release train will prepare its version entity, package versions, BOM, spec snapshot, and publication gates after the trial findings are collected together.
+- npm publication, the `v0.2.0-rc.3` tag, GitHub prerelease, and immutable spec snapshot remain pending until this draft release train is reviewed and merged.
