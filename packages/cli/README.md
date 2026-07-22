@@ -52,6 +52,8 @@ proto-ui theme shadcn --out ./src/styles/shadcn-theme.css
 
 The generated Shadcn theme follows `prefers-color-scheme` when the application does not declare a theme. Applications can override the system preference on the root element with `data-theme="light"` / `data-theme="dark"` or the compatible `.light` / `.dark` classes.
 
+The generated token CSS also gives elements carrying `data-pui-style` (and their pseudo-elements) a scoped `box-sizing: border-box` baseline. It does not install a document-wide CSS reset or change unrelated application elements.
+
 ## Current Scope
 
 The v0 CLI installs Proto UI adapter/prototype packages through the project package manager and generates local component facade files. This prerelease README pins `0.2.0-rc.1` for reproducible trials; the CLI saves required official packages at its own exact version so a consumer cannot accidentally mix release trains.

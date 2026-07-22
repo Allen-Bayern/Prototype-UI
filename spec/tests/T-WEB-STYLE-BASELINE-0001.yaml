@@ -1,0 +1,50 @@
+id: T-WEB-STYLE-BASELINE-0001
+type: test
+title: Web physical CSS scoped box-model baseline tests
+status: draft
+since: 0.2.0-rc.1
+summary: Verifies that generated Proto UI token CSS provides a data-pui-style-scoped border-box baseline without introducing a document-wide reset or moving the baseline into theme variables.
+cases:
+  - id: T-WEB-STYLE-BASELINE-0001-CASE-SCOPED-BORDER-BOX
+    title: generated token CSS applies border-box to styled elements and their pseudo-elements
+    covers: [D-WEB-STYLE-BASELINE-0001-A]
+    expectation: generated-token-css-contains-scoped-border-box-baseline
+  - id: T-WEB-STYLE-BASELINE-0001-CASE-NO-GLOBAL-RESET
+    title: generated token CSS does not install a document-wide box-model reset
+    covers: [D-WEB-STYLE-BASELINE-0001-B]
+    expectation: generated-token-css-does-not-reset-unrelated-host-elements
+  - id: T-WEB-STYLE-BASELINE-0001-CASE-STYLE-OUTPUT-OWNERSHIP
+    title: CLI init places the baseline in physical token CSS rather than theme variables
+    covers: [D-WEB-STYLE-BASELINE-0001-C]
+    expectation: cli-init-keeps-box-model-baseline-in-token-css
+implementations:
+  - id: cli-proto-style-css-box-model-test
+    kind: module-test
+    status: passing
+    path: packages/cli/test/proto-style-css.test.ts
+    required: true
+    consumesCases:
+      [
+        T-WEB-STYLE-BASELINE-0001-CASE-SCOPED-BORDER-BOX,
+        T-WEB-STYLE-BASELINE-0001-CASE-NO-GLOBAL-RESET,
+      ]
+  - id: cli-init-box-model-output-test
+    kind: module-test
+    status: passing
+    path: packages/cli/test/cli.test.ts
+    required: true
+    consumesCases:
+      [
+        T-WEB-STYLE-BASELINE-0001-CASE-SCOPED-BORDER-BOX,
+        T-WEB-STYLE-BASELINE-0001-CASE-STYLE-OUTPUT-OWNERSHIP,
+      ]
+verifies:
+  decisions:
+    - id: D-WEB-STYLE-BASELINE-0001
+      anchors:
+        [D-WEB-STYLE-BASELINE-0001-A, D-WEB-STYLE-BASELINE-0001-B, D-WEB-STYLE-BASELINE-0001-C]
+revisions:
+  - version: 0.2.0-rc.1
+    change: introduced
+    summary: Added generated CSS and CLI init coverage for the scoped Proto UI border-box baseline.
+tags: [web, style, css, box-sizing, border-box, compiler, test]

@@ -16,9 +16,14 @@ cases:
       ]
     expectation: shadcn-switch-root-direct-entry-inherits-as-switch-root
   - id: T-SHADCN-SWITCH-0001-CASE-FAMILY-AND-VISUALS
-    title: inherited checked focus and disabled facts coordinate the family and drive current Root styles
-    covers: [P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE, P-SHADCN-SWITCH-STATE-DRIVEN-STYLES]
-    expectation: shadcn-switch-root-state-drives-family-and-current-track-styles
+    title: inherited checked focus and disabled facts coordinate the family and drive current Root styles with canonical spacing tokens
+    covers:
+      [
+        P-SHADCN-SWITCH-CURRENT-VISUAL-SURFACE,
+        P-SHADCN-SWITCH-STATE-DRIVEN-STYLES,
+        C-FEEDBACK-STYLE-0003-E,
+      ]
+    expectation: shadcn-switch-root-state-drives-family-with-canonical-spacing-tokens
   - id: T-SHADCN-SWITCH-0001-CASE-COMPATIBILITY-SUBSET
     title: intentional asChild omission and remaining upstream gaps stay outside the passing claim
     covers: [P-SHADCN-SWITCH-COMPATIBILITY-SUBSET, P-SHADCN-SWITCH-AS-CHILD-OMISSION]
@@ -39,6 +44,9 @@ implementations:
     notes:
       - Positive tests cover only the current Proto UI guarantee; asChild omission and remaining parity gaps are bounded by the decision, declared surface, source review, and centralized compatibility question.
 verifies:
+  contracts:
+    - id: C-FEEDBACK-STYLE-0003
+      anchors: [C-FEEDBACK-STYLE-0003-E]
   prototypes:
     - id: P-SHADCN-SWITCH
       anchors:

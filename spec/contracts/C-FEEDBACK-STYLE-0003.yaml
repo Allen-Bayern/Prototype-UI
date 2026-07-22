@@ -30,6 +30,10 @@ criteria:
     text:
       zh-CN: 翻译层可以将 style token 翻译成 CSS、attribute、样式装饰器、宿主私有结构或其他完全不同的宿主产物，只要保持 `feedback.style` 的语义意图。
       en: A translation layer can translate style tokens into CSS, attributes, style decorators, host-private structures, or other completely different host artifacts as long as it preserves the semantic intent of `feedback.style`.
+  - id: C-FEEDBACK-STYLE-0003-E
+    text:
+      zh-CN: 官方 prototype 在 canonical spacing scale 能精确表达视觉意图时必须使用标准 spacing token；arbitrary value 只保留给 canonical scale 无法表达的值，不得用 `[20px]` 代替等价的 spacing token `5`。
+      en: Official prototypes must use standard spacing tokens when the canonical spacing scale expresses the visual intent exactly; arbitrary values are reserved for values outside that scale and must not use `[20px]` in place of the equivalent spacing token `5`.
 openQuestions:
   - id: C-FEEDBACK-STYLE-0003-Q-ARBITRARY-VALUE
     question:

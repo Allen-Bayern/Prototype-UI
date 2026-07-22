@@ -128,6 +128,10 @@ describe('@proto.ui/cli', () => {
     const themeCss = await fs.readFile(path.join(cwd, 'src/styles/shadcn-theme.css'), 'utf8');
 
     expect(tokensCss).toContain(`[data-pui-style~="bg-primary"]`);
+    expect(tokensCss).toContain(
+      `[data-pui-style],\n[data-pui-style]::before,\n[data-pui-style]::after {`
+    );
+    expect(tokensCss).toContain('box-sizing: border-box;');
     expect(tokensCss).toContain(`data-[active]:bg-muted"])[data-active]`);
     expect(tokensCss).toContain(
       `data-[hovered]:not-[data-active]:bg-muted"])[data-hovered]:not([data-active])`
@@ -140,6 +144,7 @@ describe('@proto.ui/cli', () => {
     expect(styleCss).toContain(`@import './proto-ui-tokens.generated.css';`);
     expect(themeCss).toContain('--pui-background');
     expect(themeCss).not.toContain('--background:');
+    expect(themeCss).not.toContain('box-sizing: border-box;');
     expect(themeCss).toContain('@media (prefers-color-scheme: dark)');
     expect(themeCss).toContain(
       ":root:not(.dark):not(.light):not([data-theme='dark']):not([data-theme='light'])"
@@ -170,7 +175,8 @@ describe('@proto.ui/cli', () => {
       `data-[hovered]:not-[data-active]:bg-muted"])[data-hovered]:not([data-active])`
     );
     expect(tokensCss).not.toContain(`not-[data-open]:hidden`);
-    expect(tokensCss).toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
+    expect(tokensCss).toContain(`data-[checked]:pl-5"])[data-checked]`);
+    expect(tokensCss).not.toContain(`data-[checked]:pl-[20px]"])[data-checked]`);
     expect(tokensCss).toContain(`data-[checked]:bg-primary"])[data-checked]`);
     expect(tokensCss).toContain(`data-[selected]:bg-background"])[data-selected]`);
     expect(tokensCss).toContain(`data-[hidden]:hidden"])[data-hidden]`);

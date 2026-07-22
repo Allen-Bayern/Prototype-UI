@@ -13,6 +13,13 @@
 - Lucide Icon 删除 `size`、`strokeWidth`、`stroke` 等 visual props 后会恢复 24、2、currentColor 等协议默认值。
 - 跨 Adapter resolved-snapshot 合约、Base Button 行为测试与 Shadcn Button visual-token 测试覆盖了 provided-to-missing 转换。
 
+### Scoped Web box-model 基线
+
+- 生成的 Proto UI token CSS 现在会对带 `data-pui-style` 的元素及其 `::before` / `::after` 伪元素应用 `box-sizing: border-box`，在宿主没有 Tailwind Preflight 或全局 reset 时仍保持组件声明尺寸。
+- 该基线仅作用于 Proto UI style projection，不会安装 document-wide `*` reset、改变无关宿主元素或进入 Shadcn theme variable 文件。
+- Shadcn Switch track 位移改用 canonical `pl-5` / `pr-5` spacing tokens，不再使用等价的 `[20px]` arbitrary values。
+- CSS renderer、CLI init 与 Shadcn Switch 测试覆盖生成基线、输出归属与 canonical spacing-token surface。
+
 ## 仍在验证
 
 - `0.2.0-rc.1` 后续人工试用发现的安装、运行时、CSS、a11y、bundle 与 API 问题。
