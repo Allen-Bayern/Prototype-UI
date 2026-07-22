@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.3
 
-> Release candidate draft prepared for review. This train aligns every public package and its reviewed release assets to `0.2.0-rc.3`, but it has not been published. Current installation and trial instructions therefore remain pinned to the published `0.2.0-rc.1` until immutable rc.3 evidence exists.
+> Published on July 22, 2026 under the npm `next` channel. All 37 public packages, the `v0.2.0-rc.3` tag, the GitHub prerelease, and the immutable spec snapshot share this exact release identity.
 
 ## Fixed
 
@@ -72,4 +72,4 @@
 
 - The applicability of component presets across additional compound components and adapters; Switch Thumb and Dialog Content CloseIcon are the current validation slices.
 - More complex multi-level focus-visible, role transfer, and non-Web host projection for continuous nested triggers.
-- npm publication, the `v0.2.0-rc.3` tag, GitHub prerelease, and immutable spec snapshot remain pending until this draft release train is reviewed and merged.
+- Additional installation, runtime, CSS, accessibility, bundle, composition, and API findings from post-publication `0.2.0-rc.3` trials will enter a later release train.

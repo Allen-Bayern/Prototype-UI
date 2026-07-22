@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.3
 
-> 已准备评审的候选版本草稿。本 release train 已将全部公开 package 与受评审发行物料对齐到 `0.2.0-rc.3`，但尚未真实发布；在 rc.3 不可变证据形成前，当前安装与试用说明仍固定到已发布的 `0.2.0-rc.1`。
+> 已于 2026 年 7 月 22 日通过 npm `next` channel 发布。全部 37 个公开 package、`v0.2.0-rc.3` tag、GitHub prerelease 与不可变 spec snapshot 共享这一精确发行身份。
 
 ## 已修正
 
@@ -72,4 +72,4 @@
 
 - component preset 在更多 compound component 与 adapter 上的适用边界；当前只以 Switch Thumb 与 Dialog Content CloseIcon 作为验证切片。
 - 连续嵌套 trigger 中更复杂的多层 focus-visible、role 转移与非 Web host projection。
-- npm 发布、`v0.2.0-rc.3` tag、GitHub prerelease 与不可变 spec snapshot 仍需等待本 draft release train 评审合入后生成。
+- `0.2.0-rc.3` 发布后试用继续发现的安装、运行时、CSS、a11y、bundle、组合与 API 问题将进入后续 release train。

@@ -156,5 +156,6 @@ Create a new topic branch from the latest `origin/main`; do not reuse the prepar
 5. update the bilingual repository status, exact prerelease trial commands, release links, and current-release CI/CD prose
 6. add a dated record containing the workflow, npm, tag, GitHub Release, and snapshot facts
 7. regenerate spec-derived projections and run `check:release-version`, `release:assets:check`, `check:agent-doc`, type checks, and the documentation build
+8. after the evidence PR merges, replace the GitHub Release body with the merged English `internal/releases/<version>/release-notes.md` and verify that the public page no longer carries pre-publication draft wording; do not publish this mutable prose update before review, and do not replace or regenerate the immutable snapshot assets
 
 The evidence PR does not bump `VERSION` or package manifests and does not republish packages. Its purpose is to make repository truth match already immutable external facts. Only after it merges may the release be described in the catalog as `active` and in public documentation as the current reproducible prerelease.

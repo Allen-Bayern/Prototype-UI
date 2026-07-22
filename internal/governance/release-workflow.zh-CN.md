@@ -156,5 +156,6 @@ V 实体必须记录 tag 所附不可变 draft snapshot 的 digest。不得在 V
 5. 更新双语仓库状态、精确 prerelease trial 命令、Release 链接与当前版本 CI/CD 说明
 6. 新增 dated record，记录 workflow、npm、tag、GitHub Release 与 snapshot 事实
 7. 重新生成 spec 投影，并运行 `check:release-version`、`release:assets:check`、`check:agent-doc`、类型检查与文档构建
+8. 证据 PR 合入后，使用已合入的英文 `internal/releases/<version>/release-notes.md` 更新 GitHub Release 正文，并确认公共页面不再保留发布前 draft 措辞；不得在评审前发布这项可变文案更新，也不得替换或重新生成不可变 snapshot assets
 
 证据 PR 不改动 `VERSION` 或 package manifest，也不会重新发布 package。它的职责是让仓库真理与已经不可变的外部事实一致。只有该 PR 合入后，release 才能在 catalog 中表述为 `active`，并在公共文档中表述为当前可复现的 prerelease。
