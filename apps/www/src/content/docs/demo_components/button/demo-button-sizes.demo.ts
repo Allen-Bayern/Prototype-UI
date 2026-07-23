@@ -4,18 +4,24 @@ export default {
     kind: 'box',
     className: 'flex flex-wrap items-center justify-center gap-3',
     children: [
+      {
+        kind: 'proto',
+        prototypeId: 'shadcn-button',
+        props: { size: 'sm' },
+        children: ['Small'],
+      },
       { kind: 'proto', prototypeId: 'shadcn-button', children: ['Default'] },
       {
         kind: 'proto',
         prototypeId: 'shadcn-button',
-        props: { variant: 'secondary' },
-        children: ['Secondary2'],
+        props: { size: 'lg' },
+        children: ['Large'],
       },
       {
         kind: 'proto',
         prototypeId: 'shadcn-button',
-        props: { variant: 'outline' },
-        children: ['Outline'],
+        props: { size: 'icon', variant: 'outline' },
+        children: ['+'],
       },
     ],
   },

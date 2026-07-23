@@ -23,7 +23,7 @@ import {
   ShadcnTabsList,
   ShadcnTabsRoot,
   ShadcnTabsTrigger,
-} from '@prototype-libs/shadcn';
+} from '../proto-ui/components/react';
 
 export function DemoShadcnTabsDemo() {
   return (
@@ -53,7 +53,7 @@ import {
   ShadcnTabsList,
   ShadcnTabsRoot,
   ShadcnTabsTrigger,
-} from '@prototype-libs/shadcn';
+} from '../proto-ui/components/vue';
 </script>
 
 <template>
