@@ -2,7 +2,7 @@ export default {
   type: 'demo',
   root: {
     kind: 'box',
-    className: 'flex flex-wrap items-center gap-3',
+    className: 'flex flex-wrap items-center justify-center gap-3',
     children: [
       { kind: 'proto', prototypeId: 'shadcn-button', children: ['Default'] },
       {

@@ -1,16 +1,19 @@
 /**
- * 从 .demo.ts 扫描 prototypeId，根据 @packages/prototype-libs 的 package.json
+ * 从 .demo.ts 扫描 prototypeId
  * 自动生成 prototype-config.ts
  */
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { DemoSpec } from '../../src/components/PrototypePreviewer/demo-types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEMO_COMPONENTS_ROOT = resolve(__dirname, '../../src/content/docs/demo_components');
-const PROTOTYPE_LIBS_ROOT = resolve(__dirname, '../../../../packages/prototype-libs');
 const CONFIG_OUTPUT = resolve(__dirname, 'prototype-config.ts');
+const IMPORT_PATHS_BY_PREFIX: Record<string, string> = {
+  base: '@prototype-libs/base',
+  shadcn: '@prototype-libs/shadcn',
+};
 
 /** 从 DemoSpec 树递归收集所有 prototypeId */
 function collectPrototypeIds(node: unknown, out: Set<string>): void {
@@ -39,16 +42,8 @@ function getPrefix(prototypeId: string): string {
   return idx >= 0 ? prototypeId.slice(0, idx) : prototypeId;
 }
 
-/** 获取 prototype-libs 下包的 name 字段 */
-async function getPackageName(prefix: string): Promise<string | null> {
-  try {
-    const pkgPath = join(PROTOTYPE_LIBS_ROOT, prefix, 'package.json');
-    const content = await readFile(pkgPath, 'utf8');
-    const pkg = JSON.parse(content) as { name?: string };
-    return pkg.name ?? null;
-  } catch {
-    return null;
-  }
+function resolveImportPath(prefix: string): string {
+  return IMPORT_PATHS_BY_PREFIX[prefix] ?? `@prototype-libs/${prefix}`;
 }
 
 async function listAllDemoFiles(): Promise<string[]> {
@@ -88,22 +83,10 @@ export async function generatePrototypeMapping(): Promise<void> {
   }
 
   const mappings: Array<{ id: string; component: string; importPath: string }> = [];
-  const prefixToImportPath = new Map<string, string>();
-
   for (const id of [...allIds].sort()) {
     const component = toPascalCase(id);
     const prefix = getPrefix(id);
-    let importPath = prefixToImportPath.get(prefix);
-    if (importPath === undefined) {
-      const pkgName = await getPackageName(prefix);
-      importPath = pkgName ?? `@prototype-libs/${prefix}`;
-      prefixToImportPath.set(prefix, importPath);
-      if (!pkgName) {
-        console.warn(
-          `[generate-code] 未找到 packages/prototype-libs/${prefix}/package.json，使用默认 importPath: ${importPath}`
-        );
-      }
-    }
+    const importPath = resolveImportPath(prefix);
     mappings.push({ id, component, importPath });
   }
 

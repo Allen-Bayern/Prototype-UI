@@ -5,6 +5,9 @@ import { PREFERRED_KEY, DEFAULT_ADAPTER } from '../override/AdapterSelect.astro'
 
 <script is:inline define:vars={{ PREFERRED_KEY, DEFAULT_ADAPTER, AdapterIds }}>
   (function () {
+    if (window.__protoAdapterPanelInit === '1') return;
+    window.__protoAdapterPanelInit = '1';
+
     function showPanel(adapter) {
       document.querySelectorAll('[data-adapter-panel]').forEach(function (el) {
         el.style.display = el.getAttribute('data-adapter-panel') === adapter ? '' : 'none';
@@ -22,7 +25,15 @@ import { PREFERRED_KEY, DEFAULT_ADAPTER } from '../override/AdapterSelect.astro'
       }
     }
 
-    showPanel(getPreferred());
+    function syncPreferredPanel() {
+      showPanel(getPreferred());
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', syncPreferredPanel, { once: true });
+    } else {
+      syncPreferredPanel();
+    }
 
     document.addEventListener('proto-adapter:change', function (e) {
       showPanel(e.detail.adapter);

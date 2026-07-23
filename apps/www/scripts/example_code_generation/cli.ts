@@ -6,10 +6,21 @@ import { readdir, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generatePrototypeMapping } from './generate-prototype.js';
-import type { DemoSpec } from '../../src/components/PrototypePreviewer/demo-types.js';
+import {
+  collectPrototypeIds,
+  type DemoSpec,
+} from '../../src/components/PrototypePreviewer/demo-types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEMO_COMPONENTS_ROOT = resolve(__dirname, '../../src/content/docs/demo_components');
+const RUNTIME_COMPONENT_IMPORT_PATHS = {
+  react: '../proto-ui/components/react',
+  vue: '../proto-ui/components/vue',
+} as const;
+
+type ComponentMapping = {
+  component: string;
+};
 
 async function listFolderDemos(folderPath: string): Promise<string[]> {
   const entries = await readdir(folderPath, { withFileTypes: true });
@@ -36,8 +47,66 @@ function toPascal(s: string): string {
     .replace(/^[a-z]/, (c) => c.toUpperCase());
 }
 
+function toCamel(s: string): string {
+  const pascal = toPascal(s);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
 function escapeForTemplateLiteral(code: string): string {
   return code.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+}
+
+function getDemoComponents(
+  demo: DemoSpec,
+  prototypeMappings: Record<string, ComponentMapping>
+): string[] {
+  const ids = new Set<string>();
+  collectPrototypeIds(demo.root, ids);
+  return [...ids]
+    .map((id) => prototypeMappings[id]?.component)
+    .filter((component): component is string => Boolean(component))
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function renderNamedImport(components: string[], importPath: string): string {
+  if (components.length === 1) {
+    return `import { ${components[0]} } from '${importPath}';`;
+  }
+
+  return `import {\n${components.map((component) => `  ${component},`).join('\n')}\n} from '${importPath}';`;
+}
+
+function injectReactImports(code: string, importBlock: string): string {
+  const exportIndex = code.indexOf('export function ');
+  const body = exportIndex >= 0 ? code.slice(exportIndex).trimStart() : code.trimStart();
+  return `${importBlock}\n\n${body}`.trimEnd();
+}
+
+function injectVueImports(code: string, importBlock: string): string {
+  const templateIndex = code.indexOf('<template>');
+  const template =
+    templateIndex >= 0
+      ? code.slice(templateIndex).trimStart()
+      : code.replace(/^<script setup lang="ts">[\s\S]*?<\/script>\s*/u, '').trimStart();
+
+  return [`<script setup lang="ts">`, importBlock, `</script>`, ``, template].join('\n').trimEnd();
+}
+
+function ensureRuntimeImports(
+  demo: DemoSpec,
+  runtime: 'react' | 'vue',
+  code: string,
+  prototypeMappings: Record<string, ComponentMapping>
+): string {
+  const components = getDemoComponents(demo, prototypeMappings);
+  if (components.length === 0) {
+    return code.trimEnd();
+  }
+
+  const importBlock = renderNamedImport(components, RUNTIME_COMPONENT_IMPORT_PATHS[runtime]);
+  return runtime === 'react'
+    ? injectReactImports(code, importBlock)
+    : injectVueImports(code, importBlock);
 }
 
 function renderRuntimeBlock(
@@ -82,8 +151,8 @@ async function main() {
   await generatePrototypeMapping();
 
   // 2. 动态导入 generate-code，确保使用最新生成的配置
-  const { generateReactCode, generateVueCode, generateWebComponentCode } =
-    await import('./generate-code.ts');
+  const [{ generateReactCode, generateVueCode, generateWebComponentCode }, { prototypeMappings }] =
+    await Promise.all([import('./generate-code.ts'), import('./prototype-config.ts')]);
 
   const rootEntries = await readdir(DEMO_COMPONENTS_ROOT, { withFileTypes: true });
   const folders = rootEntries
@@ -106,15 +175,20 @@ async function main() {
       const demoId = basename(demoFile, '.demo.ts');
       const componentName = `${toPascal(demoId)}Demo`;
       const wc = generateWebComponentCode(demo).trimEnd();
-      const react = (await generateReactCode(demo, componentName)).trimEnd();
-      const vue = (await generateVueCode(demo)).trimEnd();
+      const react = ensureRuntimeImports(
+        demo,
+        'react',
+        await generateReactCode(demo, componentName),
+        prototypeMappings
+      );
+      const vue = ensureRuntimeImports(demo, 'vue', await generateVueCode(demo), prototypeMappings);
       generated.push({ demoId, wc, react, vue });
       console.log(`[generate-code] 已生成 ${folderName}/${demoId}`);
     }
 
     if (generated.length === 0) continue;
 
-    const outFile = join(folderPath, `${folderName}Code.ts`);
+    const outFile = join(folderPath, `${toCamel(folderName)}Code.ts`);
     await writeFile(outFile, buildCodeFileContent(generated), 'utf8');
     console.log(`[generate-code] 已写入 ${outFile}`);
   }
