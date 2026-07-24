@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.4
 
-> 已准备并等待评审的 release candidate 草稿。本 release train 已将全部公开 package 与经评审的发行物料对齐到 `0.2.0-rc.4`，但尚未发布；在 rc.4 的不可变证据存在前，当前安装与试用仍应固定到已发布的 `0.2.0-rc.3`。
+> 已于 2026 年 7 月 24 日通过 npm `next` channel 发布。全部 37 个公开 package、`v0.2.0-rc.4` tag、GitHub prerelease 与不可变 spec snapshot 共享这一精确发行身份。
 
 ## 已修正
 
@@ -13,5 +13,4 @@
 
 ## 仍在验证
 
-- `0.2.0-rc.3` 发布后试用继续发现的安装、运行时、CSS、a11y、bundle、组合与 API 问题。
-- npm 发布、`v0.2.0-rc.4` tag、GitHub prerelease 与不可变 spec snapshot 仍待本 draft release train 评审并合入后执行。
+- `0.2.0-rc.4` 发布后试用继续发现的安装、运行时、CSS、a11y、bundle、组合与 API 问题将进入后续 release train。

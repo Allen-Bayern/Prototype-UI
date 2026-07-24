@@ -13,14 +13,14 @@
 | Version entity | [`V-PROTO-UI-0004`](../../spec/versions/V-PROTO-UI-0004.yaml) |
 | 工作区实体数 | 392 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:7e3a2115312c2114f5e4637be5c43c68ca7ab3ca0e994902d538a5d9b7ba34e1` |
-| 已发布 release snapshot digest | `未记录` |
+| 工作区快照指纹 | `sha256:b3c5db3a4d5bd1f248bf6372707cd39c7c8dfd382e173c92577dde74587a44f8` |
+| 已发布 release snapshot digest | `sha256:b88e4c782655e89d3176196c184da1f7b3aab143d019b28334b8c8a1cd83e168` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 37 个 active、350 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 38 个 active、349 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -66,7 +66,7 @@ flowchart LR
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
 | `test` | 120 | 12 | 108 | 0 | 0 | 0 | 4 |
-| `version` | 4 | 3 | 1 | 0 | 4 | 4 | 0 |
+| `version` | 4 | 4 | 0 | 0 | 4 | 4 | 0 |
 
 ### 实体级关系分布
 
@@ -1017,17 +1017,17 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ### [`V-PROTO-UI-0004`](../../spec/versions/V-PROTO-UI-0004.yaml) Proto UI 0.2.0-rc.4
 
-| Field           | Value                        |
-| --------------- | ---------------------------- |
-| Entity status   | `draft`                      |
-| Version         | `0.2.0-rc.4`                 |
-| Channel         | `prerelease`                 |
-| Git tag         | `v0.2.0-rc.4`                |
-| npm dist-tag    | `next`                       |
-| Package policy  | `exact` / `public-@proto.ui` |
-| Published at    | `—`                          |
-| Commit          | `—`                          |
-| Snapshot digest | `—`                          |
+| Field           | Value                                                                     |
+| --------------- | ------------------------------------------------------------------------- |
+| Entity status   | `active`                                                                  |
+| Version         | `0.2.0-rc.4`                                                              |
+| Channel         | `prerelease`                                                              |
+| Git tag         | `v0.2.0-rc.4`                                                             |
+| npm dist-tag    | `next`                                                                    |
+| Package policy  | `exact` / `public-@proto.ui`                                              |
+| Published at    | `2026-07-24T12:57:02Z`                                                    |
+| Commit          | `d0d9d2a68f9624923faab16132c82eea0b6a3b8b`                                |
+| Snapshot digest | `sha256:b88e4c782655e89d3176196c184da1f7b3aab143d019b28334b8c8a1cd83e168` |
 
 ## 九、显式 Open Questions
 
@@ -1138,7 +1138,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 350/392 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 349/392 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
