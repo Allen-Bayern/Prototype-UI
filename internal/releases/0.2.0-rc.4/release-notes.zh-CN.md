@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.4
 
-> 未发布草稿。该候选版本用于收集 `0.2.0-rc.3` 仓库外人工试用发现；完整 release train 尚未开启，当前安装与试用仍应固定到已发布的 `0.2.0-rc.3`。
+> 已准备并等待评审的 release candidate 草稿。本 release train 已将全部公开 package 与经评审的发行物料对齐到 `0.2.0-rc.4`，但尚未发布；在 rc.4 的不可变证据存在前，当前安装与试用仍应固定到已发布的 `0.2.0-rc.3`。
 
 ## 已修正
 
@@ -14,4 +14,4 @@
 ## 仍在验证
 
 - `0.2.0-rc.3` 发布后试用继续发现的安装、运行时、CSS、a11y、bundle、组合与 API 问题。
-- 完整 `0.2.0-rc.4` release train 的版本实体、package 版本、BOM、spec snapshot 与发布门禁将在统一收集问题后单独准备。
+- npm 发布、`v0.2.0-rc.4` tag、GitHub prerelease 与不可变 spec snapshot 仍待本 draft release train 评审并合入后执行。
