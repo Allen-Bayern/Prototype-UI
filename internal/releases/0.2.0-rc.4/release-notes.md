@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.4
 
-> Unpublished draft. This candidate collects findings from external `0.2.0-rc.3` trials; its complete release train has not opened yet, so current installation and trial instructions must remain pinned to the published `0.2.0-rc.3`.
+> Release candidate draft prepared for review. This train aligns every public package and its reviewed release assets to `0.2.0-rc.4`, but it has not been published. Current installation and trial instructions therefore remain pinned to the published `0.2.0-rc.3` until immutable rc.4 evidence exists.
 
 ## Fixed
 
@@ -14,4 +14,4 @@
 ## Still under validation
 
 - Additional installation, runtime, CSS, accessibility, bundle, composition, and API findings from post-publication `0.2.0-rc.3` trials.
-- The complete `0.2.0-rc.4` release train will prepare its version entity, package versions, BOM, spec snapshot, and publication gates after the trial findings are collected together.
+- npm publication, the `v0.2.0-rc.4` tag, GitHub prerelease, and immutable spec snapshot remain pending until this draft release train is reviewed and merged.
