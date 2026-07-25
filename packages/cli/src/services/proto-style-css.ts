@@ -399,6 +399,13 @@ function renderTransformUtility(utility: string): string[] | null {
   if (utility === 'translate-y-0') return ['--pui-translate-y: 0px;', transformValue()];
   if (utility === 'translate-y-px') return ['--pui-translate-y: 1px;', transformValue()];
 
+  const translateMatch = utility.match(/^translate-(x|y)-(.+)$/);
+  if (translateMatch) {
+    const [, axis, rawValue] = translateMatch;
+    const value = spacingValue(rawValue);
+    if (value) return [`--pui-translate-${axis}: ${value};`, transformValue()];
+  }
+
   const scaleMatch = utility.match(/^scale-\[(.+)\]$/);
   if (scaleMatch)
     return [
