@@ -1,12 +1,12 @@
 id: V-PROTO-UI-0005
 type: version
 title: Proto UI 0.2.0-rc.5
-status: draft
+status: active
 since: 0.2.0-rc.5
-summary: Draft release train fixing Dialog default CloseIcon context initialization and Switch checked-state Thumb movement after external rc.4 trials.
+summary: Fifth globally exact release candidate fixing Dialog default CloseIcon context initialization and Switch checked-state Thumb movement after external rc.4 trials.
 statement:
-  en: Proto UI 0.2.0-rc.5 is one reviewed draft ecosystem release identity shared exactly by every public @proto.ui package and the corresponding staged spec snapshot. It does not claim npm, Git tag, GitHub Release, or immutable snapshot evidence before publication.
-  zh-CN: Proto UI 0.2.0-rc.5 是由全部公开 @proto.ui package 与对应暂存 spec snapshot 精确共享、处于评审阶段的一次生态发行身份；发布前不声称已存在 npm、Git tag、GitHub Release 或不可变 snapshot 证据。
+  en: Proto UI 0.2.0-rc.5 is one ecosystem release identity shared exactly by every public @proto.ui package and the corresponding immutable spec snapshot.
+  zh-CN: Proto UI 0.2.0-rc.5 是由全部公开 @proto.ui package 与对应不可变 spec snapshot 精确共享的一次生态发行身份。
 release:
   version: 0.2.0-rc.5
   channel: prerelease
@@ -14,6 +14,9 @@ release:
   npmDistTag: next
   packageVersionPolicy: exact
   packageScope: public-@proto.ui
+  publishedAt: 2026-07-25T06:09:06Z
+  commit: 6edb7c9471ba14eeb7e00ca8a5d097fc9fc0c26a
+  specSnapshotDigest: sha256:21152b5b6fd27ac2dbffd4bffe71ba0f376c532ccf3d7d074ed3fda846c758d8
 dependsOn:
   decisions:
     - D-GLOBAL-RELEASE-VERSION-0001
@@ -39,8 +42,10 @@ revisions:
   - version: 0.2.0-rc.5
     change: introduced
     summary: Opened the full draft rc.5 release train with aligned package manifests and reviewed release assets while keeping publication evidence pending.
+  - version: 0.2.0-rc.5
+    change: updated
+    summary: Activated after publishing all 37 packages, the Git tag, GitHub prerelease, and immutable spec snapshot evidence.
 tags:
   - release
   - prerelease
   - global-version
-  - draft
