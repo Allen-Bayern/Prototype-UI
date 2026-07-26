@@ -3,6 +3,11 @@
   "version": "0.2.0-rc.6",
   "private": false,
   "type": "module",
+  "protoUi": {
+    "buildDependencies": [
+      "@proto.ui/types"
+    ]
+  },
   "devDependencies": {
     "@proto.ui/types": "workspace:*"
   },

@@ -12,7 +12,6 @@ import {
 import { spawnSync } from 'node:child_process';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import ts from 'typescript';
 
 export const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const PACKAGE_ROOTS = ['packages'];
@@ -42,42 +41,13 @@ export function getPublicPackages() {
         ...manifest.peerDependencies,
         ...manifest.optionalDependencies,
       };
-      const sourceDependencyNames = new Set();
-      for (const file of listFiles(join(dir, 'src')).filter((path) =>
-        /\.[cm]?[jt]sx?$/.test(path)
-      )) {
-        const source = readFileSync(file, 'utf8');
-        const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, false);
-        function visit(node) {
-          let specifier = null;
-          if (
-            (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
-            node.moduleSpecifier &&
-            ts.isStringLiteral(node.moduleSpecifier)
-          ) {
-            specifier = node.moduleSpecifier.text;
-          } else if (
-            ts.isCallExpression(node) &&
-            node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-            node.arguments.length === 1 &&
-            ts.isStringLiteral(node.arguments[0])
-          ) {
-            specifier = node.arguments[0].text;
-          }
-          if (specifier?.startsWith(PUBLIC_SCOPE)) {
-            sourceDependencyNames.add(specifier.split('/').slice(0, 2).join('/'));
-          }
-          ts.forEachChild(node, visit);
-        }
-        visit(sourceFile);
-      }
       return {
         name: manifest.name,
         dir,
         relDir: relative(ROOT_DIR, dir).replaceAll('\\', '/'),
         manifest,
         dependencyNames: Object.keys(dependencyMap),
-        sourceDependencyNames: [...sourceDependencyNames],
+        declaredBuildDependencyNames: manifest.protoUi?.buildDependencies ?? [],
       };
     })
     .filter((pkg) => !pkg.manifest.private && pkg.name?.startsWith(PUBLIC_SCOPE));
@@ -85,12 +55,13 @@ export function getPublicPackages() {
   const names = new Set(packages.map((pkg) => pkg.name));
   for (const pkg of packages) {
     pkg.internalDeps = pkg.dependencyNames.filter((name) => names.has(name)).sort();
-    pkg.buildDeps = [
-      ...new Set([
-        ...pkg.internalDeps,
-        ...pkg.sourceDependencyNames.filter((name) => name !== pkg.name && names.has(name)),
-      ]),
-    ].sort();
+    const unknownBuildDeps = pkg.declaredBuildDependencyNames.filter((name) => !names.has(name));
+    if (unknownBuildDeps.length > 0) {
+      throw new Error(
+        `${pkg.name}: unknown protoUi.buildDependencies: ${unknownBuildDeps.join(', ')}`
+      );
+    }
+    pkg.buildDeps = [...new Set([...pkg.internalDeps, ...pkg.declaredBuildDependencyNames])].sort();
   }
   return packages.sort((a, b) => a.name.localeCompare(b.name));
 }
