@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.6
 
-> 本文是已在 `0.2.0-rc.5` 发布后合入更改的更新日志草稿。rc.6 release train、package 版本、npm 发布、Git tag、GitHub prerelease 与不可变 spec snapshot 均尚未准备或发布；当前安装与试用说明仍固定到 rc.5。
+> 已准备并等待评审的 release candidate 草稿。本 release train 已将全部公开 package 与经评审的发行物料对齐到 `0.2.0-rc.6`，但尚未发布；在 rc.6 的不可变证据存在前，当前安装与试用仍应固定到已发布的 `0.2.0-rc.5`。
 
 ## 已修正
 
@@ -34,3 +34,8 @@
 ## 升级提示
 
 - 依赖 `shadcn-dialog-trigger` 隐式 Button 外观的调用方，现在需要在 Trigger 内显式组合 `shadcn-button`。Dialog Close 仍保持无样式，并遵循相同的显式组合方式。
+
+## 仍在验证
+
+- `0.2.0-rc.5` 发布后试用继续发现的安装、运行时、CSS、a11y、bundle、组合与 API 问题。
+- npm 发布、`v0.2.0-rc.6` tag、GitHub prerelease 与不可变 spec snapshot 仍待本 draft release train 评审并合入后执行。

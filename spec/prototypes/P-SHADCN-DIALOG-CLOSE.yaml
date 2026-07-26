@@ -119,5 +119,10 @@ revisions:
       summary: Removed button variants and default styles,
       separated Footer Button composition from the preset-materialized default X Close.,
     },
+    {
+      version: 0.2.0-rc.6,
+      change: clarified,
+      summary: Required nested Close/Button composition to remain one focus-scope member and surface focus-visible feedback on the inner Button.,
+    },
   ]
 tags: [prototype, shadcn, dialog, close, upstream-derived, delta, compatibility, visual]

@@ -60,4 +60,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: revised
     summary: Required generated default parts to connect only after the owning Root context exists, without failure-driven remount recovery.
+  - version: 0.2.0-rc.6
+    change: revised
+    summary: Moved checked component recipes beside their prototype families, made direct-child placement explicit, and retained a generated CLI projection without visual tokens.
 tags: [component-preset, materialization, cli, adapter, anatomy, composition]

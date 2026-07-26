@@ -78,4 +78,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: expanded
     summary: Added packed-consumer coverage for connecting the default CloseIcon after Dialog context initialization.
+  - version: 0.2.0-rc.6
+    change: expanded
+    summary: Added pinned CloseIcon placement and visible-focus coverage plus the component-local direct-child preset recipe.
 tags: [test, shadcn, dialog, anatomy, close-icon, preset]

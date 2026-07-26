@@ -79,4 +79,7 @@ revisions:
   - version: 0.2.0-rc.0
     change: introduced
     summary: Added Shadcn Dialog Trigger delta coverage.
+  - version: 0.2.0-rc.6
+    change: expanded
+    summary: Added transparent nested Button composition, pointer activation, focus-loop visibility, and restored-focus coverage.
 tags: [prototype, shadcn, dialog, trigger, delta, compatibility, test]

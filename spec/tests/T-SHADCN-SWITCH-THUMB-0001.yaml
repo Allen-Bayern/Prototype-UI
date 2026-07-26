@@ -60,4 +60,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: expanded
     summary: Added executable coverage for checked-state-driven Thumb translation.
+  - version: 0.2.0-rc.6
+    change: expanded
+    summary: Added executable coverage for symmetric checked travel and inherited focus-ring isolation.
 tags: [prototype, shadcn, switch, thumb, delta, compatibility, test]

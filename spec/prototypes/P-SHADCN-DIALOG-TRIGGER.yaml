@@ -96,4 +96,7 @@ revisions:
   - version: 0.2.0-rc.0
     change: introduced
     summary: Introduced Shadcn Dialog Trigger delta cataloging with button variants, state styles, asChild omission, and centralized differences.
+  - version: 0.2.0-rc.6
+    change: revised
+    summary: Removed the extra button-like visual surface and required explicit nested controls to share one host interaction surface across adapters.
 tags: [prototype, shadcn, dialog, trigger, upstream-derived, delta, compatibility, semantic]

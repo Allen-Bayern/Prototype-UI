@@ -1,6 +1,6 @@
 # Proto UI 0.2.0-rc.6
 
-> Draft changelog for changes merged after the published `0.2.0-rc.5`. The rc.6 release train, package versions, npm publication, Git tag, GitHub prerelease, and immutable spec snapshot have not been prepared or published; current installation and trial instructions remain pinned to rc.5.
+> Release candidate draft prepared for review. This train aligns every public package and its reviewed release assets to `0.2.0-rc.6`, but it has not been published. Current installation and trial instructions therefore remain pinned to the published `0.2.0-rc.5` until immutable rc.6 evidence exists.
 
 ## Fixed
 
@@ -34,3 +34,8 @@
 ## Upgrade note
 
 - Consumers that relied on `shadcn-dialog-trigger` for an implicit button appearance must now compose an explicit `shadcn-button` inside the Trigger. Dialog Close remains unstyled and follows the same explicit composition pattern.
+
+## Still under validation
+
+- Additional installation, runtime, CSS, accessibility, bundle, composition, and API findings from post-publication `0.2.0-rc.5` trials.
+- npm publication, the `v0.2.0-rc.6` tag, GitHub prerelease, and immutable spec snapshot remain pending until this draft release train is reviewed and merged.

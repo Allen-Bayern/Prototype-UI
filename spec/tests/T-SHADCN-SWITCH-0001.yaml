@@ -102,4 +102,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: expanded
     summary: Added symmetric Root spacing and packed-consumer coverage for context-safe default Thumb mounting.
+  - version: 0.2.0-rc.6
+    change: expanded
+    summary: Added corrected checked geometry and component-local direct-child preset recipe coverage.
 tags: [prototype, shadcn, switch, root, delta, compatibility, test]
