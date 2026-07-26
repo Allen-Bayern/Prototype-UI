@@ -1,120 +1,56 @@
 # as-trigger.v0.md
 
-> Status: Draft - v0
+> Status: Draft - transitional projection
 >
-> This document defines the minimal v0 contract for `asTrigger()`, a privileged asHook that merges event routing for directly nested trigger prototypes.
+> Normative source: `spec/contracts/C-AS-TRIGGER-0001.yaml` and `spec/decisions/D-TRIGGER-GROUP-SURFACE-0001.yaml`.
 
----
+## Positioning
 
-## 0. Positioning
+`asTrigger()` is a core privileged asHook. It is not a general event helper and does not create a one-way proxy from one trigger instance to another.
 
-`asTrigger()` is a core privileged asHook.
+Its narrow responsibility is to let directly and continuously nested trigger instances form one logical trigger group. The host supplies logical instance, parent, and prototype relations and projects the resulting domain-neutral group roles:
 
-It is not a general event helper and is not an authored `defineAsHook(...)` product. Its job is narrow:
+- members: every continuous trigger instance in the group;
+- anchor: the outermost continuous member by default;
+- surface: the innermost continuous member by default;
+- semantic target: the current bindable target that carries the group's semantic activation registrations.
 
-> merge the event route of directly and continuously nested trigger prototypes to the outermost trigger in that continuous trigger chain.
+Every member retains its own behavior declarations. The anchor is a stable structural role rather than a physical hit range, and the surface does not absorb another member's `host:*` events.
 
-`asTrigger()` depends on:
+## Invocation and host capabilities
 
-- asHook privileged and trace semantics
-- the event path
-- host-cap-provided instance, parent, and prototype lookup
-- host-cap-provided logical route ownership and event-target projection
+`asTrigger()` is setup-only, installs once for the caller prototype, and records the canonical privileged trace identity `as-trigger`.
 
-`asTrigger()` does not depend on:
+The host relation boundary is supplied through:
 
-- focus
-- state interaction
-- overlay
-- boundary
-- hit participation
+- `AS_TRIGGER_INSTANCE_CAP`;
+- `AS_TRIGGER_PARENT_CAP`;
+- `AS_TRIGGER_GET_PROTO_CAP`;
+- `AS_TRIGGER_MERGE_GROUP_CAP`;
+- `AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP`.
 
----
+Logical instance and group identities are opaque and are not required to implement `EventTarget`. Group registrations must survive setup before a physical surface exists and migrate when the current surface view is attached, detached, or replaced.
 
-## 1. Invocation Model
+## Merge rule
 
-`asTrigger()` is setup-only.
+If the current trigger has a direct logical parent whose prototype also carries the trigger identity, both are members of one group. Merging continues through every directly continuous trigger ancestor.
 
-It installs once for the caller prototype and records privileged trace metadata for trigger identity.
+The outermost member is the default anchor and the innermost member is the default interaction surface. A missing parent, missing prototype, non-trigger parent, or unprovable direct relation stops the merge; a standalone trigger forms a one-member group and is both anchor and surface.
 
-The stable trigger identity is `asTrigger`.
+## Event boundary
 
----
+Semantic activation registrations from group members converge on the current surface target. One valid host activation sample is interpreted at most once for the group. `host:*` registrations remain bound to each member's own host root.
 
-## 2. Host Relation Boundary
+For Web pointer input, the physical hit origin must be the current surface root or its content. Hitting the extra host box of an anchor or another non-surface member is rejected rather than redirected into surface activation.
 
-`asTrigger()` does not define host tree semantics.
+## Non-goals
 
-The host must provide the information needed to answer:
+`asTrigger()` does not itself define Focus, A11y, disabled arbitration, overlay, boundary, or hit-testing policy. The adapter publishes group roles; the corresponding domains consume them under their own contracts.
 
-- what is the current caller instance target?
-- what is this target's direct logical parent target?
-- what prototype belongs to that parent target?
-
-In the current implementation, these are supplied through as-trigger host capabilities:
-
-- `AS_TRIGGER_INSTANCE_CAP`
-- `AS_TRIGGER_PARENT_CAP`
-- `AS_TRIGGER_GET_PROTO_CAP`
-- `AS_TRIGGER_SET_ROUTE_OWNER_CAP`
-- `AS_TRIGGER_GET_EVENT_TARGET_CAP`
-
-The parent relation is a logical direct-parent relation supplied by the host. It must not be inferred by `asTrigger()` from DOM containment or another host-specific tree rule.
-
-Logical instance identities are opaque and are not required to implement `EventTarget`. After resolving the outermost logical route owner, `asTrigger()` obtains a bindable event target through the host projection. The projection must support setup before a physical view exists and must move existing registrations when that owner's view target is replaced.
-
----
-
-## 3. Trigger Ownership
-
-When applied, `asTrigger()` records the resolved logical trigger route owner for the current caller. The host projects that identity to its event router rather than treating the logical instance itself as a DOM or `EventTarget` object.
-
-Event routing may use this ownership marker to resolve which prototype owns activation confirmation for nested native targets.
-
----
-
-## 4. Route Merge Rule
-
-If the current trigger target has a direct parent target whose prototype trace also contains `asTrigger`, then the current trigger route is merged upward.
-
-If that parent is also directly nested in another trigger, merging continues.
-
-The final event route owner is the outermost trigger in the continuous direct-parent trigger chain.
-
----
-
-## 5. Stop Conditions
-
-Route merging stops when:
-
-- the current target has no parent
-- the parent target has no prototype
-- the parent prototype does not have `asTrigger` trace
-- the host cannot prove a direct parent relation
-
-When merging stops immediately, the current trigger remains its own route owner.
-
----
-
-## 6. Non-Goals
-
-`asTrigger()` does not define:
-
-- focus behavior
-- disabled behavior
-- click/expose event naming
-- overlay trigger semantics
-- boundary or outside-interaction semantics
-- hit participation or pointer-event participation
-
-Those behaviors may depend on trigger identity, but they are owned by their respective contracts.
-
----
-
-## 7. Related Spec Entities
+## Related spec entities
 
 - `C-AS-TRIGGER-0001`
+- `D-TRIGGER-GROUP-SURFACE-0001`
 - `T-AS-TRIGGER-0001`
 - `C-AS-HOOK-PRIVILEGED-0001`
 - `C-EVENT-0001`
-- `C-EVENT-TYPE-0001`

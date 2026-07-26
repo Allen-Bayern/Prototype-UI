@@ -3,7 +3,7 @@ type: test
 title: Shadcn Dialog Trigger semantic-wrapper contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Trigger Base command inheritance, its unstyled surface, nested trigger composition, asChild omission, and bounded upstream compatibility.
+summary: Covers Trigger Base command inheritance, its unstyled surface, nested trigger-group composition, surface-only pointer admission, asChild omission, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-DIALOG-TRIGGER-0001-CASE-CURRENT-PROTOCOL
     title: Trigger opens the inherited dialog without prescribing Button visuals
@@ -26,8 +26,9 @@ cases:
         P-SHADCN-DIALOG-TRIGGER-COMPOSITION-BOUNDARY,
         D-TRIGGER-GROUP-SURFACE-0001-F,
         D-TRIGGER-GROUP-SURFACE-0001-G,
+        D-TRIGGER-GROUP-SURFACE-0001-H,
       ]
-    expectation: nested-button-click-opens-and-trapped-tab-retains-visible-focus-and-return-target
+    expectation: nested-button-click-opens-outer-host-blank-does-not-and-trapped-tab-retains-visible-focus-and-return-target
 implementations:
   - id: prototypes-shadcn-dialog-trigger-contract
     kind: module-test
@@ -56,6 +57,13 @@ implementations:
     kind: runtime-test
     status: passing
     path: packages/runtime/test/contract/focus.v0.contract.test.ts
+    required: true
+    consumesCases: [T-SHADCN-DIALOG-TRIGGER-0001-CASE-NESTED-ADAPTER-FOCUS]
+    exercises: [P-SHADCN-DIALOG-TRIGGER, P-SHADCN-DIALOG-CLOSE]
+  - id: web-conformance-dialog-trigger-group-surface
+    kind: adapter-test
+    status: passing
+    path: packages/web-conformance/test/shadcn-dialog.journey.test.ts
     required: true
     consumesCases: [T-SHADCN-DIALOG-TRIGGER-0001-CASE-NESTED-ADAPTER-FOCUS]
     exercises: [P-SHADCN-DIALOG-TRIGGER, P-SHADCN-DIALOG-CLOSE]

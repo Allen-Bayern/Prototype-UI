@@ -150,6 +150,12 @@ describe('Web adapter conformance / Shadcn Dialog keyboard journey', () => {
         await settle();
         const trigger = findButton('Open Dialog', host);
         expectTransparentSemanticParent(trigger);
+        const triggerSemanticParent =
+          trigger.parentElement?.closest<HTMLElement>('[data-pui-root]');
+        expect(triggerSemanticParent).toBeTruthy();
+
+        await click(triggerSemanticParent!);
+        expect(dialogIsClosed()).toBe(true);
 
         // Pointer activation is a required entry path, not only a keyboard fallback.
         await click(trigger);
@@ -173,6 +179,11 @@ describe('Web adapter conformance / Shadcn Dialog keyboard journey', () => {
         expectTransparentSemanticParent(cancel);
         expectTransparentSemanticParent(save);
         expectVisibleFocus(cancel);
+
+        const cancelSemanticParent = cancel.parentElement?.closest<HTMLElement>('[data-pui-root]');
+        expect(cancelSemanticParent).toBeTruthy();
+        await click(cancelSemanticParent!);
+        expect(dialogIsOpen()).toBe(true);
 
         await press(cancel, 'Tab');
         expectVisibleFocus(save);

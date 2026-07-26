@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0006`](../../spec/versions/V-PROTO-UI-0006.yaml) |
 | 工作区实体数 | 395 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:0cf8398667b632790ef5e6e069c9513fddd81c415ffa39112c60d87758541223` |
+| 工作区快照指纹 | `sha256:995c514f6aacd6cfbfb68c45a8829858856349e231ae75b6e4513fe0323b0fb7` |
 | 已发布 release snapshot digest | `sha256:ccec6ecd79b276f67eac15ae3d4e153dc03f2e2ae975498b20dd4aa6e6d28a13` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -72,13 +72,13 @@ flowchart LR
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  222 |
-| `dependsOn`  |  770 |
+| `relates`    |  223 |
+| `dependsOn`  |  771 |
 | `inherits`   |   28 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  299 |
+| `verifies`   |  300 |
 | `explains`   |   36 |
 | `exercises`  |  168 |
 | `requires`   |    4 |
@@ -251,7 +251,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
-| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger merges continuous nested trigger event routes to the outermost trigger | 9 | 1 | asTrigger is a privileged asHook that makes nested trigger prototypes share one activation event route, owned by the outermost continuous trigger in the direct host parent chain. |
+| [`C-AS-TRIGGER-0001`](../../spec/contracts/C-AS-TRIGGER-0001.yaml) | `draft` | asTrigger forms continuous trigger groups with one semantic activation route | 11 | 2 | asTrigger is a privileged asHook that merges directly nested trigger instances into one group while keeping group anchor, interaction surface, behavior participants, and host-local events distinct. |
 
 ### BOUNDARY（1）
 
@@ -678,7 +678,7 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
 | --- | --- | --- | --: | --- |
-| [`D-TRIGGER-GROUP-SURFACE-0001`](../../spec/decisions/D-TRIGGER-GROUP-SURFACE-0001.yaml) | `draft` | Continuous triggers share behavior ownership and one host interaction surface | 7 | Continuous trigger chains retain one outer behavior route while projecting focus and accessibility through one default inner host surface. |
+| [`D-TRIGGER-GROUP-SURFACE-0001`](../../spec/decisions/D-TRIGGER-GROUP-SURFACE-0001.yaml) | `draft` | Continuous triggers merge as one group with distinct anchor and surface roles | 8 | Continuous trigger chains form one group whose outer anchor, inner interaction surface, behavior participants, and domain projections remain distinct. |
 
 ### USE（1）
 
@@ -701,14 +701,14 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  269 |
+| `passing` |  273 |
 | `planned` |   14 |
 
 ### Implementation 类型
 
 | Kind              | 数量 |
 | ----------------- | ---: |
-| `adapter-test`    |   77 |
+| `adapter-test`    |   81 |
 | `fixture`         |   17 |
 | `module-test`     |  127 |
 | `runtime-test`    |   71 |
@@ -767,7 +767,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger nested event route contract tests | 7 | `passing` 5 | `C-AS-TRIGGER-0001` | — |
+| [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger group merge and interaction-surface contract tests | 9 | `passing` 7 | `C-AS-TRIGGER-0001` | — |
 
 ### BASE（31）
 
@@ -922,13 +922,13 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-SHADCN-BUTTON-0001`](../../spec/tests/T-SHADCN-BUTTON-0001.yaml) | `draft` | Shadcn Button delta protocol contract tests | 5 | `passing` 1 | `P-SHADCN-BUTTON` | `P-SHADCN-BUTTON`<br>`P-BASE-BUTTON` |
 | [`T-SHADCN-DIALOG-0001`](../../spec/tests/T-SHADCN-DIALOG-0001.yaml) | `draft` | Shadcn Dialog Root delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG` | `P-SHADCN-DIALOG`<br>`P-BASE-DIALOG` |
-| [`T-SHADCN-DIALOG-CLOSE-0001`](../../spec/tests/T-SHADCN-DIALOG-CLOSE-0001.yaml) | `draft` | Shadcn Dialog Close delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-CLOSE` | `P-SHADCN-DIALOG-CLOSE`<br>`P-BASE-DIALOG-CLOSE` |
+| [`T-SHADCN-DIALOG-CLOSE-0001`](../../spec/tests/T-SHADCN-DIALOG-CLOSE-0001.yaml) | `draft` | Shadcn Dialog Close delta protocol contract tests | 1 | `passing` 2 | `P-SHADCN-DIALOG-CLOSE` | `P-SHADCN-DIALOG-CLOSE`<br>`P-BASE-DIALOG-CLOSE` |
 | [`T-SHADCN-DIALOG-CONTENT-0001`](../../spec/tests/T-SHADCN-DIALOG-CONTENT-0001.yaml) | `draft` | Shadcn Dialog Content delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-CONTENT` | `P-SHADCN-DIALOG-CONTENT`<br>`P-BASE-DIALOG-CONTENT` |
 | [`T-SHADCN-DIALOG-DESCRIPTION-0001`](../../spec/tests/T-SHADCN-DIALOG-DESCRIPTION-0001.yaml) | `draft` | Shadcn Dialog Description delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-DESCRIPTION` | `P-SHADCN-DIALOG-DESCRIPTION`<br>`P-BASE-DIALOG-DESCRIPTION` |
 | [`T-SHADCN-DIALOG-LAYOUT-0001`](../../spec/tests/T-SHADCN-DIALOG-LAYOUT-0001.yaml) | `draft` | Shadcn Dialog layout and default CloseIcon tests | 3 | `passing` 4 | `P-SHADCN-DIALOG-HEADER`<br>`P-SHADCN-DIALOG-FOOTER`<br>`P-SHADCN-DIALOG-CLOSE-ICON`<br>`D-COMPONENT-PRESET-MATERIALIZATION-0001` | `P-SHADCN-DIALOG-HEADER`<br>`P-SHADCN-DIALOG-FOOTER`<br>`P-SHADCN-DIALOG-CLOSE-ICON` |
 | [`T-SHADCN-DIALOG-MASK-0001`](../../spec/tests/T-SHADCN-DIALOG-MASK-0001.yaml) | `draft` | Shadcn Dialog Mask delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-MASK` | `P-SHADCN-DIALOG-MASK`<br>`P-BASE-DIALOG-MASK` |
 | [`T-SHADCN-DIALOG-TITLE-0001`](../../spec/tests/T-SHADCN-DIALOG-TITLE-0001.yaml) | `draft` | Shadcn Dialog Title delta protocol contract tests | 1 | `passing` 1 | `P-SHADCN-DIALOG-TITLE` | `P-SHADCN-DIALOG-TITLE`<br>`P-BASE-DIALOG-TITLE` |
-| [`T-SHADCN-DIALOG-TRIGGER-0001`](../../spec/tests/T-SHADCN-DIALOG-TRIGGER-0001.yaml) | `draft` | Shadcn Dialog Trigger semantic-wrapper contract tests | 2 | `passing` 4 | `P-SHADCN-DIALOG-TRIGGER` | `P-SHADCN-DIALOG-TRIGGER`<br>`P-BASE-DIALOG-TRIGGER` |
+| [`T-SHADCN-DIALOG-TRIGGER-0001`](../../spec/tests/T-SHADCN-DIALOG-TRIGGER-0001.yaml) | `draft` | Shadcn Dialog Trigger semantic-wrapper contract tests | 2 | `passing` 5 | `P-SHADCN-DIALOG-TRIGGER` | `P-SHADCN-DIALOG-TRIGGER`<br>`P-BASE-DIALOG-TRIGGER` |
 | [`T-SHADCN-DROPDOWN-MENU-0001`](../../spec/tests/T-SHADCN-DROPDOWN-MENU-0001.yaml) | `draft` | Shadcn Dropdown Menu Root delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-DROPDOWN-MENU` | `P-SHADCN-DROPDOWN-MENU`<br>`P-BASE-DROPDOWN-MENU` |
 | [`T-SHADCN-DROPDOWN-MENU-CONTENT-0001`](../../spec/tests/T-SHADCN-DROPDOWN-MENU-CONTENT-0001.yaml) | `draft` | Shadcn Dropdown Menu Content delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-DROPDOWN-MENU-CONTENT` | `P-SHADCN-DROPDOWN-MENU-CONTENT`<br>`P-BASE-DROPDOWN-MENU-CONTENT` |
 | [`T-SHADCN-DROPDOWN-MENU-ITEM-0001`](../../spec/tests/T-SHADCN-DROPDOWN-MENU-ITEM-0001.yaml) | `draft` | Shadcn Dropdown Menu Item delta protocol contract tests | 2 | `passing` 1 | `P-SHADCN-DROPDOWN-MENU-ITEM` | `P-SHADCN-DROPDOWN-MENU-ITEM`<br>`P-BASE-DROPDOWN-MENU-ITEM` |
@@ -969,7 +969,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-WEB-SHADCN-DIALOG-JOURNEY-0001`](../../spec/tests/T-WEB-SHADCN-DIALOG-JOURNEY-0001.yaml) | `draft` | Shared Web adapter Shadcn Dialog interaction journey | 1 | `passing` 3 | `C-AS-FOCUS-SCOPE-0002`<br>`P-SHADCN-DIALOG-TRIGGER`<br>`P-SHADCN-DIALOG-CLOSE`<br>`P-SHADCN-DIALOG-CLOSE-ICON`<br>`D-TRIGGER-GROUP-SURFACE-0001` | `P-SHADCN-DIALOG-CONTENT`<br>`P-SHADCN-BUTTON` |
+| [`T-WEB-SHADCN-DIALOG-JOURNEY-0001`](../../spec/tests/T-WEB-SHADCN-DIALOG-JOURNEY-0001.yaml) | `draft` | Shared Web adapter Shadcn Dialog interaction journey | 1 | `passing` 3 | `C-AS-TRIGGER-0001`<br>`C-AS-FOCUS-SCOPE-0002`<br>`P-SHADCN-DIALOG-TRIGGER`<br>`P-SHADCN-DIALOG-CLOSE`<br>`P-SHADCN-DIALOG-CLOSE-ICON`<br>`D-TRIGGER-GROUP-SURFACE-0001` | `P-SHADCN-DIALOG-CONTENT`<br>`P-SHADCN-BUTTON` |
 | [`T-WEB-STYLE-BASELINE-0001`](../../spec/tests/T-WEB-STYLE-BASELINE-0001.yaml) | `draft` | Web physical CSS scoped box-model baseline tests | 3 | `passing` 2 | `D-WEB-STYLE-BASELINE-0001` | — |
 
 ## 八、版本与发布身份

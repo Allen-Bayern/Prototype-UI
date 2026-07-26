@@ -3,7 +3,7 @@ type: test
 title: Shadcn Dialog Close delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Close Base command inheritance, its unstyled boundary, nested Button composition, default-X separation, and asChild omission.
+summary: Covers Close Base command inheritance, its unstyled boundary, nested Button trigger-group composition, surface-only pointer admission, default-X separation, and asChild omission.
 cases:
   - id: T-SHADCN-DIALOG-CLOSE-0001-CASE-CURRENT-PROTOCOL
     title: Close requests inherited dismissal without owning a visual surface
@@ -19,7 +19,7 @@ cases:
         P-SHADCN-DIALOG-CLOSE-COMPATIBILITY-SUBSET,
         P-SHADCN-DIALOG-CLOSE-AS-CHILD-OMISSION,
       ]
-    expectation: shadcn-dialog-close-current-dismiss-command-surface
+    expectation: shadcn-dialog-close-dismisses-only-through-its-current-trigger-group-surface
 implementations:
   - id: prototypes-shadcn-dialog-close-contract
     kind: module-test
@@ -38,6 +38,15 @@ implementations:
         nested trigger composition,
         and separation from the preset-provided CloseIcon.,
       ]
+  - id: web-conformance-shadcn-dialog-close-surface-hit
+    kind: adapter-test
+    status: passing
+    path: packages/web-conformance/test/shadcn-dialog.journey.test.ts
+    required: true
+    consumesCases: [T-SHADCN-DIALOG-CLOSE-0001-CASE-CURRENT-PROTOCOL]
+    exercises: [P-SHADCN-DIALOG-CLOSE, P-BASE-DIALOG-CLOSE]
+    notes:
+      - The WC, React, and Vue matrix verifies that the non-surface Close host box cannot dismiss the Dialog while the nested Button still can.
 verifies:
   prototypes:
     - id: P-SHADCN-DIALOG-CLOSE

@@ -125,19 +125,22 @@ export function createInstanceTreeMarkers(
   const PROTO_BY_TOKEN = new WeakMap<LogicalInstanceToken, Prototype<any>>();
   const PARENT_BY_TOKEN = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
   const CHILDREN_BY_TOKEN = new WeakMap<LogicalInstanceToken, Set<LogicalInstanceToken>>();
-  const ROUTE_OWNER_BY_TOKEN = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
+  const TRIGGER_GROUP_ANCHOR_BY_TOKEN = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
   const EVENT_TARGET_BY_TOKEN = new WeakMap<LogicalInstanceToken, DynamicEventTarget>();
   const BOUND_EVENT_TARGET_BY_TOKEN = new WeakMap<LogicalInstanceToken, EventTarget>();
-  const TRIGGER_MEMBERS_BY_OWNER = new WeakMap<LogicalInstanceToken, Set<LogicalInstanceToken>>();
-  const TRIGGER_SURFACE_BY_OWNER = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
+  const TRIGGER_GROUP_MEMBERS_BY_ANCHOR = new WeakMap<
+    LogicalInstanceToken,
+    Set<LogicalInstanceToken>
+  >();
+  const TRIGGER_GROUP_SURFACE_BY_ANCHOR = new WeakMap<LogicalInstanceToken, LogicalInstanceToken>();
   const TRIGGER_SURFACE_LISTENERS = new WeakMap<LogicalInstanceToken, Set<() => void>>();
   const TRIGGER_TOKENS = new WeakSet<LogicalInstanceToken>();
 
   function notifyTriggerSurface(owner: LogicalInstanceToken): void {
     syncTriggerGroupEventTargets(owner);
-    const members = TRIGGER_MEMBERS_BY_OWNER.get(owner);
+    const members = TRIGGER_GROUP_MEMBERS_BY_ANCHOR.get(owner);
     if (!members) return;
-    const surface = TRIGGER_SURFACE_BY_OWNER.get(owner);
+    const surface = TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner);
     for (const member of members) {
       const memberRoot = INSTANCE_BY_TOKEN.get(member);
       if (memberRoot && member !== surface) options.releaseTriggerSurface?.(memberRoot);
@@ -146,7 +149,7 @@ export function createInstanceTreeMarkers(
   }
 
   function syncTriggerGroupEventTargets(owner: LogicalInstanceToken): void {
-    for (const member of TRIGGER_MEMBERS_BY_OWNER.get(owner) ?? []) {
+    for (const member of TRIGGER_GROUP_MEMBERS_BY_ANCHOR.get(owner) ?? []) {
       syncLogicalEventTarget(member);
     }
   }
@@ -156,14 +159,14 @@ export function createInstanceTreeMarkers(
     owner: LogicalInstanceToken,
     makeSurface: boolean
   ): void {
-    let members = TRIGGER_MEMBERS_BY_OWNER.get(owner);
+    let members = TRIGGER_GROUP_MEMBERS_BY_ANCHOR.get(owner);
     if (!members) {
       members = new Set();
-      TRIGGER_MEMBERS_BY_OWNER.set(owner, members);
+      TRIGGER_GROUP_MEMBERS_BY_ANCHOR.set(owner, members);
     }
     members.delete(token);
     members.add(token);
-    const currentSurface = TRIGGER_SURFACE_BY_OWNER.get(owner);
+    const currentSurface = TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner);
     let parent = currentSurface ? PARENT_BY_TOKEN.get(currentSurface) : undefined;
     let currentIsDeeper = false;
     while (parent) {
@@ -176,7 +179,7 @@ export function createInstanceTreeMarkers(
 
     if ((makeSurface && !currentIsDeeper) || !currentSurface) {
       const previousRoot = currentSurface ? INSTANCE_BY_TOKEN.get(currentSurface) : null;
-      TRIGGER_SURFACE_BY_OWNER.set(owner, token);
+      TRIGGER_GROUP_SURFACE_BY_ANCHOR.set(owner, token);
       const nextRoot = INSTANCE_BY_TOKEN.get(token);
       if (previousRoot && previousRoot !== nextRoot) {
         options.releaseTriggerSurface?.(previousRoot);
@@ -192,24 +195,24 @@ export function createInstanceTreeMarkers(
 
   function unregisterTriggerMember(
     token: LogicalInstanceToken,
-    owner: LogicalInstanceToken = ROUTE_OWNER_BY_TOKEN.get(token) ?? token
+    owner: LogicalInstanceToken = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token
   ): void {
-    const members = TRIGGER_MEMBERS_BY_OWNER.get(owner);
+    const members = TRIGGER_GROUP_MEMBERS_BY_ANCHOR.get(owner);
     if (!members?.delete(token)) return;
-    if (TRIGGER_SURFACE_BY_OWNER.get(owner) !== token) return;
+    if (TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner) !== token) return;
 
     const connected = Array.from(members).filter(
       (member) => INSTANCE_BY_TOKEN.get(member)?.isConnected
     );
     const fallback = connected.at(-1) ?? Array.from(members).at(-1) ?? owner;
-    TRIGGER_SURFACE_BY_OWNER.set(owner, fallback);
+    TRIGGER_GROUP_SURFACE_BY_ANCHOR.set(owner, fallback);
     notifyTriggerSurface(owner);
   }
 
   function syncLogicalEventTarget(token: LogicalInstanceToken): void {
     const bridge = getLogicalEventTarget(token) as DynamicEventTarget;
-    const owner = ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
-    const surface = TRIGGER_SURFACE_BY_OWNER.get(owner) ?? owner;
+    const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
+    const surface = TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner) ?? owner;
     if (surface !== token) {
       bridge.setTarget(getLogicalEventTarget(surface));
       return;
@@ -217,19 +220,19 @@ export function createInstanceTreeMarkers(
     bridge.setTarget(BOUND_EVENT_TARGET_BY_TOKEN.get(token) ?? null);
   }
 
-  function updateTriggerRouteOwner(token: LogicalInstanceToken, owner: LogicalInstanceToken): void {
-    const previousOwner = ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
+  function mergeTriggerGroup(token: LogicalInstanceToken, owner: LogicalInstanceToken): void {
+    const previousOwner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
     if (previousOwner !== owner) unregisterTriggerMember(token, previousOwner);
-    ROUTE_OWNER_BY_TOKEN.set(token, owner);
+    TRIGGER_GROUP_ANCHOR_BY_TOKEN.set(token, owner);
     TRIGGER_TOKENS.add(token);
     registerTriggerMember(token, owner, true);
     (token as Record<symbol, unknown>)[TRIGGER_OWNER_MARK] = owner;
-    projectRouteOwner(token);
+    projectTriggerGroupAnchor(token);
     syncLogicalEventTarget(token);
     notifyTriggerSurface(owner);
   }
 
-  function recomputeTriggerRoute(token: LogicalInstanceToken): void {
+  function recomputeTriggerGroup(token: LogicalInstanceToken): void {
     if (!TRIGGER_TOKENS.has(token)) return;
     let owner = token;
     let parent = PARENT_BY_TOKEN.get(token);
@@ -237,11 +240,11 @@ export function createInstanceTreeMarkers(
       owner = parent;
       parent = PARENT_BY_TOKEN.get(parent);
     }
-    updateTriggerRouteOwner(token, owner);
+    mergeTriggerGroup(token, owner);
   }
 
   function recomputeTriggerBranch(token: LogicalInstanceToken): void {
-    recomputeTriggerRoute(token);
+    recomputeTriggerGroup(token);
     for (const child of CHILDREN_BY_TOKEN.get(token) ?? []) {
       recomputeTriggerBranch(child);
     }
@@ -268,10 +271,10 @@ export function createInstanceTreeMarkers(
     recomputeTriggerBranch(token);
   }
 
-  function projectRouteOwner(token: LogicalInstanceToken): void {
+  function projectTriggerGroupAnchor(token: LogicalInstanceToken): void {
     const root = INSTANCE_BY_TOKEN.get(token);
     if (!root) return;
-    const owner = ROUTE_OWNER_BY_TOKEN.get(token);
+    const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token);
     if (owner && TRIGGER_TOKENS.has(token)) {
       (root as ElementWithProtoParent)[TRIGGER_OWNER_MARK] = owner;
     } else delete (root as ElementWithProtoParent)[TRIGGER_OWNER_MARK];
@@ -282,7 +285,7 @@ export function createInstanceTreeMarkers(
     // cross-adapter ownership marks (for example as-trigger confirmation).
     const token = {} as LogicalInstanceToken;
     PROTO_BY_TOKEN.set(token, proto);
-    ROUTE_OWNER_BY_TOKEN.set(token, token);
+    TRIGGER_GROUP_ANCHOR_BY_TOKEN.set(token, token);
     return token;
   }
 
@@ -303,10 +306,10 @@ export function createInstanceTreeMarkers(
     TOKEN_BY_INSTANCE.set(el, token);
     INSTANCE_BY_TOKEN.set(token, el);
     PROTO_BY_TOKEN.set(token, proto);
-    projectRouteOwner(token);
+    projectTriggerGroupAnchor(token);
 
     if (TRIGGER_TOKENS.has(token)) {
-      const owner = ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
+      const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
       registerTriggerMember(token, owner, true);
       notifyTriggerSurface(owner);
     }
@@ -335,20 +338,20 @@ export function createInstanceTreeMarkers(
     unregisterTriggerMember(token);
   }
 
-  function setLogicalEventRouteOwner(
+  function mergeLogicalTriggerGroup(
     token: LogicalInstanceToken,
-    owner: LogicalInstanceToken
+    anchor: LogicalInstanceToken
   ): void {
-    updateTriggerRouteOwner(token, owner);
+    mergeTriggerGroup(token, anchor);
     for (const child of CHILDREN_BY_TOKEN.get(token) ?? []) recomputeTriggerBranch(child);
     queueMicrotask(() => {
-      notifyTriggerSurface(owner);
-      queueMicrotask(() => notifyTriggerSurface(owner));
+      notifyTriggerSurface(anchor);
+      queueMicrotask(() => notifyTriggerSurface(anchor));
     });
   }
 
-  function getLogicalEventRouteOwner(token: LogicalInstanceToken): LogicalInstanceToken {
-    return ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
+  function getLogicalTriggerGroupAnchor(token: LogicalInstanceToken): LogicalInstanceToken {
+    return TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
   }
 
   function getLogicalEventRouteSurfaceForTarget(
@@ -368,8 +371,42 @@ export function createInstanceTreeMarkers(
       if (cur instanceof HTMLElement) {
         const token = TOKEN_BY_INSTANCE.get(cur);
         if (token) {
-          const owner = ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
-          return TRIGGER_SURFACE_BY_OWNER.get(owner) ?? token;
+          const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
+          return TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner) ?? token;
+        }
+
+        const linkedParent = readProtoParentMark(cur) ?? PROTO_PARENT_BY_INSTANCE.get(cur) ?? null;
+        if (linkedParent && linkedParent !== cur) {
+          cur = linkedParent;
+          continue;
+        }
+      }
+
+      cur = cur.parentNode;
+    }
+    return null;
+  }
+
+  function resolveLogicalTriggerEventRouteForTarget(
+    target: EventTarget | null
+  ): { matched: true; accepted: boolean; surface: LogicalInstanceToken } | null {
+    let cur: Node | null = target instanceof Node ? target : null;
+    const visited = new Set<Node>();
+    while (cur) {
+      if (visited.has(cur)) return null;
+      visited.add(cur);
+
+      if (typeof ShadowRoot !== 'undefined' && cur instanceof ShadowRoot) {
+        cur = cur.host;
+        continue;
+      }
+
+      if (cur instanceof HTMLElement) {
+        const token = TOKEN_BY_INSTANCE.get(cur);
+        if (token && TRIGGER_TOKENS.has(token)) {
+          const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
+          const surface = TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner) ?? token;
+          return { matched: true, accepted: token === surface, surface };
         }
 
         const linkedParent = readProtoParentMark(cur) ?? PROTO_PARENT_BY_INSTANCE.get(cur) ?? null;
@@ -385,8 +422,8 @@ export function createInstanceTreeMarkers(
   }
 
   function getLogicalTriggerSurfaceOwner(token: LogicalInstanceToken): LogicalInstanceToken {
-    const owner = ROUTE_OWNER_BY_TOKEN.get(token) ?? token;
-    return TRIGGER_SURFACE_BY_OWNER.get(owner) ?? token;
+    const owner = TRIGGER_GROUP_ANCHOR_BY_TOKEN.get(token) ?? token;
+    return TRIGGER_GROUP_SURFACE_BY_ANCHOR.get(owner) ?? token;
   }
 
   function getLogicalTriggerSurfaceRoot(token: LogicalInstanceToken): HTMLElement | null {
@@ -512,9 +549,14 @@ export function createInstanceTreeMarkers(
     getLogicalParent,
     getLogicalRoot,
     getLogicalPrototype,
-    setLogicalEventRouteOwner,
-    getLogicalEventRouteOwner,
+    mergeLogicalTriggerGroup,
+    getLogicalTriggerGroupAnchor,
+    /** @deprecated Use mergeLogicalTriggerGroup. */
+    setLogicalEventRouteOwner: mergeLogicalTriggerGroup,
+    /** @deprecated Use getLogicalTriggerGroupAnchor. */
+    getLogicalEventRouteOwner: getLogicalTriggerGroupAnchor,
     getLogicalEventRouteSurfaceForTarget,
+    resolveLogicalTriggerEventRouteForTarget,
     getLogicalTriggerSurfaceOwner,
     getLogicalTriggerSurfaceRoot,
     subscribeLogicalTriggerSurface,

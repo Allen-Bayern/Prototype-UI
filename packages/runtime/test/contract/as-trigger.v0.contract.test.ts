@@ -8,11 +8,11 @@ import { executeWithHost } from '../../src';
 import type { PropsBaseType } from '@proto.ui/types';
 import { EVENT_ROOT_TARGET_CAP, EVENT_GLOBAL_TARGET_CAP } from '@proto.ui/module-event';
 import {
-  AS_TRIGGER_GET_EVENT_TARGET_CAP,
+  AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
   AS_TRIGGER_GET_PROTO_CAP,
   AS_TRIGGER_INSTANCE_CAP,
+  AS_TRIGGER_MERGE_GROUP_CAP,
   AS_TRIGGER_PARENT_CAP,
-  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
 } from '@proto.ui/module-as-trigger';
 
 class FakeTarget implements EventTarget {
@@ -46,7 +46,7 @@ const createHost = <P extends PropsBaseType>(name: string) => {
 };
 
 describe('runtime contract: asTrigger (v0)', () => {
-  it('AS-TRIGGER-0050: apply() marks self as confirm owner', () => {
+  it('AS-TRIGGER-0050: apply() marks a standalone trigger as a group member', () => {
     const childTarget = new FakeTarget() as any;
 
     const P = definePrototype({
@@ -76,12 +76,12 @@ describe('runtime contract: asTrigger (v0)', () => {
     expect(childTarget[Symbol.for('@proto.ui/as-trigger/confirm-owner')]).toBe(true);
   });
 
-  it('AS-TRIGGER-0100: when parent is trigger, redirect semantic events while retaining self host events', () => {
+  it('AS-TRIGGER-0100: directly nested triggers merge into one group and retain local host events', () => {
     const parentInstance = {};
     const childInstance = {};
     const parentTarget = new FakeTarget();
     const childTarget = new FakeTarget();
-    const routeOwners = new Map<unknown, unknown>();
+    const groupAnchors = new Map<unknown, unknown>();
 
     const parentProto: Prototype = {
       name: 'x-parent-trigger',
@@ -116,11 +116,11 @@ describe('runtime contract: asTrigger (v0)', () => {
         [AS_TRIGGER_PARENT_CAP, (inst: any) => (inst === childInstance ? parentInstance : null)],
         [AS_TRIGGER_GET_PROTO_CAP, (inst: any) => (inst === parentInstance ? parentProto : null)],
         [
-          AS_TRIGGER_SET_ROUTE_OWNER_CAP,
-          (inst: unknown, owner: unknown) => routeOwners.set(inst, owner),
+          AS_TRIGGER_MERGE_GROUP_CAP,
+          (inst: unknown, anchor: unknown) => groupAnchors.set(inst, anchor),
         ],
         [
-          AS_TRIGGER_GET_EVENT_TARGET_CAP,
+          AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
           (inst: unknown) => (inst === parentInstance ? parentTarget : null),
         ],
       ]);
@@ -130,17 +130,18 @@ describe('runtime contract: asTrigger (v0)', () => {
 
     expect(parentTarget.logs).toEqual(['add']);
     expect(childTarget.logs).toEqual(['add']);
-    expect(routeOwners.get(childInstance)).toBe(parentInstance);
+    expect(groupAnchors.get(childInstance)).toBe(parentInstance);
+    expect(groupAnchors.get(parentInstance)).toBe(parentInstance);
   });
 
-  it('AS-TRIGGER-0150: multi-level trigger chain redirects semantic events to the outermost trigger', () => {
+  it('AS-TRIGGER-0150: a multi-level trigger chain forms one group anchored at the outermost member', () => {
     const grandInstance = {};
     const parentInstance = {};
     const childInstance = {};
     const grandTarget = new FakeTarget();
     const parentTarget = new FakeTarget();
     const childTarget = new FakeTarget();
-    const routeOwners = new Map<unknown, unknown>();
+    const groupAnchors = new Map<unknown, unknown>();
 
     const grandProto: Prototype = { name: 'x-grand-trigger', setup() {} } as any;
     const parentProto: Prototype = { name: 'x-parent-trigger', setup() {} } as any;
@@ -190,11 +191,11 @@ describe('runtime contract: asTrigger (v0)', () => {
             inst === parentInstance ? parentProto : inst === grandInstance ? grandProto : null,
         ],
         [
-          AS_TRIGGER_SET_ROUTE_OWNER_CAP,
-          (inst: unknown, owner: unknown) => routeOwners.set(inst, owner),
+          AS_TRIGGER_MERGE_GROUP_CAP,
+          (inst: unknown, anchor: unknown) => groupAnchors.set(inst, anchor),
         ],
         [
-          AS_TRIGGER_GET_EVENT_TARGET_CAP,
+          AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
           (inst: unknown) => (inst === grandInstance ? grandTarget : null),
         ],
       ]);
@@ -205,7 +206,9 @@ describe('runtime contract: asTrigger (v0)', () => {
     expect(grandTarget.logs).toEqual(['add']);
     expect(parentTarget.logs).toEqual([]);
     expect(childTarget.logs).toEqual(['add']);
-    expect(routeOwners.get(childInstance)).toBe(grandInstance);
+    expect(groupAnchors.get(childInstance)).toBe(grandInstance);
+    expect(groupAnchors.get(parentInstance)).toBe(grandInstance);
+    expect(groupAnchors.get(grandInstance)).toBe(grandInstance);
   });
 
   it('AS-TRIGGER-0200: when parent is NOT trigger, use self root target', () => {

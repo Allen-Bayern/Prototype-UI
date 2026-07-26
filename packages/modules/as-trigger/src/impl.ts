@@ -5,10 +5,10 @@ import type { EventPort } from '@proto.ui/module-event';
 
 import {
   AS_TRIGGER_GET_PROTO_CAP,
-  AS_TRIGGER_GET_EVENT_TARGET_CAP,
+  AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
   AS_TRIGGER_INSTANCE_CAP,
+  AS_TRIGGER_MERGE_GROUP_CAP,
   AS_TRIGGER_PARENT_CAP,
-  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
   type AsTriggerParentGetter,
   type AsTriggerPrototypeGetter,
 } from './caps';
@@ -70,8 +70,8 @@ export class AsTriggerModuleImpl extends ModuleBase {
     const getPrototype = this.getPrototypeGetter();
 
     let cur = getParent(self);
-    let lastTrigger: unknown | null = null;
-    const triggerAncestors: unknown[] = [];
+    let groupAnchor: unknown = self;
+    const groupMembers: unknown[] = [self];
 
     while (cur) {
       const curProto = getPrototype(cur);
@@ -89,28 +89,26 @@ export class AsTriggerModuleImpl extends ModuleBase {
 
       if (!hasTrigger) break;
 
-      lastTrigger = cur;
-      triggerAncestors.push(cur);
+      groupAnchor = cur;
+      groupMembers.push(cur);
       cur = getParent(cur);
     }
 
-    const routeOwner = lastTrigger ?? self;
-    if (this.caps.has(AS_TRIGGER_SET_ROUTE_OWNER_CAP)) {
-      const setRouteOwner = this.caps.get(AS_TRIGGER_SET_ROUTE_OWNER_CAP);
-      setRouteOwner(self, routeOwner);
-      for (const ancestor of triggerAncestors) setRouteOwner(ancestor, routeOwner);
+    if (this.caps.has(AS_TRIGGER_MERGE_GROUP_CAP)) {
+      const mergeGroup = this.caps.get(AS_TRIGGER_MERGE_GROUP_CAP);
+      for (const member of groupMembers) mergeGroup(member, groupAnchor);
     } else if (self && (typeof self === 'object' || typeof self === 'function')) {
       // Backward-compatible fallback for hosts that still use EventTarget
       // instances as their logical trigger identity.
-      (self as any)[TRIGGER_OWNER_MARK] = lastTrigger ?? true;
+      (self as any)[TRIGGER_OWNER_MARK] = groupAnchor === self ? true : groupAnchor;
     }
 
-    const eventTarget = this.caps.has(AS_TRIGGER_GET_EVENT_TARGET_CAP)
-      ? (this.caps.get(AS_TRIGGER_GET_EVENT_TARGET_CAP)(self) ??
-        (lastTrigger ? this.caps.get(AS_TRIGGER_GET_EVENT_TARGET_CAP)(lastTrigger) : null))
+    const eventTarget = this.caps.has(AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP)
+      ? (this.caps.get(AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP)(self) ??
+        this.caps.get(AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP)(groupAnchor))
       : (self as EventTarget);
     if (!eventTarget) {
-      throw capUnavailable(AS_TRIGGER_GET_EVENT_TARGET_CAP.id, {
+      throw capUnavailable(AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP.id, {
         prototypeName: this.prototypeName,
       });
     }
