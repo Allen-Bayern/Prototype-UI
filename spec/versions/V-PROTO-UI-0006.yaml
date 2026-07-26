@@ -1,12 +1,12 @@
 id: V-PROTO-UI-0006
 type: version
 title: Proto UI 0.2.0-rc.6
-status: draft
+status: active
 since: 0.2.0-rc.6
-summary: Draft release train stabilizing Shadcn Switch geometry, Dialog composition and focus, component-local preset authoring, and shared Web adapter conformance.
+summary: Sixth globally exact release candidate stabilizing Shadcn Switch geometry, Dialog composition and focus, component-local preset authoring, and shared Web adapter conformance.
 statement:
-  en: Proto UI 0.2.0-rc.6 is one reviewed draft ecosystem release identity shared exactly by every public @proto.ui package and the corresponding staged spec snapshot. It does not claim npm, Git tag, GitHub Release, or immutable snapshot evidence before publication.
-  zh-CN: Proto UI 0.2.0-rc.6 是由全部公开 @proto.ui package 与对应暂存 spec snapshot 精确共享、处于评审阶段的一次生态发行身份；发布前不声称已存在 npm、Git tag、GitHub Release 或不可变 snapshot 证据。
+  en: Proto UI 0.2.0-rc.6 is one ecosystem release identity shared exactly by every public @proto.ui package and the corresponding immutable spec snapshot.
+  zh-CN: Proto UI 0.2.0-rc.6 是由全部公开 @proto.ui package 与对应不可变 spec snapshot 精确共享的一次生态发行身份。
 release:
   version: 0.2.0-rc.6
   channel: prerelease
@@ -14,6 +14,9 @@ release:
   npmDistTag: next
   packageVersionPolicy: exact
   packageScope: public-@proto.ui
+  publishedAt: 2026-07-26T04:13:02Z
+  commit: e4243850e0d9ad0dce3e9d6e099ca70bc2df0b27
+  specSnapshotDigest: sha256:ccec6ecd79b276f67eac15ae3d4e153dc03f2e2ae975498b20dd4aa6e6d28a13
 dependsOn:
   decisions:
     - D-GLOBAL-RELEASE-VERSION-0001
@@ -39,8 +42,10 @@ revisions:
   - version: 0.2.0-rc.6
     change: introduced
     summary: Opened the full draft rc.6 release train with aligned package manifests and reviewed release assets while keeping publication evidence pending.
+  - version: 0.2.0-rc.6
+    change: updated
+    summary: Activated after publishing all 37 packages, the Git tag, GitHub prerelease, and immutable spec snapshot evidence.
 tags:
   - release
   - prerelease
   - global-version
-  - draft
