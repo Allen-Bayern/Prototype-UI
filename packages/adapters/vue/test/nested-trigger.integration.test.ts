@@ -5,7 +5,7 @@ import { createVueAdapter } from '../src';
 import { flushVue, VueAny } from './utils/vue';
 
 describe('adapter-vue: nested trigger routing', () => {
-  it('mounts nested adapted triggers and routes one activation through the outermost owner', async () => {
+  it('merges nested adapted triggers while accepting activation only from the inner surface', async () => {
     const adapt = createVueAdapter(VueAny);
     const Button = adapt(button, {
       rootTag: 'div',
@@ -35,6 +35,12 @@ describe('adapter-vue: nested trigger routing', () => {
     expect(roots[0]!.hasAttribute('role')).toBe(false);
     expect(roots[1]!.tabIndex).toBe(0);
     expect(roots[1]!.getAttribute('role')).toBe('button');
+
+    roots[0]!.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+    await flushVue();
+
+    expect(innerClick).not.toHaveBeenCalled();
+    expect(outerClick).not.toHaveBeenCalled();
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
     roots[1]!.focus();

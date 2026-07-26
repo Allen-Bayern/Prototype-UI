@@ -42,8 +42,8 @@ describe('adapter-base: logical instance tree', () => {
     const secondTarget = new EventTarget();
     const listener = vi.fn();
 
-    tree.setLogicalEventRouteOwner(parent, parent);
-    tree.setLogicalEventRouteOwner(child, parent);
+    tree.mergeLogicalTriggerGroup(parent, parent);
+    tree.mergeLogicalTriggerGroup(child, parent);
     const routeTarget = tree.getLogicalEventTarget(parent);
     routeTarget.addEventListener('press.commit', listener);
 
@@ -72,11 +72,11 @@ describe('adapter-base: logical instance tree', () => {
       Record<symbol, unknown>;
     const ownerMark = Symbol.for('@proto.ui/as-trigger/confirm-owner');
 
-    tree.setLogicalEventRouteOwner(child, parent);
+    tree.mergeLogicalTriggerGroup(child, parent);
     tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
 
     expect(childRoot[ownerMark]).toBe(parent);
-    expect(tree.getLogicalEventRouteOwner(child)).toBe(parent);
+    expect(tree.getLogicalTriggerGroupAnchor(child)).toBe(parent);
   });
 
   it('keeps the deepest continuous trigger as the shared host surface regardless of setup order', () => {
@@ -92,8 +92,8 @@ describe('adapter-base: logical instance tree', () => {
     tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
     tree.subscribeLogicalTriggerSurface(parent, listener);
 
-    tree.setLogicalEventRouteOwner(child, parent);
-    tree.setLogicalEventRouteOwner(parent, parent);
+    tree.mergeLogicalTriggerGroup(child, parent);
+    tree.mergeLogicalTriggerGroup(parent, parent);
 
     expect(tree.getLogicalTriggerSurfaceOwner(parent)).toBe(child);
     expect(tree.getLogicalTriggerSurfaceRoot(parent)).toBe(childRoot);
@@ -113,15 +113,43 @@ describe('adapter-base: logical instance tree', () => {
     childRoot.appendChild(childLabel);
     parentRoot.appendChild(childRoot);
     tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
-    tree.setLogicalEventRouteOwner(child, child);
+    tree.mergeLogicalTriggerGroup(child, child);
     tree.markProtoInstance(parentRoot, { name: 'parent', setup: () => undefined }, parent);
-    tree.setLogicalEventRouteOwner(parent, parent);
+    tree.mergeLogicalTriggerGroup(parent, parent);
 
     expect(tree.getLogicalParent(child)).toBe(parent);
-    expect(tree.getLogicalEventRouteOwner(child)).toBe(parent);
+    expect(tree.getLogicalTriggerGroupAnchor(child)).toBe(parent);
     expect(tree.getLogicalEventRouteSurfaceForTarget(childRoot)).toBe(child);
     expect(tree.getLogicalEventRouteSurfaceForTarget(childLabel)).toBe(child);
     expect(tree.getLogicalTriggerSurfaceOwner(parent)).toBe(child);
     expect(childRoot[ownerMark]).toBe(parent);
+  });
+
+  it('admits semantic activation only from the current trigger-group surface', () => {
+    const tree = createInstanceTreeMarkers('@proto.ui/test/trigger-hit-origin-tree');
+    const parent = tree.createLogicalInstance({ name: 'parent', setup: () => undefined });
+    const child = tree.createLogicalInstance({ name: 'child', setup: () => undefined });
+    const parentRoot = document.createElement('div');
+    const childRoot = document.createElement('button');
+    const childLabel = document.createTextNode('Close');
+
+    childRoot.appendChild(childLabel);
+    parentRoot.appendChild(childRoot);
+    tree.bindLogicalParent(child, parent);
+    tree.markProtoInstance(parentRoot, { name: 'parent', setup: () => undefined }, parent);
+    tree.markProtoInstance(childRoot, { name: 'child', setup: () => undefined }, child);
+    tree.mergeLogicalTriggerGroup(parent, parent);
+    tree.mergeLogicalTriggerGroup(child, parent);
+
+    expect(tree.resolveLogicalTriggerEventRouteForTarget(parentRoot)).toEqual({
+      matched: true,
+      accepted: false,
+      surface: child,
+    });
+    expect(tree.resolveLogicalTriggerEventRouteForTarget(childLabel)).toEqual({
+      matched: true,
+      accepted: true,
+      surface: child,
+    });
   });
 });

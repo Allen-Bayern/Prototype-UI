@@ -32,7 +32,7 @@ import {
   bindLogicalParent,
   bindLogicalEventTarget,
   createLogicalInstance,
-  getLogicalEventRouteSurfaceForTarget,
+  resolveLogicalTriggerEventRouteForTarget,
   markProtoInstance,
   unbindProtoInstance,
   unbindLogicalEventTarget,
@@ -345,7 +345,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
         const router = createWebProtoEventRouter({
           rootEl,
           instanceToken: instanceTokenRef.current,
-          resolveEventRouteOwner: getLogicalEventRouteSurfaceForTarget,
+          resolveSemanticEventRoute: resolveLogicalTriggerEventRouteForTarget,
           globalEl: typeof window === 'undefined' ? rootEl : window,
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });

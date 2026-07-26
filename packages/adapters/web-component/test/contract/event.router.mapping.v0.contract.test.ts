@@ -233,6 +233,43 @@ describe('contract: adapter-web-component / event router mapping (v0)', () => {
     parent.remove();
   });
 
+  it('rejects a native click that originates on a non-surface trigger-group member', () => {
+    const parent = document.createElement('div');
+    const child = document.createElement('button');
+    const parentToken = {};
+    const childToken = {};
+    parent.appendChild(child);
+    document.body.appendChild(parent);
+
+    const resolveSemanticEventRoute = (target: EventTarget | null) => {
+      if (target === parent) {
+        return { matched: true as const, accepted: false, surface: childToken };
+      }
+      if (target === child) {
+        return { matched: true as const, accepted: true, surface: childToken };
+      }
+      return null;
+    };
+    const childRouter = createWebProtoEventRouter({
+      rootEl: child,
+      instanceToken: childToken,
+      resolveSemanticEventRoute,
+      globalEl: window,
+      isEnabled: () => true,
+    });
+    let childCalls = 0;
+    childRouter.rootTarget.addEventListener('press.commit', () => childCalls++);
+
+    parent.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, detail: 1 }));
+    expect(childCalls).toBe(0);
+
+    child.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, detail: 1 }));
+    expect(childCalls).toBe(1);
+
+    childRouter.dispose();
+    parent.remove();
+  });
+
   it('isEnabled gate: disabled => MUST NOT emit', async () => {
     const el = document.createElement('div');
     const global = new EventTarget();

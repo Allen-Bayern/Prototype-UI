@@ -9,8 +9,15 @@ const PROTO_INSTANCE_MARKS = [
   Symbol.for('@proto.ui/adapter-vue/__proto_instance'),
 ] as const;
 const TRIGGER_OWNER_MARK = Symbol.for('@proto.ui/as-trigger/confirm-owner');
+const REJECTED_TRIGGER_ROUTE = Symbol('rejected-trigger-route');
 
 type ElementWithSymbols = HTMLElement & Record<symbol, unknown>;
+
+export type SemanticEventRouteResolution = {
+  matched: true;
+  accepted: boolean;
+  surface: object;
+};
 
 type Listener = {
   type: string;
@@ -25,6 +32,8 @@ const activeRouterByRoot = new WeakMap<HTMLElement, object>();
 export function createWebProtoEventRouter(opt: {
   rootEl: HTMLElement;
   instanceToken?: object;
+  resolveSemanticEventRoute?: (target: EventTarget | null) => SemanticEventRouteResolution | null;
+  /** @deprecated Use resolveSemanticEventRoute so non-surface hits can be rejected. */
   resolveEventRouteOwner?: (target: EventTarget | null) => object | null;
   globalEl?: EventTarget; // window by default
   isEnabled: () => boolean; // bridge to eventGate
@@ -134,7 +143,27 @@ export function createWebProtoEventRouter(opt: {
   function resolveOwningTrigger(
     native: Event,
     options?: { includeActiveFallback?: boolean }
-  ): object | HTMLElement | null {
+  ): object | HTMLElement | null | typeof REJECTED_TRIGGER_ROUTE {
+    if (opt.resolveSemanticEventRoute) {
+      if (typeof native.composedPath === 'function') {
+        for (const entry of native.composedPath()) {
+          const resolution = opt.resolveSemanticEventRoute(entry);
+          if (!resolution) continue;
+          return resolution.accepted ? resolution.surface : REJECTED_TRIGGER_ROUTE;
+        }
+      }
+      const resolution = opt.resolveSemanticEventRoute(native.target);
+      if (resolution) {
+        return resolution.accepted ? resolution.surface : REJECTED_TRIGGER_ROUTE;
+      }
+      if (options?.includeActiveFallback !== false) {
+        const active = typeof document !== 'undefined' ? document.activeElement : null;
+        const activeResolution = opt.resolveSemanticEventRoute(active);
+        if (activeResolution) {
+          return activeResolution.accepted ? activeResolution.surface : REJECTED_TRIGGER_ROUTE;
+        }
+      }
+    }
     if (opt.resolveEventRouteOwner) {
       if (typeof native.composedPath === 'function') {
         for (const entry of native.composedPath()) {
@@ -182,6 +211,7 @@ export function createWebProtoEventRouter(opt: {
 
   function shouldRouteToCurrentRoot(native: Event, options?: { includeActiveFallback?: boolean }) {
     const triggerOwner = resolveOwningTrigger(native, options);
+    if (triggerOwner === REJECTED_TRIGGER_ROUTE) return false;
     if (triggerOwner) return triggerOwner === (opt.instanceToken ?? rootEl);
 
     const owner = resolveOwningProtoInstance(native, options);

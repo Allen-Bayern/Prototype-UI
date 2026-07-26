@@ -409,7 +409,7 @@ describe('adapter-web-component: dialog overlay', () => {
     document.body.style.overflow = '';
   });
 
-  it('treats nested dialog-close and button triggers as one focus-scope target', async () => {
+  it('merges dialog-close and button as one group with an inner hit and focus surface', async () => {
     registerDialogWcs();
 
     const root = document.createElement('wc-base-dialog-root') as any;
@@ -444,6 +444,13 @@ describe('adapter-web-component: dialog overlay', () => {
     expect(cancel.hasAttribute('role')).toBe(false);
     expect(document.activeElement).toBe(cancelButton);
     expect(cancelButton.getExposes().focusVisible.get()).toBe(true);
+
+    cancel.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true, detail: 1 }));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(content.hasAttribute('data-pui-view-detached')).toBe(false);
 
     cancelButton.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
     await Promise.resolve();

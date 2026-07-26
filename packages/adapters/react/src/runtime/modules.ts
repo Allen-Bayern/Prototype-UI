@@ -10,10 +10,10 @@ import {
 } from '@proto.ui/module-anatomy';
 import {
   AS_TRIGGER_GET_PROTO_CAP,
-  AS_TRIGGER_GET_EVENT_TARGET_CAP,
+  AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
   AS_TRIGGER_INSTANCE_CAP,
+  AS_TRIGGER_MERGE_GROUP_CAP,
   AS_TRIGGER_PARENT_CAP,
-  AS_TRIGGER_SET_ROUTE_OWNER_CAP,
 } from '@proto.ui/module-as-trigger';
 import { A11Y_PROJECT_CAP, createWebA11yProjector } from '@proto.ui/module-a11y';
 import { createWebBoundaryHostBridge, BOUNDARY_HOST_BRIDGE_CAP } from '@proto.ui/module-boundary';
@@ -73,7 +73,7 @@ import {
   getLogicalPrototype,
   getLogicalRoot,
   getLogicalTriggerSurfaceRoot,
-  setLogicalEventRouteOwner,
+  mergeLogicalTriggerGroup,
   setProtoParent,
   subscribeLogicalTriggerSurface,
 } from '../platform/instance-tree';
@@ -140,12 +140,12 @@ export function createReactOwnerModules<Props extends PropsBaseType>(
       [AS_TRIGGER_INSTANCE_CAP, instanceToken],
       [AS_TRIGGER_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
       [
-        AS_TRIGGER_SET_ROUTE_OWNER_CAP,
-        (inst: unknown, owner: unknown) =>
-          setLogicalEventRouteOwner(inst as LogicalInstanceToken, owner as LogicalInstanceToken),
+        AS_TRIGGER_MERGE_GROUP_CAP,
+        (inst: unknown, anchor: unknown) =>
+          mergeLogicalTriggerGroup(inst as LogicalInstanceToken, anchor as LogicalInstanceToken),
       ],
       [
-        AS_TRIGGER_GET_EVENT_TARGET_CAP,
+        AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
         (inst: unknown) => getLogicalEventTarget(inst as LogicalInstanceToken),
       ],
       [
@@ -297,12 +297,12 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       [AS_TRIGGER_INSTANCE_CAP, instanceToken],
       [AS_TRIGGER_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
       [
-        AS_TRIGGER_SET_ROUTE_OWNER_CAP,
-        (inst: unknown, owner: unknown) =>
-          setLogicalEventRouteOwner(inst as LogicalInstanceToken, owner as LogicalInstanceToken),
+        AS_TRIGGER_MERGE_GROUP_CAP,
+        (inst: unknown, anchor: unknown) =>
+          mergeLogicalTriggerGroup(inst as LogicalInstanceToken, anchor as LogicalInstanceToken),
       ],
       [
-        AS_TRIGGER_GET_EVENT_TARGET_CAP,
+        AS_TRIGGER_GET_GROUP_EVENT_TARGET_CAP,
         (inst: unknown) => getLogicalEventTarget(inst as LogicalInstanceToken),
       ],
       [
