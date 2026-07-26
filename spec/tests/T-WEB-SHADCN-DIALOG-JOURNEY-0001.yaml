@@ -2,7 +2,7 @@ id: T-WEB-SHADCN-DIALOG-JOURNEY-0001
 type: test
 title: Shared Web adapter Shadcn Dialog interaction journey
 status: draft
-since: 0.2.0-rc.5
+since: 0.2.0-rc.6
 summary: Runs the exact Demo Matrix Shadcn Dialog composition through one DOM-based pointer, keyboard, focus-loop, close, restore, and re-entry journey for every official Web adapter.
 cases:
   - id: T-WEB-SHADCN-DIALOG-JOURNEY-0001-CASE-SHARED-DOM
@@ -74,7 +74,7 @@ exercises:
     - P-SHADCN-DIALOG-CONTENT
     - P-SHADCN-BUTTON
 revisions:
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.6
     change: introduced
     summary: Added the first shared scenario-level DOM conformance journey required for WC, React, and Vue.
 tags: [web, adapter, conformance, journey, e2e, shadcn, dialog, focus]

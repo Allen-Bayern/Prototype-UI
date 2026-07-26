@@ -94,4 +94,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: revised
     summary: Added inherited checked-state translation between translate-x-0 and translate-x-5.
+  - version: 0.2.0-rc.6
+    change: revised
+    summary: Corrected checked travel for symmetric internal gaps and isolated the Thumb shadow from inherited focus-ring offsets.
 tags: [prototype, shadcn, switch, thumb, upstream-derived, delta, compatibility, visual]

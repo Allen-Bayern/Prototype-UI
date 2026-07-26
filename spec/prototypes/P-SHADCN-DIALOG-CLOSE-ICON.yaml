@@ -47,5 +47,8 @@ revisions:
     summary: Added the independent accessible X close surface and preset mapping.
   - version: 0.2.0-rc.5
     change: revised
-    summary: Required context-safe preset connection, pinned placement, and a generated visible focus ring for the default CloseIcon.
+    summary: Required the generated default CloseIcon to connect only after its Dialog parent context exists.
+  - version: 0.2.0-rc.6
+    change: revised
+    summary: Pinned the default CloseIcon placement and focus ring while moving its direct-child preset recipe beside the Dialog prototypes.
 tags: [prototype, shadcn, dialog, close, icon, preset]

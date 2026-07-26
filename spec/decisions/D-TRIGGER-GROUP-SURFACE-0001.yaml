@@ -59,7 +59,7 @@ revisions:
   - version: 0.2.0-rc.3
     change: introduced
     summary: Separated outer behavior ownership from the single inner host interaction surface for continuous trigger groups.
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.6
     change: clarified
     summary: Distinguished semantic surface routing from instance-local host events and required canonical as-trigger ancestry recognition.
 tags: [as-trigger, event, focus, a11y, interaction-surface, composition]

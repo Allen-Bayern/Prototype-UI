@@ -138,4 +138,7 @@ revisions:
   - version: 0.2.0-rc.5
     change: revised
     summary: Moved checked position changes from asymmetric Root padding to the Thumb's inherited checked-state translation and required context-safe preset mounting.
+  - version: 0.2.0-rc.6
+    change: revised
+    summary: Corrected final Thumb geometry and moved the explicit direct-child preset recipe beside the Switch prototypes.
 tags: [prototype, shadcn, switch, root, upstream-derived, delta, compatibility, visual]
