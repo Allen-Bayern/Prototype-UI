@@ -12,8 +12,9 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Proto UI module that provides state expose capability for adapters.",
@@ -37,5 +38,13 @@
     "module",
     "expose",
     "state"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/module-expose-state",
+    "prepack": "pnpm run build"
+  }
 }

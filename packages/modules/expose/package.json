@@ -9,8 +9,9 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Proto UI module that provides expose capability for adapters.",
@@ -33,5 +34,13 @@
     "ui",
     "module",
     "expose"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/module-expose",
+    "prepack": "pnpm run build"
+  }
 }

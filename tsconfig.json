@@ -15,6 +15,19 @@
       "@proto.ui/prototypes-shadcn": ["packages/prototypes/shadcn/src/index.ts"],
       "@proto.ui/prototypes-shadcn/*": ["packages/prototypes/shadcn/src/*/index.ts"],
       "@proto.ui/prototypes-lucide": ["packages/prototypes/lucide/src/index.ts"],
+      "@proto.ui/prototypes-lucide/manifest": [
+        "packages/prototypes/lucide/src/manifest.generated.ts"
+      ],
+      "@proto.ui/prototypes-lucide/snippets": [
+        "packages/prototypes/lucide/src/snippets.generated.ts"
+      ],
+      "@proto.ui/prototypes-lucide/loaders": [
+        "packages/prototypes/lucide/src/loaders.generated.ts"
+      ],
+      "@proto.ui/prototypes-lucide/all": [
+        "packages/prototypes/lucide/src/icons/index.generated.ts"
+      ],
+      "@proto.ui/prototypes-lucide/icons/*": ["packages/prototypes/lucide/src/icons/*.ts"],
       "@proto.ui/prototypes-lucide/*": ["packages/prototypes/lucide/src/*"],
       "@proto.ui/prototypes-*": ["packages/prototypes/*/src"],
       "@proto.ui/*": [

@@ -10,8 +10,9 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Proto UI module that provides rule metadata capability for adapters.",
@@ -35,5 +36,13 @@
     "module",
     "rule",
     "meta"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/module-rule-meta",
+    "prepack": "pnpm run build"
+  }
 }

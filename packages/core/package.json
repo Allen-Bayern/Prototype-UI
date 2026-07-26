@@ -8,12 +8,14 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./internal": {
-      "types": "./src/internal.ts",
-      "default": "./src/internal.ts"
+      "types": "./dist/internal.d.ts",
+      "import": "./dist/internal.js",
+      "default": "./dist/internal.js"
     }
   },
   "description": "Proto UI core syntax and protocol primitives.",
@@ -35,5 +37,13 @@
     "proto",
     "ui",
     "core"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../scripts/build/public-packages.mjs --package @proto.ui/core",
+    "prepack": "pnpm run build"
+  }
 }

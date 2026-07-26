@@ -15,7 +15,9 @@
     "lucide-static": "^1.8.0"
   },
   "scripts": {
-    "generate:icons": "node ./scripts/generate-icons.mjs"
+    "generate:icons": "node ./scripts/generate-icons.mjs",
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/prototypes-lucide",
+    "prepack": "pnpm run build"
   },
   "devDependencies": {
     "@proto.ui/runtime": "workspace:*",
@@ -23,32 +25,39 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./icons": {
-      "types": "./src/icons/index.ts",
-      "default": "./src/icons/index.ts"
+      "types": "./dist/icons/index.d.ts",
+      "import": "./dist/icons/index.js",
+      "default": "./dist/icons/index.js"
     },
     "./icons/*": {
-      "types": "./src/icons/*.ts",
-      "default": "./src/icons/*.ts"
+      "types": "./dist/icons/*.d.ts",
+      "import": "./dist/icons/*.js",
+      "default": "./dist/icons/*.js"
     },
     "./manifest": {
-      "types": "./src/manifest.generated.ts",
-      "default": "./src/manifest.generated.ts"
+      "types": "./dist/manifest.generated.d.ts",
+      "import": "./dist/manifest.generated.js",
+      "default": "./dist/manifest.generated.js"
     },
     "./snippets": {
-      "types": "./src/snippets.generated.ts",
-      "default": "./src/snippets.generated.ts"
+      "types": "./dist/snippets.generated.d.ts",
+      "import": "./dist/snippets.generated.js",
+      "default": "./dist/snippets.generated.js"
     },
     "./loaders": {
-      "types": "./src/loaders.generated.ts",
-      "default": "./src/loaders.generated.ts"
+      "types": "./dist/loaders.generated.d.ts",
+      "import": "./dist/loaders.generated.js",
+      "default": "./dist/loaders.generated.js"
     },
     "./all": {
-      "types": "./src/icons/index.generated.ts",
-      "default": "./src/icons/index.generated.ts"
+      "types": "./dist/icons/index.generated.d.ts",
+      "import": "./dist/icons/index.generated.js",
+      "default": "./dist/icons/index.generated.js"
     }
   },
   "description": "Lucide-based Proto UI icon prototype library and svg render helpers.",
@@ -73,5 +82,10 @@
     "icon",
     "lucide",
     "svg"
+  ],
+  "files": [
+    "dist/",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
   ]
 }

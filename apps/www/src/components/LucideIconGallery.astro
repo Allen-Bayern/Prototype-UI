@@ -20,6 +20,7 @@ const copy =
         copyRender: '复制 render',
         copied: '已复制',
         empty: '没有匹配的图标。',
+        loadMore: '加载更多',
         close: '关闭',
         importPath: '导入路径',
       }
@@ -32,11 +33,20 @@ const copy =
         copyRender: 'Copy render',
         copied: 'Copied',
         empty: 'No icons match your query.',
+        loadMore: 'Load more',
         close: 'Close',
         importPath: 'Import path',
       };
 
 const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.name));
+const initialLimit = 120;
+const iconIndex = icons.map((icon) => [
+  icon.name,
+  icon.importPath,
+  icon.asHookExport,
+  icon.renderExport,
+]);
+const serializedIconIndex = JSON.stringify(iconIndex).replaceAll('<', '\\u003c');
 ---
 
 <section class="lucide-gallery" data-lucide-gallery>
@@ -61,7 +71,7 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
 
   <div class="lucide-gallery__grid" data-icon-grid>
     {
-      icons.map((icon) => (
+      icons.slice(0, initialLimit).map((icon) => (
         <button
           type="button"
           class="lucide-card"
@@ -80,6 +90,11 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
       ))
     }
   </div>
+
+  <script is:inline type="application/json" data-icon-index set:html={serializedIconIndex} />
+  <button type="button" class="lucide-gallery__load-more" data-load-more>
+    {copy.loadMore}
+  </button>
 
   <p class="lucide-gallery__empty" data-empty hidden>{copy.empty}</p>
 
@@ -137,6 +152,8 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
   type ShapeTag = 'path' | 'circle' | 'line' | 'rect' | 'polyline' | 'ellipse' | 'polygon';
   type ShapeAttrs = Record<string, string | number | boolean | null | undefined>;
   type CopyKind = 'asHook' | 'render';
+  type IconIndexEntry = [string, string, string, string];
+  const PAGE_SIZE = 120;
 
   interface ShapeNode {
     tag: ShapeTag;
@@ -338,35 +355,67 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
     delete card.dataset.iconLoading;
   }
 
-  function initSearch(root: HTMLElement): void {
+  function createIconCard(entry: IconIndexEntry): HTMLButtonElement {
+    const [name, importPath, asHookExport, renderExport] = entry;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'lucide-card';
+    card.dataset.iconCard = '';
+    card.dataset.iconName = name;
+    card.dataset.importPath = importPath;
+    card.dataset.asHookExport = asHookExport;
+    card.dataset.renderExport = renderExport;
+    card.setAttribute('aria-label', `icon ${name}`);
+    card.title = name;
+
+    const preview = document.createElement('span');
+    preview.className = 'lucide-card__preview';
+    preview.dataset.iconPreview = '';
+    preview.setAttribute('aria-hidden', 'true');
+    const placeholder = document.createElement('span');
+    placeholder.className = 'lucide-card__placeholder';
+    placeholder.textContent = name[0]?.toUpperCase() || '?';
+    preview.appendChild(placeholder);
+    card.appendChild(preview);
+    return card;
+  }
+
+  function initCatalog(root: HTMLElement): void {
     const input = root.querySelector<HTMLInputElement>('[data-icon-search]');
-    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-icon-card]'));
+    const grid = root.querySelector<HTMLElement>('[data-icon-grid]');
+    const indexElement = root.querySelector<HTMLScriptElement>('[data-icon-index]');
     const empty = root.querySelector<HTMLElement>('[data-empty]');
     const count = root.querySelector<HTMLElement>('[data-visible-count]');
+    const loadMore = root.querySelector<HTMLButtonElement>('[data-load-more]');
 
-    if (!input || cards.length === 0) return;
+    if (!input || !grid || !indexElement || !loadMore) return;
+    const entries = JSON.parse(indexElement.textContent || '[]') as IconIndexEntry[];
+    let filtered = entries;
+    let visibleLimit = PAGE_SIZE;
 
-    const apply = (): void => {
-      const query = input.value.trim().toLowerCase();
-      let visible = 0;
-
-      cards.forEach((card) => {
-        const name = (card.dataset.iconName || '').toLowerCase();
-        const shown = query.length === 0 || name.includes(query);
-        card.hidden = !shown;
-        if (shown) visible += 1;
-      });
-
-      if (empty instanceof HTMLElement) {
-        empty.hidden = visible > 0;
-      }
-      if (count instanceof HTMLElement) {
-        count.textContent = String(visible);
-      }
+    const render = (): void => {
+      const visible = filtered.slice(0, visibleLimit);
+      grid.replaceChildren(...visible.map(createIconCard));
+      if (empty instanceof HTMLElement) empty.hidden = filtered.length > 0;
+      if (count instanceof HTMLElement)
+        count.textContent = `${visible.length} / ${filtered.length}`;
+      loadMore.hidden = visible.length >= filtered.length;
+      initLazyLoad(root);
     };
 
-    input.addEventListener('input', apply);
-    apply();
+    const applySearch = (): void => {
+      const query = input.value.trim().toLowerCase();
+      filtered = query.length === 0 ? entries : entries.filter(([name]) => name.includes(query));
+      visibleLimit = PAGE_SIZE;
+      render();
+    };
+
+    input.addEventListener('input', applySearch);
+    loadMore.addEventListener('click', () => {
+      visibleLimit += PAGE_SIZE;
+      render();
+    });
+    render();
   }
 
   function initLazyLoad(root: HTMLElement): void {
@@ -482,8 +531,7 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
     if (root.dataset.galleryInit === '1') return;
     root.dataset.galleryInit = '1';
 
-    initSearch(root);
-    initLazyLoad(root);
+    initCatalog(root);
     initModal(root);
   }
 
@@ -603,6 +651,16 @@ const icons = [...LUCIDE_ICON_MANIFEST].sort((a, b) => a.name.localeCompare(b.na
     margin: 0;
     font-size: 0.9rem;
     color: var(--sl-color-text-secondary);
+  }
+
+  .lucide-gallery__load-more {
+    justify-self: center;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-text);
+    cursor: pointer;
   }
 
   .lucide-modal {

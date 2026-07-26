@@ -288,43 +288,29 @@ export function recommendedPackages(packages) {
   return packages.filter((pkg) => !pkg.isLegacy && !pkg.isReleaseExcluded);
 }
 
-/**
- * Preflight build for packages that declare their own build step.
- *
- * Only packages with BOTH:
- *   1. exports pointing to dist/ (pkg.distExport)
- *   2. A scripts.build in their package.json
- *
- * ...are built here as a preflight check. Note: stagePackage still
- * runs its own unified tsc build afterwards; this function does NOT
- * consume or copy the prerequisite build output. Its purpose is to
- * surface build diagnostics early, before staging begins.
- *
- * Packages that can be built by the standard tsc invocation should
- * NOT declare scripts.build -- they will be handled uniformly by
- * stagePackage.
+/** Build the selected publish graph once through the same package-level
+ * contract used by local development and CI. stagePackage copies these
+ * verified artifacts so release staging cannot drift from local dist output.
  */
 export function buildPrerequisitePackages(packages) {
-  const prerequisites = packages.filter(
+  const buildable = packages.filter(
     (pkg) => pkg.distExport && typeof pkg.manifest?.scripts?.build === 'string'
   );
-
-  const results = [];
-  for (const pkg of prerequisites) {
-    const result = spawnSync('pnpm', ['--filter', pkg.name, 'build'], {
-      cwd: ROOT_DIR,
-      encoding: 'utf8',
-      shell: IS_WINDOWS,
-    });
-    const diagnostics = collectNonEmptyLines(`${result.stdout}\n${result.stderr}`);
-    results.push({
-      name: pkg.name,
+  if (buildable.length === 0) return [];
+  const args = ['build:packages'];
+  for (const pkg of buildable) args.push('--package', pkg.name);
+  const result = spawnSync('pnpm', args, {
+    cwd: ROOT_DIR,
+    encoding: 'utf8',
+    shell: IS_WINDOWS,
+  });
+  return [
+    {
+      name: 'public-package-build',
       code: result.status ?? 0,
-      diagnostics,
-    });
-  }
-
-  return results;
+      diagnostics: collectNonEmptyLines(`${result.stdout}\n${result.stderr}`),
+    },
+  ];
 }
 
 export function ensureCleanDir(dir) {
@@ -356,41 +342,13 @@ export function stagePackage(pkg, options) {
   mkdirSync(npmCacheDir, { recursive: true });
 
   const distDir = join(stageDir, 'dist');
-  mkdirSync(distDir, { recursive: true });
-
-  const entrySource = join(pkg.dir, 'src', 'index.ts');
-  if (!existsSync(entrySource)) {
-    throw new Error(`Cannot build ${pkg.name}: missing src/index.ts`);
+  const localDistDir = join(pkg.dir, 'dist');
+  if (!existsSync(join(localDistDir, 'index.js'))) {
+    throw new Error(`Cannot stage ${pkg.name}: run its public package build first`);
   }
-
-  const tscArgs = [
-    'exec',
-    'tsc',
-    '--pretty',
-    'false',
-    '--declaration',
-    '--emitDeclarationOnly',
-    'false',
-    '--rootDir',
-    join(pkg.dir, 'src'),
-    '--outDir',
-    distDir,
-    '--module',
-    'ES2022',
-    '--moduleResolution',
-    'Bundler',
-    '--target',
-    'ES2022',
-    entrySource,
-  ];
-
-  const buildResult = spawnSync('pnpm', tscArgs, {
-    cwd: ROOT_DIR,
-    encoding: 'utf8',
-    shell: IS_WINDOWS,
-  });
-
-  const buildErrors = collectNonEmptyLines(`${buildResult.stdout}\n${buildResult.stderr}`);
+  cpSync(localDistDir, distDir, { recursive: true });
+  const buildResult = { status: 0 };
+  const buildErrors = [];
   const manifest = createPublishManifest(pkg, { version, access, packageVersions });
   writeFileSync(join(stageDir, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
   writeSupportingFiles(pkg, stageDir);
@@ -638,11 +596,6 @@ export function createPublishManifest(pkg, options) {
   manifest.license ??= readRootLicenseId();
   const files = ['dist', 'README.md', 'LICENSE', ...getThirdPartyNoticeFiles(pkg)];
   if (manifest.bin && !files.includes('bin')) files.push('bin');
-  if (pkg.manifest.files && pkg.manifest.files.length > 0) {
-    console.warn(
-      `[${pkg.name}] package.json#files overridden by publish script: ${JSON.stringify(pkg.manifest.files)} -> ${JSON.stringify(files)}`
-    );
-  }
   manifest.files = files;
   manifest.publishConfig = {
     access,

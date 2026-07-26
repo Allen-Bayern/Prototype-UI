@@ -23,44 +23,54 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./button": {
-      "types": "./src/button/index.ts",
-      "default": "./src/button/index.ts"
+      "types": "./dist/button/index.d.ts",
+      "import": "./dist/button/index.js",
+      "default": "./dist/button/index.js"
     },
     "./component-presets": {
-      "types": "./src/component-presets.ts",
-      "default": "./src/component-presets.ts"
+      "types": "./dist/component-presets.d.ts",
+      "import": "./dist/component-presets.js",
+      "default": "./dist/component-presets.js"
     },
     "./dialog": {
-      "types": "./src/dialog/index.ts",
-      "default": "./src/dialog/index.ts"
+      "types": "./dist/dialog/index.d.ts",
+      "import": "./dist/dialog/index.js",
+      "default": "./dist/dialog/index.js"
     },
     "./dropdown": {
-      "types": "./src/dropdown/index.ts",
-      "default": "./src/dropdown/index.ts"
+      "types": "./dist/dropdown/index.d.ts",
+      "import": "./dist/dropdown/index.js",
+      "default": "./dist/dropdown/index.js"
     },
     "./hover-card": {
-      "types": "./src/hover-card/index.ts",
-      "default": "./src/hover-card/index.ts"
+      "types": "./dist/hover-card/index.d.ts",
+      "import": "./dist/hover-card/index.js",
+      "default": "./dist/hover-card/index.js"
     },
     "./select": {
-      "types": "./src/select/index.ts",
-      "default": "./src/select/index.ts"
+      "types": "./dist/select/index.d.ts",
+      "import": "./dist/select/index.js",
+      "default": "./dist/select/index.js"
     },
     "./switch": {
-      "types": "./src/switch/index.ts",
-      "default": "./src/switch/index.ts"
+      "types": "./dist/switch/index.d.ts",
+      "import": "./dist/switch/index.js",
+      "default": "./dist/switch/index.js"
     },
     "./tabs": {
-      "types": "./src/tabs/index.ts",
-      "default": "./src/tabs/index.ts"
+      "types": "./dist/tabs/index.d.ts",
+      "import": "./dist/tabs/index.js",
+      "default": "./dist/tabs/index.js"
     },
     "./toggle": {
-      "types": "./src/toggle/index.ts",
-      "default": "./src/toggle/index.ts"
+      "types": "./dist/toggle/index.d.ts",
+      "import": "./dist/toggle/index.js",
+      "default": "./dist/toggle/index.js"
     }
   },
   "description": "shadcn-style Proto UI prototype library for adapter-driven components.",
@@ -85,5 +95,14 @@
     "shadcn",
     "prototype-library",
     "shadcn-style"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/prototypes-shadcn",
+    "prepack": "pnpm run build"
+  }
 }

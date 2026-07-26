@@ -28,6 +28,12 @@ Proto UI 当前拥有多个 package 层级，它们服务的用户与工程目�
 - 架构记录文档
 - 首发 package 治理文档
 
+### 可发布构建产物规则
+
+每个公开 `@proto.ui/*` package 都必须能在不带 TypeScript loader 的纯 JavaScript ESM 环境中使用。因此，仓库内 manifest 的运行时 export 指向 `dist/*.js`，类型条件指向 `dist/*.d.ts`，同时提供 package 级 `build` 命令，并通过 `files` 限制 npm 内容。`pnpm build:packages` 按生产依赖拓扑构建全部公开 package、验证 export target，并执行原生 Node ESM import smoke；局部 package 构建会包含其所需的上游公开依赖闭包。
+
+release pipeline 不再编译另一套可能漂移的产物，而是复用同一构建命令，并把已验证的本地 `dist` 树复制进 staging。源码和测试是仓库输入，不属于默认 npm payload。
+
 ---
 
 ## 2. 读者模型

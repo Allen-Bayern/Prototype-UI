@@ -23,6 +23,8 @@ CI runs for pull requests, pushes to `main`, and manual dispatch. In addition to
 
 Every new numeric version must therefore be a reviewed release train; a package-local bump cannot bypass the gate.
 
+`public_package_plan` derives the affected public package graph from the pull request diff. Package changes select the changed package, its reverse consumers, and every upstream public dependency required to build that set. Repository-wide build, release, lockfile, manifest, or workflow changes select all public packages. The resulting build job validates the generated manifests, produces JavaScript plus declaration artifacts, runs native ESM import smokes, and enforces representative gzip budgets. Release-stage and isolated-consumer jobs may skip a pull request whose affected public package graph is empty; the full set still runs on `main` and manual dispatch.
+
 `release-consumer-react` additionally builds tarballs for every public package and installs the current declared release closure in a temporary React + Vite project outside the monorepo. The gate prevents `@proto.ui/*` from falling back to the npm registry or workspace sources, validates every non-wildcard export target in staged manifests, then verifies CLI facade generation, TypeScript, a production build, and baseline runtime behavior. Before expanding the full fixture, it generates only Shadcn Button and checks that the final Rollup module graph contains no other Base/Shadcn prototype family. This is a family-boundary assertion rather than a fixed bundle-size budget.
 
 ## Release Workflow (`release-packages.yml`)
@@ -80,5 +82,9 @@ These tiers do not control the real npm publish set. Global exact-version govern
 - `pnpm release:smoke:react`
 - `pnpm release:smoke:cli`
 - `pnpm release:rehearse`
+- `pnpm build:packages`
+- `pnpm check:package-manifests`
+- `pnpm check:package-budgets`
+- `pnpm analysis:monorepo --benchmark --out <path>`
 
 There is no package-local real-publish shortcut. Package-local fixes enter the next global release train.
