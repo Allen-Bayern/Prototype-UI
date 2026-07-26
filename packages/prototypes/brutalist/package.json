@@ -61,9 +61,14 @@
       "types": "./src/dialog/index.ts",
       "import": "./src/dialog/index.ts",
       "default": "./src/dialog/index.ts"
+    },
+    "./scroll-area": {
+      "types": "./src/scroll-area/index.ts",
+      "import": "./src/scroll-area/index.ts",
+      "default": "./src/scroll-area/index.ts"
     }
   },
-  "description": "Neo-Brutalist Proto UI style library: shared tokens plus Button and stable Base family projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog).",
+  "description": "Neo-Brutalist Proto UI style library: shared tokens plus Button and stable Base family projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog/Scroll Area).",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {
