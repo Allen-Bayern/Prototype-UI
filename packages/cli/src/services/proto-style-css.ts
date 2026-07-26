@@ -462,7 +462,6 @@ function renderSpacingUtility(utility: string): string[] | null {
   if (kind === 'top') return [`top: ${value};`];
   if (kind === 'right') return [`right: ${value};`];
   if (kind === 'left') return [`left: ${value};`];
-  if (kind === 'right') return [`right: ${value};`];
   return null;
 }
 
