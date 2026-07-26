@@ -97,7 +97,7 @@ Historical `0.1.x` package versions are fragmented releases from before global l
 - current-source tarball consumer smoke
 - Quick Start commands matching the verified install path
 
-`pnpm release:rehearse` is the non-publishing, one-command preparation gate. It runs the identity and asset checks, catalog and test suites, type checks, a temporary spec snapshot, launch scan, package publish dry-run, React and multi-host CLI tarball consumer smokes, and the documentation build. It may access the npm registry for dry-run or temporary consumer dependency installation, but it never invokes the real publish path.
+`pnpm release:rehearse` is the non-publishing, one-command preparation gate. It runs the identity and asset checks, catalog and test suites, type checks, a temporary spec snapshot, launch scan, the shared public-package build, package publish dry-run, React and multi-host CLI tarball consumer smokes, and the documentation build. Release staging copies the same verified local `dist` artifacts used by development and CI instead of compiling a separate output. The command may access the npm registry for dry-run or temporary consumer dependency installation, but it never invokes the real publish path.
 
 Docs-only or private-app changes do not need to publish immediately. Creating a new numeric version or changing `VERSION`, however, must enter this release-train workflow.
 

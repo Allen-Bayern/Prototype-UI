@@ -28,6 +28,12 @@ It complements, but does not replace:
 - architectural records
 - launch package governance
 
+### Publishable artifact rule
+
+Every public `@proto.ui/*` package must be consumable by a plain JavaScript ESM environment without a TypeScript loader. Its checked-in manifest therefore points runtime exports at `dist/*.js`, type conditions at `dist/*.d.ts`, exposes a package-local `build` command, and limits npm contents through `files`. `pnpm build:packages` builds all public packages in production-dependency order, validates export targets, and performs a native Node ESM import smoke. Package-local builds include the required upstream public package closure.
+
+The release pipeline does not compile a second, divergent artifact. It builds through the same command and copies the verified local `dist` trees into staging. Source files and tests are repository inputs, not default npm payload.
+
 ---
 
 ## 2. Reader Model

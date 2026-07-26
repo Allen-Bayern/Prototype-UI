@@ -1,6 +1,6 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { LUCIDE_ICON_NAMES, type LucideIconName } from './icons';
-import { renderLucideIcon } from './render';
+import { renderLucideIcon } from './render-icon';
 import type { LucideIconAsHookContract, LucideIconExposes, LucideIconProps } from './types';
 
 const DEFAULT_ICON_NAME: LucideIconName = 'circle';

@@ -11,8 +11,9 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Proto UI module that provides state interaction capability for adapters.",
@@ -36,5 +37,13 @@
     "module",
     "state",
     "interaction"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/module-state-interaction",
+    "prepack": "pnpm run build"
+  }
 }

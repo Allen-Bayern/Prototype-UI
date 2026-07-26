@@ -25,6 +25,68 @@ jobs:
       - name: Verify public package exact versions
         run: node scripts/release/check-lockstep.mjs
 
+  public_package_plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      affected_count: ${{ steps.plan.outputs.affected_count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: plan
+        name: Plan affected public package graph
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            node scripts/build/public-packages.mjs --changed-from "${BASE_SHA}" --plan --json > /tmp/public-package-plan.json
+          else
+            node scripts/build/public-packages.mjs --plan --json > /tmp/public-package-plan.json
+          fi
+          cat /tmp/public-package-plan.json
+          COUNT=$(node -p "require('/tmp/public-package-plan.json').selectedCount")
+          echo "affected_count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+  public_package_build:
+    needs: public_package_plan
+    if: needs.public_package_plan.outputs.affected_count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+
+      - name: Install
+        run: corepack pnpm@10.32.1 install --frozen-lockfile
+
+      - name: Build affected publish graph
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            corepack pnpm@10.32.1 build:packages --changed-from "${BASE_SHA}"
+          else
+            corepack pnpm@10.32.1 build:packages
+          fi
+
+      - name: Check public manifests and bundle budgets
+        run: |
+          corepack pnpm@10.32.1 check:package-manifests
+          corepack pnpm@10.32.1 check:package-budgets
+
   type-check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -199,6 +261,8 @@ jobs:
           '
 
   release-stage:
+    needs: public_package_plan
+    if: github.event_name != 'pull_request' || needs.public_package_plan.outputs.affected_count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -247,6 +311,8 @@ jobs:
         run: corepack pnpm@"${PROTO_PNPM_VERSION}" -s release:stage
 
   release-consumer-react:
+    needs: public_package_plan
+    if: github.event_name != 'pull_request' || needs.public_package_plan.outputs.affected_count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -281,6 +347,8 @@ jobs:
         run: corepack pnpm@"${PROTO_PNPM_VERSION}" -s release:smoke:react
 
   cli-smoke:
+    needs: public_package_plan
+    if: github.event_name != 'pull_request' || needs.public_package_plan.outputs.affected_count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

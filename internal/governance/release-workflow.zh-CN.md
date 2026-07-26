@@ -97,7 +97,7 @@ npm Trusted Publisher 是 package 级配置，因此 package identity 不存在�
 - 当前源码 tarball consumer smoke
 - Quick Start 与实际安装命令一致
 
-`pnpm release:rehearse` 是不发布的一键准备门禁。它会依次执行发行身份与物料检查、编目和测试、类型检查、临时 spec snapshot、launch scan、package publish dry-run、React 与 CLI 多宿主 tarball consumer smoke，以及官网构建。该命令可能因 dry-run 或临时 consumer 安装访问 npm registry，但绝不会进入真实 publish 路径。
+`pnpm release:rehearse` 是不发布的一键准备门禁。它会依次执行发行身份与物料检查、编目和测试、类型检查、临时 spec snapshot、共享公开 package 构建、package publish dry-run、React 与 CLI 多宿主 tarball consumer smoke，以及官网构建。release staging 会复制开发与 CI 已验证的同一份本地 `dist` 产物，不再单独编译另一套输出。该命令可能因 dry-run 或临时 consumer 安装访问 npm registry，但绝不会进入真实 publish 路径。
 
 纯文档或内部 app 的变化可以不立即触发 release；但一旦创建新的数字版本或修改 `VERSION`，就必须通过上述 release train 流程。
 

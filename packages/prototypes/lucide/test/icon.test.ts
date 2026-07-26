@@ -4,7 +4,7 @@ import type { RuntimeHost } from '@proto.ui/runtime';
 import { executeWithHost } from '@proto.ui/runtime';
 import lucideIcon from '../src/icon/icon.proto';
 import { asLucideIcon } from '../src/icon/icon.proto';
-import { renderLucideIcon } from '../src/icon/render';
+import { renderLucideIcon } from '../src/icon/render-icon';
 import {
   asLucideChevronDownIcon,
   lucideChevronDownIcon,

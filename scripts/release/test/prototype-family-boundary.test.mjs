@@ -81,8 +81,9 @@ function assertFamilyExports(packageRoot, families) {
   assert.equal(manifest.sideEffects, false, `${manifest.name} must declare sideEffects=false`);
   for (const family of families) {
     assert.deepEqual(manifest.exports[`./${family}`], {
-      types: `./src/${family}/index.ts`,
-      default: `./src/${family}/index.ts`,
+      types: `./dist/${family}/index.d.ts`,
+      import: `./dist/${family}/index.js`,
+      default: `./dist/${family}/index.js`,
     });
   }
 }

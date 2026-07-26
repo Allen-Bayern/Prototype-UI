@@ -12,8 +12,9 @@
   "devDependencies": {},
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Base package for building Proto UI adapters.",
@@ -37,5 +38,13 @@
     "adapter",
     "base",
     "custom-adapter-hosts"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/adapter-base",
+    "prepack": "pnpm run build"
+  }
 }

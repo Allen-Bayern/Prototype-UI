@@ -8,11 +8,13 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json"
+    "build": "node ../../scripts/build/public-packages.mjs --package @proto.ui/types",
+    "prepack": "pnpm run build"
   },
   "description": "Shared type definitions for Proto UI packages.",
   "license": "MIT",
@@ -33,5 +35,9 @@
     "proto",
     "ui",
     "types"
+  ],
+  "files": [
+    "dist/",
+    "README.md"
   ]
 }

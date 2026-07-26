@@ -10,8 +10,9 @@
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "description": "Proto UI module that records accessibility semantic object IR.",
@@ -35,5 +36,13 @@
     "module",
     "a11y",
     "accessibility"
-  ]
+  ],
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/module-a11y",
+    "prepack": "pnpm run build"
+  }
 }
