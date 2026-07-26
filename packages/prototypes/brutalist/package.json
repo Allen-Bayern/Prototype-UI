@@ -24,6 +24,16 @@
       "types": "./dist/button/index.d.ts",
       "import": "./dist/button/index.js",
       "default": "./dist/button/index.js"
+    },
+    "./separator": {
+      "types": "./dist/separator/index.d.ts",
+      "import": "./dist/separator/index.js",
+      "default": "./dist/separator/index.js"
+    },
+    "./skeleton": {
+      "types": "./dist/skeleton/index.d.ts",
+      "import": "./dist/skeleton/index.js",
+      "default": "./dist/skeleton/index.js"
     }
   },
   "description": "Neo-Brutalist Proto UI prototype library foundation and reference Button projection.",

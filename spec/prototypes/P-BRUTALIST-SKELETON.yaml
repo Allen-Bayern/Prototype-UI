@@ -1,0 +1,35 @@
+id: P-BRUTALIST-SKELETON
+type: prototype
+title: Brutalist Skeleton  protocol
+status: draft
+since: 0.2.0-rc.5
+summary: Brutalist Skeleton  protocol for the Proto UI framework.
+statement:
+  en: Brutalist Skeleton  protocol. This draft entity catalogs the protocol surface.
+  zh-CN: Brutalist Skeleton  protocol。该 draft entity 编目协议面。
+criteria:
+  - id: P-BRUTALIST-SKELETON-CATALOGED
+    text:
+      en: The protocol is cataloged for traceability.
+      zh-CN: 该协议已编目以便追溯。
+sources:
+  - path: packages/prototypes/brutalist/src/skeleton/root.proto.ts
+revisions:
+  - version: 0.2.0-rc.5
+    change: introduced
+    summary: Introduced brutalist skeleton  protocol.
+tags:
+  - prototype
+  - brutalist
+  - skeleton
+inherits:
+  prototypes:
+    - id: P-BASE-SKELETON
+dependsOn:
+  contracts:
+    - C-CORE-SYNTAX-0003
+    - C-AS-HOOK-0001
+    - C-RULE-INTENT-FEEDBACK-STYLE-0001
+verifies:
+  tests:
+    - T-BRUTALIST-SKELETON-0001

@@ -35,6 +35,22 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('../../../../../packages/prototypes/brutalist/src/button/index');
     registerPrototype('brutalist-button', mod.default);
   },
+  'brutalist-separator-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/brutalist/src/separator/index');
+    registerPrototype('brutalist-separator-root', mod.BrutalistSeparatorRoot);
+  },
+  'brutalist-skeleton-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/brutalist/src/skeleton/index');
+    registerPrototype('brutalist-skeleton-root', mod.BrutalistSkeletonRoot);
+  },
+  'base-separator-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/separator/index');
+    registerPrototype('base-separator-root', mod.default);
+  },
+  'base-skeleton-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/skeleton/index');
+    registerPrototype('base-skeleton-root', mod.default);
+  },
   'shadcn-toggle': async () => {
     const mod = await import('../../../../../packages/prototypes/shadcn/src/toggle/index');
     registerPrototype('shadcn-toggle', mod.default);

@@ -81,6 +81,16 @@
       "types": "./dist/transition/index.d.ts",
       "import": "./dist/transition/index.js",
       "default": "./dist/transition/index.js"
+    },
+    "./separator": {
+      "types": "./dist/separator/index.d.ts",
+      "import": "./dist/separator/index.js",
+      "default": "./dist/separator/index.js"
+    },
+    "./skeleton": {
+      "types": "./dist/skeleton/index.d.ts",
+      "import": "./dist/skeleton/index.js",
+      "default": "./dist/skeleton/index.js"
     }
   },
   "description": "Base Proto UI prototype library for reusable interaction prototypes.",

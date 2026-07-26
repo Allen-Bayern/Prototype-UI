@@ -6,3 +6,5 @@ export type {
   BrutalistButtonSize,
   BrutalistButtonVariant,
 } from './button';
+export * from './separator';
+export * from './skeleton';

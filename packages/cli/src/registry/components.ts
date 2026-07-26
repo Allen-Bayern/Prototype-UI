@@ -201,6 +201,18 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
     'brutalistButton',
     'BrutalistButton'
   ),
+  'brutalist-separator': brutalist(
+    'brutalist-separator',
+    'Brutalist Separator',
+    'BrutalistSeparatorRoot',
+    'BrutalistSeparatorRoot'
+  ),
+  'brutalist-skeleton': brutalist(
+    'brutalist-skeleton',
+    'Brutalist Skeleton',
+    'BrutalistSkeletonRoot',
+    'BrutalistSkeletonRoot'
+  ),
 
   'shadcn-button': shadcn('shadcn-button', 'shadcn Button', 'shadcnButton', 'ShadcnButton'),
   'shadcn-toggle': shadcn('shadcn-toggle', 'shadcn Toggle', 'shadcnToggle', 'ShadcnToggle'),
@@ -482,6 +494,8 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
     },
   ]),
 
+  'base-separator': base('base-separator', 'Base Separator', 'separatorRoot', 'BaseSeparatorRoot'),
+  'base-skeleton': base('base-skeleton', 'Base Skeleton', 'skeletonRoot', 'BaseSkeletonRoot'),
   'base-dialog': baseCompound('base-dialog', 'base Dialog', [
     {
       prototypeImport: 'dialogRoot',
