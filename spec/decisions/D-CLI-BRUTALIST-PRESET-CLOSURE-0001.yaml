@@ -45,4 +45,3 @@ revisions:
     change: introduced
     summary: >-
       Introduced the decision scoping the CLI Brutalist CSS-only preset closure on the rc.7 release train (Button-only foundation). Not present in the immutable rc.6 snapshot.
-

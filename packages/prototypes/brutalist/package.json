@@ -28,7 +28,7 @@
       "default": "./src/button/index.ts"
     }
   },
-  "description": "Neo-Brutalist Proto UI prototype library foundation and reference Button projection.",
+  "description": "Neo-Brutalist Proto UI style library: shared tokens plus Button and stable Base family projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog).",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {
