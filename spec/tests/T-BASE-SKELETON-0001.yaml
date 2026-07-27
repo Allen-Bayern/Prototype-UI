@@ -2,7 +2,7 @@ id: T-BASE-SKELETON-0001
 type: test
 title: Base Skeleton behavior tests
 status: draft
-since: 0.2.0-rc.6
+since: 0.2.0-rc.7
 summary: Web Component coverage for Skeleton accessibility hiding and absence of fake interaction or loading semantics.
 cases:
   - id: T-BASE-SKELETON-0001-CASE-VISUAL-ONLY
@@ -18,7 +18,7 @@ exercises:
 sources:
   - path: packages/prototypes/base/test/skeleton.test.ts
 revisions:
-  - version: 0.2.0-rc.6
+  - version: 0.2.0-rc.7
     change: introduced
     summary: Added executable Skeleton protocol coverage.
 tags: [base, skeleton, test]

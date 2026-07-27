@@ -195,12 +195,6 @@ const baseCompound = (
   );
 
 export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
-  'brutalist-button': brutalist(
-    'brutalist-button',
-    'Brutalist Button',
-    'brutalistButton',
-    'BrutalistButton'
-  ),
   'brutalist-separator': brutalist(
     'brutalist-separator',
     'Brutalist Separator',
