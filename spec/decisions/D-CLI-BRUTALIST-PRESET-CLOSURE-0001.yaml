@@ -28,6 +28,7 @@ criteria:
       zh-CN: 生成的 Brutalist theme CSS 必须包含 Light 与 Dark theme 变量，并保持 Proto UI prefixed CSS variable 输出。
 sources:
   - path: docs/superpowers/specs/2026-07-24-brutalist-design-system-design.md
+  - path: internal/records/2026-07-27-brutalist-button-foundation-review.zh-CN.md
   - path: scripts/styles/generate-brutalist-style-tokens.ts
   - path: packages/cli/src/generated/brutalist-style-tokens.ts
   - path: packages/cli/src/services/prototype-style-tokens.ts

@@ -1,7 +1,7 @@
 {
   "name": "@proto.ui/prototypes-brutalist",
-  "version": "0.2.0-rc.6",
-  "private": false,
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
   "sideEffects": false,
   "dependencies": {
@@ -16,14 +16,14 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./button": {
-      "types": "./dist/button/index.d.ts",
-      "import": "./dist/button/index.js",
-      "default": "./dist/button/index.js"
+      "types": "./src/button/index.ts",
+      "import": "./src/button/index.ts",
+      "default": "./src/button/index.ts"
     }
   },
   "description": "Neo-Brutalist Proto UI prototype library foundation and reference Button projection.",
@@ -37,9 +37,6 @@
   "bugs": {
     "url": "https://github.com/Proto-UI/Proto-UI/issues"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "keywords": [
     "proto-ui",
     "prototype-library",
@@ -51,7 +48,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/prototypes-brutalist",
-    "prepack": "pnpm run build"
+    "build": "node ../../../scripts/build/public-packages.mjs --package @proto.ui/prototypes-brutalist"
+  },
+  "protoUi": {
+    "release": {
+      "scan": false
+    }
   }
 }
