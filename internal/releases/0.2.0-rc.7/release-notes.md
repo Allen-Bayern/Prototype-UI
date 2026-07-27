@@ -13,6 +13,14 @@
 - The shared Dialog journey for Web Component, React, and Vue now verifies that blank space on the outer Trigger or Close does not activate the group, while pointer and keyboard activation on the inner Button, focus looping, and focus restoration after close continue to work.
 - New group capabilities use the `mergeGroup` and `getGroupEventTarget` names. Deprecated route-owner aliases remain temporarily available to ease migration of existing host integrations.
 
+### Shadcn Tabs v4 default-style fidelity
+
+- The default horizontal Shadcn Tabs surface now follows the project's pinned shadcn/ui v4 baseline: Root uses `flex flex-col gap-2`, while List uses `inline-flex h-9 w-fit rounded-lg p-[3px]` and no longer stretches to the container width by default.
+- Trigger restores the v4 geometry, typography, and selected, hover, focus-visible, and disabled feedback, while removing pressed scaling, the extra ring offset, and the older oversized rounded surface that are absent from the baseline.
+- Content returns to an undecorated `flex-1 outline-none` content carrier. Tabs no longer imposes a border, background, padding, or shadow; consumers that need card-like panels compose that surface inside the content explicitly.
+- The Proto style CSS compiler now supports `w-fit`, `h-fit`, `flex-1`, `shadow-sm`, and the required outline tokens so the aligned prototype styles reach Web output without degrading into unsupported tokens.
+- This pass intentionally covers the default variant's horizontal primary path. The `line` variant, vertical layout, explicit dark branch, SVG descendant rules, and complete native API/data forwarding remain tracked parity gaps.
+
 ## Build and release
 
 ### Executable artifacts for all 37 public packages
@@ -25,14 +33,15 @@
 ### Bundle, documentation, and CI feedback
 
 - The fixed Lucide icon entry is decoupled from the full icon-registry renderer. The representative `icons/x` entry decreased from 119,273 B to 1,560 B gzip, preventing a single icon from transitively including the complete registry.
-- Lucide Gallery now server-renders a limited initial set, while Demo Matrix mounts one switchable-adapter previewer per demo. Their English pages decreased by approximately 63% and 61% in raw HTML size, respectively.
+- Lucide Gallery now server-renders a limited initial set, reducing its English page's raw HTML by approximately 63%. The internal Demo Matrix again mounts Web Component, React, and Vue side by side for every demo to preserve fast cross-adapter acceptance; its English and Chinese routes are development-only drafts and no longer enter production documentation output or the sitemap.
 - CI now computes affected public packages from the workspace production-dependency graph and enforces gzip budgets for representative package entries. `main` and manually triggered workflows continue to run the complete public-package validation.
 - A repeatable monorepo analysis snapshot now records builds, tests, tarballs, bundles, documentation output, and package update frequency so these improvements can be audited under the same measurement method.
 
 ## Validation
 
-- The trigger-group change passes the complete workspace test suite: 239 test files and 1,076 tests passed, together with the prototype catalog, type checks, generated Agent-document check, and the shared Web Component/React/Vue Dialog conformance journey.
+- The trigger-group and Tabs v4 style-fidelity changes pass the complete workspace test suite: 239 test files and 1,077 tests passed, together with the prototype catalog, style preset, type checks, generated Agent-document check, and the shared Web Component/React/Vue Dialog conformance journey.
 - The delivery optimization has validated builds, export targets, native Node ESM imports, release staging, and `npm publish --dry-run` for 37/37 public packages. Package-manifest, bundle-budget, type, test, Astro check, and documentation-build gates also passed.
+- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 37 release tests.
 
 ## Upgrade notes
 
