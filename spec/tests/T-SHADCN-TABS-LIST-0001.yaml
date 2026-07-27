@@ -3,7 +3,7 @@ type: test
 title: Shadcn Tabs List delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers List identity, Base collection inheritance, keyboard navigation, current surface, asChild omission, and bounded variant parity.
+summary: Covers List identity, Base collection inheritance, keyboard navigation, the pinned v4 fit-content default surface, asChild omission, and bounded line/vertical parity.
 cases:
   - id: T-SHADCN-TABS-LIST-0001-CASE-IDENTITY-AND-INHERITANCE
     title: List is a named direct entry that inherits Base collection and roving focus
@@ -16,14 +16,14 @@ cases:
       ]
     expectation: shadcn-tabs-list-inherits-base-collection-navigation
   - id: T-SHADCN-TABS-LIST-0001-CASE-SURFACE-AND-COMPATIBILITY
-    title: List projects its current surface while upstream variant parity stays outside the claim
+    title: List projects the pinned v4 fit-content default surface while line and vertical parity stay bounded
     covers:
       [
         P-SHADCN-TABS-LIST-CURRENT-VISUAL-SURFACE,
         P-SHADCN-TABS-LIST-COMPATIBILITY-SUBSET,
         P-SHADCN-TABS-LIST-AS-CHILD-OMISSION,
       ]
-    expectation: shadcn-tabs-list-current-surface-with-bounded-variant-parity
+    expectation: shadcn-tabs-list-v4-fit-content-default-surface-with-bounded-line-vertical-parity
 implementations:
   - id: prototypes-shadcn-tabs-list-contract
     kind: module-test
@@ -37,7 +37,7 @@ implementations:
       ]
     exercises: [P-SHADCN-TABS-LIST, P-BASE-TABS-LIST]
     notes:
-      - Arrow navigation exercises inherited roving focus; variant and token gaps remain bounded by source review and the centralized question.
+      - Arrow navigation exercises inherited roving focus; exact default tokens include w-fit, while line-variant and vertical gaps remain bounded by source review and the centralized question.
 verifies:
   prototypes:
     - id: P-SHADCN-TABS-LIST

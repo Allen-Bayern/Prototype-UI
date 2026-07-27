@@ -8,7 +8,7 @@ const tabsRoot = definePrototype<ShadcnTabsRootProps, ShadcnTabsRootExposes>({
     // P-SHADCN-TABS-BASE-INHERITANCE, P-SHADCN-TABS-CURRENT-BASE-DEVIATIONS
     asTabsRoot();
     // P-SHADCN-TABS-CURRENT-VISUAL-SURFACE
-    def.feedback.style.use(tw('flex flex-col gap-3 text-foreground'));
+    def.feedback.style.use(tw('flex flex-col gap-2'));
   },
 });
 

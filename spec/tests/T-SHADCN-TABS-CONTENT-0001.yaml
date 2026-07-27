@@ -3,7 +3,7 @@ type: test
 title: Shadcn Tabs Content delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Content identity, Base panel inheritance, current and hidden projection, current surface, asChild omission, and bounded upstream parity.
+summary: Covers Content identity, Base panel inheritance, current and hidden projection, the pinned v4 minimal surface, asChild omission, and bounded upstream API parity.
 cases:
   - id: T-SHADCN-TABS-CONTENT-0001-CASE-IDENTITY-AND-INHERITANCE
     title: Content is a named direct entry that inherits Base panel behavior
@@ -16,7 +16,7 @@ cases:
       ]
     expectation: shadcn-tabs-content-inherits-base-panel-presence
   - id: T-SHADCN-TABS-CONTENT-0001-CASE-SURFACE-AND-COMPATIBILITY
-    title: current and hidden state project the current panel while remaining upstream parity stays outside the claim
+    title: current and hidden state project the pinned v4 minimal panel while remaining API parity stays bounded
     covers:
       [
         P-SHADCN-TABS-CONTENT-CURRENT-VISUAL-SURFACE,
@@ -24,7 +24,7 @@ cases:
         P-SHADCN-TABS-CONTENT-COMPATIBILITY-SUBSET,
         P-SHADCN-TABS-CONTENT-AS-CHILD-OMISSION,
       ]
-    expectation: shadcn-tabs-content-current-panel-with-bounded-presence-parity
+    expectation: shadcn-tabs-content-v4-minimal-panel-with-bounded-presence-api-parity
   - id: T-SHADCN-TABS-CONTENT-0001-CASE-WC-REMATERIALIZATION
     title: Web Component content rematerializes after selection returns and clears stale hidden projection
     covers:
@@ -47,7 +47,7 @@ implementations:
       ]
     exercises: [P-SHADCN-TABS-CONTENT, P-BASE-TABS-CONTENT]
     notes:
-      - Positive tests cover context-derived current state, inactive host hiding, selection switching, and current tokens; forceMount mapping and exact parity remain bounded by the centralized question.
+      - Positive tests cover context-derived current state, inactive host hiding, selection switching, and the pinned flex-1/outline-none surface; forceMount mapping and API parity remain bounded by the centralized question.
   - id: adapter-web-component-shadcn-tabs-content-rematerialization
     kind: adapter-test
     status: passing

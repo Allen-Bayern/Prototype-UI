@@ -13,6 +13,14 @@
 - Web Component、React 与 Vue 的共享 Dialog journey 现在同时验证：外层 Trigger/Close 空白不触发，内层 Button 的 pointer 与 keyboard activation、focus loop 和关闭后的 focus restoration 继续正常工作。
 - 新的 group capability 使用 `mergeGroup` 与 `getGroupEventTarget` 命名；旧 route-owner capability 暂时保留 deprecated alias，便于既有 host integration 迁移。
 
+### Shadcn Tabs v4 默认样式还原
+
+- Shadcn Tabs 的默认横向样式现在对齐项目固定的 shadcn/ui v4 基线：Root 使用 `flex flex-col gap-2`，List 使用 `inline-flex h-9 w-fit rounded-lg p-[3px]`，不会再默认铺满容器宽度。
+- Trigger 恢复 v4 的尺寸、圆角、文字与 selected、hover、focus-visible、disabled 状态反馈，并移除了不属于该基线的 pressed 缩放、额外 ring offset 与旧版大圆角表面。
+- Content 回归 `flex-1 outline-none` 的无装饰内容承载角色，不再由 Tabs 原型强制生成 border、background、padding 和 shadow；需要卡片面板的用法应在消费端内容中显式组合。
+- Proto style CSS 编译器新增 `w-fit`、`h-fit`、`flex-1`、`shadow-sm` 与 outline 相关 token 支持，确保上述原型样式可进入 Web 产物而不会退化为 unsupported token。
+- 本轮只收敛默认 variant 的横向主路径；`line` variant、垂直布局、显式 dark 分支、SVG 后代规则与完整原生 API/data forwarding 仍保留为后续 parity gap。
+
 ## 构建与发布
 
 ### 37 个公开 package 交付可执行产物
@@ -25,14 +33,15 @@
 ### Bundle、文档与 CI 反馈
 
 - Lucide 固定图标入口与全图标 registry renderer 解耦，代表性单图标 `icons/x` 的 gzip 体积由 119,273 B 降至 1,560 B，避免单个图标传递引入完整 registry。
-- Lucide Gallery 改为有限首屏服务端渲染，Demo Matrix 改为每个 demo 只挂载一个可切换 adapter 的 previewer；对应英文页面原始 HTML 分别下降约 63% 与 61%。
+- Lucide Gallery 改为有限首屏服务端渲染，英文页面原始 HTML 下降约 63%。内部 Demo Matrix 恢复每个 demo 同时并排挂载 Web Component、React 与 Vue，保留快速跨 adapter 人工验收能力；其中英文路由标记为 development-only draft，不再进入生产文档产物与 sitemap。
 - CI 现在根据 workspace 生产依赖图计算受影响的公开 package，并为代表性 package entry 固化 gzip budgets；`main` 与手动触发仍执行全量公开包验证。
 - 新增可重复的 monorepo analysis snapshot，记录构建、测试、tarball、bundle、文档产物与 package 更新频率，使上述优化可以在相同口径下复查。
 
 ## 验证
 
-- Trigger group 改造通过完整工作区测试：239 个测试文件、1,076 个测试通过；prototype catalog、类型检查、Agent 文档生成检查与 Web Component/React/Vue 共享 Dialog conformance journey 通过。
+- Trigger group 与 Tabs v4 样式还原通过完整工作区测试：239 个测试文件、1,077 个测试通过；prototype catalog、style preset、类型检查、Agent 文档生成检查与 Web Component/React/Vue 共享 Dialog conformance journey 通过。
 - 构建优化已验证 37/37 公开 package 的完整构建、export target、原生 Node ESM import、release stage 与 `npm publish --dry-run`；package manifest、bundle budget、类型、测试、Astro check 与文档构建门禁均通过。
+- Demo Matrix 开发路由实测同时挂载 27 个 demo、81 个 previewer，Web Component、React 与 Vue 各 27 个；生产构建的 150 个页面、sitemap 与 Pagefind index 均不包含其中英文 Demo Matrix 路由。新增的 development-only 与三 adapter 并排 policy 已进入 37 条 release tests。
 
 ## 升级提示
 

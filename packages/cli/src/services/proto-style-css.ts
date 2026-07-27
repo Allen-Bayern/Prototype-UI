@@ -58,6 +58,7 @@ const staticUtilities: Record<string, string[]> = {
   block: ['display: block;'],
   flex: ['display: flex;'],
   'inline-flex': ['display: inline-flex;'],
+  'flex-1': ['flex: 1 1 0%;'],
   grid: ['display: grid;'],
   hidden: ['display: none;'],
   'flex-col': ['flex-direction: column;'],
@@ -71,6 +72,8 @@ const staticUtilities: Record<string, string[]> = {
   'cursor-pointer': ['cursor: pointer;'],
   'select-none': ['user-select: none;'],
   'outline-none': ['outline: 2px solid transparent;', 'outline-offset: 2px;'],
+  'outline-1': ['outline-style: solid;', 'outline-width: 1px;'],
+  'outline-ring': ['outline-color: var(--pui-ring);'],
   'overflow-hidden': ['overflow: hidden;'],
   'overflow-x-hidden': ['overflow-x: hidden;'],
   'overflow-y-auto': ['overflow-y: auto;'],
@@ -138,6 +141,10 @@ const staticUtilities: Record<string, string[]> = {
   'ring-offset-2': ['--pui-ring-offset-width: 2px;'],
   'ring-offset-background': ['--pui-ring-offset-color: var(--pui-background);'],
   'shadow-xs': ['--pui-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);', ...composedShadow()],
+  'shadow-sm': [
+    '--pui-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);',
+    ...composedShadow(),
+  ],
   'shadow-md': [
     '--pui-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);',
     ...composedShadow(),
@@ -511,6 +518,7 @@ function splitVariants(token: string): string[] {
 }
 
 function spacingValue(raw: string): string | null {
+  if (raw === 'fit') return 'fit-content';
   if (raw === 'full') return '100%';
   if (raw === '1/2') return '50%';
   if (raw.startsWith('[') && raw.endsWith(']')) return raw.slice(1, -1).replaceAll('_', ' ');

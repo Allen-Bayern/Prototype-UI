@@ -40,13 +40,48 @@ describe('prototypes/shadcn: tabs', () => {
     await Promise.resolve();
     await Promise.resolve();
 
+    expect(styleContains(root, 'flex')).toBe(true);
+    expect(styleContains(root, 'flex-col')).toBe(true);
+    expect(styleContains(root, 'gap-2')).toBe(true);
+    expect(styleContains(root, 'gap-3')).toBe(false);
+    expect(styleContains(root, 'text-foreground')).toBe(false);
+
+    expect(styleContains(list, 'inline-flex')).toBe(true);
+    expect(styleContains(list, 'w-fit')).toBe(true);
+    expect(styleContains(list, 'h-9')).toBe(true);
+    expect(styleContains(list, 'justify-center')).toBe(true);
+    expect(styleContains(list, 'rounded-lg')).toBe(true);
+    expect(styleContains(list, 'p-[3px]')).toBe(true);
+    expect(styleContains(list, 'bg-muted')).toBe(true);
+    expect(styleContains(list, 'border')).toBe(false);
+    expect(styleContains(list, 'shadow-xs')).toBe(false);
+
+    expect(styleContains(triggerA, 'relative')).toBe(true);
+    expect(styleContains(triggerA, 'h-[calc(100%_-_1px)]')).toBe(true);
+    expect(styleContains(triggerA, 'flex-1')).toBe(true);
+    expect(styleContains(triggerA, 'gap-1.5')).toBe(true);
+    expect(styleContains(triggerA, 'rounded-md')).toBe(true);
+    expect(styleContains(triggerA, 'px-2')).toBe(true);
+    expect(styleContains(triggerA, 'py-1')).toBe(true);
+    expect(styleContains(triggerA, 'text-foreground/60')).toBe(true);
+    expect(styleContains(triggerA, 'data-[selected]:bg-background')).toBe(true);
+    expect(styleContains(triggerA, 'data-[selected]:text-foreground')).toBe(true);
+    expect(styleContains(triggerA, 'data-[selected]:shadow-sm')).toBe(true);
+
+    expect(styleContains(contentA, 'flex-1')).toBe(true);
+    expect(styleContains(contentA, 'outline-none')).toBe(true);
+    expect(styleContains(contentA, 'min-h-28')).toBe(false);
+    expect(styleContains(contentA, 'border')).toBe(false);
+    expect(styleContains(contentA, 'p-4')).toBe(false);
+    expect(styleContains(contentA, 'shadow-xs')).toBe(false);
+
     expect(root.getExposes().value.get()).toBe('a');
     expect(triggerA.getExposes().selected.get()).toBe(true);
     expect(contentA.getExposes().current.get()).toBe(true);
     expect(triggerA.hasAttribute('data-selected')).toBe(true);
     expect(triggerA.getAttribute('aria-selected')).toBe('true');
     expect(styleContains(triggerA, 'data-[selected]:bg-background')).toBe(true);
-    expect(styleContains(contentA, 'block')).toBe(true);
+    expect(styleContains(contentA, 'flex-1')).toBe(true);
     expect(styleContains(contentB, 'data-[hidden]:hidden')).toBe(false);
     expect(contentB.hasAttribute('hidden')).toBe(false);
 
@@ -60,7 +95,7 @@ describe('prototypes/shadcn: tabs', () => {
     expect(triggerB.hasAttribute('data-selected')).toBe(true);
     expect(triggerB.getAttribute('aria-selected')).toBe('true');
     expect(styleContains(triggerB, 'data-[selected]:bg-background')).toBe(true);
-    expect(styleContains(contentB, 'block')).toBe(true);
+    expect(styleContains(contentB, 'flex-1')).toBe(true);
     expect(styleContains(contentA, 'data-[hidden]:hidden')).toBe(false);
     expect(contentA.hasAttribute('hidden')).toBe(true);
 
@@ -92,8 +127,11 @@ describe('prototypes/shadcn: tabs', () => {
     expect(trigger.getExposes().focusVisible.get()).toBe(true);
     expect(styleContains(trigger, 'data-[focus-visible]:ring-3')).toBe(true);
     expect(styleContains(trigger, 'data-[focus-visible]:ring-ring/50')).toBe(true);
-    expect(styleContains(trigger, 'data-[focus-visible]:ring-offset-2')).toBe(true);
-    expect(styleContains(trigger, 'data-[focus-visible]:shadow-xs')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:border-ring')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:outline-1')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:outline-ring')).toBe(true);
+    expect(styleContains(trigger, 'data-[focus-visible]:ring-offset-2')).toBe(false);
+    expect(styleContains(trigger, 'data-[focus-visible]:shadow-xs')).toBe(false);
 
     root.remove();
     await Promise.resolve();

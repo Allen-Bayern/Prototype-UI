@@ -1,16 +1,16 @@
 id: P-SHADCN-TABS-LIST
 type: prototype
-title: Shadcn Tabs List inherits Base Tabs List and adds the current collection surface
+title: Shadcn Tabs List inherits Base Tabs List and projects the pinned v4 default surface
 status: draft
 since: 0.2.0-rc.0
-summary: Shadcn Tabs List inherits Base collection, roving-focus, orientation, and accessibility behavior and adds its currently implemented list surface.
+summary: Shadcn Tabs List inherits Base collection, roving-focus, orientation, and accessibility behavior and reproduces the pinned v4 default horizontal list surface.
 statement:
   zh-CN: >-
-    Shadcn Tabs List 是 `P-BASE-TABS-LIST` 之上的 direct anatomy part，保留同域 collection、roving focus、keyboard navigation、orientation 与 tablist a11y，并增加当前 list surface。固定 upstream 的 `variant` 与方向感知样式尚未进入 passing API；`asChild` 明确不提供。
+    Shadcn Tabs List 是 `P-BASE-TABS-LIST` 之上的 direct anatomy part，保留同域 collection、roving focus、keyboard navigation、orientation 与 tablist a11y，并按固定 v4 baseline 投射 default variant 的 horizontal list surface，包括明确的 fit-content width。`line` variant 与 vertical 方向感知样式尚未进入 passing API；`asChild` 明确不提供。
 
 
   en: >-
-    Shadcn Tabs List is a direct anatomy part over `P-BASE-TABS-LIST`. It retains same-domain collection, roving focus, keyboard navigation, orientation, and tablist accessibility while adding the current list surface. The pinned upstream `variant` and orientation-aware styles are not yet part of the passing API; `asChild` is explicitly unavailable.
+    Shadcn Tabs List is a direct anatomy part over `P-BASE-TABS-LIST`. It retains same-domain collection, roving focus, keyboard navigation, orientation, and tablist accessibility while projecting the pinned v4 default-variant horizontal list surface, including an explicit fit-content width. The `line` variant and vertical orientation-aware styles are not yet part of the passing API; `asChild` is explicitly unavailable.
 
 
 criteria:
@@ -41,8 +41,8 @@ criteria:
       en: The current List protocol is exposed as the `shadcn-tabs-list` direct prototype.
   - id: P-SHADCN-TABS-LIST-CURRENT-VISUAL-SURFACE
     text:
-      zh-CN: List 必须提供当前 inline-flex、height、alignment、radius、border、muted surface、padding、text 与 shadow tokens；不得据此宣称 upstream variant parity。
-      en: List must provide the current inline-flex, height, alignment, radius, border, muted surface, padding, text, and shadow tokens without claiming upstream variant parity.
+      zh-CN: 默认 horizontal/default-variant List 必须按固定 v4 baseline 提供 `inline-flex h-9 w-fit items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground`；不得附加旧有 border、shadow、rounded-xl 或 muted opacity，也不得据此宣称 line/vertical parity。
+      en: The default horizontal, default-variant List must provide `inline-flex h-9 w-fit items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground` from the pinned v4 baseline; it must not retain the former border, shadow, rounded-xl, or muted-opacity additions, and this does not claim line or vertical parity.
   - id: P-SHADCN-TABS-LIST-COMPATIBILITY-SUBSET
     text:
       zh-CN: 已测试的 Base behavior 与当前 surface 之外，所有差异必须集中在唯一 compatibility open question。
@@ -60,11 +60,11 @@ openQuestions:
       en: How should List variant, orientation, and token parity converge?
     context:
       zh-CN: >-
-        intentional deviation 是省略 `asChild`。upstream 公开 `variant: default | line`，使用 Root orientation group 调整高度/纵向布局，并有 data-slot/data-variant、w-fit、justify、rounded-lg 与 p-[3px]；当前 API 没有 variant，固定 horizontal-style height，并额外使用 border、shadow、rounded-xl 与 bg-muted/80。上述均为待实现或待评审 gap。
+        intentional deviation 是省略 `asChild`。默认 horizontal/default-variant surface 已对齐固定 v4 baseline。upstream 仍公开 `variant: default | line`，并使用 Root orientation group 调整 vertical height 与 flex direction；当前 API 没有 variant，data-slot/data-variant 与 vertical `h-fit flex-col` 仍是待实现或待评审 gap。
 
 
       en: >-
-        The intentional deviation is omission of `asChild`. Upstream exposes `variant: default | line`, uses the Root orientation group for height and vertical layout, and adds data-slot, data-variant, w-fit, justify, rounded-lg, and p-[3px]; the current API has no variant, fixes a horizontal-style height, and adds border, shadow, rounded-xl, and bg-muted/80. These remain implementation or review gaps.
+        The intentional deviation is omission of `asChild`. The default horizontal, default-variant surface now matches the pinned v4 baseline. Upstream still exposes `variant: default | line` and uses the Root orientation group for vertical height and flex direction; the current API has no variant, while data-slot, data-variant, and vertical `h-fit flex-col` remain implementation or review gaps.
 
 
     blocks: [shadcn tabs list parity roadmap]

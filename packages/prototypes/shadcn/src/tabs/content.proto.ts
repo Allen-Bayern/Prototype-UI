@@ -15,11 +15,7 @@ const tabsContent = definePrototype<ShadcnTabsContentProps, ShadcnTabsContentExp
     }
     const { hidden } = contentState;
     // P-SHADCN-TABS-CONTENT-CURRENT-VISUAL-SURFACE
-    def.feedback.style.use(
-      tw(
-        'block w-full min-h-28 rounded-xl border border-border/60 bg-background p-4 text-sm leading-6 shadow-xs outline-none'
-      )
-    );
+    def.feedback.style.use(tw('flex-1 outline-none'));
     // P-SHADCN-TABS-CONTENT-HIDDEN-PROJECTION
     def.rule({
       when: (w) => w.state(hidden).eq(true),

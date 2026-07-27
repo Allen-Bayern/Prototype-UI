@@ -23,6 +23,26 @@ describe('proto style css renderer', () => {
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
 
+  it('renders intrinsic sizing and surface utilities used by Shadcn Tabs v4', () => {
+    const css = renderProtoStyleTokenCss([
+      'w-fit',
+      'h-fit',
+      'flex-1',
+      'shadow-sm',
+      'outline-1',
+      'outline-ring',
+    ]);
+
+    expect(css).toContain('width: fit-content;');
+    expect(css).toContain('height: fit-content;');
+    expect(css).toContain('flex: 1 1 0%;');
+    expect(css).toContain('--pui-shadow: 0 1px 3px 0');
+    expect(css).toContain('outline-style: solid;');
+    expect(css).toContain('outline-width: 1px;');
+    expect(css).toContain('outline-color: var(--pui-ring);');
+    expect(css).not.toContain('Unsupported Proto UI style tokens');
+  });
+
   it('renders internal negative data selector variants', () => {
     const css = renderProtoStyleTokenCss(['data-[hovered]:not-[data-active]:bg-muted']);
 
