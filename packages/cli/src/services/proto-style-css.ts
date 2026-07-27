@@ -78,7 +78,6 @@ const staticUtilities: Record<string, string[]> = {
   hidden: ['display: none;'],
   'flex-col': ['flex-direction: column;'],
   'flex-row': ['flex-direction: row;'],
-  'flex-1': ['flex: 1 1 0%;'],
   'flex-col-reverse': ['flex-direction: column-reverse;'],
   'items-center': ['align-items: center;'],
   'items-start': ['align-items: flex-start;'],

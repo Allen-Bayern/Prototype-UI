@@ -160,17 +160,6 @@ const shadcnCompound = (
     { stylePreset: 'shadcn', preset }
   );
 
-const brutalist = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
-  defineSimple(
-    id,
-    label,
-    '@proto.ui/prototypes-brutalist',
-    `@proto.ui/prototypes-brutalist/${id.slice('brutalist-'.length)}`,
-    prototypeImport,
-    exportBaseName,
-    { stylePreset: 'brutalist' }
-  );
-
 const base = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
   defineSimple(
     id,

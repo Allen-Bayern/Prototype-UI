@@ -1,6 +1,6 @@
 /**
  * DOM/CSS live-theme evidence for T-BRUTALIST-BUTTON-0001-CASE-8
- * (P-BRUTALIST-BUTTON-LIVE-THEME, P-BRUTALIST-BUTTON-INTERACTION-MOUNT-COVERAGE).
+ * (P-BRUTALIST-BUTTON-LIVE-THEME, P-BRUTALIST-BUTTON-PAIR-INVARIANT).
  *
  * Mounts a Brutalist Button as a Web Component inside a theme-scoped wrapper,
  * injects the Proto UI token CSS produced from the official prototype tokens,
