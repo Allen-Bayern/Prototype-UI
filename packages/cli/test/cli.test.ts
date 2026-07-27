@@ -262,8 +262,13 @@ describe('@proto.ui/cli', () => {
       `data-[focus-visible]:ring-3"])[data-focus-visible] {\n    --pui-ring-width: 3px;`
     );
     expect(tokensCss).toContain(
-      `data-[focus-visible]:shadow-xs"])[data-focus-visible] {\n    --pui-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);`
+      `data-[focus-visible]:outline-1"])[data-focus-visible] {\n    outline-style: solid;\n    outline-width: 1px;`
     );
+    expect(tokensCss).toContain(
+      `data-[selected]:shadow-sm"])[data-selected] {\n    --pui-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);`
+    );
+    expect(tokensCss).toContain(`[data-pui-style~="w-fit"]`);
+    expect(tokensCss).toContain('width: fit-content;');
     expect(tokensCss).toContain(
       'box-shadow: var(--pui-ring-offset-shadow, 0 0 #0000), var(--pui-ring-shadow, 0 0 #0000), var(--pui-shadow, 0 0 #0000);'
     );

@@ -3,7 +3,7 @@ type: test
 title: Shadcn Tabs Trigger delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Trigger identity, Base tab inheritance, selection and focus behavior, current state styles, asChild omission, and bounded upstream parity.
+summary: Covers Trigger identity, Base tab inheritance, selection and focus behavior, pinned v4 default state styles, asChild omission, and bounded line/vertical parity.
 cases:
   - id: T-SHADCN-TABS-TRIGGER-0001-CASE-IDENTITY-AND-INHERITANCE
     title: Trigger is a named direct entry that inherits Base tab behavior
@@ -16,7 +16,7 @@ cases:
       ]
     expectation: shadcn-tabs-trigger-inherits-base-tab-selection-and-focus
   - id: T-SHADCN-TABS-TRIGGER-0001-CASE-STYLES-AND-COMPATIBILITY
-    title: inherited states drive current styles while remaining upstream parity stays outside the claim
+    title: inherited states drive the pinned v4 default surface while line and vertical parity stay bounded
     covers:
       [
         P-SHADCN-TABS-TRIGGER-CURRENT-VISUAL-SURFACE,
@@ -24,7 +24,7 @@ cases:
         P-SHADCN-TABS-TRIGGER-COMPATIBILITY-SUBSET,
         P-SHADCN-TABS-TRIGGER-AS-CHILD-OMISSION,
       ]
-    expectation: shadcn-tabs-trigger-state-driven-current-surface-with-bounded-parity
+    expectation: shadcn-tabs-trigger-state-driven-v4-default-surface-with-bounded-line-vertical-parity
 implementations:
   - id: prototypes-shadcn-tabs-trigger-contract
     kind: module-test
@@ -38,7 +38,7 @@ implementations:
       ]
     exercises: [P-SHADCN-TABS-TRIGGER, P-BASE-TABS-TRIGGER]
     notes:
-      - Positive tests cover selection, focus-visible styling, and stable press lifecycle; orientation, variant, SVG, dark, and exact-token gaps remain bounded by the centralized question.
+      - Positive tests cover pinned default light tokens, selected and focus-visible styling, and stable press lifecycle; line, vertical, explicit dark, SVG, and API gaps remain bounded by the centralized question.
 verifies:
   prototypes:
     - id: P-SHADCN-TABS-TRIGGER

@@ -3,7 +3,7 @@ type: test
 title: Shadcn Tabs Root delta protocol contract tests
 status: draft
 since: 0.2.0-rc.0
-summary: Covers Root identity, Base inheritance, family selection, current layout surface, asChild omission, and bounded upstream compatibility.
+summary: Covers Root identity, Base inheritance, family selection, the pinned v4 default horizontal layout, asChild omission, and bounded upstream compatibility.
 cases:
   - id: T-SHADCN-TABS-0001-CASE-IDENTITY-AND-INHERITANCE
     title: Root is a named direct entry that inherits Base Tabs without declared reversals
@@ -16,14 +16,14 @@ cases:
       ]
     expectation: shadcn-tabs-root-inherits-base-selection-family
   - id: T-SHADCN-TABS-0001-CASE-SURFACE-AND-COMPATIBILITY
-    title: Root projects its current layout while unimplemented upstream parity stays outside the claim
+    title: Root projects the pinned v4 default horizontal layout while vertical parity stays bounded
     covers:
       [
         P-SHADCN-TABS-CURRENT-VISUAL-SURFACE,
         P-SHADCN-TABS-COMPATIBILITY-SUBSET,
         P-SHADCN-TABS-AS-CHILD-OMISSION,
       ]
-    expectation: shadcn-tabs-root-current-layout-with-bounded-parity
+    expectation: shadcn-tabs-root-v4-default-horizontal-layout-with-bounded-vertical-parity
 implementations:
   - id: prototypes-shadcn-tabs-root-contract
     kind: module-test
@@ -37,7 +37,7 @@ implementations:
       ]
     exercises: [P-SHADCN-TABS, P-BASE-TABS]
     notes:
-      - Positive tests cover named entry, inherited selection and family coordination, and current source-declared layout; upstream gaps remain bounded by the shared decision and centralized question.
+      - Positive tests cover named entry, inherited selection and family coordination, and the pinned v4 default horizontal layout; vertical and API gaps remain bounded by the shared decision and centralized question.
 verifies:
   prototypes:
     - id: P-SHADCN-TABS

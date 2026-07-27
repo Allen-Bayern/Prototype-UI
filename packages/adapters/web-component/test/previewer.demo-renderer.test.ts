@@ -125,10 +125,15 @@ describe('PrototypePreviewer demo-renderer / wc', () => {
     expect(trigger).not.toBeNull();
     expect(content).not.toBeNull();
     expect(styleContains(root, 'flex')).toBe(true);
+    expect(styleContains(root, 'gap-2')).toBe(true);
     expect(root?.className).toContain('w-[420px]');
     expect(styleContains(list, 'inline-flex')).toBe(true);
-    expect(styleContains(trigger, 'rounded-lg')).toBe(true);
-    expect(styleContains(content, 'min-h-28')).toBe(true);
+    expect(styleContains(list, 'w-fit')).toBe(true);
+    expect(styleContains(list, 'h-9')).toBe(true);
+    expect(styleContains(trigger, 'rounded-md')).toBe(true);
+    expect(styleContains(trigger, 'flex-1')).toBe(true);
+    expect(styleContains(content, 'flex-1')).toBe(true);
+    expect(styleContains(content, 'outline-none')).toBe(true);
 
     await session.destroy();
     host.remove();

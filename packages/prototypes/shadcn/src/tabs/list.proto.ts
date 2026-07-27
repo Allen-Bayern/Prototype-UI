@@ -10,7 +10,7 @@ const tabsList = definePrototype<ShadcnTabsListProps, ShadcnTabsListExposes>({
     // P-SHADCN-TABS-LIST-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(
       tw(
-        'inline-flex h-10 items-center rounded-xl border border-border/60 bg-muted/80 p-1 text-muted-foreground shadow-xs'
+        'inline-flex h-9 w-fit items-center justify-center rounded-lg bg-muted p-[3px] text-muted-foreground'
       )
     );
   },
