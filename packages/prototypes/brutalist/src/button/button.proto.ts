@@ -15,7 +15,7 @@ import type {
   BrutalistButtonVariant,
 } from './types';
 
-// P-BRUTALIST-BUTTON-VISUAL-GRAMMAR, P-BRUTALIST-BUTTON-STRUCTURE
+// P-BRUTALIST-BUTTON-VISUAL-GRAMMAR
 const BUTTON_BASE_TOKENS = [
   'group/brutalist-button',
   'inline-flex',

@@ -6,13 +6,13 @@ since: 0.2.0-rc.6
 summary: >-
   Covers the redesigned Brutalist Button public API, paired fills, interaction states, Light/Dark behavior, and live theme transitions against P-BRUTALIST-BUTTON criteria.
 
+
 cases:
   - id: T-BRUTALIST-BUTTON-0001-CASE-1
-    title: Direct entry and Base Button inheritance
+    title: Direct entry and Base Button inheritance (runtime identity)
     covers:
       - P-BRUTALIST-BUTTON-ENTRY
       - P-BRUTALIST-BUTTON-BASE-INHERITANCE
-      - P-BRUTALIST-BUTTON-DESIGN-LANGUAGE-IDENTITY
     expectation: p-brutalist-button-entry-inheritance
   - id: T-BRUTALIST-BUTTON-0001-CASE-2
     title: Defaults restore after prop removal
@@ -52,9 +52,10 @@ cases:
       - P-BRUTALIST-BUTTON-PAIR-INVARIANT
     expectation: p-brutalist-button-light-dark
   - id: T-BRUTALIST-BUTTON-0001-CASE-8
-    title: Host theme change repaints surface fills including disabled
+    title: Host theme change repaints mounted buttons (including disabled) via computed CSS
     covers:
       - P-BRUTALIST-BUTTON-LIVE-THEME
+      - P-BRUTALIST-BUTTON-INTERACTION-MOUNT-COVERAGE
       - P-BRUTALIST-BUTTON-PAIR-INVARIANT
     expectation: p-brutalist-button-live-theme
   - id: T-BRUTALIST-BUTTON-0001-CASE-9
