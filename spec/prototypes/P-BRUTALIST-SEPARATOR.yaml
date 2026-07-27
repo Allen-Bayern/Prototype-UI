@@ -1,12 +1,12 @@
 id: P-BRUTALIST-SEPARATOR
 type: prototype
-title: Brutalist Separator  protocol
+title: Brutalist Separator protocol
 status: draft
-since: 0.2.0-rc.5
-summary: Brutalist Separator  protocol for the Proto UI framework.
+since: 0.2.0-rc.6
+summary: Brutalist Separator protocol for the Proto UI framework.
 statement:
-  en: Brutalist Separator  protocol. This draft entity catalogs the protocol surface.
-  zh-CN: Brutalist Separator  protocol。该 draft entity 编目协议面。
+  en: Brutalist Separator protocol. This draft entity catalogs the protocol surface.
+  zh-CN: Brutalist Separator protocol。该 draft entity 编目协议面。
 criteria:
   - id: P-BRUTALIST-SEPARATOR-CATALOGED
     text:
@@ -15,9 +15,9 @@ criteria:
 sources:
   - path: packages/prototypes/brutalist/src/separator/root.proto.ts
 revisions:
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.6
     change: introduced
-    summary: Introduced brutalist separator  protocol.
+    summary: Introduced brutalist separator protocol.
 tags:
   - prototype
   - brutalist

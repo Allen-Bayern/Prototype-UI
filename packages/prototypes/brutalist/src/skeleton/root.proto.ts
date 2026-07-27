@@ -9,10 +9,10 @@ export const BrutalistSkeletonRoot = definePrototype<
   name: 'brutalist-skeleton-root',
   setup(def) {
     asSkeletonRoot();
-    // min-w-16 is not in the current token compiler closure; use supported sizes.
+    // No default width/height tokens: host/demo owns size so className cannot fight sorted token CSS.
     def.feedback.style.use(
       tw(
-        'block h-4 w-32 rounded-none border-2 border-foreground bg-lavender shadow-[2px_2px_0_0_var(--pui-foreground)]'
+        'block rounded-none border-2 border-foreground bg-lavender shadow-[2px_2px_0_0_var(--pui-foreground)]'
       )
     );
     return (renderer) => [renderer.r.slot()];

@@ -2,7 +2,7 @@ id: T-BASE-SEPARATOR-0001
 type: test
 title: Base Separator behavior tests
 status: draft
-since: 0.2.0-rc.5
+since: 0.2.0-rc.6
 summary: Web Component coverage for decorative hiding, semantic orientation, and non-interaction.
 cases:
   - id: T-BASE-SEPARATOR-0001-CASE-DECORATIVE
@@ -19,7 +19,7 @@ exercises:
 sources:
   - path: packages/prototypes/base/test/separator.test.ts
 revisions:
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.6
     change: introduced
     summary: Added executable Separator protocol coverage.
 tags: [base, separator, test]

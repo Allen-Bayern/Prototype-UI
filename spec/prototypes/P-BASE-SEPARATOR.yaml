@@ -2,7 +2,7 @@ id: P-BASE-SEPARATOR
 type: prototype
 title: Base Separator protocol
 status: draft
-since: 0.2.0-rc.5
+since: 0.2.0-rc.6
 summary: Base Separator defines orientation and decorative accessibility semantics without interaction.
 statement:
   zh-CN: Base Separator 仅拥有 horizontal/vertical orientation 与 decorative 语义；decorative 默认隐藏于 accessibility tree，semantic 模式暴露 separator role 与 aria-orientation。
@@ -30,7 +30,7 @@ sources:
   - path: packages/prototypes/base/src/separator/root.proto.ts
   - path: packages/prototypes/base/src/separator/types.ts
 revisions:
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.6
     change: rewritten
     summary: Rewrote Separator as a minimal accessibility protocol.
 tags: [prototype, base, separator]
