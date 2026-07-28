@@ -25,7 +25,7 @@ cases:
       - P-BRUTALIST-TOGGLE-SIZE-PROP
     expectation: p-brutalist-toggle-sizes
   - id: T-BRUTALIST-TOGGLE-0001-CASE-4
-    title: Defaults restore after prop removal
+    title: Reactive defaults restore after prop removal and defaultActive initializes false
     covers:
       - P-BRUTALIST-TOGGLE-DEFAULTS
       - P-BRUTALIST-TOGGLE-SIZE-PROP
@@ -69,6 +69,7 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Toggle coverage mapped to the rc.7 P criteria (size, defaults, active pair, interaction). Not present in the immutable rc.6 snapshot.
+
 
 tags:
   - test

@@ -5,7 +5,7 @@ import type { BrutalistDialogRootExposes, BrutalistDialogRootProps } from './typ
 const dialogRoot = definePrototype<BrutalistDialogRootProps, BrutalistDialogRootExposes>({
   name: 'brutalist-dialog-root',
   setup(def) {
-    // P-BRUTALIST-DIALOG-BASE-INHERITANCE: inherit Base Dialog Root ownership (open/value/disabled states) once.
+    // P-BRUTALIST-DIALOG-BASE-INHERITANCE: inherit Base Dialog Root open ownership and request methods once.
     asDialogRoot();
     // P-BRUTALIST-DIALOG-VISUAL-GRAMMAR: relative inline-flex container surface (no borders/shadow itself).
     def.feedback.style.use(tw('relative inline-flex items-start'));

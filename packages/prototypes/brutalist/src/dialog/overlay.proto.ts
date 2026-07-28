@@ -5,8 +5,8 @@ import type { BrutalistDialogMaskExposes, BrutalistDialogMaskProps } from './typ
 const dialogMask = definePrototype<BrutalistDialogMaskProps, BrutalistDialogMaskExposes>({
   name: 'brutalist-dialog-mask',
   setup(def) {
-    // P-BRUTALIST-DIALOG-MASK-BASE-INHERITANCE: inherit Base Dialog Mask (open/transitionState) once.
-    // P-BRUTALIST-DIALOG-MASK-PUBLIC-BOUNDARY: Pick passthrough only — no own props exposed.
+    // P-BRUTALIST-DIALOG-MASK-BASE-INHERITANCE: inherit internal open/transition ownership once.
+    // P-BRUTALIST-DIALOG-MASK-PUBLIC-BOUNDARY: TypeScript boundary keeps passthrough plus transitionState/isPresent.
     const dialog = asDialogMask();
     // P-BRUTALIST-DIALOG-MASK-TRANSITION
     dialog.asTransition.configure({ enterDuration: 150, leaveDuration: 150 });

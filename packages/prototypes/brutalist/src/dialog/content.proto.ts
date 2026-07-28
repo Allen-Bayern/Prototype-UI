@@ -6,8 +6,8 @@ import type { BrutalistDialogContentExposes, BrutalistDialogContentProps } from 
 const dialogContent = definePrototype<BrutalistDialogContentProps, BrutalistDialogContentExposes>({
   name: 'brutalist-dialog-content',
   setup(def) {
-    // P-BRUTALIST-DIALOG-CONTENT-BASE-INHERITANCE: inherit Base Dialog Content (open/transitionState/isPresent) once.
-    // P-BRUTALIST-DIALOG-CONTENT-PUBLIC-BOUNDARY: empty props; Pick open/transitionState/isPresent passthrough.
+    // P-BRUTALIST-DIALOG-CONTENT-BASE-INHERITANCE: inherit Base open/transition ownership once.
+    // P-BRUTALIST-DIALOG-CONTENT-PUBLIC-BOUNDARY: TypeScript boundary has no own props and keeps open/transitionState/isPresent.
     const dialog = asDialogContent();
     // P-BRUTALIST-DIALOG-CONTENT-TRANSITION
     dialog.asTransition.configure({ enterDuration: 200, leaveDuration: 200 });
