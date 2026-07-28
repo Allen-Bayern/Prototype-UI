@@ -14,8 +14,7 @@ const ROOT_BASE_TOKENS = [
   'border-2',
   'border-black',
   'bg-secondary-background',
-  'pl-0.5',
-  'pr-5',
+  'px-0.5',
   'shadow-[3px_3px_0_0_#000]',
   'outline-none',
   'select-none',
@@ -37,7 +36,7 @@ const switchRoot = definePrototype<BrutalistSwitchRootProps, BrutalistSwitchRoot
 
     def.rule({
       when: (w) => w.state(checked).eq(true),
-      intent: (i) => i.feedback.style.use(tw('bg-sky pl-5 pr-0.5')),
+      intent: (i) => i.feedback.style.use(tw('bg-sky')),
     });
     def.rule({
       when: (w) => w.state(pressed).eq(true),

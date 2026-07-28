@@ -25,9 +25,7 @@ export type BrutalistDialogRootProps = DialogRootProps;
 export type BrutalistDialogRootExposes = DialogRootExposes;
 export type BrutalistDialogRootAsHookContract = DialogRootAsHookContract;
 
-export type BrutalistDialogTriggerProps = DialogTriggerProps & {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-};
+export type BrutalistDialogTriggerProps = DialogTriggerProps;
 export type BrutalistDialogTriggerExposes = DialogTriggerExposes;
 export type BrutalistDialogTriggerAsHookContract = DialogTriggerAsHookContract;
 

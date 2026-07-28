@@ -30,9 +30,7 @@ export type BrutalistSelectValueProps = SelectValueProps;
 export type BrutalistSelectValueExposes = SelectValueExposes;
 export type BrutalistSelectValueAsHookContract = SelectValueAsHookContract;
 
-export interface BrutalistSelectContentProps extends SelectContentProps {
-  position?: 'item-aligned' | 'popper';
-}
+export type BrutalistSelectContentProps = SelectContentProps;
 export type BrutalistSelectContentExposes = SelectContentExposes;
 export type BrutalistSelectContentAsHookContract = SelectContentAsHookContract;
 

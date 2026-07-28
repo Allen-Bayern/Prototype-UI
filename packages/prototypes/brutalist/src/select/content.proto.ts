@@ -6,20 +6,7 @@ import type { BrutalistSelectContentExposes, BrutalistSelectContentProps } from 
 const selectContent = definePrototype<BrutalistSelectContentProps, BrutalistSelectContentExposes>({
   name: 'brutalist-select-content',
   setup(def) {
-    // P-BRUTALIST-SELECT-CONTENT-POSITION-PROP
-    def.props.define({
-      position: {
-        type: 'enum',
-        empty: 'fallback',
-        options: ['item-aligned', 'popper'],
-      },
-    });
-    def.props.setDefaults({ position: 'item-aligned' });
-
-    // P-BRUTALIST-SELECT-CONTENT-BASE-INHERITANCE,
-    // P-BRUTALIST-SELECT-CONTENT-CURRENT-BASE-DEVIATIONS
     const select = asSelectContent();
-    // P-BRUTALIST-SELECT-CONTENT-TRANSITION
     select.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
     const { open } = select.stateHandles;
     const { transitionState } = select.asTransition;
