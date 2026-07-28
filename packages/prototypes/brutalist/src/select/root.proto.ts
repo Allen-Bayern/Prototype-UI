@@ -5,11 +5,12 @@ import type { BrutalistSelectRootExposes, BrutalistSelectRootProps } from './typ
 const selectRoot = definePrototype<BrutalistSelectRootProps, BrutalistSelectRootExposes>({
   name: 'brutalist-select-root',
   setup() {
-    // P-BRUTALIST-SELECT-BASE-INHERITANCE, P-BRUTALIST-SELECT-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-SELECT-BASE-INHERITANCE: inherit Base Select Root ownership (open/value/disabled states) once.
+    // P-BRUTALIST-SELECT-ENTRY: direct entry name `brutalist-select-root`.
     asSelectRoot();
   },
 });
 
-/** P-BRUTALIST-SELECT-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-SELECT-COMPATIBILITY-SUBSET. */
+// P-BRUTALIST-SELECT-ENTRY: `brutalist-select-root` is the only public Select root entry in this slice.
 
 export default selectRoot;

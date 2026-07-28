@@ -5,14 +5,12 @@ import type { BrutalistHoverCardRootExposes, BrutalistHoverCardRootProps } from 
 const hoverCardRoot = definePrototype<BrutalistHoverCardRootProps, BrutalistHoverCardRootExposes>({
   name: 'brutalist-hover-card-root',
   setup(def) {
-    // P-BRUTALIST-HOVER-CARD-BASE-INHERITANCE,
-    // P-BRUTALIST-HOVER-CARD-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-HOVER-CARD-BASE-INHERITANCE
     asHoverCardRoot();
-    // P-BRUTALIST-HOVER-CARD-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-HOVER-CARD-VISUAL-GRAMMAR
     def.feedback.style.use(tw('relative inline-flex items-start'));
   },
 });
 
-/** P-BRUTALIST-HOVER-CARD-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-HOVER-CARD-COMPATIBILITY-SUBSET. */
-
+/** P-BRUTALIST-HOVER-CARD-ENTRY */
 export default hoverCardRoot;

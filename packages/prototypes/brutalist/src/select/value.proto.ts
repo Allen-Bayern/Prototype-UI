@@ -5,15 +5,14 @@ import type { BrutalistSelectValueExposes, BrutalistSelectValueProps } from './t
 const selectValue = definePrototype<BrutalistSelectValueProps, BrutalistSelectValueExposes>({
   name: 'brutalist-select-value',
   setup() {
-    // P-BRUTALIST-SELECT-VALUE-BASE-INHERITANCE,
-    // P-BRUTALIST-SELECT-VALUE-CURRENT-BASE-DEVIATIONS,
-    // P-BRUTALIST-SELECT-VALUE-DISPLAY-RENDER
+    // P-BRUTALIST-SELECT-VALUE-BASE-INHERITANCE: inherit Base Select Value displayValue state once.
     const value = asSelectValue().stateHandles;
     if (!value) throw new Error('[brutalist-select-value] Select Value must project displayValue.');
+    // P-BRUTALIST-SELECT-VALUE-DISPLAY-RENDER: render displayValue as content, or null when empty.
     return () => (value.displayValue.get() ? [value.displayValue.get()] : null);
   },
 });
 
-/** P-BRUTALIST-SELECT-VALUE-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-SELECT-VALUE-COMPATIBILITY-SUBSET. */
+// P-BRUTALIST-SELECT-VALUE-ENTRY: `brutalist-select-value` is the only public Select value entry in this slice.
 
 export default selectValue;

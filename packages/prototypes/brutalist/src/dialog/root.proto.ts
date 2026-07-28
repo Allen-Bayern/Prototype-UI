@@ -5,13 +5,13 @@ import type { BrutalistDialogRootExposes, BrutalistDialogRootProps } from './typ
 const dialogRoot = definePrototype<BrutalistDialogRootProps, BrutalistDialogRootExposes>({
   name: 'brutalist-dialog-root',
   setup(def) {
-    // P-BRUTALIST-DIALOG-BASE-INHERITANCE, P-BRUTALIST-DIALOG-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-DIALOG-BASE-INHERITANCE: inherit Base Dialog Root ownership (open/value/disabled states) once.
     asDialogRoot();
-    // P-BRUTALIST-DIALOG-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DIALOG-VISUAL-GRAMMAR: relative inline-flex container surface (no borders/shadow itself).
     def.feedback.style.use(tw('relative inline-flex items-start'));
   },
 });
 
-/** P-BRUTALIST-DIALOG-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DIALOG-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DIALOG-ENTRY: `brutalist-dialog-root` is the only public Dialog root entry in this slice. */
 
 export default dialogRoot;

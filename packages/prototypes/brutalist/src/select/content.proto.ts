@@ -6,18 +6,20 @@ import type { BrutalistSelectContentExposes, BrutalistSelectContentProps } from 
 const selectContent = definePrototype<BrutalistSelectContentProps, BrutalistSelectContentExposes>({
   name: 'brutalist-select-content',
   setup(def) {
+    // P-BRUTALIST-SELECT-CONTENT-BASE-INHERITANCE: inherit Base Select Content open/transitionState/side states once.
     const select = asSelectContent();
+    // P-BRUTALIST-SELECT-CONTENT-TRANSITION: enter 150ms / leave 100ms; side slide-in + fade zoom enter/leave.
     select.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
     const { open } = select.stateHandles;
     const { transitionState } = select.asTransition;
 
-    // P-BRUTALIST-SELECT-CONTENT-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-SELECT-CONTENT-VISUAL-GRAMMAR: anchored hard-shadowed square listbox panel (BRUTALIST_PANEL_TOKENS).
     def.feedback.style.use(
       tw(
         `relative z-50 w-[var(--proto-ui-anchor-width)] min-w-[var(--proto-ui-anchor-width)] max-h-[var(--proto-ui-available-height)] overflow-x-hidden overflow-y-auto p-1 outline-none transition-none duration-150 ${BRUTALIST_PANEL_TOKENS}`
       )
     );
-    // P-BRUTALIST-SELECT-CONTENT-OPEN-AND-SIDE-STYLES
+    // P-BRUTALIST-SELECT-CONTENT-TRANSITION (enter fading zoom) and side-based slide-in rules below.
     def.rule({
       when: (w) =>
         w.any(w.state(transitionState).eq('entering'), w.state(transitionState).eq('entered')),
@@ -46,6 +48,6 @@ const selectContent = definePrototype<BrutalistSelectContentProps, BrutalistSele
   },
 });
 
-/** P-BRUTALIST-SELECT-CONTENT-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-SELECT-CONTENT-COMPATIBILITY-SUBSET. */
+// P-BRUTALIST-SELECT-CONTENT-ENTRY: `brutalist-select-content` is the only public Select content entry in this slice.
 
 export default selectContent;

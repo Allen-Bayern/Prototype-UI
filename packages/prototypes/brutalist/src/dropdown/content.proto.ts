@@ -9,21 +9,20 @@ const dropdownContent = definePrototype<
 >({
   name: 'brutalist-dropdown-content',
   setup(def) {
-    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-BASE-INHERITANCE,
-    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-BASE-INHERITANCE
     const dropdown = asDropdownContent();
     // P-BRUTALIST-DROPDOWN-MENU-CONTENT-TRANSITION
     dropdown.asTransition.configure({ enterDuration: 150, leaveDuration: 100 });
     const { open } = dropdown.stateHandles;
     const { transitionState } = dropdown.asTransition;
 
-    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-VISUAL-GRAMMAR
     def.feedback.style.use(
       tw(
         `z-50 max-h-[var(--proto-ui-available-height)] min-w-32 overflow-x-hidden overflow-y-auto p-1 outline-none transition-none duration-150 ${BRUTALIST_PANEL_TOKENS}`
       )
     );
-    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-OPEN-AND-SIDE-STYLES
+    // P-BRUTALIST-DROPDOWN-MENU-CONTENT-TRANSITION
     def.rule({
       when: (w) =>
         w.any(w.state(transitionState).eq('entering'), w.state(transitionState).eq('entered')),
@@ -52,6 +51,6 @@ const dropdownContent = definePrototype<
   },
 });
 
-/** P-BRUTALIST-DROPDOWN-MENU-CONTENT-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DROPDOWN-MENU-CONTENT-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DROPDOWN-MENU-CONTENT-ENTRY */
 
 export default dropdownContent;

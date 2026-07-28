@@ -28,12 +28,15 @@ const TRIGGER_TOKENS = [
 const dialogTrigger = definePrototype<BrutalistDialogTriggerProps, BrutalistDialogTriggerExposes>({
   name: 'brutalist-dialog-trigger',
   setup(def) {
+    // P-BRUTALIST-DIALOG-TRIGGER-BASE-INHERITANCE: inherit Base Dialog Trigger states (open/disabled/hovered/focusVisible/pressed) once.
     const state = asDialogTrigger().stateHandles;
     if (!state) {
       throw new Error('[brutalist-dialog-trigger] missing Dialog Trigger state handles.');
     }
     const { disabled, hovered, focusVisible, pressed } = state;
+    // P-BRUTALIST-DIALOG-TRIGGER-VISUAL-GRAMMAR + P-BRUTALIST-DIALOG-TRIGGER-PAIR-INVARIANT: fixed bg-sky / text-sky-foreground surface, square, border-2 black, hard shadow-3, bold uppercase.
     def.feedback.style.use(tw(TRIGGER_TOKENS));
+    // P-BRUTALIST-DIALOG-TRIGGER-INTERACTION rules: hover lift, press sink, focus-visible ring, disabled fade (preserves sky pair).
     def.rule({
       when: (w) => w.state(hovered).eq(true),
       intent: (i) =>
@@ -56,5 +59,7 @@ const dialogTrigger = definePrototype<BrutalistDialogTriggerProps, BrutalistDial
     });
   },
 });
+
+// P-BRUTALIST-DIALOG-TRIGGER-ENTRY: `brutalist-dialog-trigger` is the only public Dialog trigger entry in this slice.
 
 export default dialogTrigger;

@@ -8,31 +8,38 @@ const ITEM_BASE_TOKENS =
 const dropdownItem = definePrototype<BrutalistDropdownItemProps, BrutalistDropdownItemExposes>({
   name: 'brutalist-dropdown-item',
   setup(def) {
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PROPS,
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-DEFAULTS
     def.props.define({
       inset: { type: 'boolean', empty: 'fallback' },
       variant: { type: 'enum', empty: 'fallback', options: ['default', 'destructive'] },
     });
     def.props.setDefaults({ inset: false, variant: 'default' });
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-BASE-INHERITANCE
     const itemState = asDropdownItem().stateHandles;
     if (!itemState) {
       throw new Error('[brutalist-dropdown-item] Dropdown Item must project command states.');
     }
     const { disabled, focused, focusVisible, pressed, active } = itemState;
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PAIR-INVARIANT (resting base pair: bg-secondary-background text-foreground)
     def.feedback.style.use(tw(ITEM_BASE_TOKENS));
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PROPS (inset: pl-8 left pad)
     def.rule({
       when: (w) => w.prop('inset').eq(true),
       intent: (i) => i.feedback.style.use(tw('pl-8')),
     });
 
-    // Destructive resting text pairing.
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PAIR-INVARIANT (destructive resting text pairing).
     def.rule({
       when: (w) => w.prop('variant').eq('destructive'),
       intent: (i) => i.feedback.style.use(tw('text-destructive')),
     });
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PAIR-INVARIANT,
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-INTERACTION
     // Default variant: any interaction (active includes pointer.enter while the
     // menu is open, plus keyboard focus/press) highlights with the main pair.
     def.rule({
@@ -49,6 +56,8 @@ const dropdownItem = definePrototype<BrutalistDropdownItemProps, BrutalistDropdo
       intent: (i) => i.feedback.style.use(tw('bg-main text-main-foreground')),
     });
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PAIR-INVARIANT,
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-INTERACTION
     // Destructive variant: the same interaction states keep the destructive
     // pair instead of being overridden by the main accent (review defect:
     // white background with pale pink text under active/disabled).
@@ -66,6 +75,8 @@ const dropdownItem = definePrototype<BrutalistDropdownItemProps, BrutalistDropdo
       intent: (i) => i.feedback.style.use(tw('bg-destructive text-destructive-foreground')),
     });
 
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-PAIR-INVARIANT,
+    // P-BRUTALIST-DROPDOWN-MENU-ITEM-INTERACTION
     // Disabled retains an explicit paper + muted-foreground pair so the row is
     // never a blank white panel with un-paired text.
     def.rule({
@@ -77,5 +88,7 @@ const dropdownItem = definePrototype<BrutalistDropdownItemProps, BrutalistDropdo
     });
   },
 });
+
+/** P-BRUTALIST-DROPDOWN-MENU-ITEM-ENTRY */
 
 export default dropdownItem;

@@ -1,34 +1,44 @@
 id: T-BRUTALIST-TABS-0001
 type: test
-title: Brutalist Tabs family visual contract tests
+title: Brutalist Tabs visual contract and public API tests
 status: draft
-since: 0.2.0-rc.3
-summary: Covers the current tested Neo-Brutalist visual grammar and Base-inherited runtime behavior for the tabs prototype family.
+since: 0.2.0-rc.7
+summary: >-
+  Covers the Brutalist Tabs public API (root+list entry/square strip, trigger selected pair and non-selected hover lift, content hidden-state collapse) against P-BRUTALIST-TABS family criteria.
+
 cases:
   - id: T-BRUTALIST-TABS-0001-CASE-1
-    title: P-BRUTALIST-TABS retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Root and List entry, Base inheritance, and square ruled strip
     covers:
+      - P-BRUTALIST-TABS-ENTRY
+      - P-BRUTALIST-TABS-BASE-INHERITANCE
       - P-BRUTALIST-TABS-VISUAL-GRAMMAR
-      - P-BRUTALIST-TABS-TESTED-SURFACE
-    expectation: p-brutalist-tabs-visual-contract
-  - id: T-BRUTALIST-TABS-0001-CASE-2
-    title: P-BRUTALIST-TABS-LIST retains Base semantics where applicable and projects the Brutalist visual grammar
-    covers:
+      - P-BRUTALIST-TABS-LIST-ENTRY
+      - P-BRUTALIST-TABS-LIST-BASE-INHERITANCE
       - P-BRUTALIST-TABS-LIST-VISUAL-GRAMMAR
-      - P-BRUTALIST-TABS-LIST-TESTED-SURFACE
-    expectation: p-brutalist-tabs-list-visual-contract
+    expectation: p-brutalist-tabs-list-root-entry
+  - id: T-BRUTALIST-TABS-0001-CASE-2
+    title: Trigger entry and selected fill pair with black border and hard shadow
+    covers:
+      - P-BRUTALIST-TABS-TRIGGER-ENTRY
+      - P-BRUTALIST-TABS-TRIGGER-BASE-INHERITANCE
+      - P-BRUTALIST-TABS-TRIGGER-SELECTED-PAIR-INVARIANT
+    expectation: p-brutalist-tabs-trigger-selected-pair
   - id: T-BRUTALIST-TABS-0001-CASE-3
-    title: P-BRUTALIST-TABS-TRIGGER retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Trigger non-selected hover lift, press, focus-visible, disabled, and visual grammar
     covers:
+      - P-BRUTALIST-TABS-TRIGGER-INTERACTION
       - P-BRUTALIST-TABS-TRIGGER-VISUAL-GRAMMAR
-      - P-BRUTALIST-TABS-TRIGGER-TESTED-SURFACE
-    expectation: p-brutalist-tabs-trigger-visual-contract
+      - P-BRUTALIST-TABS-TRIGGER-BASE-INHERITANCE
+    expectation: p-brutalist-tabs-trigger-interaction
   - id: T-BRUTALIST-TABS-0001-CASE-4
-    title: P-BRUTALIST-TABS-CONTENT retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Content entry, Base inheritance, hidden-state collapse, and square panel
     covers:
+      - P-BRUTALIST-TABS-CONTENT-ENTRY
+      - P-BRUTALIST-TABS-CONTENT-BASE-INHERITANCE
+      - P-BRUTALIST-TABS-CONTENT-HIDDEN-STATE
       - P-BRUTALIST-TABS-CONTENT-VISUAL-GRAMMAR
-      - P-BRUTALIST-TABS-CONTENT-TESTED-SURFACE
-    expectation: p-brutalist-tabs-content-visual-contract
+    expectation: p-brutalist-tabs-content-hidden
 implementations:
   - id: prototypes-brutalist-tabs-contract
     kind: module-test
@@ -42,12 +52,13 @@ implementations:
       - T-BRUTALIST-TABS-0001-CASE-4
     exercises:
       - P-BASE-TABS
+      - P-BASE-TABS-LIST
       - P-BASE-TABS-CONTENT
       - P-BASE-TABS-TRIGGER
       - P-BRUTALIST-TABS
-      - P-BRUTALIST-TABS-CONTENT
       - P-BRUTALIST-TABS-LIST
       - P-BRUTALIST-TABS-TRIGGER
+      - P-BRUTALIST-TABS-CONTENT
 verifies:
   prototypes:
     - id: P-BRUTALIST-TABS
@@ -57,16 +68,19 @@ verifies:
 exercises:
   prototypes:
     - P-BASE-TABS
+    - P-BASE-TABS-LIST
     - P-BASE-TABS-CONTENT
     - P-BASE-TABS-TRIGGER
     - P-BRUTALIST-TABS
-    - P-BRUTALIST-TABS-CONTENT
     - P-BRUTALIST-TABS-LIST
     - P-BRUTALIST-TABS-TRIGGER
+    - P-BRUTALIST-TABS-CONTENT
 revisions:
-  - version: 0.2.0-rc.3
+  - version: 0.2.0-rc.7
     change: introduced
-    summary: Added draft Brutalist tabs prototype coverage.
+    summary: >-
+      Introduced draft Brutalist Tabs coverage mapped 1:1 to the rc.7 P criteria (list+root entry, trigger selected pair, trigger interaction, content hidden). Not present in the immutable rc.6 snapshot.
+
 tags:
   - test
   - brutalist

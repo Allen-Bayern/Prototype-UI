@@ -8,13 +8,13 @@ const dialogDescription = definePrototype<
 >({
   name: 'brutalist-dialog-description',
   setup(def) {
-    // P-BRUTALIST-DIALOG-DESCRIPTION-BASE-INHERITANCE,
-    // P-BRUTALIST-DIALOG-DESCRIPTION-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DIALOG-DESCRIPTION-BASE-INHERITANCE: inherit Base Dialog Description relations once.
+    // P-BRUTALIST-DIALOG-DESCRIPTION-VISUAL-GRAMMAR: font-mono text-sm text-foreground description typography.
     asDialogDescription();
     def.feedback.style.use(tw('font-mono text-sm text-foreground'));
   },
 });
 
-/** P-BRUTALIST-DIALOG-DESCRIPTION-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DIALOG-DESCRIPTION-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DIALOG-DESCRIPTION-ENTRY: `brutalist-dialog-description` is the only public Dialog description entry in this slice. */
 
 export default dialogDescription;

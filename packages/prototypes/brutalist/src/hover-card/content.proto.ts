@@ -9,21 +9,20 @@ const hoverCardContent = definePrototype<
 >({
   name: 'brutalist-hover-card-content',
   setup(def) {
-    // P-BRUTALIST-HOVER-CARD-CONTENT-BASE-INHERITANCE,
-    // P-BRUTALIST-HOVER-CARD-CONTENT-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-HOVER-CARD-CONTENT-BASE-INHERITANCE
     const hoverCard = asHoverCardContent();
     // P-BRUTALIST-HOVER-CARD-CONTENT-TRANSITION
     hoverCard.asTransition.configure({ enterDuration: 200, leaveDuration: 200 });
     const { open } = hoverCard.stateHandles;
 
-    // P-BRUTALIST-HOVER-CARD-CONTENT-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-HOVER-CARD-CONTENT-VISUAL-GRAMMAR
     def.feedback.style.use(
       tw(
         `w-64 p-4 text-sm leading-6 outline-none transition-none duration-200 ${BRUTALIST_PANEL_TOKENS}`
       )
     );
 
-    // P-BRUTALIST-HOVER-CARD-CONTENT-OPEN-AND-SIDE-STYLES
+    // P-BRUTALIST-HOVER-CARD-CONTENT-TRANSITION
     def.rule({
       when: (w) => w.state(open).eq(true),
       intent: (i) => i.feedback.style.use(tw('animate-in fade-in-0 zoom-in-95')),
@@ -51,6 +50,6 @@ const hoverCardContent = definePrototype<
   },
 });
 
-/** P-BRUTALIST-HOVER-CARD-CONTENT-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-HOVER-CARD-CONTENT-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-HOVER-CARD-CONTENT-ENTRY */
 
 export default hoverCardContent;

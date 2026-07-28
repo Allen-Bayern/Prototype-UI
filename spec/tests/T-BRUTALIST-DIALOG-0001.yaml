@@ -1,70 +1,91 @@
 id: T-BRUTALIST-DIALOG-0001
 type: test
-title: Brutalist Dialog family visual contract tests
+title: Brutalist Dialog visual contract and public API tests
 status: draft
-since: 0.2.0-rc.3
-summary: Covers the current tested Neo-Brutalist visual grammar and Base-inherited runtime behavior for the dialog prototype family.
+since: 0.2.0-rc.7
+summary: >-
+  Covers the Brutalist Dialog public API (trigger sky pair, mask fade, content fade-zoom panel, close-icon canary pair + a11y Close name, header/footer anatomy) against P-BRUTALIST-DIALOG criteria.
+
+
 cases:
   - id: T-BRUTALIST-DIALOG-0001-CASE-1
-    title: P-BRUTALIST-DIALOG retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Root entry, Base inheritance, and container visual grammar
     covers:
+      - P-BRUTALIST-DIALOG-ENTRY
+      - P-BRUTALIST-DIALOG-BASE-INHERITANCE
       - P-BRUTALIST-DIALOG-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-TESTED-SURFACE
-    expectation: p-brutalist-dialog-visual-contract
+    expectation: p-brutalist-dialog-root-entry-container
   - id: T-BRUTALIST-DIALOG-0001-CASE-2
-    title: P-BRUTALIST-DIALOG-TRIGGER retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Trigger fixed sky pair and interaction surfaces
     covers:
+      - P-BRUTALIST-DIALOG-TRIGGER-ENTRY
+      - P-BRUTALIST-DIALOG-TRIGGER-BASE-INHERITANCE
+      - P-BRUTALIST-DIALOG-TRIGGER-PAIR-INVARIANT
+      - P-BRUTALIST-DIALOG-TRIGGER-INTERACTION
       - P-BRUTALIST-DIALOG-TRIGGER-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-TRIGGER-TESTED-SURFACE
-    expectation: p-brutalist-dialog-trigger-visual-contract
+    expectation: p-brutalist-dialog-trigger-pair-interaction
   - id: T-BRUTALIST-DIALOG-0001-CASE-3
-    title: P-BRUTALIST-DIALOG-MASK retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Mask fade transition and flat no-blur overlay
     covers:
+      - P-BRUTALIST-DIALOG-MASK-ENTRY
+      - P-BRUTALIST-DIALOG-MASK-BASE-INHERITANCE
+      - P-BRUTALIST-DIALOG-MASK-PUBLIC-BOUNDARY
+      - P-BRUTALIST-DIALOG-MASK-TRANSITION
       - P-BRUTALIST-DIALOG-MASK-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-MASK-TESTED-SURFACE
-    expectation: p-brutalist-dialog-mask-visual-contract
+    expectation: p-brutalist-dialog-mask-transition-no-blur
   - id: T-BRUTALIST-DIALOG-0001-CASE-4
-    title: P-BRUTALIST-DIALOG-CONTENT retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Content fade-zoom transition and centered hard-shadowed panel
     covers:
+      - P-BRUTALIST-DIALOG-CONTENT-ENTRY
+      - P-BRUTALIST-DIALOG-CONTENT-BASE-INHERITANCE
+      - P-BRUTALIST-DIALOG-CONTENT-PUBLIC-BOUNDARY
+      - P-BRUTALIST-DIALOG-CONTENT-TRANSITION
       - P-BRUTALIST-DIALOG-CONTENT-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-CONTENT-TESTED-SURFACE
-    expectation: p-brutalist-dialog-content-visual-contract
+    expectation: p-brutalist-dialog-content-transition-panel
   - id: T-BRUTALIST-DIALOG-0001-CASE-5
-    title: P-BRUTALIST-DIALOG-TITLE retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Title heading typography
     covers:
+      - P-BRUTALIST-DIALOG-TITLE-ENTRY
+      - P-BRUTALIST-DIALOG-TITLE-BASE-INHERITANCE
       - P-BRUTALIST-DIALOG-TITLE-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-TITLE-TESTED-SURFACE
-    expectation: p-brutalist-dialog-title-visual-contract
+    expectation: p-brutalist-dialog-title-typography
   - id: T-BRUTALIST-DIALOG-0001-CASE-6
-    title: P-BRUTALIST-DIALOG-DESCRIPTION retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Description mono typography
     covers:
+      - P-BRUTALIST-DIALOG-DESCRIPTION-ENTRY
+      - P-BRUTALIST-DIALOG-DESCRIPTION-BASE-INHERITANCE
       - P-BRUTALIST-DIALOG-DESCRIPTION-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-DESCRIPTION-TESTED-SURFACE
-    expectation: p-brutalist-dialog-description-visual-contract
+    expectation: p-brutalist-dialog-description-typography
   - id: T-BRUTALIST-DIALOG-0001-CASE-7
-    title: P-BRUTALIST-DIALOG-CLOSE retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Close bare entry and Base inheritance
     covers:
-      - P-BRUTALIST-DIALOG-CLOSE-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-CLOSE-TESTED-SURFACE
-    expectation: p-brutalist-dialog-close-visual-contract
+      - P-BRUTALIST-DIALOG-CLOSE-ENTRY
+      - P-BRUTALIST-DIALOG-CLOSE-BASE-INHERITANCE
+    expectation: p-brutalist-dialog-close-entry-inheritance
   - id: T-BRUTALIST-DIALOG-0001-CASE-8
-    title: P-BRUTALIST-DIALOG-CLOSE-ICON retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Close-icon canary pair, a11y Close name and interaction
     covers:
+      - P-BRUTALIST-DIALOG-CLOSE-ICON-ENTRY
+      - P-BRUTALIST-DIALOG-CLOSE-ICON-BASE-INHERITANCE
+      - P-BRUTALIST-DIALOG-CLOSE-ICON-A11Y-NAME
+      - P-BRUTALIST-DIALOG-CLOSE-ICON-PAIR-INVARIANT
+      - P-BRUTALIST-DIALOG-CLOSE-ICON-INTERACTION
       - P-BRUTALIST-DIALOG-CLOSE-ICON-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-CLOSE-ICON-TESTED-SURFACE
-    expectation: p-brutalist-dialog-close-icon-visual-contract
+    expectation: p-brutalist-dialog-close-icon-pair-a11y
   - id: T-BRUTALIST-DIALOG-0001-CASE-9
-    title: P-BRUTALIST-DIALOG-HEADER retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Header anatomy and layout surface
     covers:
+      - P-BRUTALIST-DIALOG-HEADER-ENTRY
+      - P-BRUTALIST-DIALOG-HEADER-ANATOMY
       - P-BRUTALIST-DIALOG-HEADER-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-HEADER-TESTED-SURFACE
-    expectation: p-brutalist-dialog-header-visual-contract
+    expectation: p-brutalist-dialog-header-anatomy
   - id: T-BRUTALIST-DIALOG-0001-CASE-10
-    title: P-BRUTALIST-DIALOG-FOOTER retains Base semantics where applicable and projects the Brutalist visual grammar
+    title: Footer anatomy and layout surface
     covers:
+      - P-BRUTALIST-DIALOG-FOOTER-ENTRY
+      - P-BRUTALIST-DIALOG-FOOTER-ANATOMY
       - P-BRUTALIST-DIALOG-FOOTER-VISUAL-GRAMMAR
-      - P-BRUTALIST-DIALOG-FOOTER-TESTED-SURFACE
-    expectation: p-brutalist-dialog-footer-visual-contract
+    expectation: p-brutalist-dialog-footer-anatomy
 implementations:
   - id: prototypes-brutalist-dialog-contract
     kind: module-test
@@ -84,8 +105,10 @@ implementations:
       - T-BRUTALIST-DIALOG-0001-CASE-10
     exercises:
       - P-BASE-DIALOG
+      - P-BASE-DIALOG-CLOSE
       - P-BASE-DIALOG-CONTENT
       - P-BASE-DIALOG-DESCRIPTION
+      - P-BASE-DIALOG-MASK
       - P-BASE-DIALOG-TITLE
       - P-BASE-DIALOG-TRIGGER
       - P-BRUTALIST-DIALOG
@@ -113,8 +136,10 @@ verifies:
 exercises:
   prototypes:
     - P-BASE-DIALOG
+    - P-BASE-DIALOG-CLOSE
     - P-BASE-DIALOG-CONTENT
     - P-BASE-DIALOG-DESCRIPTION
+    - P-BASE-DIALOG-MASK
     - P-BASE-DIALOG-TITLE
     - P-BASE-DIALOG-TRIGGER
     - P-BRUTALIST-DIALOG
@@ -128,9 +153,11 @@ exercises:
     - P-BRUTALIST-DIALOG-TITLE
     - P-BRUTALIST-DIALOG-TRIGGER
 revisions:
-  - version: 0.2.0-rc.3
+  - version: 0.2.0-rc.7
     change: introduced
-    summary: Added draft Brutalist dialog prototype coverage.
+    summary: >-
+      Introduced draft Brutalist Dialog coverage mapped to the rc.7 P criteria (trigger pair, mask transition, content panel, close-icon pair + a11y, title/description typography, header/footer anatomy). Not present in the immutable rc.6 snapshot.
+
 tags:
   - test
   - brutalist

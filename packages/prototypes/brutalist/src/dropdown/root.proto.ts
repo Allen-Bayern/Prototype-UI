@@ -5,12 +5,11 @@ import type { BrutalistDropdownRootExposes, BrutalistDropdownRootProps } from '.
 const dropdownRoot = definePrototype<BrutalistDropdownRootProps, BrutalistDropdownRootExposes>({
   name: 'brutalist-dropdown-root',
   setup(def) {
-    // P-BRUTALIST-DROPDOWN-MENU-BASE-INHERITANCE,
-    // P-BRUTALIST-DROPDOWN-MENU-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-DROPDOWN-MENU-BASE-INHERITANCE
     asDropdownRoot();
   },
 });
 
-/** P-BRUTALIST-DROPDOWN-MENU-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DROPDOWN-MENU-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DROPDOWN-MENU-ENTRY */
 
 export default dropdownRoot;

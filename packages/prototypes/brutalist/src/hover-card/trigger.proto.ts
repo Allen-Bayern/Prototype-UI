@@ -23,8 +23,7 @@ const hoverCardTrigger = definePrototype<
 >({
   name: 'brutalist-hover-card-trigger',
   setup(def) {
-    // P-BRUTALIST-HOVER-CARD-TRIGGER-BASE-INHERITANCE,
-    // P-BRUTALIST-HOVER-CARD-TRIGGER-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-HOVER-CARD-TRIGGER-BASE-INHERITANCE
     const hoverCard = asHoverCardTrigger();
     const state = hoverCard.stateHandles;
     if (!state) {
@@ -32,10 +31,11 @@ const hoverCardTrigger = definePrototype<
     }
     const { disabled, hovered, focusVisible } = state;
 
-    // P-BRUTALIST-HOVER-CARD-TRIGGER-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-HOVER-CARD-TRIGGER-PAIR-INVARIANT,
+    // P-BRUTALIST-HOVER-CARD-TRIGGER-VISUAL-GRAMMAR
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
-    // P-BRUTALIST-HOVER-CARD-TRIGGER-STATE-DRIVEN-STYLES
+    // P-BRUTALIST-HOVER-CARD-TRIGGER-INTERACTION
     def.rule({
       when: (w) => w.state(hovered).eq(true),
       intent: (i) =>
@@ -54,6 +54,6 @@ const hoverCardTrigger = definePrototype<
   },
 });
 
-/** P-BRUTALIST-HOVER-CARD-TRIGGER-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-HOVER-CARD-TRIGGER-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-HOVER-CARD-TRIGGER-ENTRY */
 
 export default hoverCardTrigger;

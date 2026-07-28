@@ -5,14 +5,14 @@ import type { BrutalistDialogMaskExposes, BrutalistDialogMaskProps } from './typ
 const dialogMask = definePrototype<BrutalistDialogMaskProps, BrutalistDialogMaskExposes>({
   name: 'brutalist-dialog-mask',
   setup(def) {
-    // P-BRUTALIST-DIALOG-MASK-BASE-INHERITANCE,
-    // P-BRUTALIST-DIALOG-MASK-PUBLIC-BOUNDARY-DEVIATION
+    // P-BRUTALIST-DIALOG-MASK-BASE-INHERITANCE: inherit Base Dialog Mask (open/transitionState) once.
+    // P-BRUTALIST-DIALOG-MASK-PUBLIC-BOUNDARY: Pick passthrough only — no own props exposed.
     const dialog = asDialogMask();
     // P-BRUTALIST-DIALOG-MASK-TRANSITION
     dialog.asTransition.configure({ enterDuration: 150, leaveDuration: 150 });
     const dialogState = dialog.stateHandles;
     const { open } = dialogState;
-    // P-BRUTALIST-DIALOG-MASK-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DIALOG-MASK-VISUAL-GRAMMAR: fixed inset-0 bg-overlay flat scrim (no blur, no border, no shadow).
     def.feedback.style.use(tw('fixed inset-0 bg-overlay'));
 
     def.rule({
@@ -27,6 +27,6 @@ const dialogMask = definePrototype<BrutalistDialogMaskProps, BrutalistDialogMask
   },
 });
 
-/** P-BRUTALIST-DIALOG-MASK-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DIALOG-MASK-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DIALOG-MASK-ENTRY: `brutalist-dialog-mask` is the only public Dialog mask entry in this slice. */
 
 export default dialogMask;

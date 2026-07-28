@@ -6,14 +6,14 @@ import type { BrutalistDialogContentExposes, BrutalistDialogContentProps } from 
 const dialogContent = definePrototype<BrutalistDialogContentProps, BrutalistDialogContentExposes>({
   name: 'brutalist-dialog-content',
   setup(def) {
-    // P-BRUTALIST-DIALOG-CONTENT-BASE-INHERITANCE,
-    // P-BRUTALIST-DIALOG-CONTENT-PUBLIC-BOUNDARY-DEVIATION
+    // P-BRUTALIST-DIALOG-CONTENT-BASE-INHERITANCE: inherit Base Dialog Content (open/transitionState/isPresent) once.
+    // P-BRUTALIST-DIALOG-CONTENT-PUBLIC-BOUNDARY: empty props; Pick open/transitionState/isPresent passthrough.
     const dialog = asDialogContent();
     // P-BRUTALIST-DIALOG-CONTENT-TRANSITION
     dialog.asTransition.configure({ enterDuration: 200, leaveDuration: 200 });
     const dialogState = dialog.stateHandles;
     const { open } = dialogState;
-    // P-BRUTALIST-DIALOG-CONTENT-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DIALOG-CONTENT-VISUAL-GRAMMAR: centered hard-shadowed square modal panel (BRUTALIST_PANEL_TOKENS, fixed translate).
     def.feedback.style.use(
       tw(
         `fixed left-1/2 top-1/2 grid w-full max-w-lg gap-4 -translate-x-1/2 -translate-y-1/2 p-6 outline-none duration-200 ${BRUTALIST_PANEL_TOKENS}`
@@ -32,6 +32,6 @@ const dialogContent = definePrototype<BrutalistDialogContentProps, BrutalistDial
   },
 });
 
-/** P-BRUTALIST-DIALOG-CONTENT-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DIALOG-CONTENT-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DIALOG-CONTENT-ENTRY: `brutalist-dialog-content` is the only public Dialog content entry in this slice. */
 
 export default dialogContent;

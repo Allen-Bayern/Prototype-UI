@@ -5,12 +5,11 @@ import type { BrutalistDialogCloseExposes, BrutalistDialogCloseProps } from './t
 const dialogClose = definePrototype<BrutalistDialogCloseProps, BrutalistDialogCloseExposes>({
   name: 'brutalist-dialog-close',
   setup() {
-    // P-BRUTALIST-DIALOG-CLOSE-BASE-INHERITANCE,
-    // P-BRUTALIST-DIALOG-CLOSE-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-DIALOG-CLOSE-BASE-INHERITANCE: inherit Base Dialog Close (close/disabled states) once.
     asDialogClose();
   },
 });
 
-/** P-BRUTALIST-DIALOG-CLOSE-DIRECT-ENTRY and P-BRUTALIST-DIALOG-CLOSE-STATE-DRIVEN-STYLES. */
+/** P-BRUTALIST-DIALOG-CLOSE-ENTRY: `brutalist-dialog-close` is the only public Dialog close entry in this slice. */
 
 export default dialogClose;

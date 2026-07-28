@@ -74,7 +74,7 @@ const dropdownTrigger = definePrototype<
 >({
   name: 'brutalist-dropdown-trigger',
   setup(def) {
-    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-INDICATOR-EXTENSION
+    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-INDICATOR-PROP
     def.props.define({
       disabled: { type: 'boolean', empty: 'fallback' },
       indicator: { type: 'boolean', empty: 'fallback' },
@@ -94,18 +94,18 @@ const dropdownTrigger = definePrototype<
       indicatorStrokeWidth: DEFAULT_INDICATOR_STROKE_WIDTH,
     });
 
-    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-BASE-INHERITANCE,
-    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-CURRENT-BASE-DEVIATIONS
+    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-BASE-INHERITANCE
     const buttonState = asDropdownTrigger().stateHandles;
     if (!buttonState) {
       throw new Error('[brutalist-dropdown-trigger] Dropdown Trigger must project command states.');
     }
     const { disabled, hovered, focusVisible, pressed } = buttonState;
 
-    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-CURRENT-VISUAL-SURFACE
+    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-PAIR-INVARIANT,
+    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-VISUAL-GRAMMAR
     def.feedback.style.use(tw(TRIGGER_BASE_TOKENS));
 
-    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-STATE-DRIVEN-STYLES
+    // P-BRUTALIST-DROPDOWN-MENU-TRIGGER-INTERACTION
     def.rule({
       when: (w) => w.state(hovered).eq(true),
       intent: (i) =>
@@ -155,6 +155,6 @@ const dropdownTrigger = definePrototype<
   },
 });
 
-/** P-BRUTALIST-DROPDOWN-MENU-TRIGGER-DIRECT-ENTRY; parity is bounded by P-BRUTALIST-DROPDOWN-MENU-TRIGGER-COMPATIBILITY-SUBSET. */
+/** P-BRUTALIST-DROPDOWN-MENU-TRIGGER-ENTRY */
 
 export default dropdownTrigger;

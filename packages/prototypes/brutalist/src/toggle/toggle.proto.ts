@@ -29,22 +29,27 @@ const SIZE_TOKENS: Record<BrutalistToggleSize, string> = {
 };
 
 const toggle = definePrototype<BrutalistToggleProps, BrutalistToggleExposes>({
+  // P-BRUTALIST-TOGGLE-ENTRY
   name: 'brutalist-toggle',
   setup(def) {
+    // P-BRUTALIST-TOGGLE-SIZE-PROP
     def.props.define({
       size: { type: 'enum', empty: 'fallback', options: ['default', 'sm', 'lg'] },
       active: { type: 'boolean', empty: 'fallback' },
       defaultActive: { type: 'boolean', empty: 'fallback' },
       disabled: { type: 'boolean', empty: 'fallback' },
     });
+    // P-BRUTALIST-TOGGLE-DEFAULTS
     def.props.setDefaults({ size: 'default', defaultActive: false, disabled: false });
 
+    // P-BRUTALIST-TOGGLE-BASE-INHERITANCE
     const toggleState = asToggle().stateHandles;
     if (!toggleState) {
       throw new Error('[brutalist-toggle] asToggle must project Toggle state handles.');
     }
     const { active, disabled, hovered, focusVisible, pressed } = toggleState;
 
+    // P-BRUTALIST-TOGGLE-VISUAL-GRAMMAR
     def.feedback.style.use(tw(TOGGLE_BASE_TOKENS));
 
     (Object.keys(SIZE_TOKENS) as BrutalistToggleSize[]).forEach((size) => {
@@ -54,22 +59,27 @@ const toggle = definePrototype<BrutalistToggleProps, BrutalistToggleExposes>({
       });
     });
 
+    // P-BRUTALIST-TOGGLE-PAIR-INVARIANT — active pair
     def.rule({
       when: (w) => w.state(active).eq(true),
       intent: (i) => i.feedback.style.use(tw('bg-main text-main-foreground')),
     });
+    // P-BRUTALIST-TOGGLE-INTERACTION — hover lift (non-active)
     def.rule({
       when: (w) => w.all(w.state(hovered).eq(true), w.state(active).eq(false)),
       intent: (i) => i.feedback.style.use(tw(BRUTALIST_HOVER_LIFT_TOKENS)),
     });
+    // P-BRUTALIST-TOGGLE-INTERACTION — press
     def.rule({
       when: (w) => w.state(pressed).eq(true),
       intent: (i) => i.feedback.style.use(tw(BRUTALIST_PRESS_TOKENS)),
     });
+    // P-BRUTALIST-TOGGLE-INTERACTION — focus-visible
     def.rule({
       when: (w) => w.state(focusVisible).eq(true),
       intent: (i) => i.feedback.style.use(tw(BRUTALIST_FOCUS_TOKENS)),
     });
+    // P-BRUTALIST-TOGGLE-INTERACTION — disabled
     def.rule({
       when: (w) => w.state(disabled).eq(true),
       intent: (i) => i.feedback.style.use(tw(BRUTALIST_DISABLED_TOKENS)),
