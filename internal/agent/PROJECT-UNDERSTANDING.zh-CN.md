@@ -8,19 +8,19 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 当前 spec 版本 | `0.2.0-rc.6` |
+| 当前 spec 版本 | `0.2.0-rc.7` |
 | Release channel | `prerelease` |
-| Version entity | [`V-PROTO-UI-0006`](../../spec/versions/V-PROTO-UI-0006.yaml) |
-| 工作区实体数 | 395 |
+| Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
+| 工作区实体数 | 401 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:3a962ac304dc0bf18e84fbacb01ee6c55b315aaa2abb10e30e2723ee2ed8d779` |
-| 已发布 release snapshot digest | `sha256:ccec6ecd79b276f67eac15ae3d4e153dc03f2e2ae975498b20dd4aa6e6d28a13` |
+| 工作区快照指纹 | `sha256:0722c80f95c5e6abfd0c6ee3a47145804a4b87c4c34f9f41150841784948bec7` |
+| 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 40 个 active、350 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 40 个 active、356 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -59,28 +59,28 @@ flowchart LR
 
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
-| `knowledge` | 5 | 0 | 5 | 0 | 5 | 5 | 0 |
-| `decision` | 48 | 6 | 40 | 2 | 33 | 18 | 3 |
+| `knowledge` | 6 | 0 | 6 | 0 | 6 | 6 | 0 |
+| `decision` | 49 | 6 | 41 | 2 | 34 | 19 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 62 | 0 | 62 | 0 | 62 | 62 | 32 |
+| `prototype` | 63 | 0 | 63 | 0 | 63 | 63 | 32 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 121 | 12 | 109 | 0 | 0 | 0 | 4 |
-| `version` | 6 | 6 | 0 | 0 | 6 | 6 | 0 |
+| `test` | 123 | 12 | 111 | 0 | 0 | 0 | 4 |
+| `version` | 7 | 6 | 1 | 0 | 7 | 7 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  223 |
-| `dependsOn`  |  771 |
-| `inherits`   |   28 |
+| `relates`    |  228 |
+| `dependsOn`  |  775 |
+| `inherits`   |   29 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  300 |
+| `verifies`   |  304 |
 | `explains`   |   36 |
-| `exercises`  |  168 |
+| `exercises`  |  171 |
 | `requires`   |    4 |
 | `owns`       |    1 |
 
@@ -89,6 +89,17 @@ flowchart LR
 ## 二、知识基础
 
 Knowledge 实体提供跨领域概念模型。Agent 在修改具体 API 或行为前，应先确认相关术语在这里的含义。
+
+### [`K-BRUTALIST-0001`](../../spec/knowledge/K-BRUTALIST-0001.yaml) The Brutalist style family is a Proto UI-maintained Neo-Brutalist design language, not a third-party compatibility target
+
+- 状态：`draft`；since：`0.2.0-rc.7`；criteria：1
+- 摘要：The Brutalist style family under `@proto.ui/prototypes-brutalist` is a contributor-authored Proto UI design-language projection. It is not a clone, compatibility wrapper, or certified integration of any third-party Neo-Brutalist design system, and must not claim third-party upstream ownership or certification.
+
+本仓库中的 Brutalist prototype 是 Proto UI 贡献者自行创作并维护的 Neo-Brutalist design-language 投射。不得将其描述或呈现为任何外部 Neo-Brutalist 设计系统的移植、克隆、兼容包装或认证集成，也不得声称 第三方上游所有权。
+
+关键准则：
+
+- `K-BRUTALIST-0001-A`：Brutalist style family 的 spec 实体、文档与 package 元数据必须 将其描述为 Proto UI 维护的 design-language 投射，不得声称第三方 上游所有权、认证或兼容目标地位。
 
 ### [`K-COMPONENT-ACTOR-0001`](../../spec/knowledge/K-COMPONENT-ACTOR-0001.yaml) Component interaction targets define actor identities
 
@@ -434,7 +445,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
-| [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml) | `draft` | Base Button is a focusable command control | — | — | 30 | 2 |
+| [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml) | `draft` | Base Button is a focusable command control | — | — | 30 | 3 |
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml) | `draft` | Base Checkbox is a checked input control with optional mixed display state | — | 2 roles / 0 profiles | 52 | 2 |
 | [`P-BASE-CHECKBOX-INDICATOR`](../../spec/prototypes/P-BASE-CHECKBOX-INDICATOR.yaml) | `draft` | Base Checkbox Indicator is a context-driven checkbox indicator | — | — | 17 | 2 |
 | [`P-BASE-DIALOG`](../../spec/prototypes/P-BASE-DIALOG.yaml) | `draft` | Base Dialog is a root-owned modal dialog protocol | — | 9 roles / 0 profiles | 10 | 3 |
@@ -465,6 +476,12 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-TABS-TRIGGER`](../../spec/prototypes/P-BASE-TABS-TRIGGER.yaml) | `draft` | Base Tabs Trigger is a value-matched tab activation item | — | — | 27 | 4 |
 | [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 3 |
 | [`P-BASE-TRANSITION`](../../spec/prototypes/P-BASE-TRANSITION.yaml) | `draft` | Base Transition governs host-neutral perceptual presence | — | — | 12 | 2 |
+
+### BRUTALIST（1）
+
+| Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
+| --- | --- | --- | --- | --- | --: | --: |
+| [`P-BRUTALIST-BUTTON`](../../spec/prototypes/P-BRUTALIST-BUTTON.yaml) | `draft` | Brutalist Button inherits Base Button and layers a Neo-Brutalist visual API | `P-BASE-BUTTON` | — | 11 | 3 |
 
 ### LUCIDE（1）
 
@@ -583,10 +600,11 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | [`D-BASE-PROTOTYPE-INDEPENDENCE-0001`](../../spec/decisions/D-BASE-PROTOTYPE-INDEPENDENCE-0001.yaml) | `draft` | Base prototypes stay independently consumable | 4 | Base prototype protocols should stay independently consumable; shared hooks with protocol names must serve their owning prototype protocol rather than becoming cross-prototype substrate. |
 | [`D-BASE-TABS-L1-MATERIALIZATION-0001`](../../spec/decisions/D-BASE-TABS-L1-MATERIALIZATION-0001.yaml) | `active` | Base Tabs Content defaults to lazy L1 materialization | 0 | Inactive Base Tabs Content will default to no view, detach on exit, and preserve its Proto instance; keepMounted remains the explicit full-view retention option. |
 
-### CLI（1）
+### CLI（2）
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
 | --- | --- | --- | --: | --- |
+| [`D-CLI-BRUTALIST-PRESET-CLOSURE-0001`](../../spec/decisions/D-CLI-BRUTALIST-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Brutalist preset is a generated closure of official prototype style tokens | 3 | The CLI carries an install-time Brutalist token preset for first-run and offline use, generated deterministically from official Brutalist prototype sources instead of maintained as an independent token list. |
 | [`D-CLI-SHADCN-PRESET-CLOSURE-0001`](../../spec/decisions/D-CLI-SHADCN-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Shadcn preset is a generated closure of official prototype style tokens | 3 | The CLI keeps an install-time Shadcn token preset for first-run and offline use, but generates that manifest deterministically from official Shadcn prototype sources instead of maintaining an independent token list. |
 
 ### COLLECTION（1）
@@ -701,7 +719,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  273 |
+| `passing` |  277 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -710,9 +728,9 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   81 |
 | `fixture`         |   17 |
-| `module-test`     |  127 |
+| `module-test`     |  130 |
 | `runtime-test`    |   71 |
-| `workspace-check` |    9 |
+| `workspace-check` |   10 |
 
 ### Test entities
 
@@ -811,10 +829,17 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BOUNDARY-0001`](../../spec/tests/T-BOUNDARY-0001.yaml) | `draft` | Boundary observation, classification, stacking, and cleanup tests | 7 | `passing` 2 | `C-BOUNDARY-0001` | — |
 
-### CLI（1）
+### BRUTALIST（1）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
+| [`T-BRUTALIST-BUTTON-0001`](../../spec/tests/T-BRUTALIST-BUTTON-0001.yaml) | `draft` | Brutalist Button visual contract and public API tests | 9 | `passing` 2 | `P-BRUTALIST-BUTTON` | `P-BASE-BUTTON`<br>`P-BRUTALIST-BUTTON` |
+
+### CLI（2）
+
+| Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
+| --- | --- | --- | --: | --- | --- | --- |
+| [`T-CLI-BRUTALIST-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-BRUTALIST-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Brutalist preset source-closure tests | 2 | `passing` 2 | `D-CLI-BRUTALIST-PRESET-CLOSURE-0001` | `P-BRUTALIST-BUTTON` |
 | [`T-CLI-SHADCN-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-SHADCN-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Shadcn preset source-closure tests | 3 | `passing` 3 | `D-CLI-SHADCN-PRESET-CLOSURE-0001` | `P-SHADCN-DIALOG-CONTENT`<br>`P-SHADCN-DIALOG-MASK` |
 
 ### COLLECTION（1）
@@ -1058,6 +1083,20 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Commit          | `e4243850e0d9ad0dce3e9d6e099ca70bc2df0b27`                                |
 | Snapshot digest | `sha256:ccec6ecd79b276f67eac15ae3d4e153dc03f2e2ae975498b20dd4aa6e6d28a13` |
 
+### [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) Proto UI 0.2.0-rc.7
+
+| Field           | Value                        |
+| --------------- | ---------------------------- |
+| Entity status   | `draft`                      |
+| Version         | `0.2.0-rc.7`                 |
+| Channel         | `prerelease`                 |
+| Git tag         | `v0.2.0-rc.7`                |
+| npm dist-tag    | `next`                       |
+| Package policy  | `exact` / `public-@proto.ui` |
+| Published at    | `—`                          |
+| Commit          | `—`                          |
+| Snapshot digest | `—`                          |
+
 ## 九、显式 Open Questions
 
 当前实体共声明 76 个 open question。它们是已知断口，不应由 Agent 静默补全。
@@ -1167,7 +1206,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 350/395 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 356/401 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
