@@ -36,19 +36,19 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     registerPrototype('brutalist-button', mod.default);
   },
   'brutalist-separator-root': async () => {
-    const mod = await import('../../../../../packages/prototypes/brutalist/src/separator/index');
+    const mod = await import('@proto.ui/prototypes-brutalist/separator');
     registerPrototype('brutalist-separator-root', mod.BrutalistSeparatorRoot);
   },
   'brutalist-skeleton-root': async () => {
-    const mod = await import('../../../../../packages/prototypes/brutalist/src/skeleton/index');
+    const mod = await import('@proto.ui/prototypes-brutalist/skeleton');
     registerPrototype('brutalist-skeleton-root', mod.BrutalistSkeletonRoot);
   },
   'base-separator-root': async () => {
-    const mod = await import('../../../../../packages/prototypes/base/src/separator/index');
+    const mod = await import('@proto.ui/prototypes-base/separator');
     registerPrototype('base-separator-root', mod.default);
   },
   'base-skeleton-root': async () => {
-    const mod = await import('../../../../../packages/prototypes/base/src/skeleton/index');
+    const mod = await import('@proto.ui/prototypes-base/skeleton');
     registerPrototype('base-skeleton-root', mod.default);
   },
   'shadcn-toggle': async () => {

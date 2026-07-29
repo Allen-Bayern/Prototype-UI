@@ -8,13 +8,15 @@ export const BrutalistSkeletonRoot = definePrototype<
 >({
   name: 'brutalist-skeleton-root',
   setup(def) {
+    // P-BRUTALIST-SKELETON-BASE-INHERITANCE
     asSkeletonRoot();
-    // No default width/height tokens: host/demo owns size so className cannot fight sorted token CSS.
+    // P-BRUTALIST-SKELETON-CONSUMER-SIZE — the consuming composition owns dimensions.
+    // P-BRUTALIST-SKELETON-VISUAL-GRAMMAR
     def.feedback.style.use(
       tw(
         'block rounded-none border-2 border-foreground bg-lavender shadow-[2px_2px_0_0_var(--pui-foreground)]'
       )
     );
-    return (renderer) => [renderer.r.slot()];
+    return () => null;
   },
 });

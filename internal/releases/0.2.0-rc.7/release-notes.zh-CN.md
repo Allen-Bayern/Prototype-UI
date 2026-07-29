@@ -26,6 +26,11 @@
 - `proto-ui init --prototypes brutalist` 现在是一等 CSS-only style preset。它会写出 Brutalist 主题（`brutalist-theme.css`，包含 Light/Dark 变量与扁平 canary/mint/lavender/coral/sky 强调调色板），以及从官方 Brutalist prototype 源码扫描生成的 Proto UI token closure，使目标项目在尚未安装任何 prototype package 之前即可获得可用初始 CSS。
 - 该 preset 故意为 CSS-only。私有 workspace package `@proto.ui/prototypes-brutalist`（Button reference family）暂无公开安装路径，且不在 rc.7 BOM 中；在该 package 经过后续 release train 公开发布之前，CLI `add` 组件注册表中不会暴露任何 Brutalist 条目。
 
+### Separator 与 Skeleton 候选协议
+
+- Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为，以及 mounted 后的实时投影。Base Skeleton 是 visual-only、`aria-hidden`、无交互且不拥有消费端尺寸的占位协议。
+- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 与 Skeleton 视觉投影及 source subpath。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
+
 ## 构建与发布
 
 ### 37 个公开 package 交付可执行产物
@@ -55,4 +60,4 @@
 
 ## 仍待发布准备
 
-- 本草案不代表 rc.7 已经形成可安装发行。后续仍需创建 draft version entity、对齐 `VERSION` 与全部公开 package manifest、生成 package BOM，并通过完整 release rehearsal 后才能进入发布评审。
+- 本草案不代表 rc.7 已可安装。draft version entity、已对齐的公开 package manifest 与 37-package BOM 已存在；完整 release rehearsal、不可变 spec snapshot、Git tag、GitHub prerelease 与 npm publication 仍需在激活前单独验证。

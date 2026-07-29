@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
 | 工作区实体数 | 409 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:8a5003bd5143fbc7ddd51eba14e429da483379049e00285ae3a0000c1d6aa2a4` |
+| 工作区快照指纹 | `sha256:a8773c63b06817247e73d9d0a173ae875cdd304c79de476de7612aca85e91b14` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -177,7 +177,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
-| [`C-A11Y-0001`](../../spec/contracts/C-A11Y-0001.yaml) | `draft` | Accessibility exposes projectable semantic objects | 10 | 1 | The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior. |
+| [`C-A11Y-0001`](../../spec/contracts/C-A11Y-0001.yaml) | `draft` | Accessibility exposes projectable semantic objects | 11 | 1 | The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior. |
 
 ### ADAPTER（1）
 
@@ -468,7 +468,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-SELECT-TRIGGER`](../../spec/prototypes/P-BASE-SELECT-TRIGGER.yaml) | `draft` | Base Select Trigger is an accessible select-only combobox command | — | — | 6 | 3 |
 | [`P-BASE-SELECT-VALUE`](../../spec/prototypes/P-BASE-SELECT-VALUE.yaml) | `draft` | Base Select Value is a render-consumed committed-value display | — | — | 8 | 3 |
 | [`P-BASE-SEPARATOR`](../../spec/prototypes/P-BASE-SEPARATOR.yaml) | `draft` | Base Separator protocol | — | — | 4 | 2 |
-| [`P-BASE-SKELETON`](../../spec/prototypes/P-BASE-SKELETON.yaml) | `draft` | Base Skeleton protocol | — | — | 4 | 2 |
+| [`P-BASE-SKELETON`](../../spec/prototypes/P-BASE-SKELETON.yaml) | `draft` | Base Skeleton protocol | — | — | 5 | 2 |
 | [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml) | `draft` | Base Switch is a root-owned on/off value control | — | 2 roles / 0 profiles | 53 | 3 |
 | [`P-BASE-SWITCH-THUMB`](../../spec/prototypes/P-BASE-SWITCH-THUMB.yaml) | `draft` | Base Switch Thumb is a context-driven switch indicator | — | — | 15 | 3 |
 | [`P-BASE-TABS`](../../spec/prototypes/P-BASE-TABS.yaml) | `draft` | Base Tabs is a compound single-selection protocol | — | 5 roles / 0 profiles | 38 | 3 |
@@ -484,8 +484,8 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
 | [`P-BRUTALIST-BUTTON`](../../spec/prototypes/P-BRUTALIST-BUTTON.yaml) | `draft` | Brutalist Button inherits Base Button and layers a Neo-Brutalist visual API | `P-BASE-BUTTON` | — | 11 | 3 |
-| [`P-BRUTALIST-SEPARATOR`](../../spec/prototypes/P-BRUTALIST-SEPARATOR.yaml) | `draft` | Brutalist Separator protocol | `P-BASE-SEPARATOR` | — | 1 | 2 |
-| [`P-BRUTALIST-SKELETON`](../../spec/prototypes/P-BRUTALIST-SKELETON.yaml) | `draft` | Brutalist Skeleton protocol | `P-BASE-SKELETON` | — | 1 | 2 |
+| [`P-BRUTALIST-SEPARATOR`](../../spec/prototypes/P-BRUTALIST-SEPARATOR.yaml) | `draft` | Brutalist Separator protocol | `P-BASE-SEPARATOR` | — | 3 | 2 |
+| [`P-BRUTALIST-SKELETON`](../../spec/prototypes/P-BRUTALIST-SKELETON.yaml) | `draft` | Brutalist Skeleton protocol | `P-BASE-SKELETON` | — | 3 | 2 |
 
 ### LUCIDE（1）
 
@@ -723,7 +723,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  279 |
+| `passing` |  281 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -732,7 +732,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   81 |
 | `fixture`         |   17 |
-| `module-test`     |  132 |
+| `module-test`     |  134 |
 | `runtime-test`    |   71 |
 | `workspace-check` |   10 |
 
@@ -742,7 +742,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-A11Y-0001`](../../spec/tests/T-A11Y-0001.yaml) | `draft` | A11y semantic object contract tests | 4 | `passing` 3 | `C-A11Y-0001`<br>`HC-A11Y-0001` | — |
+| [`T-A11Y-0001`](../../spec/tests/T-A11Y-0001.yaml) | `draft` | A11y semantic object contract tests | 5 | `passing` 3 | `C-A11Y-0001`<br>`HC-A11Y-0001` | — |
 
 ### ADAPTER（1）
 
@@ -817,8 +817,8 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-BASE-SELECT-ITEM-0001`](../../spec/tests/T-BASE-SELECT-ITEM-0001.yaml) | `draft` | Base Select Item protocol tests | 5 | `passing` 1 | `P-BASE-SELECT-ITEM` | `P-BASE-SELECT-ITEM` |
 | [`T-BASE-SELECT-TRIGGER-0001`](../../spec/tests/T-BASE-SELECT-TRIGGER-0001.yaml) | `draft` | Base Select Trigger protocol tests | 3 | `passing` 1 | `P-BASE-SELECT-TRIGGER` | `P-BASE-SELECT-TRIGGER` |
 | [`T-BASE-SELECT-VALUE-0001`](../../spec/tests/T-BASE-SELECT-VALUE-0001.yaml) | `draft` | Base Select Value value-class protocol tests | 3 | `passing` 1 | `P-BASE-SELECT-VALUE` | `P-BASE-SELECT-VALUE` |
-| [`T-BASE-SEPARATOR-0001`](../../spec/tests/T-BASE-SEPARATOR-0001.yaml) | `draft` | Base Separator behavior tests | 2 | — | — | `P-BASE-SEPARATOR` |
-| [`T-BASE-SKELETON-0001`](../../spec/tests/T-BASE-SKELETON-0001.yaml) | `draft` | Base Skeleton behavior tests | 1 | — | — | `P-BASE-SKELETON` |
+| [`T-BASE-SEPARATOR-0001`](../../spec/tests/T-BASE-SEPARATOR-0001.yaml) | `draft` | Base Separator behavior tests | 3 | `passing` 1 | — | `P-BASE-SEPARATOR` |
+| [`T-BASE-SKELETON-0001`](../../spec/tests/T-BASE-SKELETON-0001.yaml) | `draft` | Base Skeleton behavior tests | 1 | `passing` 1 | — | `P-BASE-SKELETON` |
 | [`T-BASE-SWITCH-0001`](../../spec/tests/T-BASE-SWITCH-0001.yaml) | `draft` | Base Switch root protocol contract tests | 8 | `passing` 1 | `P-BASE-SWITCH` | `P-BASE-SWITCH` |
 | [`T-BASE-SWITCH-THUMB-0001`](../../spec/tests/T-BASE-SWITCH-THUMB-0001.yaml) | `draft` | Base Switch Thumb indicator protocol contract tests | 4 | `passing` 1 | `P-BASE-SWITCH-THUMB` | `P-BASE-SWITCH-THUMB` |
 | [`T-BASE-TABS-0001`](../../spec/tests/T-BASE-TABS-0001.yaml) | `draft` | Base Tabs root and compound protocol contract tests | 5 | `passing` 3 | `P-BASE-TABS` | `P-BASE-TABS`<br>`P-BASE-TABS-LIST`<br>`P-BASE-TABS-TRIGGER`<br>`P-BASE-TABS-CONTENT` |
@@ -840,7 +840,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BRUTALIST-BUTTON-0001`](../../spec/tests/T-BRUTALIST-BUTTON-0001.yaml) | `draft` | Brutalist Button visual contract and public API tests | 9 | `passing` 2 | `P-BRUTALIST-BUTTON` | `P-BASE-BUTTON`<br>`P-BRUTALIST-BUTTON` |
-| [`T-BRUTALIST-SEPARATOR-0001`](../../spec/tests/T-BRUTALIST-SEPARATOR-0001.yaml) | `draft` | Brutalist Separator visual contract tests | 1 | `passing` 1 | `P-BRUTALIST-SEPARATOR` | `P-BRUTALIST-SEPARATOR`<br>`P-BASE-SEPARATOR` |
+| [`T-BRUTALIST-SEPARATOR-0001`](../../spec/tests/T-BRUTALIST-SEPARATOR-0001.yaml) | `draft` | Brutalist Separator visual contract tests | 2 | `passing` 1 | `P-BRUTALIST-SEPARATOR` | `P-BRUTALIST-SEPARATOR`<br>`P-BASE-SEPARATOR` |
 | [`T-BRUTALIST-SKELETON-0001`](../../spec/tests/T-BRUTALIST-SKELETON-0001.yaml) | `draft` | Brutalist Skeleton visual contract tests | 1 | `passing` 1 | `P-BRUTALIST-SKELETON` | `P-BRUTALIST-SKELETON`<br>`P-BASE-SKELETON` |
 
 ### CLI（2）

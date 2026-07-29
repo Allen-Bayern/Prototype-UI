@@ -15,13 +15,15 @@ export type {
 } from './types';
 
 function setupSeparatorRoot(def: DefHandle<SeparatorRootProps, SeparatorRootExposes>): void {
+  // P-BASE-SEPARATOR-ORIENTATION, P-BASE-SEPARATOR-DECORATIVE
   def.props.define({
     orientation: { type: 'enum', empty: 'fallback', options: ['horizontal', 'vertical'] },
     decorative: { type: 'boolean', empty: 'fallback' },
   });
   def.props.setDefaults({ orientation: 'horizontal', decorative: true });
 
-  const orientation = def.state.string('orientation', 'horizontal', {
+  // P-BASE-SEPARATOR-ORIENTATION
+  const orientation = def.state.enum('orientation', 'horizontal', {
     options: ['horizontal', 'vertical'],
   });
   const decorative = def.state.bool('decorative', true);
@@ -29,10 +31,12 @@ function setupSeparatorRoot(def: DefHandle<SeparatorRootProps, SeparatorRootExpo
   const hidden = def.state.bool('hidden', true);
   def.expose.state('orientation', orientation);
   def.expose.state('decorative', decorative);
+  // P-BASE-SEPARATOR-DECORATIVE, P-BASE-SEPARATOR-SEMANTIC
   def.a11y.role(role);
   def.a11y.state('orientation', orientation);
   def.a11y.tree({ hidden });
 
+  // P-BASE-SEPARATOR-ORIENTATION, P-BASE-SEPARATOR-DECORATIVE, P-BASE-SEPARATOR-SEMANTIC
   const sync = (props: Readonly<SeparatorRootProps>) => {
     const nextOrientation = props.orientation ?? 'horizontal';
     const nextDecorative = props.decorative ?? true;
@@ -45,6 +49,7 @@ function setupSeparatorRoot(def: DefHandle<SeparatorRootProps, SeparatorRootExpo
   def.props.watchAll((_run, next) => sync(next));
 }
 
+// P-BASE-SEPARATOR-NO-INTERACTION: this protocol declares no focus, event, or command channel.
 export const asSeparatorRoot = defineAsHook<
   SeparatorRootProps,
   SeparatorRootExposes,

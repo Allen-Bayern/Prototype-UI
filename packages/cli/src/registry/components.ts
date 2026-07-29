@@ -160,17 +160,6 @@ const shadcnCompound = (
     { stylePreset: 'shadcn', preset }
   );
 
-const brutalist = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
-  defineSimple(
-    id,
-    label,
-    '@proto.ui/prototypes-brutalist',
-    `@proto.ui/prototypes-brutalist/${id.slice('brutalist-'.length)}`,
-    prototypeImport,
-    exportBaseName,
-    { stylePreset: 'brutalist' }
-  );
-
 const base = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
   defineSimple(
     id,
@@ -195,19 +184,6 @@ const baseCompound = (
   );
 
 export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
-  'brutalist-separator': brutalist(
-    'brutalist-separator',
-    'Brutalist Separator',
-    'BrutalistSeparatorRoot',
-    'BrutalistSeparatorRoot'
-  ),
-  'brutalist-skeleton': brutalist(
-    'brutalist-skeleton',
-    'Brutalist Skeleton',
-    'BrutalistSkeletonRoot',
-    'BrutalistSkeletonRoot'
-  ),
-
   'shadcn-button': shadcn('shadcn-button', 'shadcn Button', 'shadcnButton', 'ShadcnButton'),
   'shadcn-toggle': shadcn('shadcn-toggle', 'shadcn Toggle', 'shadcnToggle', 'ShadcnToggle'),
 

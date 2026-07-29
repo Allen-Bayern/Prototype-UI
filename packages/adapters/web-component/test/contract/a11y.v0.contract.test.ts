@@ -1,9 +1,15 @@
-import { describe, expect, it } from 'vitest';
-import type { Prototype } from '@proto.ui/core';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type { A11ySemanticObjectSnapshot, Prototype } from '@proto.ui/core';
 import { definePrototype } from '@proto.ui/core';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
 
 describe('contract: adapter-web-component / a11y projection (v0)', () => {
+  it('types projected tree snapshots as resolved booleans', () => {
+    type SnapshotTree = NonNullable<A11ySemanticObjectSnapshot['tree']>;
+    expectTypeOf<SnapshotTree['hidden']>().toEqualTypeOf<boolean | undefined>();
+    expectTypeOf<SnapshotTree['mergeChildren']>().toEqualTypeOf<boolean | undefined>();
+  });
+
   it('A11Y-WC-0100: projects supported semantic object IR to host attributes', () => {
     // T-A11Y-0001-CASE-WEB-PROJECTION
     const P: Prototype<{ disabled?: boolean; label?: string }> = definePrototype({
@@ -77,5 +83,48 @@ describe('contract: adapter-web-component / a11y projection (v0)', () => {
 
     setElementProps(el, { label: '' });
     expect(el.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('A11Y-WC-0200: projects dynamic tree state without changing layout visibility', () => {
+    // T-A11Y-0001-CASE-DYNAMIC-TREE
+    const P: Prototype<{ decorative?: boolean }> = definePrototype({
+      name: 'x-a11y-wc-dynamic-tree',
+      setup(def) {
+        def.props.define({ decorative: { type: 'boolean', empty: 'fallback' } });
+        def.props.setDefaults({ decorative: true });
+
+        const hidden = def.state.bool('tree.hidden', true);
+        const mergeChildren = def.state.bool('tree.mergeChildren', true);
+        def.a11y.tree({ hidden, mergeChildren });
+        def.props.watch(['decorative'], (_run, next) => {
+          hidden.set(next.decorative, 'reason: test tree hidden');
+          mergeChildren.set(next.decorative, 'reason: test tree merge children');
+        });
+      },
+    });
+
+    if (!customElements.get(P.name)) {
+      customElements.define(
+        P.name,
+        AdaptToWebComponent(P, { register: false, registerAs: P.name })
+      );
+    }
+
+    const el = document.createElement(P.name) as HTMLElement;
+    document.body.appendChild(el);
+    expect(el.getAttribute('aria-hidden')).toBe('true');
+    expect(el.getAttribute('data-pui-a11y-merge-children')).toBe('true');
+    expect(el.hasAttribute('hidden')).toBe(false);
+
+    setElementProps(el, { decorative: false });
+    expect(el.getAttribute('aria-hidden')).toBe('false');
+    expect(el.getAttribute('data-pui-a11y-merge-children')).toBe('false');
+    expect(el.hasAttribute('hidden')).toBe(false);
+
+    setElementProps(el, { decorative: true });
+    expect(el.getAttribute('aria-hidden')).toBe('true');
+    expect(el.getAttribute('data-pui-a11y-merge-children')).toBe('true');
+    expect(el.hasAttribute('hidden')).toBe(false);
+    el.remove();
   });
 });

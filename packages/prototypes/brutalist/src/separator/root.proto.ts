@@ -8,17 +8,23 @@ export const BrutalistSeparatorRoot = definePrototype<
 >({
   name: 'brutalist-separator-root',
   setup(def) {
-    // Keep Base semantics (orientation/decorative/a11y) via as-hook.
-    asSeparatorRoot();
+    // P-BRUTALIST-SEPARATOR-BASE-INHERITANCE
+    // Keep Base orientation, decorative, and accessibility semantics, then style
+    // from the same canonical state exposed to the web projection.
+    const separatorState = asSeparatorRoot().stateHandles;
+    if (!separatorState) {
+      throw new Error('[brutalist-separator] asSeparatorRoot must project state handles.');
+    }
+    const { orientation } = separatorState;
+    // P-BRUTALIST-SEPARATOR-VISUAL-GRAMMAR
     def.feedback.style.use(tw('block shrink-0 bg-foreground'));
-    // Drive geometry from props so tokens apply directly instead of depending on
-    // optimized data-[orientation=...] variants for this foundation slice.
+    // P-BRUTALIST-SEPARATOR-DYNAMIC-GEOMETRY
     def.rule({
-      when: (w) => w.prop('orientation').eq('horizontal'),
+      when: (w) => w.state(orientation).eq('horizontal'),
       intent: (i) => i.feedback.style.use(tw('h-0.5 w-full')),
     });
     def.rule({
-      when: (w) => w.prop('orientation').eq('vertical'),
+      when: (w) => w.state(orientation).eq('vertical'),
       intent: (i) => i.feedback.style.use(tw('h-12 w-0.5')),
     });
   },

@@ -9,10 +9,15 @@ export type {
   SkeletonRootAsHookContract,
 } from './types';
 
-function setupSkeletonRoot(def: DefHandle<SkeletonRootProps, SkeletonRootExposes>): void {
+function setupSkeletonRoot(def: DefHandle<SkeletonRootProps, SkeletonRootExposes>) {
+  // P-BASE-SKELETON-HIDDEN, P-BASE-SKELETON-NO-ANNOUNCEMENT
   def.a11y.tree({ hidden: true });
+  // P-BASE-SKELETON-CONTENTLESS
+  return () => null;
 }
 
+// P-BASE-SKELETON-NO-INTERACTION, P-BASE-SKELETON-STYLED-MOTION:
+// Base owns no props, state, event, focus, command, animation, or reduced-motion policy.
 export const asSkeletonRoot = defineAsHook<
   SkeletonRootProps,
   SkeletonRootExposes,

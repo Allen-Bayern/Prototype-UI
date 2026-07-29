@@ -26,6 +26,11 @@
 - `proto-ui init --prototypes brutalist` is now a first-class CSS-only style preset. It writes a Brutalist theme (`brutalist-theme.css` with light/dark variables and the flat canary/mint/lavender/coral/sky accent palette) plus a generated Proto UI token closure scanned from official Brutalist prototype sources, so target projects get usable initial CSS before any prototype package is installed.
 - The preset is intentionally CSS-only. The private workspace package `@proto.ui/prototypes-brutalist` (Button reference family) has no public install path yet and is not part of the rc.7 BOM; the CLI `add` component registry exposes no Brutalist entry until the package is promoted through a later release train.
 
+### Separator and Skeleton candidate protocols
+
+- Base Separator now has explicit horizontal/vertical orientation, decorative-versus-semantic accessibility behavior, and live post-mount projection. Base Skeleton is a visual-only, aria-hidden placeholder with no interaction or consumer-owned dimensions.
+- The private `@proto.ui/prototypes-brutalist` workspace package adds Separator and Skeleton visual projections and source subpaths. These candidates remain outside the 37-package rc.7 BOM and do not add public Brutalist `proto-ui add` entries.
+
 ## Build and release
 
 ### Executable artifacts for all 37 public packages
@@ -55,4 +60,4 @@
 
 ## Release preparation still required
 
-- This draft does not mean rc.7 is an installable release. A draft version entity must still be created, `VERSION` and every public package manifest aligned, the package BOM generated, and the complete release rehearsal passed before publication review.
+- This draft does not mean rc.7 is installable. The draft version entity, aligned public package manifests, and 37-package BOM exist; the complete release rehearsal, immutable spec snapshot, Git tag, GitHub prerelease, and npm publication still require separate verification before activation.

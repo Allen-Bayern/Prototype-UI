@@ -8,12 +8,12 @@ export interface SeparatorRootProps {
 }
 
 export type SeparatorRootExposes = {
-  orientation: ExposeState<string>;
+  orientation: ExposeState<SeparatorOrientation>;
   decorative: ExposeState<boolean>;
 };
 
 export type SeparatorRootStateHandles = {
-  orientation: State<string>;
+  orientation: State<SeparatorOrientation>;
   decorative: State<boolean>;
 };
 

@@ -26,9 +26,19 @@
       "types": "./src/button/index.ts",
       "import": "./src/button/index.ts",
       "default": "./src/button/index.ts"
+    },
+    "./separator": {
+      "types": "./src/separator/index.ts",
+      "import": "./src/separator/index.ts",
+      "default": "./src/separator/index.ts"
+    },
+    "./skeleton": {
+      "types": "./src/skeleton/index.ts",
+      "import": "./src/skeleton/index.ts",
+      "default": "./src/skeleton/index.ts"
     }
   },
-  "description": "Neo-Brutalist Proto UI prototype library foundation and reference Button projection.",
+  "description": "Private Neo-Brutalist Proto UI workspace library with Button, Separator, and Skeleton projections.",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {

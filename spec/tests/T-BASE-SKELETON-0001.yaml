@@ -6,13 +6,23 @@ since: 0.2.0-rc.7
 summary: Web Component coverage for Skeleton accessibility hiding and absence of fake interaction or loading semantics.
 cases:
   - id: T-BASE-SKELETON-0001-CASE-VISUAL-ONLY
-    title: Skeleton is aria-hidden without status, busy, or focus semantics
+    title: Skeleton is contentless and aria-hidden without loading or interaction semantics
     covers:
       - P-BASE-SKELETON-HIDDEN
       - P-BASE-SKELETON-NO-ANNOUNCEMENT
+      - P-BASE-SKELETON-CONTENTLESS
       - P-BASE-SKELETON-NO-INTERACTION
-      - P-BASE-SKELETON-STYLED-MOTION
-    expectation: skeleton-hidden-without-fake-loading-or-interaction
+    expectation: skeleton-contentless-hidden-without-fake-loading-or-interaction
+implementations:
+  - id: prototypes-base-skeleton-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/skeleton.test.ts
+    required: true
+    consumesCases:
+      - T-BASE-SKELETON-0001-CASE-VISUAL-ONLY
+    exercises:
+      - P-BASE-SKELETON
 exercises:
   prototypes: [P-BASE-SKELETON]
 sources:

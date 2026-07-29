@@ -92,4 +92,37 @@ describe('collectProtoStyleTokens', () => {
     expect(tokens).toContain('data-[pressed]:shadow-none');
     expect(tokens).not.toContain('active:translate-x-[5px]');
   });
+
+  it('maps asSeparatorRoot enum rules to data-orientation value selectors', async () => {
+    await writeFile(
+      path.join(dir, 'separator.proto.ts'),
+      [
+        "import { definePrototype, tw } from '@proto.ui/core';",
+        "import { asSeparatorRoot } from '@proto.ui/prototypes-base/separator';",
+        '',
+        'const separator = definePrototype({',
+        "  name: 'styled-separator',",
+        '  setup(def) {',
+        '    const { orientation } = asSeparatorRoot().stateHandles;',
+        '    def.rule({',
+        "      when: (w) => w.state(orientation).eq('horizontal'),",
+        "      intent: (i) => i.feedback.style.use(tw('h-0.5 w-full')),",
+        '    });',
+        '    def.rule({',
+        "      when: (w) => w.state(orientation).eq('vertical'),",
+        "      intent: (i) => i.feedback.style.use(tw('h-12 w-0.5')),",
+        '    });',
+        '  },',
+        '});',
+        'export default separator;',
+      ].join('\n')
+    );
+
+    const tokens = await collectProtoStyleTokens(dir);
+
+    expect(tokens).toContain('data-[orientation=horizontal]:h-0.5');
+    expect(tokens).toContain('data-[orientation=horizontal]:w-full');
+    expect(tokens).toContain('data-[orientation=vertical]:h-12');
+    expect(tokens).toContain('data-[orientation=vertical]:w-0.5');
+  });
 });
