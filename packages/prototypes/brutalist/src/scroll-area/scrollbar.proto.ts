@@ -23,7 +23,7 @@ export const BrutalistScrollAreaScrollbar = definePrototype<
       when: (w) => w.prop('orientation').eq('horizontal'),
       intent: (i) =>
         i.feedback.style.use(
-          tw('absolute bottom-0 left-0 h-4 w-full flex-col border-t-2 border-foreground')
+          tw('absolute bottom-0 left-0 h-4 w-full border-t-2 border-foreground')
         ),
     });
     return (renderer) => [renderer.r.slot()];

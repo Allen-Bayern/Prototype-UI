@@ -1,6 +1,6 @@
 import { defineAsHook, definePrototype, type DefHandle } from '@proto.ui/core';
 import { asScrollSurface } from '@proto.ui/hooks';
-import { SCROLL_AREA_FAMILY } from './shared';
+import { SCROLL_AREA_CONTEXT, SCROLL_AREA_FAMILY } from './shared';
 import type {
   ScrollAreaViewportAsHookContract,
   ScrollAreaViewportExposes,
@@ -11,8 +11,16 @@ function setupScrollAreaViewport(
   def: DefHandle<ScrollAreaViewportProps, ScrollAreaViewportExposes>
 ): void {
   def.anatomy.claim(SCROLL_AREA_FAMILY, { role: 'viewport' });
+  def.context.trySubscribe(SCROLL_AREA_CONTEXT);
   const scroll = asScrollSurface<ScrollAreaViewportProps>();
   scroll.configure({ axes: 'both', projection: 'auto' });
+  scroll.bindComposedChrome({
+    scope: SCROLL_AREA_CONTEXT,
+    anatomy: SCROLL_AREA_FAMILY,
+    scrollbarRole: 'scrollbar',
+    thumbRole: 'thumb',
+    orientationExpose: 'orientation',
+  });
 
   def.expose.state('scrollAxes', scroll.axes);
   def.expose.state('scrolling', scroll.scrolling);

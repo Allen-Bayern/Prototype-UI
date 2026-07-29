@@ -3,13 +3,15 @@ type: contract
 title: asScrollSurface declares a no-arg singleton logical scroll surface
 status: draft
 since: 0.2.0-rc.7
-summary: asScrollSurface is a privileged no-argument once hook that declares the caller as a logical scroll surface and returns setup configuration, observed facts, and scroll requests.
+summary: asScrollSurface is a privileged no-argument once hook that declares the caller as a logical scroll surface and returns setup configuration and family binding, observed facts, and scroll requests.
 statement:
   zh-CN: >-
     `asScrollSurface()` 是 Scroll domain 的特权 no-arg once/singleton asHook。它声明当前 prototype instance 为 logical scroll surface，并返回稳定 handle；handle 提供 setup-only configuration、module-owned observed facts 与 scroll requests。该 hook 不暴露 raw host target、DOM metrics、Flutter controller 或宿主写入能力，也不单独定义 Scroll domain。
 
+
   en: >-
     `asScrollSurface()` is the Scroll-domain privileged no-argument once or singleton asHook. It declares the current prototype instance as a logical scroll surface and returns a stable handle providing setup-only configuration, module-owned observed facts, and scroll requests. The hook exposes neither raw host targets, DOM metrics, Flutter controllers, nor host write authority, and it does not define the Scroll domain by itself.
+
 
 criteria:
   - id: C-AS-SCROLL-SURFACE-0001-A
@@ -32,22 +34,24 @@ criteria:
     text:
       zh-CN: 返回 handle 不得暴露 raw host target、宿主 geometry object 或宿主 controller。
       en: The returned handle must not expose a raw host target, host geometry object, or host controller.
-openQuestions:
-  - id: C-AS-SCROLL-SURFACE-0001-Q-CONTROL
-    question:
-      zh-CN: Scrollbar control registration 应通过 surface handle、独立 `asScrollControl()`，还是 Anatomy module-internal binding 表达？
-      en: Should Scrollbar control registration use the surface handle, a separate `asScrollControl()`, or an Anatomy module-internal binding?
-    blocks: [scroll-control-hook]
+  - id: C-AS-SCROLL-SURFACE-0001-F
+    text:
+      zh-CN: handle 可以通过 setup-only `bindComposedChrome` 声明 Context scope、Anatomy family/roles 与 orientation expose key，但不得接收 host target 或像素 geometry。
+      en: The handle may use setup-only `bindComposedChrome` to declare a Context scope, Anatomy family and roles, and an orientation expose key, but it must not accept host targets or pixel geometry.
 sources:
   - path: internal/records/2026-07-29-scroll-area-boundary-and-host-projection.zh-CN.md
 dependsOn:
   contracts:
     - C-SCROLL-0001
+    - C-SCROLL-COMPOSED-CHROME-0001
     - C-AS-HOOK-PRIVILEGED-0001
 verifies:
   tests:
     - T-SCROLL-0001
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Resolved composed-control registration as a setup-only family binding on the privileged surface handle.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Drafted asScrollSurface as the restricted authoring entry to Scroll module facts and requests.

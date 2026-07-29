@@ -1,5 +1,6 @@
 import type {
   ModuleInstance,
+  ScrollComposedChromeBinding,
   ScrollSurfaceConfig,
   ScrollSurfaceConfigPatch,
   ScrollSurfaceHandle,
@@ -14,6 +15,7 @@ export type ScrollFacade = {
 
 export type ScrollPort = {
   configureSurface(patch: ScrollSurfaceConfigPatch): void;
+  bindComposedChrome(binding: ScrollComposedChromeBinding): void;
   request(request: ScrollSurfaceRequest): void;
   getConfig(): ScrollSurfaceConfig;
   getSnapshot(): ScrollSurfaceSnapshot;

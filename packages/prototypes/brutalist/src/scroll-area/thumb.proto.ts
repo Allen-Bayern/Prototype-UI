@@ -8,7 +8,7 @@ export const BrutalistScrollAreaThumb = definePrototype<
   name: 'brutalist-scroll-area-thumb',
   setup(def) {
     asScrollAreaThumb();
-    def.feedback.style.use(tw('relative flex-1 rounded-none bg-foreground'));
+    def.feedback.style.use(tw('relative h-full w-full rounded-none bg-foreground'));
     return (renderer) => [renderer.r.slot()];
   },
 });

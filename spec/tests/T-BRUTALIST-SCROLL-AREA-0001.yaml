@@ -3,13 +3,14 @@ type: test
 title: Brutalist Scroll Area visual contract tests
 status: draft
 since: 0.2.0-rc.7
-summary: Covers the current tested Neo-Brutalist visual grammar, Base anatomy inheritance, orientation, and composed projection preference without claiming custom drag behavior.
+summary: Covers the current tested Neo-Brutalist visual grammar, Base anatomy inheritance, orientation, composed projection preference, and passive Thumb geometry without claiming custom drag behavior.
 cases:
   - id: T-BRUTALIST-SCROLL-AREA-0001-CASE-1
     title: P-BRUTALIST-SCROLL-AREA retains Base semantics and projects the Brutalist visual grammar
     covers:
       - P-BRUTALIST-SCROLL-AREA-VISUAL-GRAMMAR
       - P-BRUTALIST-SCROLL-AREA-TESTED-SURFACE
+      - P-BRUTALIST-SCROLL-AREA-THUMB-SURFACE
     expectation: p-brutalist-scroll-area-visual-contract
 implementations:
   - id: prototypes-brutalist-scroll-area-contract
@@ -42,6 +43,9 @@ exercises:
     - P-BRUTALIST-SCROLL-AREA-THUMB
     - P-BRUTALIST-SCROLL-AREA-VIEWPORT
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added passive host-projected Thumb geometry to the Brutalist integration coverage.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Added draft Brutalist Scroll Area coverage for the rc.7 host-projected semantic slice.

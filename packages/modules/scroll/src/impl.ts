@@ -1,7 +1,9 @@
 import type {
+  AnatomyPartView,
   MountPhase,
   OwnedStateHandle,
   ProtoPhase,
+  ScrollComposedChromeBinding,
   ScrollAxes,
   ScrollAxisSnapshot,
   ScrollResolvedProjection,
@@ -10,14 +12,19 @@ import type {
   ScrollSurfaceHandle,
   ScrollSurfaceRequest,
   ScrollSurfaceSnapshot,
+  Unsubscribe,
 } from '@proto.ui/core';
 import { illegalPhase } from '@proto.ui/core';
 import { ModuleBase, type ModuleFactoryArgs } from '@proto.ui/module-base';
+import type { AnatomyPort } from '@proto.ui/module-anatomy';
+import type { ContextPort } from '@proto.ui/module-context';
 import type { StateFacade, StatePort } from '@proto.ui/module-state';
 import type { PropsBaseType } from '@proto.ui/types';
 import {
   SCROLL_SURFACE_HOST_CAP,
+  type ScrollComposedChromeHostBinding,
   type ScrollSurfaceHost,
+  type ScrollSurfaceHostAttachment,
   type ScrollSurfaceHostLease,
 } from './caps';
 import { resolveScrollProjection } from './projection';
@@ -40,6 +47,9 @@ const clampRatio = (value: number) =>
 export class ScrollModuleImpl extends ModuleBase {
   private config: ScrollSurfaceConfig = DEFAULT_CONFIG;
   private declared = false;
+  private composedChromeBinding: ScrollComposedChromeBinding | null = null;
+  private offAnatomyOrder: Unsubscribe | null = null;
+  private offAnatomyTargets: Unsubscribe | null = null;
   private lease: ScrollSurfaceHostLease | null = null;
   private mounted = false;
 
@@ -61,7 +71,9 @@ export class ScrollModuleImpl extends ModuleBase {
     caps: ModuleFactoryArgs['caps'],
     private readonly prototypeName: string,
     private readonly statePort: StatePort,
-    stateFacade: StateFacade
+    stateFacade: StateFacade,
+    private readonly anatomyPort: AnatomyPort,
+    private readonly contextPort: ContextPort
   ) {
     super(caps);
     this.axesOwned = stateFacade.enum('@scroll/axes', 'both', {
@@ -101,6 +113,7 @@ export class ScrollModuleImpl extends ModuleBase {
       scrolling: this.observed(this.scrollingOwned),
       projection: this.observed(this.projectionOwned),
       configure: (patch) => this.configure(patch),
+      bindComposedChrome: (binding) => this.bindComposedChrome(binding),
       request: (request) => this.request(request),
       getSnapshot: () => this.getSnapshot(),
     };
@@ -138,6 +151,22 @@ export class ScrollModuleImpl extends ModuleBase {
           : patch.requireProjection,
     });
     this.set(this.axesOwned, this.config.axes);
+  }
+
+  bindComposedChrome(binding: ScrollComposedChromeBinding): void {
+    this.ensureSetup('asScrollSurface().bindComposedChrome');
+    if (this.composedChromeBinding && this.composedChromeBinding !== binding) {
+      throw new Error('[Scroll] composed chrome may be bound only once per logical surface.');
+    }
+    this.composedChromeBinding = binding;
+    if (!this.offAnatomyOrder) {
+      const refresh = () => {
+        if (!this.mounted || !this.lease) return;
+        this.lease.update(this.createHostAttachment());
+      };
+      this.offAnatomyOrder = this.anatomyPort.subscribeOrder(binding.anatomy, refresh);
+      this.offAnatomyTargets = this.anatomyPort.subscribeTargets(binding.anatomy, refresh);
+    }
   }
 
   request(request: ScrollSurfaceRequest): void {
@@ -190,6 +219,12 @@ export class ScrollModuleImpl extends ModuleBase {
   override onProtoPhase(phase: ProtoPhase): void {
     super.onProtoPhase(phase);
     if (phase === 'unmounted') this.disconnect();
+    if (phase === 'unmounted') {
+      this.offAnatomyOrder?.();
+      this.offAnatomyOrder = null;
+      this.offAnatomyTargets?.();
+      this.offAnatomyTargets = null;
+    }
   }
 
   private getHost(): ScrollSurfaceHost | null {
@@ -206,11 +241,61 @@ export class ScrollModuleImpl extends ModuleBase {
     }
     const projection = resolveScrollProjection(this.config, host.support, host.preference);
     this.set(this.projectionOwned, projection);
-    this.lease = host.attach({
+    this.lease = host.attach(this.createHostAttachment());
+  }
+
+  private createHostAttachment(): ScrollSurfaceHostAttachment {
+    const composedChrome = this.resolveComposedChrome();
+    const attachment: ScrollSurfaceHostAttachment = {
       config: this.config,
-      projection,
+      projection: this.projectionOwned.get() as Exclude<ScrollResolvedProjection, 'unresolved'>,
       onFacts: (snapshot) => this.applySnapshot(snapshot),
+      ...(composedChrome ? { composedChrome } : {}),
+    };
+    return Object.freeze(attachment);
+  }
+
+  private resolveComposedChrome(): ScrollComposedChromeHostBinding | null {
+    const binding = this.composedChromeBinding;
+    if (!binding) return null;
+    const anatomyScope = this.anatomyPort.resolveDomainScope(binding.anatomy);
+    if (!anatomyScope) return null;
+    const scope = this.contextPort.resolveScope(binding.scope, anatomyScope);
+    if (!scope || scope !== anatomyScope) return null;
+    const scrollbars = this.anatomyPort.order.partsOf(binding.anatomy, binding.scrollbarRole, {
+      missing: 'empty',
     });
+    const controls = scrollbars.flatMap((scrollbar) => {
+      const thumb = this.anatomyPort.descendantsOf(
+        binding.anatomy,
+        scrollbar,
+        binding.thumbRole
+      )[0];
+      if (!thumb) return [];
+      const trackTarget = this.anatomyPort.resolvePartTarget(scrollbar);
+      const thumbTarget = this.anatomyPort.resolvePartTarget(thumb);
+      if (!trackTarget || !thumbTarget) return [];
+      return [
+        Object.freeze({
+          getAxis: () => this.readControlAxis(scrollbar, binding.orientationExpose),
+          trackTarget,
+          thumbTarget,
+        }),
+      ];
+    });
+    return Object.freeze({ scope, controls: Object.freeze(controls) });
+  }
+
+  private readControlAxis(part: AnatomyPartView, exposeKey: string): 'horizontal' | 'vertical' {
+    const exposed = part.getExpose(exposeKey) as
+      | { get?: () => unknown }
+      | { kind: 'state'; state?: { get?: () => unknown } }
+      | null;
+    let state: { get?: () => unknown } | null | undefined = exposed as {
+      get?: () => unknown;
+    } | null;
+    if (exposed && 'kind' in exposed && exposed.kind === 'state') state = exposed.state;
+    return state?.get?.() === 'horizontal' ? 'horizontal' : 'vertical';
   }
 
   private applySnapshot(snapshot: ScrollSurfaceSnapshot): void {

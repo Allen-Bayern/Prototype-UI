@@ -1,4 +1,5 @@
-import type { PropsBaseType } from '@proto.ui/types';
+import type { ContextKey, JsonObject, PropsBaseType } from '@proto.ui/types';
+import type { AnatomyFamily } from './anatomy';
 import type { ObservedStateHandle } from './state';
 
 export type ScrollAxis = 'horizontal' | 'vertical';
@@ -16,6 +17,18 @@ export type ScrollSurfaceConfig = Readonly<{
   axes: ScrollAxes;
   projection: ScrollProjectionPreference;
   requireProjection?: Exclude<ScrollProjectionPreference, 'auto'>;
+}>;
+
+/**
+ * Portable declaration for locating authored scrollbar chrome around one
+ * logical surface. Concrete targets and geometry stay behind the host cap.
+ */
+export type ScrollComposedChromeBinding = Readonly<{
+  scope: ContextKey<JsonObject>;
+  anatomy: AnatomyFamily;
+  scrollbarRole: string;
+  thumbRole: string;
+  orientationExpose: string;
 }>;
 
 export type ScrollAxisSnapshot = Readonly<{
@@ -54,6 +67,7 @@ export interface ScrollSurfaceHandle<P extends PropsBaseType = PropsBaseType> {
   projection: ObservedStateHandle<ScrollResolvedProjection, P>;
 
   configure(patch: ScrollSurfaceConfigPatch): void;
+  bindComposedChrome(binding: ScrollComposedChromeBinding): void;
   request(request: ScrollSurfaceRequest): void;
   getSnapshot(): ScrollSurfaceSnapshot;
 }

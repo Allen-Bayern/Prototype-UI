@@ -24,6 +24,10 @@ criteria:
     text:
       zh-CN: 程序化滚动必须通过 Scroll Host Capability request sink 进入宿主；prototype 不得直接调用 DOM 或其他宿主对象。
       en: Programmatic scrolling must enter the host through the Scroll Host Capability request sink; the prototype must not call the DOM or another host object directly.
+  - id: P-BASE-SCROLL-AREA-VIEWPORT-COMPOSED-BINDING
+    text:
+      zh-CN: Viewport 必须把 Scroll Area Context scope 与 Anatomy Scrollbar/Thumb roles 声明给同一个 `asScrollSurface` handle，使 composed chrome 共享 surface lease 与 facts。
+      en: Viewport must declare the Scroll Area Context scope and Anatomy Scrollbar and Thumb roles to the same `asScrollSurface` handle so composed chrome shares the surface lease and facts.
   - id: P-BASE-SCROLL-AREA-VIEWPORT-A11Y-NEUTRALITY
     text:
       zh-CN: Scroll Area 本身没有专用 ARIA widget role；Viewport 不得仅因可滚动而伪造 region、scrollbar 或 application role。需要 accessible name 或 landmark 时由调用方依据内容语义组合。
@@ -36,10 +40,14 @@ sources:
     label: WAI-ARIA APG keyboard interface guidance
 dependsOn:
   prototypes: [P-BASE-SCROLL-AREA]
-  contracts: [C-AS-SCROLL-SURFACE-0001, C-SCROLL-0001, C-EXPOSE-STATE-0001]
+  contracts:
+    [C-AS-SCROLL-SURFACE-0001, C-SCROLL-0001, C-SCROLL-COMPOSED-CHROME-0001, C-EXPOSE-STATE-0001]
   hostCaps: [HC-SCROLL-SURFACE-0001]
 verifies: { tests: [T-BASE-SCROLL-AREA-0001] }
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Bound authored composed controls to the Viewport surface through Context scope and Anatomy roles.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Cataloged Viewport ownership, normalized facts, host-mediated requests, and role-neutral accessibility.

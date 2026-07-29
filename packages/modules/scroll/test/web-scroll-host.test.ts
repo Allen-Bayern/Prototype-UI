@@ -94,4 +94,60 @@ describe('module-scroll: Web scroll surface host', () => {
     expect(target.style.overflowY).toBe('scroll');
     expect(target.style.scrollbarWidth).toBe('thin');
   });
+
+  it('projects passive Thumb size and position from the host-owned snapshot', () => {
+    const target = document.createElement('div');
+    const track = document.createElement('div');
+    const thumb = document.createElement('div');
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 400,
+    });
+    Object.defineProperty(track, 'clientHeight', { configurable: true, value: 100 });
+    track.style.paddingTop = '2px';
+    track.style.paddingBottom = '2px';
+    thumb.style.height = '7px';
+    thumb.style.transform = 'scale(1)';
+    track.append(thumb);
+    document.body.append(target, track);
+
+    const lease = createWebScrollSurfaceHost(target, {
+      preference: 'composed',
+      minThumbSize: 18,
+    }).attach({
+      config: { axes: 'vertical', projection: 'composed' },
+      projection: 'composed',
+      composedChrome: {
+        scope: {},
+        controls: [{ getAxis: () => 'vertical', trackTarget: track, thumbTarget: thumb }],
+      },
+      onFacts: () => {},
+    });
+
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('24px');
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-offset')).toBe('0px');
+    expect(thumb.style.height).toBe('var(--proto-ui-scroll-thumb-size)');
+    expect(thumb.getAttribute('role')).toBeNull();
+    expect(thumb.tabIndex).toBe(-1);
+
+    lease.request({ kind: 'to', axis: 'vertical', position: 0.5 });
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-offset')).toBe('36px');
+    expect(thumb.style.transform).toContain('var(--proto-ui-scroll-thumb-offset)');
+
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 100,
+    });
+    target.ownerDocument.defaultView?.dispatchEvent(new Event('resize'));
+    expect(thumb.style.display).toBe('none');
+
+    lease.dispose();
+    expect(thumb.style.height).toBe('7px');
+    expect(thumb.style.transform).toBe('scale(1)');
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('');
+  });
 });

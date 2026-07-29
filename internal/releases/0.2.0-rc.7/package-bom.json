@@ -286,7 +286,9 @@
       "publishOrder": 28,
       "internalDependencies": [
         "@proto.ui/core",
+        "@proto.ui/module-anatomy",
         "@proto.ui/module-base",
+        "@proto.ui/module-context",
         "@proto.ui/module-state",
         "@proto.ui/types"
       ]

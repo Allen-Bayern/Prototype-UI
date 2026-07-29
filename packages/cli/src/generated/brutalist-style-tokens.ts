@@ -88,7 +88,6 @@ export const BRUTALIST_STYLE_TOKENS: string[] = [
   'fade-out-0',
   'fixed',
   'flex',
-  'flex-1',
   'flex-col',
   'flex-col-reverse',
   'font-bold',

@@ -34,6 +34,7 @@ cases:
       - D-SCROLL-PROJECTION-0001-C
       - D-SCROLL-PROJECTION-0001-D
       - HC-SCROLL-SURFACE-0001-A
+      - C-AS-SCROLL-SURFACE-0001-F
     expectation: adapter-preference-and-host-support-resolve-one-projection
   - id: T-SCROLL-0001-CASE-LIFETIME
     title: detach and replacement revoke the old host session

@@ -3,7 +3,7 @@ type: prototype
 title: Base Scroll Area Thumb is a feedback-only composed anatomy part
 status: draft
 since: 0.2.0-rc.7
-summary: Thumb is a stable authored part for composed projection but does not independently own scrolling, focus, events, accessibility, or host geometry.
+summary: Thumb is a stable authored part whose passive geometry is projected by the host session without independently owning scrolling, focus, events, accessibility, or host geometry.
 statement:
   zh-CN: Thumb 为设计语言提供稳定的 composed scrollbar 反馈部件。当前 Base 层只声明 anatomy identity；它不是独立 event target、focus owner、ARIA scrollbar，也不持有 offset 或精确 geometry。
   en: Thumb provides a stable composed-scrollbar feedback part for design languages. The current Base layer claims anatomy identity only; it is not an independent event target, focus owner, ARIA scrollbar, or owner of offset or exact geometry.
@@ -18,15 +18,22 @@ criteria:
       en: Current Thumb setup must define no independent props, state, event, focus, or accessibility semantics; their absence is an explicit boundary of this phase.
   - id: P-BASE-SCROLL-AREA-THUMB-NOT-GEOMETRY-OWNER
     text:
-      zh-CN: Thumb 不得把宿主像素 geometry 或 Viewport offset 复制为自身 source of truth；未来 geometry projection 必须从同一 host-owned scroll snapshot 派生。
-      en: Thumb must not copy host pixel geometry or Viewport offset as its own source of truth; future geometry projection must derive from the same host-owned scroll snapshot.
+      zh-CN: Thumb 不得把宿主像素 geometry 或 Viewport offset 复制为自身 source of truth；geometry projection 必须从同一 host-owned scroll snapshot 派生。
+      en: Thumb must not copy host pixel geometry or Viewport offset as its own source of truth; geometry projection must derive from the same host-owned scroll snapshot.
+  - id: P-BASE-SCROLL-AREA-THUMB-PASSIVE-PROJECTION
+    text:
+      zh-CN: composed projection 下，host session 必须从 Viewport normalized facts 投射 Thumb size/offset；Thumb prototype 本身仍不得声明 State、Event、Focus 或 A11y ownership。
+      en: Under composed projection, the host session must project Thumb size and offset from normalized Viewport facts while the Thumb prototype itself continues to declare no State, Event, Focus, or A11y ownership.
 sources:
   - path: packages/prototypes/base/src/scroll-area/thumb.proto.ts
 dependsOn:
   prototypes: [P-BASE-SCROLL-AREA, P-BASE-SCROLL-AREA-SCROLLBAR]
-  contracts: [C-AS-HOOK-0001, C-SCROLL-0001]
+  contracts: [C-AS-HOOK-0001, C-SCROLL-0001, C-SCROLL-COMPOSED-CHROME-0001]
 verifies: { tests: [T-BASE-SCROLL-AREA-0001] }
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added host-projected passive geometry while preserving Thumb's no-independent-behavior boundary.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Cataloged Thumb as feedback-only anatomy and deferred cross-host drag and geometry ownership.

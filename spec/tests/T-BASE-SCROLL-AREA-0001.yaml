@@ -3,7 +3,7 @@ type: test
 title: Base Scroll Area domain and anatomy tests
 status: draft
 since: 0.2.0-rc.7
-summary: Covers the Viewport-owned host surface, normalized facts, system default, orientation, and feedback-only control anatomy.
+summary: Covers the Viewport-owned host surface, normalized facts, system default, family scope, orientation, and host-projected passive control anatomy.
 cases:
   - id: T-BASE-SCROLL-AREA-0001-CASE-VIEWPORT
     title: Viewport publishes normalized host-independent scrolling facts
@@ -15,12 +15,14 @@ cases:
       - P-BASE-SCROLL-AREA-VIEWPORT-A11Y-NEUTRALITY
     expectation: base-scroll-area-viewport-publishes-normalized-system-projection
   - id: T-BASE-SCROLL-AREA-0001-CASE-CONTROLS
-    title: Scrollbar owns orientation while Thumb remains feedback-only
+    title: Scrollbar owns orientation while host projects passive Thumb geometry
     covers:
       - P-BASE-SCROLL-AREA-SCROLLBAR-ORIENTATION
       - P-BASE-SCROLL-AREA-SCROLLBAR-NOT-OFFSET-OWNER
       - P-BASE-SCROLL-AREA-THUMB-FEEDBACK-ONLY
       - P-BASE-SCROLL-AREA-THUMB-NOT-GEOMETRY-OWNER
+      - P-BASE-SCROLL-AREA-THUMB-PASSIVE-PROJECTION
+      - P-BASE-SCROLL-AREA-FAMILY-SESSION
     expectation: base-scroll-area-controls-do-not-duplicate-host-scroll-ownership
 implementations:
   - id: prototypes-base-scroll-area-contract
@@ -57,6 +59,9 @@ exercises:
     - P-BASE-SCROLL-AREA-SCROLLBAR
     - P-BASE-SCROLL-AREA-THUMB
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added family scope and host-projected passive Thumb geometry coverage.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Added Base Scroll Area host-surface and control-boundary coverage.

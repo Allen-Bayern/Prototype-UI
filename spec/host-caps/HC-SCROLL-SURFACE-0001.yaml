@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Scroll Surface host capability 必须为 logical surface 解析当前宿主 target/controller，建立有界 session，报告 projection support 与 scroll facts，应用 scroll requests，并在 detach/dispose 时释放 observer、listener、gesture ownership 与其他宿主资源。它可以使用 Web overflow/observers、Flutter Scrollable/ScrollController 或其他平台机制，但不得向 prototype author 暴露这些对象。
 
+
   en: >-
     The Scroll Surface host capability must resolve the current host target or controller for a logical surface, attach a bounded session, report projection support and scroll facts, apply scroll requests, and release observers, listeners, gesture ownership, and other host resources on detach or disposal. It may use Web overflow and observers, Flutter Scrollable and ScrollController, or other platform mechanisms, but must not expose those objects to prototype authors.
+
 
 criteria:
   - id: HC-SCROLL-SURFACE-0001-A
@@ -32,6 +34,10 @@ criteria:
     text:
       zh-CN: Host-cap 必须把 scroll semantics 交给宿主 accessibility projection，并不得要求所有宿主支持相同原生结构。
       en: The host capability must hand scroll semantics to host accessibility projection without requiring every host to support the same native structure.
+  - id: HC-SCROLL-SURFACE-0001-F
+    text:
+      zh-CN: composed attachment 存在时，host-cap 必须从 surface facts 与宿主本地 track geometry 投射 passive Thumb size/offset，并在 attachment 更新或 dispose 时恢复其占用的宿主样式与 observer。
+      en: When a composed attachment exists, the host capability must project passive Thumb size and offset from surface facts and host-local track geometry and restore owned host styles and observers when the attachment updates or disposes.
 satisfies:
   contracts:
     - C-SCROLL-0001
@@ -41,11 +47,15 @@ relates:
 verifies:
   tests:
     - T-SCROLL-0001
+    - T-SCROLL-COMPOSED-CHROME-0001
 sources:
   - path: internal/records/2026-07-29-scroll-area-boundary-and-host-projection.zh-CN.md
   - path: packages/modules/scroll/src/caps.ts
   - path: packages/modules/scroll/src/web/create-web-scroll-host.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added passive composed chrome geometry projection and cleanup to the bounded surface lease.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Drafted the cross-host capability for bounded scroll sessions, facts, requests, projection support, and cleanup.

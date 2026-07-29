@@ -1,4 +1,10 @@
-import { createAnatomyFamily } from '@proto.ui/core';
+import { createAnatomyFamily, createContextKey } from '@proto.ui/core';
+
+export type ScrollAreaContextValue = {
+  family: 'base-scroll-area';
+};
+
+export const SCROLL_AREA_CONTEXT = createContextKey<ScrollAreaContextValue>('base-scroll-area');
 
 export const SCROLL_AREA_FAMILY = createAnatomyFamily('base-scroll-area', {
   roles: {

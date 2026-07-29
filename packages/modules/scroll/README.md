@@ -29,7 +29,9 @@ npm install @proto.ui/module-scroll@0.2.0-rc.7
 ## Related Internal Packages
 
 - `@proto.ui/core`
+- `@proto.ui/module-anatomy`
 - `@proto.ui/module-base`
+- `@proto.ui/module-context`
 - `@proto.ui/module-state`
 - `@proto.ui/types`
 
