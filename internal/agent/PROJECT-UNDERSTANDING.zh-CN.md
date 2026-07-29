@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
 | 工作区实体数 | 454 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:085129526ac75acc571eae5e4de1df1e4d1c571b141d5ca79d90687518cc2d50` |
+| 工作区快照指纹 | `sha256:aef619ca59a997c375ac91fbbffc45a6141ce9a279da88e3b124ba90dc015e35` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
