@@ -1,4 +1,8 @@
-import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
+import {
+  createCapsWiring,
+  createWebMoveGestureHost,
+  type LogicalInstanceToken,
+} from '@proto.ui/adapter-base';
 import {
   HOST_ELEMENT_CAP,
   type EffectsPort,
@@ -424,7 +428,13 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     ])
     .use('positioning', [[ANCHORED_POSITION_HOST_CAP, createFloatingUiAnchoredPositionHost()]])
     .use('scroll', [
-      [SCROLL_SURFACE_HOST_CAP, createWebScrollSurfaceHost(el, { preference: scrollProjection })],
+      [
+        SCROLL_SURFACE_HOST_CAP,
+        createWebScrollSurfaceHost(el, {
+          moveGestureHost: createWebMoveGestureHost(),
+          preference: scrollProjection,
+        }),
+      ],
     ])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],

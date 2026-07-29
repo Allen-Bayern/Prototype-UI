@@ -1,6 +1,48 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { ScrollSurfaceSnapshot } from '@proto.ui/core';
+import type {
+  MoveGestureHost,
+  MoveGestureHostBinding,
+  MoveGestureSample,
+  ScrollSurfaceSnapshot,
+} from '@proto.ui/core';
 import { createWebScrollSurfaceHost } from '../src';
+
+function createMoveHarness(): {
+  host: MoveGestureHost;
+  getBinding(): MoveGestureHostBinding | null;
+  getDisposeCount(): number;
+} {
+  let binding: MoveGestureHostBinding | null = null;
+  let disposeCount = 0;
+  return {
+    host: {
+      attach(initialBinding) {
+        binding = initialBinding;
+        return {
+          update(nextBinding) {
+            binding = nextBinding;
+          },
+          dispose() {
+            disposeCount++;
+            binding = null;
+          },
+        };
+      },
+    },
+    getBinding: () => binding,
+    getDisposeCount: () => disposeCount,
+  };
+}
+
+function moveSample(x: number, y: number): MoveGestureSample {
+  return Object.freeze({
+    input: 'mouse',
+    position: Object.freeze({ x, y }),
+    delta: Object.freeze({ x: 0, y: 0 }),
+    totalDelta: Object.freeze({ x: 0, y: 0 }),
+    timestamp: 0,
+  });
+}
 
 function setMetrics(
   target: HTMLElement,
@@ -34,8 +76,9 @@ describe('module-scroll: Web scroll surface host', () => {
     });
     document.body.append(target);
     const snapshots: ScrollSurfaceSnapshot[] = [];
+    const move = createMoveHarness();
 
-    const lease = createWebScrollSurfaceHost(target).attach({
+    const lease = createWebScrollSurfaceHost(target, { moveGestureHost: move.host }).attach({
       config: { axes: 'both', projection: 'system' },
       projection: 'system',
       onFacts: (snapshot) => snapshots.push(snapshot),
@@ -73,9 +116,13 @@ describe('module-scroll: Web scroll surface host', () => {
     target.style.overflowY = 'scroll';
     target.style.scrollbarWidth = 'thin';
     document.body.append(target);
+    const move = createMoveHarness();
 
     let reports = 0;
-    const lease = createWebScrollSurfaceHost(target, { preference: 'composed' }).attach({
+    const lease = createWebScrollSurfaceHost(target, {
+      moveGestureHost: move.host,
+      preference: 'composed',
+    }).attach({
       config: { axes: 'vertical', projection: 'auto' },
       projection: 'composed',
       onFacts: () => reports++,
@@ -112,8 +159,10 @@ describe('module-scroll: Web scroll surface host', () => {
     thumb.style.transform = 'scale(1)';
     track.append(thumb);
     document.body.append(target, track);
+    const move = createMoveHarness();
 
     const lease = createWebScrollSurfaceHost(target, {
+      moveGestureHost: move.host,
       preference: 'composed',
       minThumbSize: 18,
     }).attach({
@@ -149,5 +198,96 @@ describe('module-scroll: Web scroll surface host', () => {
     expect(thumb.style.height).toBe('7px');
     expect(thumb.style.transform).toBe('scale(1)');
     expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('');
+  });
+
+  it('maps a host Move Gesture session on Thumb to normalized drag requests', () => {
+    const target = document.createElement('div');
+    const track = document.createElement('div');
+    const thumb = document.createElement('div');
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 400,
+    });
+    Object.defineProperty(track, 'clientHeight', { configurable: true, value: 100 });
+    track.style.paddingTop = '2px';
+    track.style.paddingBottom = '2px';
+    track.getBoundingClientRect = () => ({ top: 0, left: 0, width: 10, height: 100 }) as DOMRect;
+    thumb.getBoundingClientRect = () => ({ top: 2, left: 0, width: 10, height: 24 }) as DOMRect;
+    track.append(thumb);
+    document.body.append(target, track);
+    const move = createMoveHarness();
+
+    const lease = createWebScrollSurfaceHost(target, {
+      moveGestureHost: move.host,
+      preference: 'composed',
+    }).attach({
+      config: { axes: 'vertical', projection: 'composed' },
+      projection: 'composed',
+      composedChrome: {
+        scope: {},
+        controls: [{ getAxis: () => 'vertical', trackTarget: track, thumbTarget: thumb }],
+      },
+      onFacts: () => {},
+    });
+
+    const binding = move.getBinding();
+    expect(binding?.target).toBe(thumb);
+    expect(binding?.axis).toBe('vertical');
+    expect(binding?.shouldStart?.(moveSample(0, 4))).toBe(true);
+
+    binding?.onStart(moveSample(0, 4));
+    expect(target.scrollTop).toBe(0);
+    binding?.onMove(moveSample(0, 40));
+    expect(target.scrollTop).toBe(150);
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-offset')).toBe('36px');
+
+    binding?.onEnd(moveSample(0, 40));
+    lease.update({
+      config: { axes: 'vertical', projection: 'composed' },
+      projection: 'composed',
+      onFacts: () => {},
+    });
+    expect(move.getDisposeCount()).toBe(1);
+
+    lease.dispose();
+    expect(move.getDisposeCount()).toBe(1);
+  });
+
+  it('rejects Thumb movement when the surface has no overflow', () => {
+    const target = document.createElement('div');
+    const track = document.createElement('div');
+    const thumb = document.createElement('div');
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 100,
+    });
+    Object.defineProperty(track, 'clientHeight', { configurable: true, value: 100 });
+    track.getBoundingClientRect = () => ({ top: 0, left: 0, width: 10, height: 100 }) as DOMRect;
+    thumb.getBoundingClientRect = () => ({ top: 0, left: 0, width: 10, height: 100 }) as DOMRect;
+    track.append(thumb);
+    document.body.append(target, track);
+    const move = createMoveHarness();
+
+    const lease = createWebScrollSurfaceHost(target, {
+      moveGestureHost: move.host,
+      preference: 'composed',
+    }).attach({
+      config: { axes: 'vertical', projection: 'composed' },
+      projection: 'composed',
+      composedChrome: {
+        scope: {},
+        controls: [{ getAxis: () => 'vertical', trackTarget: track, thumbTarget: thumb }],
+      },
+      onFacts: () => {},
+    });
+
+    expect(thumb.style.display).toBe('none');
+    expect(move.getBinding()?.shouldStart?.(moveSample(0, 10))).toBe(false);
+    expect(target.scrollTop).toBe(0);
+    lease.dispose();
   });
 });

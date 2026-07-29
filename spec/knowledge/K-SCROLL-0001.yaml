@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Scroll 是宿主协同的 surface domain。它区分 logical scroll surface、可选 scroll control、宿主上报的 facts、发往宿主的 requests、scrolling engine ownership 与 scrollbar chrome projection。Web DOM overflow、CSS pixel、ARIA attribute、Flutter ScrollController 或具体平台 physics 都只是宿主实现，不是 Scroll domain 本身。
 
+
   en: >-
     Scroll is a host-mediated surface domain. It distinguishes a logical scroll surface, optional scroll controls, host-reported facts, host-directed requests, scrolling-engine ownership, and scrollbar-chrome projection. Web DOM overflow, CSS pixels, ARIA attributes, Flutter ScrollController, and platform-specific physics are host implementations rather than the Scroll domain itself.
+
 
 criteria:
   - id: K-SCROLL-0001-A
@@ -42,7 +44,13 @@ explains:
     - C-AS-SCROLL-SURFACE-0001
   decisions:
     - D-SCROLL-PROJECTION-0001
+relates:
+  knowledge:
+    - K-MOVE-GESTURE-0001
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Related Scroll control requests to the separate Move Gesture substrate without merging their ownership.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Defined the cross-host vocabulary for logical scroll surfaces, facts, requests, engine ownership, and chrome projection.

@@ -12,6 +12,7 @@ export default {
           {
             kind: 'proto',
             prototypeId: 'brutalist-scroll-area-viewport',
+            ref: 'scrollViewport',
             children: [
               {
                 kind: 'box',
@@ -39,8 +40,15 @@ export default {
           {
             kind: 'proto',
             prototypeId: 'brutalist-scroll-area-scrollbar',
+            ref: 'scrollbar',
             props: { orientation: 'vertical' },
-            children: [{ kind: 'proto', prototypeId: 'brutalist-scroll-area-thumb' }],
+            children: [
+              {
+                kind: 'proto',
+                prototypeId: 'brutalist-scroll-area-thumb',
+                ref: 'thumb',
+              },
+            ],
           },
         ],
       },

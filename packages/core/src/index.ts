@@ -18,6 +18,7 @@ export * from './hit-participation';
 export * from './overlay';
 export * from './positioning';
 export * from './scroll';
+export * from './move';
 export * from './collection';
 export * from './delay';
 

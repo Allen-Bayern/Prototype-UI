@@ -46,6 +46,10 @@ criteria:
     text:
       zh-CN: Authored composed chrome 必须遵循 `C-SCROLL-COMPOSED-CHROME-0001` 的 family binding 与 host-local continuous projection，不得通过 Context value 或 prototype State 复制宿主 geometry。
       en: Authored composed chrome must follow the family binding and host-local continuous projection in `C-SCROLL-COMPOSED-CHROME-0001` without copying host geometry through Context values or prototype State.
+  - id: C-SCROLL-0001-I
+    text:
+      zh-CN: composed Thumb movement 必须遵循 `C-SCROLL-COMPOSED-CONTROL-0001`，由 Move Gesture host session 产生 `control-drag` request，并继续以实际 surface facts 作为位置真相。
+      en: Composed Thumb movement must follow `C-SCROLL-COMPOSED-CONTROL-0001`, producing `control-drag` requests from a Move Gesture host session while retaining actual surface facts as position truth.
 openQuestions:
   - id: C-SCROLL-0001-Q-LENGTH
     question:
@@ -69,10 +73,14 @@ relates:
     - C-A11Y-0001
     - C-AS-HOOK-PRIVILEGED-0001
     - C-SCROLL-COMPOSED-CHROME-0001
+    - C-SCROLL-COMPOSED-CONTROL-0001
 verifies:
   tests:
     - T-SCROLL-0001
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Routed composed Thumb movement through the Move Gesture-backed control contract and existing Scroll request path.
   - version: 0.2.0-rc.7
     change: revised
     summary: Resolved continuous composed Thumb projection through the family-scoped host-local chrome contract.

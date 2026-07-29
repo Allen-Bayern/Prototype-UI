@@ -1,4 +1,8 @@
 import type {
+  MoveGestureHost,
+  MoveGestureHostBinding,
+  MoveGestureHostLease,
+  MoveGestureSample,
   ScrollAxis,
   ScrollAxisSnapshot,
   ScrollProjectionPreference,
@@ -13,6 +17,7 @@ import type {
 } from '../caps';
 
 export type WebScrollSurfaceHostOptions = Readonly<{
+  moveGestureHost: MoveGestureHost;
   preference?: ScrollProjectionPreference;
   scrollEndDelay?: number;
   minThumbSize?: number;
@@ -72,9 +77,52 @@ function isWebControl(
   return control.trackTarget instanceof HTMLElement && control.thumbTarget instanceof HTMLElement;
 }
 
+type WebScrollControl = ScrollComposedChromeHostControl & {
+  trackTarget: HTMLElement;
+  thumbTarget: HTMLElement;
+};
+
+type ControlGeometry = Readonly<{
+  trackStart: number;
+  available: number;
+  thumbExtent: number;
+  travel: number;
+}>;
+
+function coordinate(sample: MoveGestureSample, axis: ScrollAxis): number {
+  return axis === 'vertical' ? sample.position.y : sample.position.x;
+}
+
+function measureControl(control: WebScrollControl, axis: ScrollAxis): ControlGeometry {
+  const track = control.trackTarget;
+  const thumb = control.thumbTarget;
+  const ownerWindow = track.ownerDocument.defaultView;
+  const style = ownerWindow?.getComputedStyle(track);
+  const trackRect = track.getBoundingClientRect();
+  const thumbRect = thumb.getBoundingClientRect();
+  const trackExtent = axis === 'vertical' ? track.clientHeight : track.clientWidth;
+  const startInset = style ? px(axis === 'vertical' ? style.paddingTop : style.paddingLeft) : 0;
+  const endInset = style ? px(axis === 'vertical' ? style.paddingBottom : style.paddingRight) : 0;
+  const borderStart = style
+    ? px(axis === 'vertical' ? style.borderTopWidth : style.borderLeftWidth)
+    : 0;
+  const available = Math.max(0, trackExtent - startInset - endInset);
+  const measuredThumbExtent = axis === 'vertical' ? thumbRect.height : thumbRect.width;
+  const projectedThumbExtent = px(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size'));
+  const thumbExtent = Math.min(available, Math.max(0, measuredThumbExtent || projectedThumbExtent));
+  const trackStart =
+    (axis === 'vertical' ? trackRect.top : trackRect.left) + borderStart + startInset;
+  return Object.freeze({
+    trackStart,
+    available,
+    thumbExtent,
+    travel: Math.max(0, available - thumbExtent),
+  });
+}
+
 export function createWebScrollSurfaceHost(
   target: HTMLElement,
-  options: WebScrollSurfaceHostOptions = {}
+  options: WebScrollSurfaceHostOptions
 ): ScrollSurfaceHost {
   return {
     support: Object.freeze({ system: true, composed: true }),
@@ -85,6 +133,8 @@ export function createWebScrollSurfaceHost(
       let scrolling = false;
       let endTimer: ReturnType<typeof setTimeout> | undefined;
       const thumbStyles = new Map<HTMLElement, ThumbStyleSnapshot>();
+      const moveLeases = new Map<HTMLElement, MoveGestureHostLease>();
+      const dragGrabOffsets = new Map<HTMLElement, number>();
       const original = {
         overflowX: target.style.overflowX,
         overflowY: target.style.overflowY,
@@ -160,15 +210,8 @@ export function createWebScrollSurfaceHost(
           rememberThumb(thumb);
 
           const axisFacts = facts[axis];
-          const style = track.ownerDocument.defaultView?.getComputedStyle(track);
-          const trackExtent = axis === 'vertical' ? track.clientHeight : track.clientWidth;
-          const startInset = style
-            ? px(axis === 'vertical' ? style.paddingTop : style.paddingLeft)
-            : 0;
-          const endInset = style
-            ? px(axis === 'vertical' ? style.paddingBottom : style.paddingRight)
-            : 0;
-          const available = Math.max(0, trackExtent - startInset - endInset);
+          const geometry = measureControl(control, axis);
+          const available = geometry.available;
 
           if (available <= 0 || axisFacts.visibleRatio >= 1) {
             thumb.style.display = 'none';
@@ -196,6 +239,77 @@ export function createWebScrollSurfaceHost(
           }
         }
         restoreInactiveThumbs(active);
+      };
+      const executeRequest = (request: ScrollSurfaceRequest) => {
+        applyRequest(target, request);
+        publish();
+      };
+      const createMoveBinding = (control: WebScrollControl): MoveGestureHostBinding => {
+        const thumb = control.thumbTarget;
+        const getAxis = () => control.getAxis();
+        const applyDrag = (sample: MoveGestureSample) => {
+          const axis = getAxis();
+          const geometry = measureControl(control, axis);
+          const grabOffset = dragGrabOffsets.get(thumb);
+          if (grabOffset === undefined || geometry.travel <= 0) return;
+          const position =
+            (coordinate(sample, axis) - geometry.trackStart - grabOffset) / geometry.travel;
+          executeRequest({ kind: 'control-drag', axis, position: clampRatio(position) });
+        };
+        return Object.freeze({
+          target: thumb,
+          axis: getAxis(),
+          activation: 'immediate',
+          shouldStart: () => {
+            if (connection.projection !== 'composed') return false;
+            const axis = getAxis();
+            const facts = snapshot()[axis];
+            const geometry = measureControl(control, axis);
+            return (
+              thumb.isConnected &&
+              control.trackTarget.isConnected &&
+              thumb.style.display !== 'none' &&
+              facts.visibleRatio < 1 &&
+              geometry.travel > 0
+            );
+          },
+          onStart: (sample: MoveGestureSample) => {
+            const axis = getAxis();
+            const thumbRect = thumb.getBoundingClientRect();
+            const thumbStart = axis === 'vertical' ? thumbRect.top : thumbRect.left;
+            const thumbExtent = axis === 'vertical' ? thumbRect.height : thumbRect.width;
+            dragGrabOffsets.set(
+              thumb,
+              Math.min(Math.max(0, thumbExtent), Math.max(0, coordinate(sample, axis) - thumbStart))
+            );
+          },
+          onMove: applyDrag,
+          onEnd: (sample: MoveGestureSample) => {
+            applyDrag(sample);
+            dragGrabOffsets.delete(thumb);
+          },
+          onCancel: () => dragGrabOffsets.delete(thumb),
+        });
+      };
+      const reconcileMoveGestures = () => {
+        const active = new Set<HTMLElement>();
+        if (connection.projection === 'composed') {
+          for (const control of connection.composedChrome?.controls ?? []) {
+            if (!isWebControl(control)) continue;
+            const thumb = control.thumbTarget;
+            active.add(thumb);
+            const binding = createMoveBinding(control);
+            const lease = moveLeases.get(thumb);
+            if (lease) lease.update(binding);
+            else moveLeases.set(thumb, options.moveGestureHost.attach(binding));
+          }
+        }
+        for (const [thumb, lease] of Array.from(moveLeases.entries())) {
+          if (active.has(thumb)) continue;
+          lease.dispose();
+          moveLeases.delete(thumb);
+          dragGrabOffsets.delete(thumb);
+        }
       };
       const publish = () => {
         if (disposed) return;
@@ -236,6 +350,7 @@ export function createWebScrollSurfaceHost(
       const ownerWindow = target.ownerDocument.defaultView;
       ownerWindow?.addEventListener('resize', publish);
       projectPolicy();
+      reconcileMoveGestures();
       observeGeometry();
       publish();
 
@@ -244,13 +359,13 @@ export function createWebScrollSurfaceHost(
           if (disposed) return;
           connection = nextConnection;
           projectPolicy();
+          reconcileMoveGestures();
           observeGeometry();
           publish();
         },
         request(request) {
           if (disposed) return;
-          applyRequest(target, request);
-          publish();
+          executeRequest(request);
         },
         dispose() {
           if (disposed) return;
@@ -260,6 +375,9 @@ export function createWebScrollSurfaceHost(
           ownerWindow?.removeEventListener('resize', publish);
           resizeObserver?.disconnect();
           mutationObserver?.disconnect();
+          for (const lease of moveLeases.values()) lease.dispose();
+          moveLeases.clear();
+          dragGrabOffsets.clear();
           restoreInactiveThumbs(new Set());
           target.style.overflowX = original.overflowX;
           target.style.overflowY = original.overflowY;

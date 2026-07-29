@@ -91,6 +91,9 @@ describe('prototypes/brutalist: scroll-area', () => {
     Object.defineProperty(scrollbar, 'clientHeight', { configurable: true, value: 100 });
     scrollbar.style.paddingTop = '2px';
     scrollbar.style.paddingBottom = '2px';
+    scrollbar.getBoundingClientRect = () =>
+      ({ top: 0, left: 0, width: 10, height: 100 }) as DOMRect;
+    thumb.getBoundingClientRect = () => ({ top: 2, left: 0, width: 10, height: 24 }) as DOMRect;
     scrollbar.append(thumb);
     root.append(viewport, scrollbar);
     document.body.append(root);
@@ -100,9 +103,43 @@ describe('prototypes/brutalist: scroll-area', () => {
     expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('24px');
     expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-offset')).toBe('0px');
 
-    viewport.scrollTop = 150;
-    viewport.dispatchEvent(new Event('scroll'));
+    thumb.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 7,
+        pointerType: 'mouse',
+        isPrimary: true,
+        button: 0,
+        clientY: 4,
+      })
+    );
+    expect(viewport.scrollTop).toBe(0);
+    thumb.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 7,
+        pointerType: 'mouse',
+        isPrimary: true,
+        button: 0,
+        clientY: 40,
+      })
+    );
+    thumb.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 7,
+        pointerType: 'mouse',
+        isPrimary: true,
+        button: 0,
+        clientY: 40,
+      })
+    );
+    expect(viewport.scrollTop).toBe(150);
     expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-offset')).toBe('36px');
+
     expect(thumb.getAttribute('role')).toBeNull();
     expect(thumb.tabIndex).toBe(-1);
   });

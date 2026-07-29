@@ -6,10 +6,12 @@ since: 0.2.0-rc.7
 summary: A composed chrome session binds authored Scrollbar and Thumb parts to one host-owned surface and projects passive size and position feedback without duplicating scroll state.
 statement:
   zh-CN: >-
-    当 Scroll surface 的 resolved projection 为 `composed` 时，Scroll module 必须在同一 Context family scope 内把 Viewport、方向性 Scrollbar 与其后代 Thumb 绑定到一个有界 host attachment。Host 使用 surface 的 normalized position 与 visible ratio 加上宿主本地 track geometry 计算 Thumb extent/offset，并直接更新宿主 paint/style sink。该阶段不授予 Thumb 拖拽、独立 focus 或 scrollbar widget semantics。
+    当 Scroll surface 的 resolved projection 为 `composed` 时，Scroll module 必须在同一 Context family scope 内把 Viewport、方向性 Scrollbar 与其后代 Thumb 绑定到一个有界 host attachment。Host 使用 surface 的 normalized position 与 visible ratio 加上宿主本地 track geometry 计算 Thumb extent/offset，并直接更新宿主 paint/style sink。本 geometry contract 自身不授予 Thumb 拖拽、独立 focus 或 scrollbar widget semantics；交互能力由 `C-SCROLL-COMPOSED-CONTROL-0001` 另行约束。
+
 
   en: >-
-    When a Scroll surface resolves to `composed`, the Scroll module must bind the Viewport, directional Scrollbar, and its descendant Thumb within the same Context family scope to one bounded host attachment. The host combines normalized surface position and visible ratio with host-local track geometry to calculate Thumb extent and offset, updating the host paint or style sink directly. This stage grants no Thumb dragging, independent focus, or scrollbar-widget semantics.
+    When a Scroll surface resolves to `composed`, the Scroll module must bind the Viewport, directional Scrollbar, and its descendant Thumb within the same Context family scope to one bounded host attachment. The host combines normalized surface position and visible ratio with host-local track geometry to calculate Thumb extent and offset, updating the host paint or style sink directly. This geometry contract grants no Thumb dragging, independent focus, or scrollbar-widget semantics by itself; interaction is governed separately by `C-SCROLL-COMPOSED-CONTROL-0001`.
+
 
 criteria:
   - id: C-SCROLL-COMPOSED-CHROME-0001-A
@@ -34,8 +36,8 @@ criteria:
       en: Scroll, surface or content or track resize, orientation, and part replacement must refresh projection; detach, replacement, and disposal must restore or release host resources and styles owned by the session.
   - id: C-SCROLL-COMPOSED-CHROME-0001-F
     text:
-      zh-CN: 被动 Thumb 不得获得独立 focus、`role=scrollbar` 或未实现的 pointer control guarantee；Viewport 继续保留宿主原生滚动输入。
-      en: A passive Thumb must not gain independent focus, `role=scrollbar`, or an unimplemented pointer-control guarantee; the Viewport continues to retain host-native scrolling input.
+      zh-CN: Geometry projection 不得使 Thumb 获得独立 focus 或 `role=scrollbar`；任何 pointer control guarantee 必须来自独立的 composed-control 契约，Viewport 继续保留宿主原生滚动输入。
+      en: Geometry projection must not grant the Thumb independent focus or `role=scrollbar`; any pointer-control guarantee must come from a separate composed-control contract, while the Viewport retains host-native scrolling input.
 sources:
   - path: packages/core/src/scroll.ts
   - path: packages/modules/scroll/src/caps.ts

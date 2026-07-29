@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Composed scroll chrome 必须由家族级 host projection session 承载。Root 提供的 Context scope 只建立逻辑家族 identity 与生命周期；Context value 仍保持 JSON-only，不得包含 host target、controller、lease、function 或连续 geometry。Anatomy 只提供 Scrollbar/Thumb 的结构关系与 module-internal target resolution。Scroll module 将二者绑定到当前 Viewport surface lease，host capability 使用宿主本地 measurement、scheduler 与 paint/style sink 投射 Thumb 尺寸和位置。Web 可以投射多个 DOM part，Flutter 等宿主可以把相同逻辑 parts 折叠为一个原生 widget 或 painter。
 
+
   en: >-
     Composed scroll chrome must be carried by a family-level host projection session. Context supplied by Root establishes only logical family identity and lifetime; Context values remain JSON-only and must not contain host targets, controllers, leases, functions, or continuous geometry. Anatomy supplies only Scrollbar and Thumb structural relations plus module-internal target resolution. The Scroll module binds both to the current Viewport surface lease, while the host capability projects Thumb size and position through host-local measurement, scheduling, and paint or style sinks. Web may project multiple DOM parts, while hosts such as Flutter may collapse the same logical parts into one native widget or painter.
+
 
 criteria:
   - id: D-SCROLL-COMPOSED-PROJECTION-0001-A
@@ -30,8 +32,8 @@ criteria:
       en: Logical parts and host materialization need not be one-to-one; an adapter may retain a multi-node Web structure or collapse the family parts into one native scrollbar painter or widget.
   - id: D-SCROLL-COMPOSED-PROJECTION-0001-E
     text:
-      zh-CN: 第一阶段只保证被动反馈，Thumb 不得因此自动成为 focusable 或 ARIA scrollbar；独立 control semantics 属于后续交互阶段。
-      en: The first stage guarantees passive feedback only, so Thumb must not automatically become focusable or an ARIA scrollbar; independent control semantics belong to the later interaction stage.
+      zh-CN: Thumb 可以作为 Scrollbar control route 的 pointer Move 命中子区域，但不得因此自动成为 focusable、ARIA scrollbar、独立 prototype Event control 或 Drag and Drop source。
+      en: Thumb may act as the pointer-Move hit subregion of the Scrollbar control route, but it must not thereby become focusable, an ARIA scrollbar, an independent prototype Event control, or a Drag and Drop source.
 sources:
   - path: packages/modules/context/src/types.ts
   - path: packages/modules/anatomy/src/types.ts
@@ -46,15 +48,21 @@ dependsOn:
     - C-CONTEXT-0009
     - C-ANATOMY-0001
     - C-SCROLL-0001
+    - C-MOVE-GESTURE-0001
 relates:
   decisions:
     - D-SCROLL-PROJECTION-0001
   hostCaps:
     - HC-SCROLL-SURFACE-0001
+    - HC-MOVE-GESTURE-0001
 explains:
   contracts:
     - C-SCROLL-COMPOSED-CHROME-0001
+    - C-SCROLL-COMPOSED-CONTROL-0001
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Extended the host projection session from passive geometry to a Move Gesture-backed Thumb hit subregion without independent control ownership.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Selected Context-scoped, Anatomy-resolved, host-local composed chrome projection.
