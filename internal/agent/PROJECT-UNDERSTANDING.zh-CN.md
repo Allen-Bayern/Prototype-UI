@@ -11,16 +11,16 @@
 | 当前 spec 版本 | `0.2.0-rc.7` |
 | Release channel | `prerelease` |
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
-| 工作区实体数 | 401 |
+| 工作区实体数 | 437 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:0722c80f95c5e6abfd0c6ee3a47145804a4b87c4c34f9f41150841784948bec7` |
+| 工作区快照指纹 | `sha256:26c1c2df107f89d49cfe5df15450e74031e511c06a455e8ecedd98544c5e8f94` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 40 个 active、356 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 40 个 active、392 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -62,25 +62,25 @@ flowchart LR
 | `knowledge` | 6 | 0 | 6 | 0 | 6 | 6 | 0 |
 | `decision` | 49 | 6 | 41 | 2 | 34 | 19 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 63 | 0 | 63 | 0 | 63 | 63 | 32 |
+| `prototype` | 92 | 0 | 92 | 0 | 92 | 92 | 32 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 123 | 12 | 111 | 0 | 0 | 0 | 4 |
+| `test` | 130 | 12 | 118 | 0 | 0 | 0 | 4 |
 | `version` | 7 | 6 | 1 | 0 | 7 | 7 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  228 |
-| `dependsOn`  |  775 |
-| `inherits`   |   29 |
+| `relates`    |  264 |
+| `dependsOn`  |  860 |
+| `inherits`   |   56 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  304 |
+| `verifies`   |  362 |
 | `explains`   |   36 |
-| `exercises`  |  171 |
+| `exercises`  |  233 |
 | `requires`   |    4 |
 | `owns`       |    1 |
 
@@ -448,40 +448,69 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml) | `draft` | Base Button is a focusable command control | — | — | 30 | 3 |
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml) | `draft` | Base Checkbox is a checked input control with optional mixed display state | — | 2 roles / 0 profiles | 52 | 2 |
 | [`P-BASE-CHECKBOX-INDICATOR`](../../spec/prototypes/P-BASE-CHECKBOX-INDICATOR.yaml) | `draft` | Base Checkbox Indicator is a context-driven checkbox indicator | — | — | 17 | 2 |
-| [`P-BASE-DIALOG`](../../spec/prototypes/P-BASE-DIALOG.yaml) | `draft` | Base Dialog is a root-owned modal dialog protocol | — | 9 roles / 0 profiles | 10 | 3 |
-| [`P-BASE-DIALOG-CLOSE`](../../spec/prototypes/P-BASE-DIALOG-CLOSE.yaml) | `draft` | Base Dialog Close requests dismissal | — | — | 5 | 3 |
-| [`P-BASE-DIALOG-CONTENT`](../../spec/prototypes/P-BASE-DIALOG-CONTENT.yaml) | `draft` | Base Dialog Content owns the active dialog surface | — | — | 7 | 3 |
-| [`P-BASE-DIALOG-DESCRIPTION`](../../spec/prototypes/P-BASE-DIALOG-DESCRIPTION.yaml) | `draft` | Base Dialog Description describes Dialog Content | — | — | 3 | 3 |
-| [`P-BASE-DIALOG-MASK`](../../spec/prototypes/P-BASE-DIALOG-MASK.yaml) | `draft` | Base Dialog Mask projects modal occlusion and hit participation | — | — | 5 | 3 |
-| [`P-BASE-DIALOG-TITLE`](../../spec/prototypes/P-BASE-DIALOG-TITLE.yaml) | `draft` | Base Dialog Title labels Dialog Content | — | — | 3 | 3 |
-| [`P-BASE-DIALOG-TRIGGER`](../../spec/prototypes/P-BASE-DIALOG-TRIGGER.yaml) | `draft` | Base Dialog Trigger requests modal visibility | — | — | 6 | 3 |
-| [`P-BASE-DROPDOWN-MENU`](../../spec/prototypes/P-BASE-DROPDOWN-MENU.yaml) | `draft` | Base Dropdown Menu is a root-owned action-menu protocol | — | 4 roles / 0 profiles | 11 | 3 |
-| [`P-BASE-DROPDOWN-MENU-CONTENT`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-CONTENT.yaml) | `draft` | Base Dropdown Menu Content is a transitional positioned menu surface | — | — | 8 | 3 |
-| [`P-BASE-DROPDOWN-MENU-ITEM`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-ITEM.yaml) | `draft` | Base Dropdown Menu Item is a transiently active menu action | — | — | 7 | 3 |
-| [`P-BASE-DROPDOWN-MENU-TRIGGER`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-TRIGGER.yaml) | `draft` | Base Dropdown Menu Trigger is an accessible menu-button command | — | — | 5 | 3 |
-| [`P-BASE-HOVER-CARD`](../../spec/prototypes/P-BASE-HOVER-CARD.yaml) | `draft` | Base Hover Card is a delayed link-preview protocol | — | 3 roles / 0 profiles | 12 | 3 |
-| [`P-BASE-HOVER-CARD-CONTENT`](../../spec/prototypes/P-BASE-HOVER-CARD-CONTENT.yaml) | `draft` | Base Hover Card Content is a transitional non-modal preview surface | — | — | 11 | 3 |
-| [`P-BASE-HOVER-CARD-TRIGGER`](../../spec/prototypes/P-BASE-HOVER-CARD-TRIGGER.yaml) | `draft` | Base Hover Card Trigger publishes preview intent | — | — | 6 | 3 |
-| [`P-BASE-SELECT`](../../spec/prototypes/P-BASE-SELECT.yaml) | `draft` | Base Select is a root-owned select-only single-selection protocol | — | 5 roles / 0 profiles | 10 | 3 |
-| [`P-BASE-SELECT-CONTENT`](../../spec/prototypes/P-BASE-SELECT-CONTENT.yaml) | `draft` | Base Select Content is a transitional positioned listbox surface | — | — | 8 | 3 |
-| [`P-BASE-SELECT-ITEM`](../../spec/prototypes/P-BASE-SELECT-ITEM.yaml) | `draft` | Base Select Item is a selectable collection option | — | — | 7 | 3 |
-| [`P-BASE-SELECT-TRIGGER`](../../spec/prototypes/P-BASE-SELECT-TRIGGER.yaml) | `draft` | Base Select Trigger is an accessible select-only combobox command | — | — | 6 | 3 |
-| [`P-BASE-SELECT-VALUE`](../../spec/prototypes/P-BASE-SELECT-VALUE.yaml) | `draft` | Base Select Value is a render-consumed committed-value display | — | — | 8 | 3 |
-| [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml) | `draft` | Base Switch is a root-owned on/off value control | — | 2 roles / 0 profiles | 53 | 3 |
-| [`P-BASE-SWITCH-THUMB`](../../spec/prototypes/P-BASE-SWITCH-THUMB.yaml) | `draft` | Base Switch Thumb is a context-driven switch indicator | — | — | 15 | 3 |
-| [`P-BASE-TABS`](../../spec/prototypes/P-BASE-TABS.yaml) | `draft` | Base Tabs is a compound single-selection protocol | — | 5 roles / 0 profiles | 38 | 3 |
-| [`P-BASE-TABS-CONTENT`](../../spec/prototypes/P-BASE-TABS-CONTENT.yaml) | `draft` | Base Tabs Content is a value-matched tabpanel part | — | — | 17 | 4 |
+| [`P-BASE-DIALOG`](../../spec/prototypes/P-BASE-DIALOG.yaml) | `draft` | Base Dialog is a root-owned modal dialog protocol | — | 9 roles / 0 profiles | 10 | 4 |
+| [`P-BASE-DIALOG-CLOSE`](../../spec/prototypes/P-BASE-DIALOG-CLOSE.yaml) | `draft` | Base Dialog Close requests dismissal | — | — | 5 | 4 |
+| [`P-BASE-DIALOG-CONTENT`](../../spec/prototypes/P-BASE-DIALOG-CONTENT.yaml) | `draft` | Base Dialog Content owns the active dialog surface | — | — | 7 | 4 |
+| [`P-BASE-DIALOG-DESCRIPTION`](../../spec/prototypes/P-BASE-DIALOG-DESCRIPTION.yaml) | `draft` | Base Dialog Description describes Dialog Content | — | — | 3 | 4 |
+| [`P-BASE-DIALOG-MASK`](../../spec/prototypes/P-BASE-DIALOG-MASK.yaml) | `draft` | Base Dialog Mask projects modal occlusion and hit participation | — | — | 5 | 4 |
+| [`P-BASE-DIALOG-TITLE`](../../spec/prototypes/P-BASE-DIALOG-TITLE.yaml) | `draft` | Base Dialog Title labels Dialog Content | — | — | 3 | 4 |
+| [`P-BASE-DIALOG-TRIGGER`](../../spec/prototypes/P-BASE-DIALOG-TRIGGER.yaml) | `draft` | Base Dialog Trigger requests modal visibility | — | — | 6 | 4 |
+| [`P-BASE-DROPDOWN-MENU`](../../spec/prototypes/P-BASE-DROPDOWN-MENU.yaml) | `draft` | Base Dropdown Menu is a root-owned action-menu protocol | — | 4 roles / 0 profiles | 11 | 4 |
+| [`P-BASE-DROPDOWN-MENU-CONTENT`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-CONTENT.yaml) | `draft` | Base Dropdown Menu Content is a transitional positioned menu surface | — | — | 8 | 4 |
+| [`P-BASE-DROPDOWN-MENU-ITEM`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-ITEM.yaml) | `draft` | Base Dropdown Menu Item is a transiently active menu action | — | — | 7 | 4 |
+| [`P-BASE-DROPDOWN-MENU-TRIGGER`](../../spec/prototypes/P-BASE-DROPDOWN-MENU-TRIGGER.yaml) | `draft` | Base Dropdown Menu Trigger is an accessible menu-button command | — | — | 5 | 4 |
+| [`P-BASE-HOVER-CARD`](../../spec/prototypes/P-BASE-HOVER-CARD.yaml) | `draft` | Base Hover Card is a delayed link-preview protocol | — | 3 roles / 0 profiles | 12 | 4 |
+| [`P-BASE-HOVER-CARD-CONTENT`](../../spec/prototypes/P-BASE-HOVER-CARD-CONTENT.yaml) | `draft` | Base Hover Card Content is a transitional non-modal preview surface | — | — | 11 | 4 |
+| [`P-BASE-HOVER-CARD-TRIGGER`](../../spec/prototypes/P-BASE-HOVER-CARD-TRIGGER.yaml) | `draft` | Base Hover Card Trigger publishes preview intent | — | — | 6 | 4 |
+| [`P-BASE-SELECT`](../../spec/prototypes/P-BASE-SELECT.yaml) | `draft` | Base Select is a root-owned select-only single-selection protocol | — | 5 roles / 0 profiles | 10 | 4 |
+| [`P-BASE-SELECT-CONTENT`](../../spec/prototypes/P-BASE-SELECT-CONTENT.yaml) | `draft` | Base Select Content is a transitional positioned listbox surface | — | — | 8 | 4 |
+| [`P-BASE-SELECT-ITEM`](../../spec/prototypes/P-BASE-SELECT-ITEM.yaml) | `draft` | Base Select Item is a selectable collection option | — | — | 7 | 4 |
+| [`P-BASE-SELECT-TRIGGER`](../../spec/prototypes/P-BASE-SELECT-TRIGGER.yaml) | `draft` | Base Select Trigger is an accessible select-only combobox command | — | — | 6 | 4 |
+| [`P-BASE-SELECT-VALUE`](../../spec/prototypes/P-BASE-SELECT-VALUE.yaml) | `draft` | Base Select Value is a render-consumed committed-value display | — | — | 8 | 4 |
+| [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml) | `draft` | Base Switch is a root-owned on/off value control | — | 2 roles / 0 profiles | 53 | 4 |
+| [`P-BASE-SWITCH-THUMB`](../../spec/prototypes/P-BASE-SWITCH-THUMB.yaml) | `draft` | Base Switch Thumb is a context-driven switch indicator | — | — | 15 | 4 |
+| [`P-BASE-TABS`](../../spec/prototypes/P-BASE-TABS.yaml) | `draft` | Base Tabs is a compound single-selection protocol | — | 5 roles / 0 profiles | 38 | 4 |
+| [`P-BASE-TABS-CONTENT`](../../spec/prototypes/P-BASE-TABS-CONTENT.yaml) | `draft` | Base Tabs Content is a value-matched tabpanel part | — | — | 17 | 5 |
 | [`P-BASE-TABS-INDICATOR`](../../spec/prototypes/P-BASE-TABS-INDICATOR.yaml) | `draft` | Base Tabs Indicator is a context-driven tabs indicator | — | — | 16 | 2 |
-| [`P-BASE-TABS-LIST`](../../spec/prototypes/P-BASE-TABS-LIST.yaml) | `draft` | Base Tabs List is the tab trigger collection and roving focus container | — | — | 16 | 4 |
-| [`P-BASE-TABS-TRIGGER`](../../spec/prototypes/P-BASE-TABS-TRIGGER.yaml) | `draft` | Base Tabs Trigger is a value-matched tab activation item | — | — | 27 | 4 |
-| [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 3 |
+| [`P-BASE-TABS-LIST`](../../spec/prototypes/P-BASE-TABS-LIST.yaml) | `draft` | Base Tabs List is the tab trigger collection and roving focus container | — | — | 16 | 5 |
+| [`P-BASE-TABS-TRIGGER`](../../spec/prototypes/P-BASE-TABS-TRIGGER.yaml) | `draft` | Base Tabs Trigger is a value-matched tab activation item | — | — | 27 | 5 |
+| [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 4 |
 | [`P-BASE-TRANSITION`](../../spec/prototypes/P-BASE-TRANSITION.yaml) | `draft` | Base Transition governs host-neutral perceptual presence | — | — | 12 | 2 |
 
-### BRUTALIST（1）
+### BRUTALIST（30）
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
 | [`P-BRUTALIST-BUTTON`](../../spec/prototypes/P-BRUTALIST-BUTTON.yaml) | `draft` | Brutalist Button inherits Base Button and layers a Neo-Brutalist visual API | `P-BASE-BUTTON` | — | 11 | 3 |
+| [`P-BRUTALIST-DIALOG`](../../spec/prototypes/P-BRUTALIST-DIALOG.yaml) | `draft` | Brutalist Dialog Root inherits Base modal ownership | `P-BASE-DIALOG` | — | 3 | 3 |
+| [`P-BRUTALIST-DIALOG-CLOSE`](../../spec/prototypes/P-BRUTALIST-DIALOG-CLOSE.yaml) | `draft` | Brutalist Dialog Close inherits Base close behavior and layers nothing visual | `P-BASE-DIALOG-CLOSE` | — | 2 | 2 |
+| [`P-BRUTALIST-DIALOG-CLOSE-ICON`](../../spec/prototypes/P-BRUTALIST-DIALOG-CLOSE-ICON.yaml) | `draft` | Brutalist Dialog Close Icon inherits Base close behavior and layers a default X close surface | `P-BASE-DIALOG-CLOSE` | — | 6 | 2 |
+| [`P-BRUTALIST-DIALOG-CONTENT`](../../spec/prototypes/P-BRUTALIST-DIALOG-CONTENT.yaml) | `draft` | Brutalist Dialog Content inherits Base content and layers a hard-shadowed modal panel | `P-BASE-DIALOG-CONTENT` | — | 5 | 2 |
+| [`P-BRUTALIST-DIALOG-DESCRIPTION`](../../spec/prototypes/P-BRUTALIST-DIALOG-DESCRIPTION.yaml) | `draft` | Brutalist Dialog Description inherits Base description relations and layers mono description typography | `P-BASE-DIALOG-DESCRIPTION` | — | 3 | 2 |
+| [`P-BRUTALIST-DIALOG-FOOTER`](../../spec/prototypes/P-BRUTALIST-DIALOG-FOOTER.yaml) | `draft` | Brutalist Dialog Footer is an optional layout-only anatomy part | — | — | 3 | 2 |
+| [`P-BRUTALIST-DIALOG-HEADER`](../../spec/prototypes/P-BRUTALIST-DIALOG-HEADER.yaml) | `draft` | Brutalist Dialog Header is an optional layout-only anatomy part | — | — | 3 | 2 |
+| [`P-BRUTALIST-DIALOG-MASK`](../../spec/prototypes/P-BRUTALIST-DIALOG-MASK.yaml) | `draft` | Brutalist Dialog Mask inherits Base modal masking and projects a flat overlay without blur | `P-BASE-DIALOG-MASK` | — | 5 | 2 |
+| [`P-BRUTALIST-DIALOG-TITLE`](../../spec/prototypes/P-BRUTALIST-DIALOG-TITLE.yaml) | `draft` | Brutalist Dialog Title inherits Base title relations and layers heavy heading typography | `P-BASE-DIALOG-TITLE` | — | 3 | 2 |
+| [`P-BRUTALIST-DIALOG-TRIGGER`](../../spec/prototypes/P-BRUTALIST-DIALOG-TRIGGER.yaml) | `draft` | Brutalist Dialog Trigger inherits Base trigger behavior and layers a fixed sky command surface | `P-BASE-DIALOG-TRIGGER` | — | 5 | 2 |
+| [`P-BRUTALIST-DROPDOWN-MENU`](../../spec/prototypes/P-BRUTALIST-DROPDOWN-MENU.yaml) | `draft` | Brutalist Dropdown Menu inherits Base Dropdown Menu and layers an action-menu root | `P-BASE-DROPDOWN-MENU` | — | 2 | 3 |
+| [`P-BRUTALIST-DROPDOWN-MENU-CONTENT`](../../spec/prototypes/P-BRUTALIST-DROPDOWN-MENU-CONTENT.yaml) | `draft` | Brutalist Dropdown Menu Content inherits Base menu overlay and layers a hard-shadowed transition panel | `P-BASE-DROPDOWN-MENU-CONTENT` | — | 4 | 2 |
+| [`P-BRUTALIST-DROPDOWN-MENU-ITEM`](../../spec/prototypes/P-BRUTALIST-DROPDOWN-MENU-ITEM.yaml) | `draft` | Brutalist Dropdown Menu Item inherits Base menu item behavior and layers pair-invariant active styling | `P-BASE-DROPDOWN-MENU-ITEM` | — | 6 | 2 |
+| [`P-BRUTALIST-DROPDOWN-MENU-TRIGGER`](../../spec/prototypes/P-BRUTALIST-DROPDOWN-MENU-TRIGGER.yaml) | `draft` | Brutalist Dropdown Menu Trigger inherits Base Dropdown Trigger and layers an indicator-capable command surface | `P-BASE-DROPDOWN-MENU-TRIGGER` | — | 6 | 2 |
+| [`P-BRUTALIST-HOVER-CARD`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD.yaml) | `draft` | Brutalist Hover Card inherits Base Hover Card and layers a relative inline-flex root | `P-BASE-HOVER-CARD` | — | 3 | 3 |
+| [`P-BRUTALIST-HOVER-CARD-CONTENT`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD-CONTENT.yaml) | `draft` | Brutalist Hover Card Content inherits Base preview content and layers a hard-shadowed transition panel | `P-BASE-HOVER-CARD-CONTENT` | — | 4 | 2 |
+| [`P-BRUTALIST-HOVER-CARD-TRIGGER`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD-TRIGGER.yaml) | `draft` | Brutalist Hover Card Trigger inherits Base Hover Card Trigger and layers a command-like surface | `P-BASE-HOVER-CARD-TRIGGER` | — | 5 | 2 |
+| [`P-BRUTALIST-SELECT`](../../spec/prototypes/P-BRUTALIST-SELECT.yaml) | `draft` | Brutalist Select Root inherits Base Select ownership | `P-BASE-SELECT` | — | 2 | 3 |
+| [`P-BRUTALIST-SELECT-CONTENT`](../../spec/prototypes/P-BRUTALIST-SELECT-CONTENT.yaml) | `draft` | Brutalist Select Content inherits Base Select Content and layers a hard-shadowed listbox panel | `P-BASE-SELECT-CONTENT` | — | 4 | 2 |
+| [`P-BRUTALIST-SELECT-ITEM`](../../spec/prototypes/P-BRUTALIST-SELECT-ITEM.yaml) | `draft` | Brutalist Select Item inherits Base Select Item and layers selected option styling with a check indicator | `P-BASE-SELECT-ITEM` | — | 6 | 2 |
+| [`P-BRUTALIST-SELECT-TRIGGER`](../../spec/prototypes/P-BRUTALIST-SELECT-TRIGGER.yaml) | `draft` | Brutalist Select Trigger inherits Base Select Trigger and layers a hard-shadowed combobox command | `P-BASE-SELECT-TRIGGER` | — | 8 | 2 |
+| [`P-BRUTALIST-SELECT-VALUE`](../../spec/prototypes/P-BRUTALIST-SELECT-VALUE.yaml) | `draft` | Brutalist Select Value inherits Base Select Value and renders committed-value text | `P-BASE-SELECT-VALUE` | — | 3 | 2 |
+| [`P-BRUTALIST-SWITCH`](../../spec/prototypes/P-BRUTALIST-SWITCH.yaml) | `draft` | Brutalist Switch Root inherits Base Switch and layers a square track surface | `P-BASE-SWITCH` | — | 5 | 3 |
+| [`P-BRUTALIST-SWITCH-THUMB`](../../spec/prototypes/P-BRUTALIST-SWITCH-THUMB.yaml) | `draft` | Brutalist Switch Thumb inherits Base Switch Thumb and is the sole checked-movement mechanism | `P-BASE-SWITCH-THUMB` | — | 4 | 2 |
+| [`P-BRUTALIST-TABS`](../../spec/prototypes/P-BRUTALIST-TABS.yaml) | `draft` | Brutalist Tabs Root inherits Base Tabs and owns the family layout surface | `P-BASE-TABS` | — | 3 | 3 |
+| [`P-BRUTALIST-TABS-CONTENT`](../../spec/prototypes/P-BRUTALIST-TABS-CONTENT.yaml) | `draft` | Brutalist Tabs Content inherits Base Tabs Content and layers a hard-shadowed panel | `P-BASE-TABS-CONTENT` | — | 4 | 2 |
+| [`P-BRUTALIST-TABS-LIST`](../../spec/prototypes/P-BRUTALIST-TABS-LIST.yaml) | `draft` | Brutalist Tabs List inherits Base Tabs List and layers a square ruled tab strip | `P-BASE-TABS-LIST` | — | 3 | 2 |
+| [`P-BRUTALIST-TABS-TRIGGER`](../../spec/prototypes/P-BRUTALIST-TABS-TRIGGER.yaml) | `draft` | Brutalist Tabs Trigger inherits Base Tabs Trigger and layers selected-pair block styling | `P-BASE-TABS-TRIGGER` | — | 5 | 2 |
+| [`P-BRUTALIST-TOGGLE`](../../spec/prototypes/P-BRUTALIST-TOGGLE.yaml) | `draft` | Brutalist Toggle inherits Base Toggle and layers a square active-control surface | `P-BASE-TOGGLE` | — | 7 | 3 |
 
 ### LUCIDE（1）
 
@@ -719,7 +748,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  277 |
+| `passing` |  284 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -728,7 +757,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   81 |
 | `fixture`         |   17 |
-| `module-test`     |  130 |
+| `module-test`     |  137 |
 | `runtime-test`    |   71 |
 | `workspace-check` |   10 |
 
@@ -829,17 +858,24 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BOUNDARY-0001`](../../spec/tests/T-BOUNDARY-0001.yaml) | `draft` | Boundary observation, classification, stacking, and cleanup tests | 7 | `passing` 2 | `C-BOUNDARY-0001` | — |
 
-### BRUTALIST（1）
+### BRUTALIST（8）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BRUTALIST-BUTTON-0001`](../../spec/tests/T-BRUTALIST-BUTTON-0001.yaml) | `draft` | Brutalist Button visual contract and public API tests | 9 | `passing` 2 | `P-BRUTALIST-BUTTON` | `P-BASE-BUTTON`<br>`P-BRUTALIST-BUTTON` |
+| [`T-BRUTALIST-DIALOG-0001`](../../spec/tests/T-BRUTALIST-DIALOG-0001.yaml) | `draft` | Brutalist Dialog visual contract and public API tests | 10 | `passing` 1 | `P-BRUTALIST-DIALOG`<br>`P-BRUTALIST-DIALOG-TRIGGER`<br>`P-BRUTALIST-DIALOG-MASK`<br>`P-BRUTALIST-DIALOG-CONTENT`<br>`P-BRUTALIST-DIALOG-TITLE`<br>`P-BRUTALIST-DIALOG-DESCRIPTION`<br>`P-BRUTALIST-DIALOG-CLOSE`<br>`P-BRUTALIST-DIALOG-CLOSE-ICON`<br>`P-BRUTALIST-DIALOG-HEADER`<br>`P-BRUTALIST-DIALOG-FOOTER` | `P-BASE-DIALOG`<br>`P-BASE-DIALOG-CLOSE`<br>`P-BASE-DIALOG-CONTENT`<br>`P-BASE-DIALOG-DESCRIPTION`<br>`P-BASE-DIALOG-MASK`<br>`P-BASE-DIALOG-TITLE`<br>`P-BASE-DIALOG-TRIGGER`<br>`P-BRUTALIST-DIALOG`<br>`P-BRUTALIST-DIALOG-CLOSE`<br>`P-BRUTALIST-DIALOG-CLOSE-ICON`<br>`P-BRUTALIST-DIALOG-CONTENT`<br>`P-BRUTALIST-DIALOG-DESCRIPTION`<br>`P-BRUTALIST-DIALOG-FOOTER`<br>`P-BRUTALIST-DIALOG-HEADER`<br>`P-BRUTALIST-DIALOG-MASK`<br>`P-BRUTALIST-DIALOG-TITLE`<br>`P-BRUTALIST-DIALOG-TRIGGER` |
+| [`T-BRUTALIST-DROPDOWN-MENU-0001`](../../spec/tests/T-BRUTALIST-DROPDOWN-MENU-0001.yaml) | `draft` | Brutalist Dropdown Menu visual contract and public API tests | 6 | `passing` 1 | `P-BRUTALIST-DROPDOWN-MENU`<br>`P-BRUTALIST-DROPDOWN-MENU-TRIGGER`<br>`P-BRUTALIST-DROPDOWN-MENU-CONTENT`<br>`P-BRUTALIST-DROPDOWN-MENU-ITEM` | `P-BASE-DROPDOWN-MENU`<br>`P-BASE-DROPDOWN-MENU-CONTENT`<br>`P-BASE-DROPDOWN-MENU-ITEM`<br>`P-BASE-DROPDOWN-MENU-TRIGGER`<br>`P-BRUTALIST-DROPDOWN-MENU`<br>`P-BRUTALIST-DROPDOWN-MENU-CONTENT`<br>`P-BRUTALIST-DROPDOWN-MENU-ITEM`<br>`P-BRUTALIST-DROPDOWN-MENU-TRIGGER` |
+| [`T-BRUTALIST-HOVER-CARD-0001`](../../spec/tests/T-BRUTALIST-HOVER-CARD-0001.yaml) | `draft` | Brutalist Hover Card visual contract and public API tests | 3 | `passing` 1 | `P-BRUTALIST-HOVER-CARD`<br>`P-BRUTALIST-HOVER-CARD-TRIGGER`<br>`P-BRUTALIST-HOVER-CARD-CONTENT` | `P-BASE-HOVER-CARD`<br>`P-BASE-HOVER-CARD-CONTENT`<br>`P-BASE-HOVER-CARD-TRIGGER`<br>`P-BRUTALIST-HOVER-CARD`<br>`P-BRUTALIST-HOVER-CARD-CONTENT`<br>`P-BRUTALIST-HOVER-CARD-TRIGGER` |
+| [`T-BRUTALIST-SELECT-0001`](../../spec/tests/T-BRUTALIST-SELECT-0001.yaml) | `draft` | Brutalist Select visual contract and public API tests | 7 | `passing` 1 | `P-BRUTALIST-SELECT`<br>`P-BRUTALIST-SELECT-TRIGGER`<br>`P-BRUTALIST-SELECT-VALUE`<br>`P-BRUTALIST-SELECT-CONTENT`<br>`P-BRUTALIST-SELECT-ITEM` | `P-BASE-SELECT`<br>`P-BASE-SELECT-CONTENT`<br>`P-BASE-SELECT-TRIGGER`<br>`P-BASE-SELECT-VALUE`<br>`P-BASE-SELECT-ITEM`<br>`P-BRUTALIST-SELECT`<br>`P-BRUTALIST-SELECT-CONTENT`<br>`P-BRUTALIST-SELECT-ITEM`<br>`P-BRUTALIST-SELECT-TRIGGER`<br>`P-BRUTALIST-SELECT-VALUE` |
+| [`T-BRUTALIST-SWITCH-0001`](../../spec/tests/T-BRUTALIST-SWITCH-0001.yaml) | `draft` | Brutalist Switch visual contract and public API tests | 5 | `passing` 1 | `P-BRUTALIST-SWITCH`<br>`P-BRUTALIST-SWITCH-THUMB` | `P-BASE-SWITCH`<br>`P-BASE-SWITCH-THUMB`<br>`P-BRUTALIST-SWITCH`<br>`P-BRUTALIST-SWITCH-THUMB` |
+| [`T-BRUTALIST-TABS-0001`](../../spec/tests/T-BRUTALIST-TABS-0001.yaml) | `draft` | Brutalist Tabs visual contract and public API tests | 4 | `passing` 1 | `P-BRUTALIST-TABS`<br>`P-BRUTALIST-TABS-LIST`<br>`P-BRUTALIST-TABS-TRIGGER`<br>`P-BRUTALIST-TABS-CONTENT` | `P-BASE-TABS`<br>`P-BASE-TABS-LIST`<br>`P-BASE-TABS-CONTENT`<br>`P-BASE-TABS-TRIGGER`<br>`P-BRUTALIST-TABS`<br>`P-BRUTALIST-TABS-LIST`<br>`P-BRUTALIST-TABS-TRIGGER`<br>`P-BRUTALIST-TABS-CONTENT` |
+| [`T-BRUTALIST-TOGGLE-0001`](../../spec/tests/T-BRUTALIST-TOGGLE-0001.yaml) | `draft` | Brutalist Toggle visual contract and public API tests | 6 | `passing` 1 | `P-BRUTALIST-TOGGLE` | `P-BASE-TOGGLE`<br>`P-BRUTALIST-TOGGLE` |
 
 ### CLI（2）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-CLI-BRUTALIST-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-BRUTALIST-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Brutalist preset source-closure tests | 2 | `passing` 2 | `D-CLI-BRUTALIST-PRESET-CLOSURE-0001` | `P-BRUTALIST-BUTTON` |
+| [`T-CLI-BRUTALIST-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-BRUTALIST-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Brutalist preset source-closure tests | 2 | `passing` 2 | `D-CLI-BRUTALIST-PRESET-CLOSURE-0001` | `P-BRUTALIST-BUTTON`<br>`P-BRUTALIST-TOGGLE`<br>`P-BRUTALIST-SWITCH`<br>`P-BRUTALIST-TABS`<br>`P-BRUTALIST-HOVER-CARD`<br>`P-BRUTALIST-DROPDOWN-MENU`<br>`P-BRUTALIST-SELECT`<br>`P-BRUTALIST-DIALOG` |
 | [`T-CLI-SHADCN-PRESET-CLOSURE-0001`](../../spec/tests/T-CLI-SHADCN-PRESET-CLOSURE-0001.yaml) | `draft` | CLI Shadcn preset source-closure tests | 3 | `passing` 3 | `D-CLI-SHADCN-PRESET-CLOSURE-0001` | `P-SHADCN-DIALOG-CONTENT`<br>`P-SHADCN-DIALOG-MASK` |
 
 ### COLLECTION（1）
@@ -1206,7 +1242,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 356/401 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 392/437 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
