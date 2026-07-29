@@ -7,9 +7,9 @@ const dialogFooter = definePrototype({
   setup(def) {
     // P-BRUTALIST-DIALOG-FOOTER-ANATOMY: claim DIALOG_FAMILY footer role.
     def.anatomy.claim(DIALOG_FAMILY, { role: 'footer' });
-    // P-BRUTALIST-DIALOG-FOOTER-VISUAL-GRAMMAR: flex-col-reverse gap border-t-2 layout surface.
+    // P-BRUTALIST-DIALOG-FOOTER-VISUAL-GRAMMAR: flex-col-reverse gap with a projection-local 2px black top rule.
     def.feedback.style.use(
-      tw('flex flex-col-reverse gap-2 border-t-2 border-black pt-3 justify-end')
+      tw('flex flex-col-reverse gap-2 border-t-2 brutalist-border-top-black pt-3 justify-end')
     );
     return (renderer) => renderer.r.slot();
   },

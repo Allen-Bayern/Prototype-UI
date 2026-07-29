@@ -365,12 +365,20 @@ describe('prototypes/brutalist: dialog', () => {
     expect(dialogHeader.name).toBe('brutalist-dialog-header');
     expect(header.contains(title)).toBe(true);
     expect(header.contains(description)).toBe(true);
-    for (const token of ['grid', 'gap-1', 'border-b-2', 'border-black', 'pb-3', 'text-left']) {
+    for (const token of [
+      'grid',
+      'gap-1',
+      'border-b-2',
+      'brutalist-border-bottom-black',
+      'pb-3',
+      'text-left',
+    ]) {
       expect(
         styleContains(header, token),
         `${token} :: ${header.getAttribute('data-pui-style')}`
       ).toBe(true);
     }
+    expect(styleContains(header, 'border-black')).toBe(false);
 
     expect(dialogFooter.name).toBe('brutalist-dialog-footer');
     expect(footer.contains(close)).toBe(true);
@@ -379,11 +387,12 @@ describe('prototypes/brutalist: dialog', () => {
       'flex-col-reverse',
       'gap-2',
       'border-t-2',
-      'border-black',
+      'brutalist-border-top-black',
       'pt-3',
       'justify-end',
     ]) {
       expect(styleContains(footer, token)).toBe(true);
     }
+    expect(styleContains(footer, 'border-black')).toBe(false);
   });
 });

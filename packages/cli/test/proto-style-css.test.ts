@@ -55,6 +55,17 @@ describe('proto style css renderer', () => {
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
 
+  it('renders projection-local directional border colors', () => {
+    const css = renderProtoStyleTokenCss([
+      'brutalist-border-bottom-black',
+      'brutalist-border-top-black',
+    ]);
+
+    expect(css).toContain('border-bottom-color: #000;');
+    expect(css).toContain('border-top-color: #000;');
+    expect(css).not.toContain('Unsupported Proto UI style tokens');
+  });
+
   it('renders internal negative data selector variants', () => {
     const css = renderProtoStyleTokenCss(['data-[hovered]:not-[data-active]:bg-muted']);
 

@@ -40,13 +40,6 @@ describe('feedback.semantic-merge.v0', () => {
     expect(r.tokens).toEqual(['border', 'border-border/60', 'rounded-xl']);
   });
 
-  it('keeps directional border width with border color', () => {
-    // T-RULE-INTENT-FEEDBACK-STYLE-0001-CASE-SEMANTIC-MERGE
-    const r = mergeTwTokensV0(['border-b-2', 'border-black', 'border-t-2']);
-
-    expect(r.tokens).toEqual(['border-b-2', 'border-black', 'border-t-2']);
-  });
-
   it('empty input -> empty output', () => {
     const r = mergeTwTokensV0([]);
     expect(r.tokens).toEqual([]);

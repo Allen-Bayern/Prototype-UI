@@ -163,6 +163,8 @@ const staticUtilities: Record<string, string[]> = {
   'border-t-2': ['border-top-width: 2px;', 'border-top-style: solid;'],
   'border-b': ['border-bottom-width: 1px;', 'border-bottom-style: solid;'],
   'border-l-2': ['border-left-width: 2px;', 'border-left-style: solid;'],
+  'brutalist-border-bottom-black': ['border-bottom-color: #000;'],
+  'brutalist-border-top-black': ['border-top-color: #000;'],
   'border-ink': ['border-color: var(--pui-foreground);'],
   'border-black': ['border-color: #000;'],
   'border-foreground': ['border-color: var(--pui-foreground);'],

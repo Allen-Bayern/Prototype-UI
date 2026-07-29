@@ -14,13 +14,17 @@ Brutalist Dialog Header and Footer each combine a directional border-width token
 
 Keep shared semantic-merge v0 unchanged and solve the collision inside the Brutalist Dialog projection.
 
-- Header uses `border-b-2` with `[border-bottom-color:#000]`.
-- Footer uses `border-t-2` with `[border-top-color:#000]`.
-- The arbitrary-property tokens use Tailwind v4's documented `[property:value]` syntax.
-- Under semantic-merge v0 fallback, each arbitrary property is its own group, so width and color remain independent without expanding the stable grouping contract.
+- Header uses `border-b-2` with the projection-local Proto UI token `brutalist-border-bottom-black`.
+- Footer uses `border-t-2` with the projection-local Proto UI token `brutalist-border-top-black`.
+- The tokens contain no `:` and therefore obey the stable v0 author-token purity contract. Tailwind arbitrary-property syntax was evaluated and rejected because `assertTwTokenV0` and `C-FEEDBACK-STYLE-0004` intentionally forbid `:` in prototype authoring tokens.
+- Under semantic-merge v0 fallback, each projection-local token is its own group, so width and color remain independent without expanding the stable grouping contract.
 - The CLI static token renderer explicitly supports the two official tokens so generated preset CSS remains closed and deterministic.
 
 ## Rejected Alternatives
+
+### Tailwind arbitrary properties in author tokens
+
+The first projection-local attempt paired `border-b-2` with `[border-bottom-color:#000]` and `border-t-2` with `[border-top-color:#000]`. Runtime tests rejected both during prototype setup because `assertTwTokenV0` forbids `:`; `C-FEEDBACK-STYLE-0004` defines that ban as author-channel purity, not a validator accident. Widening the v0 grammar would therefore recreate the same shared-contract problem. The allowlisted, colon-free `brutalist-border-bottom-black` and `brutalist-border-top-black` tokens preserve the directional CSS border colors while remaining independent fallback semantic groups.
 
 ### Upgrade semantic-merge contract
 
@@ -48,7 +52,7 @@ Do not create semantic-merge v1 in this PR and do not add the Core test as a new
 
 ## Test Strategy
 
-1. Add a failing CLI renderer test for both arbitrary directional color tokens.
+1. Add a failing CLI renderer test for both projection-local directional color tokens.
 2. Change Dialog test expectations to require width plus the corresponding local color token and reject `border-black` on Header/Footer.
 3. Add the two static CSS utilities and update the projection tokens.
 4. Revert the Core semantic-merge implementation and regression-test changes.
