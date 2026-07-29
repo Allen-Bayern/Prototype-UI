@@ -58,6 +58,10 @@ criteria:
     text:
       zh-CN: a11y semantic tree behavior 可以引用 state handle；投影 snapshot 必须解析为 boolean，并在 mounted 后随 state 更新，且 semantic hiding 不得误改宿主布局可见性。
       en: A11y semantic tree behavior may reference state handles; projected snapshots must resolve to booleans and update with state after mount, while semantic hiding must not alter host layout visibility.
+  - id: C-A11Y-0001-L
+    text:
+      zh-CN: Web adapter 投影字符串 a11y state 时，空字符串必须移除对应宿主 attribute，并在恢复非空值后重新投影。
+      en: When the Web adapter projects a string a11y state, an empty string must remove the corresponding host attribute, and a later non-empty value must restore it.
 sources:
   - path: internal/records/2026-06-30-a11y-module-planning-for-button.zh-CN.md
   - path: packages/modules/a11y/src/types.ts
@@ -94,7 +98,7 @@ revisions:
     summary: Allowed semantic roles to reference state handles for governed dynamic role projection.
   - version: 0.2.0-rc.7
     change: refined
-    summary: Allowed semantic tree behavior to follow state-backed facts while preserving layout visibility.
+    summary: Added state-backed semantic tree behavior and optional Web a11y state omission without changing layout visibility.
 tags:
   - a11y
   - accessibility

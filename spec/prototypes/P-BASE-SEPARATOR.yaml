@@ -14,16 +14,20 @@ criteria:
       en: orientation must default to horizontal and support vertical.
   - id: P-BASE-SEPARATOR-DECORATIVE
     text:
-      zh-CN: decorative=true 必须隐藏于 accessibility tree 且不暴露 separator role。
-      en: decorative=true must be hidden from the accessibility tree and expose no separator role.
+      zh-CN: decorative=true 必须隐藏于 accessibility tree，且不得暴露 separator role 或 aria-orientation。
+      en: decorative=true must be hidden from the accessibility tree and expose neither separator role nor aria-orientation.
   - id: P-BASE-SEPARATOR-SEMANTIC
     text:
       zh-CN: decorative=false 必须暴露 separator role 与对应 aria-orientation。
       en: decorative=false must expose separator role and the corresponding aria-orientation.
+  - id: P-BASE-SEPARATOR-CONTENTLESS
+    text:
+      zh-CN: Separator 必须是 contentless，不得渲染会被 decorative 语义意外隐藏的后代内容。
+      en: Separator must be contentless and render no descendant content that decorative semantics could hide accidentally.
   - id: P-BASE-SEPARATOR-NO-INTERACTION
     text:
-      zh-CN: Separator 不得声明 focus、event 或 command 通路。
-      en: Separator must declare no focus, event, or command channels.
+      zh-CN: Separator 不得声明 focus、tab stop、event、command、activation 或 mutable value 通路。
+      en: Separator must declare no focus, tab-stop, event, command, activation, or mutable-value channel.
 verifies:
   tests: [T-BASE-SEPARATOR-0001]
 sources:

@@ -26,10 +26,10 @@
 - `proto-ui init --prototypes brutalist` 现在是一等 CSS-only style preset。它会写出 Brutalist 主题（`brutalist-theme.css`，包含 Light/Dark 变量与扁平 canary/mint/lavender/coral/sky 强调调色板），以及从官方 Brutalist prototype 源码扫描生成的 Proto UI token closure，使目标项目在尚未安装任何 prototype package 之前即可获得可用初始 CSS。
 - 该 preset 故意为 CSS-only。私有 workspace package `@proto.ui/prototypes-brutalist`（Button reference family）暂无公开安装路径，且不在 rc.7 BOM 中；在该 package 经过后续 release train 公开发布之前，CLI `add` 组件注册表中不会暴露任何 Brutalist 条目。
 
-### Separator 与 Skeleton 候选协议
+### Separator 协议与 Skeleton 视觉原型
 
-- Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为，以及 mounted 后的实时投影。Base Skeleton 是 visual-only、`aria-hidden`、无交互且不拥有消费端尺寸的占位协议。
-- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 与 Skeleton 视觉投影及 source subpath。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
+- Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为、mounted 后的实时投影，并确保 decorative 模式不残留仅属于语义模式的 orientation。
+- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 视觉投射与直接定义的 styled-only Skeleton source subpath。Skeleton 是 passive、contentless、aria-hidden 且尺寸由消费端拥有的视觉原型；父级 loading region 继续拥有 busy 状态、announcement、替换时机与焦点连续性。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
 
 ## 构建与发布
 
@@ -43,7 +43,7 @@
 ### Bundle、文档与 CI 反馈
 
 - Lucide 固定图标入口与全图标 registry renderer 解耦，代表性单图标 `icons/x` 的 gzip 体积由 119,273 B 降至 1,560 B，避免单个图标传递引入完整 registry。
-- Lucide Gallery 改为有限首屏服务端渲染，英文页面原始 HTML 下降约 63%。内部 Demo Matrix 恢复每个 demo 同时并排挂载 Web Component、React 与 Vue，保留快速跨 adapter 人工验收能力；其中英文路由标记为 development-only draft，不再进入生产文档产物与 sitemap。
+- Lucide Gallery 改为有限首屏服务端渲染，英文页面原始 HTML 下降约 63%。内部 Demo Matrix 恢复每个 demo 同时并排挂载 Web Component、React 与 Vue，保留快速跨 adapter 人工验收能力；中英文路由均标记为 development-only draft，不再进入生产文档产物与 sitemap。
 - CI 现在根据 workspace 生产依赖图计算受影响的公开 package，并为代表性 package entry 固化 gzip budgets；`main` 与手动触发仍执行全量公开包验证。
 - 新增可重复的 monorepo analysis snapshot，记录构建、测试、tarball、bundle、文档产物与 package 更新频率，使上述优化可以在相同口径下复查。
 

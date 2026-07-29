@@ -6,7 +6,7 @@ Contributor-authored Neo-Brutalist Proto UI style library.
 
 ## Purpose
 
-Provides a design-language foundation on top of Proto UI Base: square geometry, strong structural borders, hard offset shadows, flat paired colors, and explicit light/dark theme variables.
+Provides a Proto UI design-language foundation: square geometry, strong structural borders, hard offset shadows, flat paired colors, and explicit light/dark theme variables. Families project Base only when they share a transferable Base protocol; styled-only visual prototypes are defined directly.
 
 This package is not owned by or claimed to be compatible with a named third-party component system. It uses only general Neo-Brutalist visual references.
 
@@ -19,11 +19,11 @@ This private rc.7 workspace package includes:
 - Button as the reference family;
 - stable Base family projections: Toggle, Switch, Tabs, Hover Card, Dropdown, Select, and Dialog;
 - the Brutalist Separator projection over Base Separator;
-- the Brutalist Skeleton projection over Base Skeleton;
+- the direct styled-only Brutalist Skeleton;
 - private source subpaths for every included family;
 - no public `proto-ui add` entries.
 
-Separator and Skeleton inherit their corresponding Base contracts while applying the Brutalist visual grammar.
+Brutalist Skeleton is passive, contentless, and excluded from the accessibility tree. The consuming async/loading region—not Skeleton—owns busy state, announcements, content replacement timing, and focus continuity.
 
 Additional prototype families continue to land through focused split PRs under incubation #323.
 

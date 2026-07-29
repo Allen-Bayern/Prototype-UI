@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import type { RuntimeHost } from '@proto.ui/runtime';
+import { executeWithHost } from '@proto.ui/runtime';
 import { styleContains } from '../../test-utils/style';
 import { AdaptToWebComponent } from '@proto.ui/adapter-web-component';
 import { BrutalistSkeletonRoot } from '../src/skeleton';
@@ -6,6 +8,27 @@ import { BrutalistSkeletonRoot } from '../src/skeleton';
 const BrutalistSkeletonElement = AdaptToWebComponent(BrutalistSkeletonRoot);
 
 describe('prototypes/brutalist: skeleton', () => {
+  it('owns the styled-only prototype directly without a Base Skeleton hook', () => {
+    // T-BRUTALIST-SKELETON-0001-CASE-DIRECT-OWNERSHIP
+    const host: RuntimeHost<Record<string, never>> = {
+      prototypeName: 'x-brutalist-skeleton-ownership',
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+    };
+
+    executeWithHost(BrutalistSkeletonRoot, host);
+    const asHooks = (BrutalistSkeletonRoot as unknown as { __asHooks?: Array<{ name: string }> })
+      .__asHooks;
+
+    expect(BrutalistSkeletonRoot.name).toBe('brutalist-skeleton-root');
+    expect(asHooks ?? []).not.toContainEqual(expect.objectContaining({ name: 'as-skeleton-root' }));
+  });
+
   it('inherits visual-only semantics without claiming consumer-owned size', async () => {
     // T-BRUTALIST-SKELETON-0001-CASE-VISUAL-ONLY
     const el = new BrutalistSkeletonElement();

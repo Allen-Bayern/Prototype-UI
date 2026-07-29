@@ -1,5 +1,4 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { asSkeletonRoot } from '@proto.ui/prototypes-base/skeleton';
 import type { BrutalistSkeletonRootExposes, BrutalistSkeletonRootProps } from './types';
 
 export const BrutalistSkeletonRoot = definePrototype<
@@ -8,8 +7,8 @@ export const BrutalistSkeletonRoot = definePrototype<
 >({
   name: 'brutalist-skeleton-root',
   setup(def) {
-    // P-BRUTALIST-SKELETON-BASE-INHERITANCE
-    asSkeletonRoot();
+    // P-BRUTALIST-SKELETON-DIRECT-OWNERSHIP, P-BRUTALIST-SKELETON-VISUAL-ONLY
+    def.a11y.tree({ hidden: true });
     // P-BRUTALIST-SKELETON-CONSUMER-SIZE — the consuming composition owns dimensions.
     // P-BRUTALIST-SKELETON-VISUAL-GRAMMAR
     def.feedback.style.use(

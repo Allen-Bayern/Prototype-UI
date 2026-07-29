@@ -16,6 +16,7 @@ cases:
       - P-BASE-SEPARATOR-ORIENTATION
       - P-BASE-SEPARATOR-DECORATIVE
       - P-BASE-SEPARATOR-NO-INTERACTION
+      - P-BASE-SEPARATOR-CONTENTLESS
     expectation: decorative-horizontal-separator-hidden-without-focus
   - id: T-BASE-SEPARATOR-0001-CASE-DYNAMIC-SEMANTICS
     title: Separator updates semantic orientation and decorative tree state after mount
@@ -25,6 +26,13 @@ cases:
       - P-BASE-SEPARATOR-SEMANTIC
       - P-BASE-SEPARATOR-NO-INTERACTION
     expectation: separator-projects-live-role-orientation-and-tree-state
+  - id: T-BASE-SEPARATOR-0001-CASE-DECORATIVE-ORIENTATION-OMISSION
+    title: Decorative mode omits orientation while semantic mode restores live horizontal and vertical projection
+    covers:
+      - P-BASE-SEPARATOR-ORIENTATION
+      - P-BASE-SEPARATOR-DECORATIVE
+      - P-BASE-SEPARATOR-SEMANTIC
+    expectation: decorative-separator-omits-semantic-orientation-and-restores-it-live
 implementations:
   - id: prototypes-base-separator-contract
     kind: module-test
@@ -35,6 +43,7 @@ implementations:
       - T-BASE-SEPARATOR-0001-CASE-TYPED-ORIENTATION
       - T-BASE-SEPARATOR-0001-CASE-DEFAULTS
       - T-BASE-SEPARATOR-0001-CASE-DYNAMIC-SEMANTICS
+      - T-BASE-SEPARATOR-0001-CASE-DECORATIVE-ORIENTATION-OMISSION
     exercises:
       - P-BASE-SEPARATOR
 exercises:

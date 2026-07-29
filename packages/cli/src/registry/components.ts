@@ -465,7 +465,6 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
   ]),
 
   'base-separator': base('base-separator', 'Base Separator', 'separatorRoot', 'BaseSeparatorRoot'),
-  'base-skeleton': base('base-skeleton', 'Base Skeleton', 'skeletonRoot', 'BaseSkeletonRoot'),
   'base-dialog': baseCompound('base-dialog', 'base Dialog', [
     {
       prototypeImport: 'dialogRoot',

@@ -73,7 +73,7 @@
       "default": "./src/dialog/index.ts"
     }
   },
-  "description": "Private Neo-Brutalist Proto UI workspace library with shared tokens and Base family projections.",
+  "description": "Private Neo-Brutalist Proto UI workspace library with stable Base projections and a direct styled-only Skeleton.",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {
