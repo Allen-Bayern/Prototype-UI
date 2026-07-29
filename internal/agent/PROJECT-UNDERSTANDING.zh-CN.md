@@ -11,16 +11,16 @@
 | 当前 spec 版本 | `0.2.0-rc.7` |
 | Release channel | `prerelease` |
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
-| 工作区实体数 | 437 |
+| 工作区实体数 | 454 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:26c1c2df107f89d49cfe5df15450e74031e511c06a455e8ecedd98544c5e8f94` |
+| 工作区快照指纹 | `sha256:085129526ac75acc571eae5e4de1df1e4d1c571b141d5ca79d90687518cc2d50` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 40 个 active、392 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 40 个 active、409 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -59,29 +59,29 @@ flowchart LR
 
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
-| `knowledge` | 6 | 0 | 6 | 0 | 6 | 6 | 0 |
-| `decision` | 49 | 6 | 41 | 2 | 34 | 19 | 3 |
-| `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 92 | 0 | 92 | 0 | 92 | 92 | 32 |
-| `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
-| `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 130 | 12 | 118 | 0 | 0 | 0 | 4 |
+| `knowledge` | 7 | 0 | 7 | 0 | 7 | 7 | 0 |
+| `decision` | 50 | 6 | 42 | 2 | 35 | 20 | 4 |
+| `contract` | 146 | 15 | 128 | 3 | 143 | 143 | 24 |
+| `prototype` | 100 | 0 | 100 | 0 | 100 | 100 | 33 |
+| `module` | 6 | 1 | 5 | 0 | 1 | 1 | 0 |
+| `host-cap` | 5 | 0 | 5 | 0 | 3 | 3 | 0 |
+| `test` | 133 | 12 | 121 | 0 | 0 | 0 | 4 |
 | `version` | 7 | 6 | 1 | 0 | 7 | 7 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  264 |
-| `dependsOn`  |  860 |
-| `inherits`   |   56 |
+| `relates`    |  270 |
+| `dependsOn`  |  894 |
+| `inherits`   |   60 |
 | `references` |    7 |
 | `refines`    |   18 |
-| `satisfies`  |   27 |
-| `verifies`   |  362 |
-| `explains`   |   36 |
-| `exercises`  |  233 |
-| `requires`   |    4 |
+| `satisfies`  |   30 |
+| `verifies`   |  382 |
+| `explains`   |   39 |
+| `exercises`  |  247 |
+| `requires`   |    5 |
 | `owns`       |    1 |
 
 关系统计只计算实体顶层 relation；criterion 内的 `dependsOn` 和 `references` 仍保留在各实体源文件中。
@@ -169,6 +169,20 @@ Proto UI 不把“在 template 中嵌套另一个 prototype”作为 core templa
 - `K-PROTOTYPE-COMPOSITION-0001-B`：允许 template 直接嵌套 prototype 会模糊 Prototype 生态与 Adapter/Compiler 生态的边界。
 - `K-PROTOTYPE-COMPOSITION-0001-C`：若上层框架提供更方便的组件组合语法，该语法必须在框架/编译/宿主层解决，而不是扩展 core template protocol。
 
+### [`K-SCROLL-0001`](../../spec/knowledge/K-SCROLL-0001.yaml) Scroll is a host-mediated surface domain
+
+- 状态：`draft`；since：`0.2.0-rc.7`；criteria：4
+- 摘要：Scroll coordinates logical surfaces, controls, facts, requests, and projection policy while leaving input physics and host geometry to the host.
+
+Scroll 是宿主协同的 surface domain。它区分 logical scroll surface、可选 scroll control、宿主上报的 facts、发往宿主的 requests、scrolling engine ownership 与 scrollbar chrome projection。Web DOM overflow、CSS pixel、ARIA attribute、Flutter ScrollController 或具体平台 physics 都只是宿主实现，不是 Scroll domain 本身。
+
+关键准则：
+
+- `K-SCROLL-0001-A`：Scroll surface identity 必须独立于当前宿主 target、widget、controller 或 view epoch。
+- `K-SCROLL-0001-B`：Scroll facts 与 scroll requests 必须保持不同所有权；原型作者不得通过写入 facts 伪造宿主滚动结果。
+- `K-SCROLL-0001-C`：scrolling engine ownership 与 scrollbar chrome projection 必须作为独立维度建模。
+- `K-SCROLL-0001-D`：Accessibility 必须由中立 scroll semantics 投影到宿主 accessibility surface，而不是把 ARIA 当作所有宿主的共同表示。
+
 ## 三、契约域
 
 Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；“被 T 验证”统计来自指向该 contract 的顶层 `verifies` relation。完整准则、版本关系和来源请进入实体文件。
@@ -251,6 +265,12 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
 | [`C-AS-OVERLAY-0001`](../../spec/contracts/C-AS-OVERLAY-0001.yaml) | `draft` | asOverlay coordinates logical open state with one Presence driver | 15 | 1 | asOverlay is a privileged no-argument once hook whose logical open state delegates structural view presence to exactly one immediate or bound Presence driver. |
+
+### AS-SCROLL（1）
+
+| Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
+| --- | --- | --- | --: | --: | --- |
+| [`C-AS-SCROLL-SURFACE-0001`](../../spec/contracts/C-AS-SCROLL-SURFACE-0001.yaml) | `draft` | asScrollSurface declares a no-arg singleton logical scroll surface | 5 | 1 | asScrollSurface is a privileged no-argument once hook that declares the caller as a logical scroll surface and returns setup configuration, observed facts, and scroll requests. |
 
 ### AS-TRANSITION（1）
 
@@ -406,6 +426,12 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 | [`C-RULE-WHEN-0001`](../../spec/contracts/C-RULE-WHEN-0001.yaml) | `draft` | Rule when expressions are pure conditions | 5 | 2 | Rule `when` expressions evaluate observable inputs into booleans without side effects, event matching, deep comparison, or custom comparators. |
 | [`C-RULE-WHEN-0002`](../../spec/contracts/C-RULE-WHEN-0002.yaml) | `draft` | Rule when inputs are module-backed observable values | 5 | 2 | Rule core does not create input sources; each `when` input surface must be backed by another module or extension and define its own dependency identity and read semantics. |
 
+### SCROLL（1）
+
+| Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
+| --- | --- | --- | --: | --: | --- |
+| [`C-SCROLL-0001`](../../spec/contracts/C-SCROLL-0001.yaml) | `draft` | Scroll coordinates logical surfaces, facts, requests, and host sessions | 7 | 1 | The Scroll domain owns logical scroll identities and request/fact coordination while a bounded host session owns geometry, input physics, and concrete projection. |
+
 ### STATE（15）
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
@@ -441,7 +467,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 Prototype 实体描述官方协议身份，而不是某个框架组件的偶然实现。Base 通常表达基础协议，Shadcn 等 design-language 实体可通过 `inherits.prototypes` 表达继承与差异。
 
-### BASE（31）
+### BASE（35）
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
@@ -462,6 +488,10 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-HOVER-CARD`](../../spec/prototypes/P-BASE-HOVER-CARD.yaml) | `draft` | Base Hover Card is a delayed link-preview protocol | — | 3 roles / 0 profiles | 12 | 4 |
 | [`P-BASE-HOVER-CARD-CONTENT`](../../spec/prototypes/P-BASE-HOVER-CARD-CONTENT.yaml) | `draft` | Base Hover Card Content is a transitional non-modal preview surface | — | — | 11 | 4 |
 | [`P-BASE-HOVER-CARD-TRIGGER`](../../spec/prototypes/P-BASE-HOVER-CARD-TRIGGER.yaml) | `draft` | Base Hover Card Trigger publishes preview intent | — | — | 6 | 4 |
+| [`P-BASE-SCROLL-AREA`](../../spec/prototypes/P-BASE-SCROLL-AREA.yaml) | `draft` | Base Scroll Area defines a host-projected scrolling domain | — | 4 roles / 0 profiles | 5 | 3 |
+| [`P-BASE-SCROLL-AREA-SCROLLBAR`](../../spec/prototypes/P-BASE-SCROLL-AREA-SCROLLBAR.yaml) | `draft` | Base Scroll Area Scrollbar is an optional composed control track | — | — | 4 | 3 |
+| [`P-BASE-SCROLL-AREA-THUMB`](../../spec/prototypes/P-BASE-SCROLL-AREA-THUMB.yaml) | `draft` | Base Scroll Area Thumb is a feedback-only composed anatomy part | — | — | 3 | 3 |
+| [`P-BASE-SCROLL-AREA-VIEWPORT`](../../spec/prototypes/P-BASE-SCROLL-AREA-VIEWPORT.yaml) | `draft` | Base Scroll Area Viewport owns the logical scroll surface | — | — | 5 | 3 |
 | [`P-BASE-SELECT`](../../spec/prototypes/P-BASE-SELECT.yaml) | `draft` | Base Select is a root-owned select-only single-selection protocol | — | 5 roles / 0 profiles | 10 | 4 |
 | [`P-BASE-SELECT-CONTENT`](../../spec/prototypes/P-BASE-SELECT-CONTENT.yaml) | `draft` | Base Select Content is a transitional positioned listbox surface | — | — | 8 | 4 |
 | [`P-BASE-SELECT-ITEM`](../../spec/prototypes/P-BASE-SELECT-ITEM.yaml) | `draft` | Base Select Item is a selectable collection option | — | — | 7 | 4 |
@@ -477,7 +507,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 4 |
 | [`P-BASE-TRANSITION`](../../spec/prototypes/P-BASE-TRANSITION.yaml) | `draft` | Base Transition governs host-neutral perceptual presence | — | — | 12 | 2 |
 
-### BRUTALIST（30）
+### BRUTALIST（34）
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
@@ -499,6 +529,10 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BRUTALIST-HOVER-CARD`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD.yaml) | `draft` | Brutalist Hover Card inherits Base Hover Card and layers a relative inline-flex root | `P-BASE-HOVER-CARD` | — | 3 | 3 |
 | [`P-BRUTALIST-HOVER-CARD-CONTENT`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD-CONTENT.yaml) | `draft` | Brutalist Hover Card Content inherits Base preview content and layers a hard-shadowed transition panel | `P-BASE-HOVER-CARD-CONTENT` | — | 4 | 2 |
 | [`P-BRUTALIST-HOVER-CARD-TRIGGER`](../../spec/prototypes/P-BRUTALIST-HOVER-CARD-TRIGGER.yaml) | `draft` | Brutalist Hover Card Trigger inherits Base Hover Card Trigger and layers a command-like surface | `P-BASE-HOVER-CARD-TRIGGER` | — | 5 | 2 |
+| [`P-BRUTALIST-SCROLL-AREA`](../../spec/prototypes/P-BRUTALIST-SCROLL-AREA.yaml) | `draft` | Brutalist Scroll Area inherits Base and projects a square structural frame | `P-BASE-SCROLL-AREA` | — | 4 | 2 |
+| [`P-BRUTALIST-SCROLL-AREA-SCROLLBAR`](../../spec/prototypes/P-BRUTALIST-SCROLL-AREA-SCROLLBAR.yaml) | `draft` | Brutalist Scroll Area Scrollbar projects a lavender directional track | `P-BASE-SCROLL-AREA-SCROLLBAR` | — | 3 | 1 |
+| [`P-BRUTALIST-SCROLL-AREA-THUMB`](../../spec/prototypes/P-BRUTALIST-SCROLL-AREA-THUMB.yaml) | `draft` | Brutalist Scroll Area Thumb projects foreground feedback | `P-BASE-SCROLL-AREA-THUMB` | — | 2 | 1 |
+| [`P-BRUTALIST-SCROLL-AREA-VIEWPORT`](../../spec/prototypes/P-BRUTALIST-SCROLL-AREA-VIEWPORT.yaml) | `draft` | Brutalist Scroll Area Viewport prefers composed Web projection | `P-BASE-SCROLL-AREA-VIEWPORT` | — | 3 | 1 |
 | [`P-BRUTALIST-SELECT`](../../spec/prototypes/P-BRUTALIST-SELECT.yaml) | `draft` | Brutalist Select Root inherits Base Select ownership | `P-BASE-SELECT` | — | 2 | 3 |
 | [`P-BRUTALIST-SELECT-CONTENT`](../../spec/prototypes/P-BRUTALIST-SELECT-CONTENT.yaml) | `draft` | Brutalist Select Content inherits Base Select Content and layers a hard-shadowed listbox panel | `P-BASE-SELECT-CONTENT` | — | 4 | 2 |
 | [`P-BRUTALIST-SELECT-ITEM`](../../spec/prototypes/P-BRUTALIST-SELECT-ITEM.yaml) | `draft` | Brutalist Select Item inherits Base Select Item and layers selected option styling with a check indicator | `P-BASE-SELECT-ITEM` | — | 6 | 2 |
@@ -566,6 +600,7 @@ Module 实体是语义能力的稳定身份锚点；Host Capability 表达宿主
 | [`M-EVENT-0001`](../../spec/modules/M-EVENT-0001.yaml) | `draft` | Event module owns protocol event dispatch and default-action control requests | `C-EVENT-0001`<br>`C-EVENT-0002`<br>`C-EVENT-0003`<br>`C-EVENT-0004`<br>`C-EVENT-0005`<br>`C-EVENT-0006`<br>`C-EVENT-0007`<br>`C-EVENT-TYPE-0002` | 0 | The event module owns protocol event registration/dispatch and provides the internal port used by foundation modules to request host-mediated default-action cancellation. |
 | [`M-POSITIONING-0001`](../../spec/modules/M-POSITIONING-0001.yaml) | `draft` | Positioning module owns anchored host-session lifetime | `C-ANCHORED-POSITIONING-0001` | 0 | The Positioning module converts an anchor and floating declaration into one host positioning lease, retains only categorical resolved placement, and revokes the lease with view or prototype lifetime. |
 | [`M-PROPS-0001`](../../spec/modules/M-PROPS-0001.yaml) | `active` | Props module | `C-PROPS-0001`<br>`C-PROPS-0002`<br>`C-PROPS-0003`<br>`C-PROPS-0004`<br>`C-PROPS-0005`<br>`C-PROPS-0006`<br>`C-PROPS-0007`<br>`C-PROPS-0008`<br>`C-PROPS-0009`<br>`C-PROPS-0010`<br>`C-PROPS-0011`<br>`C-PROPS-0012`<br>`C-PROPS-0013`<br>`C-PROPS-0014` | 0 | Owns the semantic model for host-facing props. |
+| [`M-SCROLL-0001`](../../spec/modules/M-SCROLL-0001.yaml) | `draft` | Scroll module owns logical surface sessions and projection negotiation | `C-SCROLL-0001`<br>`C-AS-SCROLL-SURFACE-0001` | 4 | The Scroll module owns logical surface identity, observed facts, requests, projection negotiation, and bounded host-session lifetime. |
 
 ### Host capabilities
 
@@ -575,6 +610,7 @@ Module 实体是语义能力的稳定身份锚点；Host Capability 表达宿主
 | [`HC-ANCHORED-POSITION-0001`](../../spec/host-caps/HC-ANCHORED-POSITION-0001.yaml) | `draft` | Host measures and maintains anchored floating geometry | `C-ANCHORED-POSITIONING-0001` | 0 | The host attaches a bounded positioning lease that measures anchor and floating targets, resolves collision policy, writes non-transform coordinates, and observes relevant geometry changes. |
 | [`HC-DEFAULT-ACTION-0001`](../../spec/host-caps/HC-DEFAULT-ACTION-0001.yaml) | `draft` | Host can cancel default interaction actions | `C-EVENT-TYPE-0002`<br>`C-FOCUS-0001` | 3 | The host can receive Proto UI default-action cancellation requests for an interaction sample and project them to its native default-action mechanism. |
 | [`HC-PORTAL-0001`](../../spec/host-caps/HC-PORTAL-0001.yaml) | `draft` | Host supports detached portal mounting | — | 0 | The host can render UI outside the local structural parent. |
+| [`HC-SCROLL-SURFACE-0001`](../../spec/host-caps/HC-SCROLL-SURFACE-0001.yaml) | `draft` | Host attaches and maintains a scroll surface session | `C-SCROLL-0001` | 5 | The host resolves a logical scroll surface to its current target, attaches a bounded session, reports facts and support, applies requests, and projects system or composed chrome participation. |
 
 ## 六、关键决策
 
@@ -713,6 +749,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | [`D-RULE-META-NAMING-0001`](../../spec/decisions/D-RULE-META-NAMING-0001.yaml) | `draft` | Rule host-environment input naming remains unsettled | 0 | The current `meta` Rule input is treated as secondary scope because host/environment configuration may need a more systematic abstraction. |
 | [`D-RULE-STATE-INTENT-0001`](../../spec/decisions/D-RULE-STATE-INTENT-0001.yaml) | `draft` | Rule state intent remains implementation debt | 0 | `intent.state` is a planned Rule intent channel, but its layer stack, rollback, baseline, and reason semantics are not implemented as v0 guarantees. |
 
+### SCROLL（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-SCROLL-PROJECTION-0001`](../../spec/decisions/D-SCROLL-PROJECTION-0001.yaml) | `draft` | Scroll defaults to host-owned engines with system or composed chrome | 5 | Proto UI keeps scrolling engines host-owned by default and lets adapters resolve system or authored scrollbar chrome without equating composed chrome with synthesized scrolling. |
+
 ### STATE（3）
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
@@ -748,16 +790,16 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  284 |
+| `passing` |  291 |
 | `planned` |   14 |
 
 ### Implementation 类型
 
 | Kind              | 数量 |
 | ----------------- | ---: |
-| `adapter-test`    |   81 |
+| `adapter-test`    |   85 |
 | `fixture`         |   17 |
-| `module-test`     |  137 |
+| `module-test`     |  140 |
 | `runtime-test`    |   71 |
 | `workspace-check` |   10 |
 
@@ -816,7 +858,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger group merge and interaction-surface contract tests | 9 | `passing` 7 | `C-AS-TRIGGER-0001` | — |
 
-### BASE（31）
+### BASE（32）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
@@ -837,6 +879,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-BASE-HOVER-CARD-0001`](../../spec/tests/T-BASE-HOVER-CARD-0001.yaml) | `draft` | Base Hover Card Root and compound protocol tests | 7 | `passing` 5 | `P-BASE-HOVER-CARD` | `P-BASE-HOVER-CARD` |
 | [`T-BASE-HOVER-CARD-CONTENT-0001`](../../spec/tests/T-BASE-HOVER-CARD-CONTENT-0001.yaml) | `draft` | Base Hover Card Content protocol tests | 3 | `passing` 2 | `P-BASE-HOVER-CARD-CONTENT` | `P-BASE-HOVER-CARD-CONTENT` |
 | [`T-BASE-HOVER-CARD-TRIGGER-0001`](../../spec/tests/T-BASE-HOVER-CARD-TRIGGER-0001.yaml) | `draft` | Base Hover Card Trigger protocol tests | 2 | `passing` 1 | `P-BASE-HOVER-CARD-TRIGGER` | `P-BASE-HOVER-CARD-TRIGGER` |
+| [`T-BASE-SCROLL-AREA-0001`](../../spec/tests/T-BASE-SCROLL-AREA-0001.yaml) | `draft` | Base Scroll Area domain and anatomy tests | 2 | `passing` 1 | `P-BASE-SCROLL-AREA`<br>`P-BASE-SCROLL-AREA-VIEWPORT`<br>`P-BASE-SCROLL-AREA-SCROLLBAR`<br>`P-BASE-SCROLL-AREA-THUMB` | `P-BASE-SCROLL-AREA`<br>`P-BASE-SCROLL-AREA-VIEWPORT`<br>`P-BASE-SCROLL-AREA-SCROLLBAR`<br>`P-BASE-SCROLL-AREA-THUMB` |
 | [`T-BASE-SELECT-0001`](../../spec/tests/T-BASE-SELECT-0001.yaml) | `draft` | Base Select Root and compound protocol tests | 4 | `passing` 4 | `P-BASE-SELECT` | `P-BASE-SELECT` |
 | [`T-BASE-SELECT-CONTENT-0001`](../../spec/tests/T-BASE-SELECT-CONTENT-0001.yaml) | `draft` | Base Select Content protocol tests | 5 | `passing` 3 | `P-BASE-SELECT-CONTENT` | `P-BASE-SELECT-CONTENT` |
 | [`T-BASE-SELECT-ITEM-0001`](../../spec/tests/T-BASE-SELECT-ITEM-0001.yaml) | `draft` | Base Select Item protocol tests | 5 | `passing` 1 | `P-BASE-SELECT-ITEM` | `P-BASE-SELECT-ITEM` |
@@ -858,7 +901,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-BOUNDARY-0001`](../../spec/tests/T-BOUNDARY-0001.yaml) | `draft` | Boundary observation, classification, stacking, and cleanup tests | 7 | `passing` 2 | `C-BOUNDARY-0001` | — |
 
-### BRUTALIST（8）
+### BRUTALIST（9）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
@@ -866,6 +909,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-BRUTALIST-DIALOG-0001`](../../spec/tests/T-BRUTALIST-DIALOG-0001.yaml) | `draft` | Brutalist Dialog visual contract and public API tests | 10 | `passing` 1 | `P-BRUTALIST-DIALOG`<br>`P-BRUTALIST-DIALOG-TRIGGER`<br>`P-BRUTALIST-DIALOG-MASK`<br>`P-BRUTALIST-DIALOG-CONTENT`<br>`P-BRUTALIST-DIALOG-TITLE`<br>`P-BRUTALIST-DIALOG-DESCRIPTION`<br>`P-BRUTALIST-DIALOG-CLOSE`<br>`P-BRUTALIST-DIALOG-CLOSE-ICON`<br>`P-BRUTALIST-DIALOG-HEADER`<br>`P-BRUTALIST-DIALOG-FOOTER` | `P-BASE-DIALOG`<br>`P-BASE-DIALOG-CLOSE`<br>`P-BASE-DIALOG-CONTENT`<br>`P-BASE-DIALOG-DESCRIPTION`<br>`P-BASE-DIALOG-MASK`<br>`P-BASE-DIALOG-TITLE`<br>`P-BASE-DIALOG-TRIGGER`<br>`P-BRUTALIST-DIALOG`<br>`P-BRUTALIST-DIALOG-CLOSE`<br>`P-BRUTALIST-DIALOG-CLOSE-ICON`<br>`P-BRUTALIST-DIALOG-CONTENT`<br>`P-BRUTALIST-DIALOG-DESCRIPTION`<br>`P-BRUTALIST-DIALOG-FOOTER`<br>`P-BRUTALIST-DIALOG-HEADER`<br>`P-BRUTALIST-DIALOG-MASK`<br>`P-BRUTALIST-DIALOG-TITLE`<br>`P-BRUTALIST-DIALOG-TRIGGER` |
 | [`T-BRUTALIST-DROPDOWN-MENU-0001`](../../spec/tests/T-BRUTALIST-DROPDOWN-MENU-0001.yaml) | `draft` | Brutalist Dropdown Menu visual contract and public API tests | 6 | `passing` 1 | `P-BRUTALIST-DROPDOWN-MENU`<br>`P-BRUTALIST-DROPDOWN-MENU-TRIGGER`<br>`P-BRUTALIST-DROPDOWN-MENU-CONTENT`<br>`P-BRUTALIST-DROPDOWN-MENU-ITEM` | `P-BASE-DROPDOWN-MENU`<br>`P-BASE-DROPDOWN-MENU-CONTENT`<br>`P-BASE-DROPDOWN-MENU-ITEM`<br>`P-BASE-DROPDOWN-MENU-TRIGGER`<br>`P-BRUTALIST-DROPDOWN-MENU`<br>`P-BRUTALIST-DROPDOWN-MENU-CONTENT`<br>`P-BRUTALIST-DROPDOWN-MENU-ITEM`<br>`P-BRUTALIST-DROPDOWN-MENU-TRIGGER` |
 | [`T-BRUTALIST-HOVER-CARD-0001`](../../spec/tests/T-BRUTALIST-HOVER-CARD-0001.yaml) | `draft` | Brutalist Hover Card visual contract and public API tests | 3 | `passing` 1 | `P-BRUTALIST-HOVER-CARD`<br>`P-BRUTALIST-HOVER-CARD-TRIGGER`<br>`P-BRUTALIST-HOVER-CARD-CONTENT` | `P-BASE-HOVER-CARD`<br>`P-BASE-HOVER-CARD-CONTENT`<br>`P-BASE-HOVER-CARD-TRIGGER`<br>`P-BRUTALIST-HOVER-CARD`<br>`P-BRUTALIST-HOVER-CARD-CONTENT`<br>`P-BRUTALIST-HOVER-CARD-TRIGGER` |
+| [`T-BRUTALIST-SCROLL-AREA-0001`](../../spec/tests/T-BRUTALIST-SCROLL-AREA-0001.yaml) | `draft` | Brutalist Scroll Area visual contract tests | 1 | `passing` 1 | `P-BRUTALIST-SCROLL-AREA` | `P-BASE-SCROLL-AREA`<br>`P-BASE-SCROLL-AREA-SCROLLBAR`<br>`P-BASE-SCROLL-AREA-THUMB`<br>`P-BASE-SCROLL-AREA-VIEWPORT`<br>`P-BRUTALIST-SCROLL-AREA`<br>`P-BRUTALIST-SCROLL-AREA-SCROLLBAR`<br>`P-BRUTALIST-SCROLL-AREA-THUMB`<br>`P-BRUTALIST-SCROLL-AREA-VIEWPORT` |
 | [`T-BRUTALIST-SELECT-0001`](../../spec/tests/T-BRUTALIST-SELECT-0001.yaml) | `draft` | Brutalist Select visual contract and public API tests | 7 | `passing` 1 | `P-BRUTALIST-SELECT`<br>`P-BRUTALIST-SELECT-TRIGGER`<br>`P-BRUTALIST-SELECT-VALUE`<br>`P-BRUTALIST-SELECT-CONTENT`<br>`P-BRUTALIST-SELECT-ITEM` | `P-BASE-SELECT`<br>`P-BASE-SELECT-CONTENT`<br>`P-BASE-SELECT-TRIGGER`<br>`P-BASE-SELECT-VALUE`<br>`P-BASE-SELECT-ITEM`<br>`P-BRUTALIST-SELECT`<br>`P-BRUTALIST-SELECT-CONTENT`<br>`P-BRUTALIST-SELECT-ITEM`<br>`P-BRUTALIST-SELECT-TRIGGER`<br>`P-BRUTALIST-SELECT-VALUE` |
 | [`T-BRUTALIST-SWITCH-0001`](../../spec/tests/T-BRUTALIST-SWITCH-0001.yaml) | `draft` | Brutalist Switch visual contract and public API tests | 5 | `passing` 1 | `P-BRUTALIST-SWITCH`<br>`P-BRUTALIST-SWITCH-THUMB` | `P-BASE-SWITCH`<br>`P-BASE-SWITCH-THUMB`<br>`P-BRUTALIST-SWITCH`<br>`P-BRUTALIST-SWITCH-THUMB` |
 | [`T-BRUTALIST-TABS-0001`](../../spec/tests/T-BRUTALIST-TABS-0001.yaml) | `draft` | Brutalist Tabs visual contract and public API tests | 4 | `passing` 1 | `P-BRUTALIST-TABS`<br>`P-BRUTALIST-TABS-LIST`<br>`P-BRUTALIST-TABS-TRIGGER`<br>`P-BRUTALIST-TABS-CONTENT` | `P-BASE-TABS`<br>`P-BASE-TABS-LIST`<br>`P-BASE-TABS-CONTENT`<br>`P-BASE-TABS-TRIGGER`<br>`P-BRUTALIST-TABS`<br>`P-BRUTALIST-TABS-LIST`<br>`P-BRUTALIST-TABS-TRIGGER`<br>`P-BRUTALIST-TABS-CONTENT` |
@@ -976,6 +1020,12 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-RULE-MATRIX-0001`](../../spec/tests/T-RULE-MATRIX-0001.yaml) | `draft` | Rule stable matrix tests | 4 | `active` 1<br>`planned` 1 | `C-RULE-WHEN-0002`<br>`C-RULE-INTENT-FEEDBACK-STYLE-0001`<br>`C-RULE-RUNTIME-0001` | `D-RULE-STATE-INTENT-0001` |
 | [`T-RULE-WHEN-0001`](../../spec/tests/T-RULE-WHEN-0001.yaml) | `draft` | Rule when expression tests | 5 | `planned` 2 | `C-RULE-WHEN-0001` | — |
 | [`T-RULE-WHEN-0002`](../../spec/tests/T-RULE-WHEN-0002.yaml) | `draft` | Rule when dependency dimension tests | 4 | `active` 1<br>`planned` 1 | `C-RULE-WHEN-0002` | `D-RULE-CONTEXT-PATH-0001`<br>`D-RULE-META-NAMING-0001` |
+
+### SCROLL（1）
+
+| Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
+| --- | --- | --- | --: | --- | --- | --- |
+| [`T-SCROLL-0001`](../../spec/tests/T-SCROLL-0001.yaml) | `draft` | Scroll domain, module, and host capability conformance | 6 | `passing` 5 | `C-SCROLL-0001`<br>`C-AS-SCROLL-SURFACE-0001`<br>`D-SCROLL-PROJECTION-0001` | `M-SCROLL-0001`<br>`HC-SCROLL-SURFACE-0001` |
 
 ### SHADCN（28）
 
@@ -1135,10 +1185,11 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 九、显式 Open Questions
 
-当前实体共声明 76 个 open question。它们是已知断口，不应由 Agent 静默补全。
+当前实体共声明 83 个 open question。它们是已知断口，不应由 Agent 静默补全。
 
 | Entity | Question | Blocks |
 | --- | --- | --- |
+| [`C-AS-SCROLL-SURFACE-0001`](../../spec/contracts/C-AS-SCROLL-SURFACE-0001.yaml)<br>`C-AS-SCROLL-SURFACE-0001-Q-CONTROL` | Scrollbar control registration 应通过 surface handle、独立 `asScrollControl()`，还是 Anatomy module-internal binding 表达？ | scroll-control-hook |
 | [`C-CONTEXT-0010`](../../spec/contracts/C-CONTEXT-0010.yaml)<br>`C-CONTEXT-0010-Q-SCHEDULING` | 是否需要在未来为 context callback 固化更强的同步派发或批处理规则？ | context callback scheduling policy |
 | [`C-CORE-CHANNEL-0001`](../../spec/contracts/C-CORE-CHANNEL-0001.yaml)<br>`C-CORE-CHANNEL-0001-Q1` | 当前核心可移植通路清单是否应由本契约直接枚举，还是拆成独立的 channel 实体或 contract 记录？ | C-CORE-CHANNEL-0001-C |
 | [`C-EVENT-0002`](../../spec/contracts/C-EVENT-0002.yaml)<br>`C-EVENT-0002-Q-RUNTIME-ESCAPE-HATCH` | Event 是否需要 future runtime escape hatch，例如主动触发某个 event、runtime 动态添加订阅或 runtime 取消订阅？ | event runtime escape hatch design |
@@ -1160,6 +1211,9 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`C-PROPS-0014`](../../spec/contracts/C-PROPS-0014.yaml)<br>`C-PROPS-0014-Q-CORE-UPDATE-OWNER` | 应建立哪条 core/runtime 契约来承接 `run.update()` 与“Props 变化不隐含视图更新”的语义？ | C-PROPS-0014 |
 | [`C-RULE-0003`](../../spec/contracts/C-RULE-0003.yaml)<br>`C-RULE-0003-Q-IMPLEMENTATION-GAP` | 当前实现中 RuleIR 仍可能携带 live handle 的路径，应如何迁移到 RuleIR 外部的 side table？ | — |
 | [`C-RULE-WHEN-0002`](../../spec/contracts/C-RULE-WHEN-0002.yaml)<br>`C-RULE-WHEN-0002-Q-META` | host/environment 输入最终应继续称为 `meta`，还是引入更系统的环境配置抽象？ | — |
+| [`C-SCROLL-0001`](../../spec/contracts/C-SCROLL-0001.yaml)<br>`C-SCROLL-0001-Q-LENGTH` | portable facts 是否需要定义抽象 logical length，还是只保证 normalized ratio 与 categorical overflow？ | portable-scroll-length |
+| [`C-SCROLL-0001`](../../spec/contracts/C-SCROLL-0001.yaml)<br>`C-SCROLL-0001-Q-DIRECTION` | RTL、writing mode、reversed axis 与 bidirectional surface 应如何规范化？ | horizontal-scroll-conformance |
+| [`C-SCROLL-0001`](../../spec/contracts/C-SCROLL-0001.yaml)<br>`C-SCROLL-0001-Q-CONTINUOUS-PROJECTION` | 高频 thumb geometry 应通过 feedback、adapter style sink 还是新的 host-local projection port 投影？ | composed-thumb-continuous-projection |
 | [`C-STATE-0006`](../../spec/contracts/C-STATE-0006.yaml)<br>`C-STATE-0006-Q-VALIDATION` | v0 是否应强制所有 state definition、`setDefault` 与 `set` 调用执行 value-domain validation？ | state value validation implementation |
 | [`C-STATE-INTERACTION-0002`](../../spec/contracts/C-STATE-INTERACTION-0002.yaml)<br>`C-STATE-INTERACTION-0002-Q-MODULE-HOST-CAP-CATALOG` | Module 与 Host cap 实体编目完成后，state-interaction 对 event target capability 与 adapter interaction mapping 的约束应如何被拆到更底层契约？ | module catalog<br>host capability catalog |
 | [`D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001`](../../spec/decisions/D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001.yaml)<br>`D-AS-HOOK-PRIVILEGED-NO-ARG-MIGRATION-0001-Q1` | `useCollection` / `useCollectionItem` 最终应作为真正的特权 asHook、受治理的 use-style hook，还是普通内部函数存在？ | collection-hook-contract<br>privileged-as-hook-migration |
@@ -1168,6 +1222,8 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`D-AS-HOOK-STATE-HANDLE-NAMING-0001`](../../spec/decisions/D-AS-HOOK-STATE-HANDLE-NAMING-0001.yaml)<br>`D-AS-HOOK-STATE-HANDLE-NAMING-0001-Q2` | 若 state name 与 semantic 分离，web state projection、debug semantic 与 rule identity 应优先使用哪个字段？ | state-api-migration<br>web-state-projection |
 | [`D-AS-HOOK-STATE-HANDLE-NAMING-0001`](../../spec/decisions/D-AS-HOOK-STATE-HANDLE-NAMING-0001.yaml)<br>`D-AS-HOOK-STATE-HANDLE-NAMING-0001-Q3` | 迁移期是否需要临时保留 `expose.state` name fallback，还是应一次性移除现有 expose-key 命名补丁与对应测试？ | as-hook-state-projection<br>migration-safety |
 | [`D-FOCUS-STATE-INTERACTION-BOUNDARY-0001`](../../spec/decisions/D-FOCUS-STATE-INTERACTION-BOUNDARY-0001.yaml)<br>`D-FOCUS-STATE-INTERACTION-BOUNDARY-0001-Q1` | focus-owned facts 应通过 `def.state.fromFocus(...)`、`asFocusable().focused` 直接消费，还是通过 asHook state projection 暴露给组合原型？ | focus-projection-contract<br>state-interaction-compat-removal |
+| [`D-SCROLL-PROJECTION-0001`](../../spec/decisions/D-SCROLL-PROJECTION-0001.yaml)<br>`D-SCROLL-PROJECTION-0001-Q-INSTANCE-OVERRIDE` | 是否需要逐实例覆盖 projection preference；若需要，它应通过何种 environment/configuration 输入表达？ | scroll-instance-projection-override |
+| [`D-SCROLL-PROJECTION-0001`](../../spec/decisions/D-SCROLL-PROJECTION-0001.yaml)<br>`D-SCROLL-PROJECTION-0001-Q-COMPOUND-MATERIALIZATION` | adapter/compiler 如何允许多个 logical Scroll Area parts 折叠到一个宿主 native widget，同时保持 logical identity？ | compound-native-scroll-projection |
 | [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml)<br>`P-BASE-BUTTON-Q-A11Y-API` | Button 的 accessible name、description、disabled reason 与 role mapping 应由 `def.a11y` 顶层 API、Button props、adapter inference 还是组合方式提供？ | a11y module catalog<br>def.a11y API design |
 | [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml)<br>`P-BASE-BUTTON-Q-FORM-INTEGRATION` | Form 原型编目后，Button 的 `type`、`name`、`value`、`form*` 能力应以 Button 扩展、Form 协议能力，还是宿主 adapter 能力表达？ | form prototype catalog<br>button form extension design |
 | [`P-BASE-BUTTON`](../../spec/prototypes/P-BASE-BUTTON.yaml)<br>`P-BASE-BUTTON-Q-COMMAND-INTEGRATION` | 宿主 command、popover 与 dialog command 能力应归属于 Button 扩展、trigger 扩展，还是独立 command/overlay 协议？ | command capability catalog<br>overlay prototype catalog |
@@ -1176,6 +1232,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml)<br>`P-BASE-CHECKBOX-Q-INDETERMINATE-STATE-SYNC` | Component Author 在 mounted 之后通过 `asCheckboxRoot().stateHandles.indeterminate.set(...)` 任意写入时，Checkbox root 应通过 state observation 自动同步 context/a11y，还是提供显式同步 API？ | checkbox aggregate authoring model<br>state observation capability |
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml)<br>`P-BASE-CHECKBOX-Q-AGGREGATE-CONTEXT` | tree/table/group 等 aggregate checkbox 关系是否应通过 Checkbox context scope、独立 Group/Summary protocol，还是更通用的 collection/form protocol 表达？ | checkbox group catalog<br>form and collection integration |
 | [`P-BASE-CHECKBOX`](../../spec/prototypes/P-BASE-CHECKBOX.yaml)<br>`P-BASE-CHECKBOX-Q-FORM-INTEGRATION` | Checkbox 的 `name`、`value`、`form`、`required`、validation、hidden input 与提交行为应归属于 Checkbox root core、Form protocol capability，还是 adapter/host capability？ | checkbox form integration<br>form protocol design |
+| [`P-BASE-SCROLL-AREA-SCROLLBAR`](../../spec/prototypes/P-BASE-SCROLL-AREA-SCROLLBAR.yaml)<br>`P-BASE-SCROLL-AREA-SCROLLBAR-Q-CONTROL-BINDING` | composed Scrollbar 的 track request 与 Thumb drag 应由新的 privileged `asScrollControl` 还是 anatomy-aware host binding 承载？ | composed scrollbar interaction guarantee |
 | [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml)<br>`P-BASE-SWITCH-Q-TRACK` | Switch track 是否应成为官方 anatomy role、profile recommendation、独立 part protocol，还是继续作为宿主模板内部结构？ | switch anatomy family final shape<br>downstream switch customization model |
 | [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml)<br>`P-BASE-SWITCH-Q-FORM-INTEGRATION` | Switch 的 `name`、`value`、`form`、`required`、unchecked value 与 hidden input 行为应归属于 Base Switch core props、Form 协议能力，还是 adapter/host capability？ | form prototype catalog<br>switch form extension design |
 | [`P-BASE-SWITCH`](../../spec/prototypes/P-BASE-SWITCH.yaml)<br>`P-BASE-SWITCH-Q-A11Y-API` | Switch 的 accessible name、description、checked state 与 role mapping 应由 `def.a11y` 顶层 API、Switch props、adapter inference 还是组合方式提供？ | a11y module catalog<br>def.a11y API design |
@@ -1242,8 +1299,8 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 392/437 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
-- 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
+- 409/454 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 当前只有 6 个 Module 与 5 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
 - 发布 snapshot digest 与当前工作区指纹用途不同；同一版本下继续编辑 draft 实体时，两者可能不同。

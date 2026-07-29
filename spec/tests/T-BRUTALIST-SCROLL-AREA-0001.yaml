@@ -2,8 +2,8 @@ id: T-BRUTALIST-SCROLL-AREA-0001
 type: test
 title: Brutalist Scroll Area visual contract tests
 status: draft
-since: 0.2.0-rc.5
-summary: Covers the current tested Neo-Brutalist visual grammar and Base-inherited runtime behavior for brutalist scroll area.
+since: 0.2.0-rc.7
+summary: Covers the current tested Neo-Brutalist visual grammar, Base anatomy inheritance, orientation, and composed projection preference without claiming custom drag behavior.
 cases:
   - id: T-BRUTALIST-SCROLL-AREA-0001-CASE-1
     title: P-BRUTALIST-SCROLL-AREA retains Base semantics and projects the Brutalist visual grammar
@@ -21,12 +21,10 @@ implementations:
       - T-BRUTALIST-SCROLL-AREA-0001-CASE-1
     exercises:
       - P-BASE-SCROLL-AREA
-      - P-BASE-SCROLL-AREA-CORNER
       - P-BASE-SCROLL-AREA-SCROLLBAR
       - P-BASE-SCROLL-AREA-THUMB
       - P-BASE-SCROLL-AREA-VIEWPORT
       - P-BRUTALIST-SCROLL-AREA
-      - P-BRUTALIST-SCROLL-AREA-CORNER
       - P-BRUTALIST-SCROLL-AREA-SCROLLBAR
       - P-BRUTALIST-SCROLL-AREA-THUMB
       - P-BRUTALIST-SCROLL-AREA-VIEWPORT
@@ -36,19 +34,17 @@ verifies:
 exercises:
   prototypes:
     - P-BASE-SCROLL-AREA
-    - P-BASE-SCROLL-AREA-CORNER
     - P-BASE-SCROLL-AREA-SCROLLBAR
     - P-BASE-SCROLL-AREA-THUMB
     - P-BASE-SCROLL-AREA-VIEWPORT
     - P-BRUTALIST-SCROLL-AREA
-    - P-BRUTALIST-SCROLL-AREA-CORNER
     - P-BRUTALIST-SCROLL-AREA-SCROLLBAR
     - P-BRUTALIST-SCROLL-AREA-THUMB
     - P-BRUTALIST-SCROLL-AREA-VIEWPORT
 revisions:
-  - version: 0.2.0-rc.5
+  - version: 0.2.0-rc.7
     change: introduced
-    summary: Added draft Brutalist scroll-area prototype coverage.
+    summary: Added draft Brutalist Scroll Area coverage for the rc.7 host-projected semantic slice.
 tags:
   - test
   - brutalist

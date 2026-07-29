@@ -5,7 +5,7 @@
   "npmDistTag": "next",
   "packageVersionPolicy": "exact",
   "packageScope": "public-@proto.ui",
-  "packageCount": 37,
+  "packageCount": 38,
   "packages": [
     {
       "name": "@proto.ui/cli",
@@ -279,11 +279,24 @@
       "internalDependencies": ["@proto.ui/core", "@proto.ui/module-base", "@proto.ui/module-rule"]
     },
     {
+      "name": "@proto.ui/module-scroll",
+      "version": "0.2.0-rc.7",
+      "path": "packages/modules/scroll",
+      "releaseRole": "internal-or-dependency-directed",
+      "publishOrder": 28,
+      "internalDependencies": [
+        "@proto.ui/core",
+        "@proto.ui/module-base",
+        "@proto.ui/module-state",
+        "@proto.ui/types"
+      ]
+    },
+    {
       "name": "@proto.ui/module-state-accessibility",
       "version": "0.2.0-rc.7",
       "path": "packages/modules/state-accessibility",
       "releaseRole": "internal-or-dependency-directed",
-      "publishOrder": 28,
+      "publishOrder": 29,
       "internalDependencies": ["@proto.ui/core", "@proto.ui/module-base", "@proto.ui/module-state"]
     },
     {
@@ -291,7 +304,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/modules/state-interaction",
       "releaseRole": "internal-or-dependency-directed",
-      "publishOrder": 29,
+      "publishOrder": 30,
       "internalDependencies": [
         "@proto.ui/core",
         "@proto.ui/module-base",
@@ -304,7 +317,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/modules/test-sys",
       "releaseRole": "internal-or-dependency-directed",
-      "publishOrder": 30,
+      "publishOrder": 31,
       "internalDependencies": ["@proto.ui/core", "@proto.ui/module-base", "@proto.ui/types"]
     },
     {
@@ -312,7 +325,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/prototypes/base",
       "releaseRole": "launch-commitment",
-      "publishOrder": 31,
+      "publishOrder": 32,
       "internalDependencies": ["@proto.ui/core", "@proto.ui/hooks"]
     },
     {
@@ -320,7 +333,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/prototypes/shadcn",
       "releaseRole": "launch-commitment",
-      "publishOrder": 32,
+      "publishOrder": 33,
       "internalDependencies": ["@proto.ui/core", "@proto.ui/prototypes-base"]
     },
     {
@@ -328,7 +341,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/runtime",
       "releaseRole": "internal-or-dependency-directed",
-      "publishOrder": 33,
+      "publishOrder": 34,
       "internalDependencies": [
         "@proto.ui/core",
         "@proto.ui/hooks",
@@ -353,6 +366,7 @@
         "@proto.ui/module-rule",
         "@proto.ui/module-rule-expose-state-web",
         "@proto.ui/module-rule-meta",
+        "@proto.ui/module-scroll",
         "@proto.ui/module-state",
         "@proto.ui/module-state-accessibility",
         "@proto.ui/module-state-interaction",
@@ -365,7 +379,7 @@
       "version": "0.2.0-rc.7",
       "path": "packages/adapters/base",
       "releaseRole": "public-non-launch-commitment",
-      "publishOrder": 34,
+      "publishOrder": 35,
       "internalDependencies": [
         "@proto.ui/core",
         "@proto.ui/module-expose-state",
@@ -377,36 +391,6 @@
       "name": "@proto.ui/adapter-react",
       "version": "0.2.0-rc.7",
       "path": "packages/adapters/react",
-      "releaseRole": "launch-commitment",
-      "publishOrder": 35,
-      "internalDependencies": [
-        "@proto.ui/adapter-base",
-        "@proto.ui/core",
-        "@proto.ui/hooks",
-        "@proto.ui/module-a11y",
-        "@proto.ui/module-anatomy",
-        "@proto.ui/module-as-trigger",
-        "@proto.ui/module-boundary",
-        "@proto.ui/module-context",
-        "@proto.ui/module-event",
-        "@proto.ui/module-expose-state",
-        "@proto.ui/module-expose-state-web",
-        "@proto.ui/module-feedback",
-        "@proto.ui/module-focus",
-        "@proto.ui/module-hit-participation",
-        "@proto.ui/module-overlay",
-        "@proto.ui/module-positioning",
-        "@proto.ui/module-props",
-        "@proto.ui/module-rule-expose-state-web",
-        "@proto.ui/module-rule-meta",
-        "@proto.ui/runtime",
-        "@proto.ui/types"
-      ]
-    },
-    {
-      "name": "@proto.ui/adapter-vue",
-      "version": "0.2.0-rc.7",
-      "path": "packages/adapters/vue",
       "releaseRole": "launch-commitment",
       "publishOrder": 36,
       "internalDependencies": [
@@ -429,14 +413,15 @@
         "@proto.ui/module-props",
         "@proto.ui/module-rule-expose-state-web",
         "@proto.ui/module-rule-meta",
+        "@proto.ui/module-scroll",
         "@proto.ui/runtime",
         "@proto.ui/types"
       ]
     },
     {
-      "name": "@proto.ui/adapter-web-component",
+      "name": "@proto.ui/adapter-vue",
       "version": "0.2.0-rc.7",
-      "path": "packages/adapters/web-component",
+      "path": "packages/adapters/vue",
       "releaseRole": "launch-commitment",
       "publishOrder": 37,
       "internalDependencies": [
@@ -459,6 +444,38 @@
         "@proto.ui/module-props",
         "@proto.ui/module-rule-expose-state-web",
         "@proto.ui/module-rule-meta",
+        "@proto.ui/module-scroll",
+        "@proto.ui/runtime",
+        "@proto.ui/types"
+      ]
+    },
+    {
+      "name": "@proto.ui/adapter-web-component",
+      "version": "0.2.0-rc.7",
+      "path": "packages/adapters/web-component",
+      "releaseRole": "launch-commitment",
+      "publishOrder": 38,
+      "internalDependencies": [
+        "@proto.ui/adapter-base",
+        "@proto.ui/core",
+        "@proto.ui/hooks",
+        "@proto.ui/module-a11y",
+        "@proto.ui/module-anatomy",
+        "@proto.ui/module-as-trigger",
+        "@proto.ui/module-boundary",
+        "@proto.ui/module-context",
+        "@proto.ui/module-event",
+        "@proto.ui/module-expose-state",
+        "@proto.ui/module-expose-state-web",
+        "@proto.ui/module-feedback",
+        "@proto.ui/module-focus",
+        "@proto.ui/module-hit-participation",
+        "@proto.ui/module-overlay",
+        "@proto.ui/module-positioning",
+        "@proto.ui/module-props",
+        "@proto.ui/module-rule-expose-state-web",
+        "@proto.ui/module-rule-meta",
+        "@proto.ui/module-scroll",
         "@proto.ui/module-test-sys",
         "@proto.ui/runtime",
         "@proto.ui/types"

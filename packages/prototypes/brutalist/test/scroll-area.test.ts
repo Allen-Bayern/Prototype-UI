@@ -6,14 +6,12 @@ import {
   BrutalistScrollAreaViewport,
   BrutalistScrollAreaScrollbar,
   BrutalistScrollAreaThumb,
-  BrutalistScrollAreaCorner,
 } from '../src/scroll-area';
 
 AdaptToWebComponent(BrutalistScrollAreaRoot as any);
 AdaptToWebComponent(BrutalistScrollAreaViewport as any);
 AdaptToWebComponent(BrutalistScrollAreaScrollbar as any);
 AdaptToWebComponent(BrutalistScrollAreaThumb as any);
-AdaptToWebComponent(BrutalistScrollAreaCorner as any);
 
 describe('prototypes/brutalist: scroll-area', () => {
   it('projects the Brutalist visual grammar', async () => {

@@ -9,7 +9,7 @@ import BrutalistPageStyle from '@/components/BrutalistPageStyle.astro';
 
 <BrutalistPageStyle />
 
-Brutalist Scroll Area 保留 Base 的 viewport metrics、orientation、thumb geometry、wheel/drag 行为与 scroll state。样式 family 只增加方形 paper 表面和高对比 Lavender/ink 滚动控件。
+Brutalist Scroll Area 保留 Base 的宿主滚动面、归一化 viewport facts、orientation 与已解析 projection。它偏好 composed chrome，并增加方形 paper 表面和高对比 Lavender/ink 控件。自定义 track click、连续 thumb geometry 与 thumb drag 尚不属于当前 passing guarantee，需要等跨宿主 control binding 完成规范与测试。
 
 用于 ChatUI conversation history、会话列表、命令结果、日志和密集 SaaS 面板。外围 layout 必须给 Root 明确尺寸。
 

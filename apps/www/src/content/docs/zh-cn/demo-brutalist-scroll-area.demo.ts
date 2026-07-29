@@ -41,7 +41,7 @@ export default {
             props: { orientation: 'vertical' },
             children: [{ kind: 'proto', prototypeId: 'brutalist-scroll-area-thumb' }],
           },
-          { kind: 'proto', prototypeId: 'brutalist-scroll-area-corner' },
+          { kind: 'box', className: 'absolute bottom-0 right-0 h-4 w-4 bg-foreground' },
         ],
       },
     ],

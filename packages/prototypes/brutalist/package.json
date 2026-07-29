@@ -6,6 +6,7 @@
   "sideEffects": false,
   "dependencies": {
     "@proto.ui/core": "workspace:*",
+    "@proto.ui/hooks": "workspace:*",
     "@proto.ui/prototypes-base": "workspace:*"
   },
   "devDependencies": {

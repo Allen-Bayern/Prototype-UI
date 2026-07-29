@@ -9,9 +9,7 @@ export const BrutalistScrollAreaRoot = definePrototype<
   setup(def) {
     asScrollAreaRoot();
     def.feedback.style.use(
-      tw(
-        'relative block h-48 w-80 overflow-hidden rounded-none border-2 border-foreground bg-background'
-      )
+      tw('relative block overflow-hidden rounded-none border-2 border-foreground bg-background')
     );
     return (renderer) => [renderer.r.slot()];
   },

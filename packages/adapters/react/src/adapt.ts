@@ -1,4 +1,4 @@
-import type { Prototype } from '@proto.ui/core';
+import type { Prototype, ScrollProjectionPreference } from '@proto.ui/core';
 import type {
   CommitSignal,
   RuntimeCheckpoint,
@@ -82,6 +82,7 @@ export interface ReactAdapterOptions<Props extends PropsBaseType> {
     onLifecycleCheckpoint?: (cp: RuntimeCheckpoint) => void;
   };
   exposeStateWebMode?: ExposeStateWebMode;
+  scrollProjection?: ScrollProjectionPreference;
   autoUpdateOnPropsChange?: boolean;
   rootTag?: string;
   overlayLayer?:
@@ -139,6 +140,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
     const getProps = opt.getProps ?? defaultGetProps;
     const getMeta = opt.getMeta ?? createDefaultMetaGetter();
     const exposeStateWebMode = opt.exposeStateWebMode;
+    const scrollProjection = opt.scrollProjection;
     const autoUpdate = opt.autoUpdateOnPropsChange ?? true;
     const rootTag = opt.rootTag ?? 'div';
     const hasCustomOverlayLayerConfig =
@@ -379,6 +381,7 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
           effectsPort,
           getMeta,
           exposeStateWebMode,
+          scrollProjection,
           setExposes: (record) => {
             exposesRef.current = record;
           },
