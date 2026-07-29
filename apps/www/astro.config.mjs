@@ -340,6 +340,46 @@ export default defineConfig({
                   slug: 'ui-libraries/brutalist/components/skeleton',
                   badge: inProgressBadge,
                 },
+                {
+                  label: 'Button',
+                  translations: { en: 'Button', 'zh-CN': 'Button' },
+                  slug: 'ui-libraries/brutalist/components/button',
+                },
+                {
+                  label: 'Toggle',
+                  translations: { en: 'Toggle', 'zh-CN': 'Toggle' },
+                  slug: 'ui-libraries/brutalist/components/toggle',
+                },
+                {
+                  label: 'Switch',
+                  translations: { en: 'Switch', 'zh-CN': 'Switch' },
+                  slug: 'ui-libraries/brutalist/components/switch',
+                },
+                {
+                  label: 'Tabs',
+                  translations: { en: 'Tabs', 'zh-CN': 'Tabs' },
+                  slug: 'ui-libraries/brutalist/components/tabs',
+                },
+                {
+                  label: 'Hover Card',
+                  translations: { en: 'Hover Card', 'zh-CN': 'Hover Card' },
+                  slug: 'ui-libraries/brutalist/components/hover-card',
+                },
+                {
+                  label: 'Dropdown Menu',
+                  translations: { en: 'Dropdown Menu', 'zh-CN': 'Dropdown Menu' },
+                  slug: 'ui-libraries/brutalist/components/dropdown-menu',
+                },
+                {
+                  label: 'Select',
+                  translations: { en: 'Select', 'zh-CN': 'Select' },
+                  slug: 'ui-libraries/brutalist/components/select',
+                },
+                {
+                  label: 'Dialog',
+                  translations: { en: 'Dialog', 'zh-CN': 'Dialog' },
+                  slug: 'ui-libraries/brutalist/components/dialog',
+                },
               ],
             },
           ],

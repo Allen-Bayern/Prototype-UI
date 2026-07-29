@@ -12,15 +12,20 @@ This package is not owned by or claimed to be compatible with a named third-part
 
 ## Current workspace scope
 
-This private rc.7 workspace slice includes:
+This private rc.7 workspace package includes:
 
 - shared Brutalist style tokens and theme grammar;
-- the reference Brutalist Button projection over Base Button;
-- visual projections over Base Separator and Base Skeleton;
-- private source subpaths for `./button`, `./separator`, and `./skeleton`;
-- CLI style-preset integration without public `proto-ui add` entries.
+- package and CLI style-preset integration;
+- Button as the reference family;
+- stable Base family projections: Toggle, Switch, Tabs, Hover Card, Dropdown, Select, and Dialog;
+- the Brutalist Separator projection over Base Separator;
+- the Brutalist Skeleton projection over Base Skeleton;
+- private source subpaths for every included family;
+- no public `proto-ui add` entries.
 
-Additional prototype families remain split into focused follow-up PRs.
+Separator and Skeleton inherit their corresponding Base contracts while applying the Brutalist visual grammar.
+
+Additional prototype families continue to land through focused split PRs under incubation #323.
 
 ## Button public API
 
