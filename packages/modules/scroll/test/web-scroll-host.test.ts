@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type {
   MoveGestureHost,
   MoveGestureHostBinding,
@@ -63,7 +63,10 @@ function setMetrics(
   });
 }
 
-afterEach(() => document.body.replaceChildren());
+afterEach(() => {
+  document.body.replaceChildren();
+  vi.unstubAllGlobals();
+});
 
 describe('module-scroll: Web scroll surface host', () => {
   it('reports normalized facts and applies requests without exposing the target', () => {
@@ -198,6 +201,118 @@ describe('module-scroll: Web scroll surface host', () => {
     expect(thumb.style.height).toBe('7px');
     expect(thumb.style.transform).toBe('scale(1)');
     expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('');
+  });
+
+  it('reconciles every direct content resize target across insertion and replacement', async () => {
+    const observed = new Set<Element>();
+    let resizeCallback: ResizeObserverCallback | undefined;
+    let observerInstance: RecordingResizeObserver | undefined;
+    class RecordingResizeObserver {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallback = callback;
+        observerInstance = this;
+      }
+
+      observe(element: Element) {
+        observed.add(element);
+      }
+
+      unobserve(element: Element) {
+        observed.delete(element);
+      }
+
+      disconnect() {
+        observed.clear();
+      }
+    }
+    const emitResize = (element: Element) => {
+      resizeCallback?.(
+        [{ target: element } as ResizeObserverEntry],
+        observerInstance as unknown as ResizeObserver
+      );
+    };
+    const flushMutations = async () => {
+      await Promise.resolve();
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    };
+    vi.stubGlobal('ResizeObserver', RecordingResizeObserver);
+
+    const target = document.createElement('div');
+    const first = document.createElement('div');
+    const second = document.createElement('div');
+    const track = document.createElement('div');
+    const thumb = document.createElement('div');
+    target.append(first, second);
+    track.append(thumb);
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 400,
+    });
+    Object.defineProperty(track, 'clientHeight', { configurable: true, value: 100 });
+    track.style.paddingTop = '2px';
+    track.style.paddingBottom = '2px';
+    document.body.append(target, track);
+    const snapshots: ScrollSurfaceSnapshot[] = [];
+    const move = createMoveHarness();
+
+    const lease = createWebScrollSurfaceHost(target, {
+      moveGestureHost: move.host,
+      preference: 'composed',
+    }).attach({
+      config: { axes: 'vertical', projection: 'composed' },
+      projection: 'composed',
+      composedChrome: {
+        scope: {},
+        controls: [{ getAxis: () => 'vertical', trackTarget: track, thumbTarget: thumb }],
+      },
+      onFacts: (snapshot) => snapshots.push(snapshot),
+    });
+
+    expect(observed).toEqual(new Set([target, first, second, track]));
+
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 800,
+    });
+    emitResize(second);
+    expect(snapshots.at(-1)?.vertical.visibleRatio).toBe(1 / 8);
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('18px');
+
+    const late = document.createElement('div');
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 200,
+    });
+    target.append(late);
+    await flushMutations();
+    expect(observed.has(late)).toBe(true);
+    expect(snapshots.at(-1)?.vertical.visibleRatio).toBe(1 / 2);
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('48px');
+
+    const replacement = document.createElement('div');
+    setMetrics(target, {
+      clientWidth: 100,
+      scrollWidth: 100,
+      clientHeight: 100,
+      scrollHeight: 400,
+    });
+    first.replaceWith(replacement);
+    await flushMutations();
+    expect(observed.has(first)).toBe(false);
+    expect(observed.has(replacement)).toBe(true);
+    expect(observed.has(second)).toBe(true);
+    expect(observed.has(late)).toBe(true);
+    expect(snapshots.at(-1)?.vertical.visibleRatio).toBe(1 / 4);
+    expect(thumb.style.getPropertyValue('--proto-ui-scroll-thumb-size')).toBe('24px');
+
+    lease.dispose();
+    expect(observed.size).toBe(0);
   });
 
   it('maps a host Move Gesture session on Thumb to normalized drag requests', () => {

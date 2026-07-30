@@ -330,14 +330,24 @@ export function createWebScrollSurfaceHost(
       const resizeObserver =
         typeof ResizeObserver === 'function' ? new ResizeObserver(() => publish()) : undefined;
       const mutationObserver =
-        typeof MutationObserver === 'function' ? new MutationObserver(() => publish()) : undefined;
-      const observeGeometry = () => {
+        typeof MutationObserver === 'function'
+          ? new MutationObserver((records) => {
+              if (
+                records.some((record) => record.type === 'childList' && record.target === target)
+              ) {
+                observeGeometry();
+              }
+              publish();
+            })
+          : undefined;
+      function observeGeometry() {
         resizeObserver?.disconnect();
         mutationObserver?.disconnect();
         resizeObserver?.observe(target);
-        if (target.firstElementChild instanceof Element) {
-          resizeObserver?.observe(target.firstElementChild);
+        for (const contentTarget of Array.from(target.children)) {
+          resizeObserver?.observe(contentTarget);
         }
+        mutationObserver?.observe(target, { childList: true });
         for (const control of connection.composedChrome?.controls ?? []) {
           if (!isWebControl(control)) continue;
           resizeObserver?.observe(control.trackTarget);
@@ -346,7 +356,7 @@ export function createWebScrollSurfaceHost(
             attributeFilter: ['class', 'style'],
           });
         }
-      };
+      }
       const ownerWindow = target.ownerDocument.defaultView;
       ownerWindow?.addEventListener('resize', publish);
       projectPolicy();
