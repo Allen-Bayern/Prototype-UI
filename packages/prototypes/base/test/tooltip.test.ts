@@ -186,10 +186,14 @@ describe('prototypes/base: tooltip group', () => {
     await advance(0);
     expect(second.root.getExposes().open.get()).toBe(true);
     expect(first.root.getExposes().open.get()).toBe(false);
+    expect(first.content.getExposes().transitionState.get()).toBe('closed');
+    expect(first.content.getExposes().isPresent.get()).toBe(false);
 
     second.trigger.dispatchEvent(new Event('pointerleave'));
     await advance(0);
     expect(second.root.getExposes().open.get()).toBe(false);
+    expect(second.content.getExposes().transitionState.get()).toBe('leaving');
+    expect(second.content.getExposes().isPresent.get()).toBe(true);
     await advance(50);
 
     first.trigger.dispatchEvent(new Event('pointerleave'));
@@ -198,6 +202,8 @@ describe('prototypes/base: tooltip group', () => {
     expect(first.root.getExposes().open.get()).toBe(false);
     await advance(1);
     expect(first.root.getExposes().open.get()).toBe(true);
+    expect(second.content.getExposes().transitionState.get()).toBe('closed');
+    expect(second.content.getExposes().isPresent.get()).toBe(false);
   });
 
   it('requests the previous controlled owner to close without mutating it', async () => {

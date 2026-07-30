@@ -24,6 +24,10 @@ criteria:
     text:
       zh-CN: 新 Root 成为 active 时，其它 open Root 必须通过各自 request channel 请求关闭；Group 不得直接改写受控 owner fact。
       en: When a new Root becomes active, other open Roots must request closure through their own request channels; Group must not directly mutate a controlled owner fact.
+  - id: P-BASE-TOOLTIP-GROUP-INSTANT-HANDOFF
+    text:
+      zh-CN: 非受控 sibling handoff 必须在同一次协调后的 view reconciliation 中使前一个 Content 结束感知 presence，不得保留可见的 leave duration；普通关闭仍可运行其 Transition。受控 owner 仅接收关闭请求，并保留最终 open authority。
+      en: An uncontrolled sibling handoff must end the previous Content's perceptual presence in the view reconciliation following the same coordination and must not preserve a visible leave duration; ordinary closure may still run its Transition. A controlled owner only receives a close request and retains final open authority.
   - id: P-BASE-TOOLTIP-GROUP-NO-NEW-MODULE
     text:
       zh-CN: 当前 Group 语义必须由现有 Context 与 Delay 能力表达，不得仅为 Tooltip 新增专用 core/module substrate。

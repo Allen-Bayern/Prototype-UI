@@ -18,13 +18,22 @@ cases:
         P-BASE-TOOLTIP-GROUP-NO-NEW-MODULE,
       ]
     expectation: tooltip-group-coordinates-one-active-owner-with-context-and-delay
+  - id: T-BASE-TOOLTIP-GROUP-0001-CASE-HANDOFF
+    title: Uncontrolled sibling handoff ends the previous Content presence immediately
+    covers: [P-BASE-TOOLTIP-GROUP-INSTANT-HANDOFF]
+    expectation: tooltip-group-handoff-has-no-visible-overlap
 implementations:
   - id: prototypes-base-tooltip-group-contract
     kind: module-test
     status: passing
     path: packages/prototypes/base/test/tooltip.test.ts
     required: true
-    consumesCases: [T-BASE-TOOLTIP-GROUP-0001-CASE-WARMTH, T-BASE-TOOLTIP-GROUP-0001-CASE-ACTIVE]
+    consumesCases:
+      [
+        T-BASE-TOOLTIP-GROUP-0001-CASE-WARMTH,
+        T-BASE-TOOLTIP-GROUP-0001-CASE-ACTIVE,
+        T-BASE-TOOLTIP-GROUP-0001-CASE-HANDOFF,
+      ]
     exercises: [P-BASE-TOOLTIP-GROUP, P-BASE-TOOLTIP]
 verifies:
   prototypes:
@@ -35,6 +44,7 @@ verifies:
           P-BASE-TOOLTIP-GROUP-DELAYS,
           P-BASE-TOOLTIP-GROUP-WARMTH,
           P-BASE-TOOLTIP-GROUP-ACTIVE-OWNER,
+          P-BASE-TOOLTIP-GROUP-INSTANT-HANDOFF,
           P-BASE-TOOLTIP-GROUP-NO-NEW-MODULE,
         ]
 exercises: { prototypes: [P-BASE-TOOLTIP-GROUP, P-BASE-TOOLTIP] }

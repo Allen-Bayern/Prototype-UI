@@ -6,6 +6,7 @@ import {
   dismissTooltipFromEscape,
   TOOLTIP_CONTEXT,
   TOOLTIP_FAMILY,
+  TOOLTIP_GROUP_CONTEXT,
   updateTooltipInteraction,
   type TooltipContextValue,
 } from './shared';
@@ -113,6 +114,27 @@ function setupTooltipContent(def: DefHandle<TooltipContentProps, TooltipContentE
     (run) => syncPosition(run)
   );
   def.context.subscribe(TOOLTIP_CONTEXT, (_run, next) => syncContext(next));
+  def.context.trySubscribe(TOOLTIP_GROUP_CONTEXT, (run, group) => {
+    if (!group) return;
+    const incomingTooltipId =
+      group.requestOpen && group.requestTooltipId ? group.requestTooltipId : group.activeTooltipId;
+    const ctx = run.context.read(TOOLTIP_CONTEXT);
+    // A sibling handoff is a replacement, not a normal dismissal. Root still
+    // owns the logical close request; Content only removes an outgoing,
+    // uncontrolled perceptual presence so a leave animation cannot overlap the
+    // incoming Tooltip. Controlled open authority remains with the host.
+    if (
+      incomingTooltipId &&
+      incomingTooltipId !== ctx.rootId &&
+      !ctx.controlled &&
+      transition.isPresent.get()
+    ) {
+      // Normalize both entering and entered states into leaving before
+      // completing; complete() alone would finish an interrupted enter.
+      transition.controls.leave();
+      transition.controls.complete();
+    }
+  });
 
   const store: { run: RunHandle<TooltipContentProps> | null } = { run: null };
   def.lifecycle.onCreated((run) => {

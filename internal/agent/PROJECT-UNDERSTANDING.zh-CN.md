@@ -13,7 +13,7 @@
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
 | 工作区实体数 | 444 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:4ef468455e62e9351ef7a976fe6ad9ac2aaefa6dd22967340d2f83355bad0047` |
+| 工作区快照指纹 | `sha256:0ad25e8136e122f353e58f20f403c8be59d44b9a04e119bcff5ccc3e539ea9c5` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
@@ -477,7 +477,7 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 4 |
 | [`P-BASE-TOOLTIP`](../../spec/prototypes/P-BASE-TOOLTIP.yaml) | `draft` | Base Tooltip is a supplementary description protocol | — | 3 roles / 0 profiles | 8 | 3 |
 | [`P-BASE-TOOLTIP-CONTENT`](../../spec/prototypes/P-BASE-TOOLTIP-CONTENT.yaml) | `draft` | Base Tooltip Content is a non-modal description surface | — | — | 8 | 2 |
-| [`P-BASE-TOOLTIP-GROUP`](../../spec/prototypes/P-BASE-TOOLTIP-GROUP.yaml) | `draft` | Base Tooltip Group coordinates delay warmth and active ownership | — | — | 5 | 2 |
+| [`P-BASE-TOOLTIP-GROUP`](../../spec/prototypes/P-BASE-TOOLTIP-GROUP.yaml) | `draft` | Base Tooltip Group coordinates delay warmth and active ownership | — | — | 6 | 2 |
 | [`P-BASE-TOOLTIP-TRIGGER`](../../spec/prototypes/P-BASE-TOOLTIP-TRIGGER.yaml) | `draft` | Base Tooltip Trigger publishes description intent | — | — | 4 | 2 |
 | [`P-BASE-TRANSITION`](../../spec/prototypes/P-BASE-TRANSITION.yaml) | `draft` | Base Transition governs host-neutral perceptual presence | — | — | 12 | 2 |
 
@@ -861,7 +861,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-BASE-TABS-TRIGGER-0001`](../../spec/tests/T-BASE-TABS-TRIGGER-0001.yaml) | `draft` | Base Tabs Trigger protocol contract tests | 3 | `passing` 1 | `P-BASE-TABS-TRIGGER` | `P-BASE-TABS-TRIGGER` |
 | [`T-BASE-TOGGLE-0001`](../../spec/tests/T-BASE-TOGGLE-0001.yaml) | `draft` | Base Toggle protocol contract tests | 6 | `passing` 1 | `P-BASE-TOGGLE` | `P-BASE-TOGGLE` |
 | [`T-BASE-TOOLTIP-0001`](../../spec/tests/T-BASE-TOOLTIP-0001.yaml) | `draft` | Base Tooltip compound protocol tests | 5 | `passing` 1 | `P-BASE-TOOLTIP`<br>`P-BASE-TOOLTIP-TRIGGER`<br>`P-BASE-TOOLTIP-CONTENT` | `P-BASE-TOOLTIP`<br>`P-BASE-TOOLTIP-TRIGGER`<br>`P-BASE-TOOLTIP-CONTENT` |
-| [`T-BASE-TOOLTIP-GROUP-0001`](../../spec/tests/T-BASE-TOOLTIP-GROUP-0001.yaml) | `draft` | Base Tooltip Group coordination tests | 2 | `passing` 1 | `P-BASE-TOOLTIP-GROUP` | `P-BASE-TOOLTIP-GROUP`<br>`P-BASE-TOOLTIP` |
+| [`T-BASE-TOOLTIP-GROUP-0001`](../../spec/tests/T-BASE-TOOLTIP-GROUP-0001.yaml) | `draft` | Base Tooltip Group coordination tests | 3 | `passing` 1 | `P-BASE-TOOLTIP-GROUP` | `P-BASE-TOOLTIP-GROUP`<br>`P-BASE-TOOLTIP` |
 | [`T-BASE-TRANSITION-0001`](../../spec/tests/T-BASE-TRANSITION-0001.yaml) | `draft` | Base Transition prototype protocol contract tests | 5 | `passing` 1 | `P-BASE-TRANSITION` | `C-AS-TRANSITION-0001`<br>`C-LIFECYCLE-0008`<br>`C-DELAY-0001`<br>`P-BASE-TRANSITION` |
 
 ### BOUNDARY（1）
