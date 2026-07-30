@@ -185,9 +185,11 @@ class A11yModuleImpl extends ModuleBase {
     }
 
     const relations: Record<string, string | null | undefined> = {};
+    const relationModes: NonNullable<A11ySemanticObjectSnapshot['relationModes']> = {};
     for (const [key, binding] of this.ir.relations) {
       const target = binding.spec.target;
       relations[key] = isState(target) ? target.get() : target;
+      if (binding.spec.mode === 'append') relationModes[key] = 'append';
     }
 
     return {
@@ -198,6 +200,7 @@ class A11yModuleImpl extends ModuleBase {
       states,
       actions: Object.fromEntries(this.ir.actions),
       relations,
+      ...(Object.keys(relationModes).length ? { relationModes } : {}),
       tree: this.ir.tree ? { ...this.ir.tree } : undefined,
     };
   }
