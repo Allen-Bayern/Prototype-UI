@@ -11,16 +11,16 @@
 | 当前 spec 版本 | `0.2.0-rc.7` |
 | Release channel | `prerelease` |
 | Version entity | [`V-PROTO-UI-0007`](../../spec/versions/V-PROTO-UI-0007.yaml) |
-| 工作区实体数 | 437 |
+| 工作区实体数 | 444 |
 | Workspace validation issues | 0 |
-| 工作区快照指纹 | `sha256:26c1c2df107f89d49cfe5df15450e74031e511c06a455e8ecedd98544c5e8f94` |
+| 工作区快照指纹 | `sha256:4ef468455e62e9351ef7a976fe6ad9ac2aaefa6dd22967340d2f83355bad0047` |
 | 已发布 release snapshot digest | `未记录` |
 
 工作区快照指纹来自按 ID 排序、按当前版本过滤后的实体内容。它用于判断本文是否与当前检出版本一致；它不替代 `V-*` 中记录的不可变发布快照 digest。
 
 ## 阅读与权威边界
 
-当前快照包含 40 个 active、392 个 draft、5 个 deprecated、0 个 removed 实体。
+当前快照包含 40 个 active、399 个 draft、5 个 deprecated、0 个 removed 实体。
 
 - `active` 可以作为当前稳定保证读取。
 - `draft` 是已进入正式目录的当前方向，但不能包装为稳定公共承诺。
@@ -60,27 +60,27 @@ flowchart LR
 | 类型 | 总数 | active | draft | deprecated | 有 statement | 有 criteria | 有 open questions |
 | --- | --: | --: | --: | --: | --: | --: | --: |
 | `knowledge` | 6 | 0 | 6 | 0 | 6 | 6 | 0 |
-| `decision` | 49 | 6 | 41 | 2 | 34 | 19 | 3 |
+| `decision` | 50 | 6 | 42 | 2 | 35 | 20 | 3 |
 | `contract` | 144 | 15 | 126 | 3 | 141 | 141 | 22 |
-| `prototype` | 92 | 0 | 92 | 0 | 92 | 92 | 32 |
+| `prototype` | 96 | 0 | 96 | 0 | 96 | 96 | 32 |
 | `module` | 5 | 1 | 4 | 0 | 0 | 0 | 0 |
 | `host-cap` | 4 | 0 | 4 | 0 | 2 | 2 | 0 |
-| `test` | 130 | 12 | 118 | 0 | 0 | 0 | 4 |
+| `test` | 132 | 12 | 120 | 0 | 0 | 0 | 4 |
 | `version` | 7 | 6 | 1 | 0 | 7 | 7 | 0 |
 
 ### 实体级关系分布
 
 | Relation     | 边数 |
 | ------------ | ---: |
-| `relates`    |  264 |
-| `dependsOn`  |  860 |
+| `relates`    |  272 |
+| `dependsOn`  |  881 |
 | `inherits`   |   56 |
 | `references` |    7 |
 | `refines`    |   18 |
 | `satisfies`  |   27 |
-| `verifies`   |  362 |
+| `verifies`   |  370 |
 | `explains`   |   36 |
-| `exercises`  |  233 |
+| `exercises`  |  238 |
 | `requires`   |    4 |
 | `owns`       |    1 |
 
@@ -177,7 +177,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 | Entity | 状态 | 标题 | Criteria | 被 T 验证 | 摘要 |
 | --- | --- | --- | --: | --: | --- |
-| [`C-A11Y-0001`](../../spec/contracts/C-A11Y-0001.yaml) | `draft` | Accessibility exposes projectable semantic objects | 10 | 1 | The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior. |
+| [`C-A11Y-0001`](../../spec/contracts/C-A11Y-0001.yaml) | `draft` | Accessibility exposes projectable semantic objects | 11 | 1 | The a11y domain records projectable semantic object facts such as identity, role, name, description, state, action, relation, and semantic tree behavior. |
 
 ### ADAPTER（1）
 
@@ -441,7 +441,7 @@ Contract 是规范性规则的主要载体。下表按 ID 的主领域聚合；�
 
 Prototype 实体描述官方协议身份，而不是某个框架组件的偶然实现。Base 通常表达基础协议，Shadcn 等 design-language 实体可通过 `inherits.prototypes` 表达继承与差异。
 
-### BASE（31）
+### BASE（35）
 
 | Entity | 状态 | 标题 | 继承 | Anatomy | Criteria | 关联 T |
 | --- | --- | --- | --- | --- | --: | --: |
@@ -475,6 +475,10 @@ Prototype 实体描述官方协议身份，而不是某个框架组件的偶然�
 | [`P-BASE-TABS-LIST`](../../spec/prototypes/P-BASE-TABS-LIST.yaml) | `draft` | Base Tabs List is the tab trigger collection and roving focus container | — | — | 16 | 5 |
 | [`P-BASE-TABS-TRIGGER`](../../spec/prototypes/P-BASE-TABS-TRIGGER.yaml) | `draft` | Base Tabs Trigger is a value-matched tab activation item | — | — | 27 | 5 |
 | [`P-BASE-TOGGLE`](../../spec/prototypes/P-BASE-TOGGLE.yaml) | `draft` | Base Toggle is a button-like persistent active control | — | — | 37 | 4 |
+| [`P-BASE-TOOLTIP`](../../spec/prototypes/P-BASE-TOOLTIP.yaml) | `draft` | Base Tooltip is a supplementary description protocol | — | 3 roles / 0 profiles | 8 | 3 |
+| [`P-BASE-TOOLTIP-CONTENT`](../../spec/prototypes/P-BASE-TOOLTIP-CONTENT.yaml) | `draft` | Base Tooltip Content is a non-modal description surface | — | — | 8 | 2 |
+| [`P-BASE-TOOLTIP-GROUP`](../../spec/prototypes/P-BASE-TOOLTIP-GROUP.yaml) | `draft` | Base Tooltip Group coordinates delay warmth and active ownership | — | — | 5 | 2 |
+| [`P-BASE-TOOLTIP-TRIGGER`](../../spec/prototypes/P-BASE-TOOLTIP-TRIGGER.yaml) | `draft` | Base Tooltip Trigger publishes description intent | — | — | 4 | 2 |
 | [`P-BASE-TRANSITION`](../../spec/prototypes/P-BASE-TRANSITION.yaml) | `draft` | Base Transition governs host-neutral perceptual presence | — | — | 12 | 2 |
 
 ### BRUTALIST（30）
@@ -721,6 +725,12 @@ Decision 实体固定已经稳定下来的设计与治理选择。它们解释�
 | [`D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001`](../../spec/decisions/D-STATE-SEMANTIC-ACCESSORS-DEPRECATION-0001.yaml) | `active` | State semantic accessors are deprecated | 5 | `def.state.fromInteraction` and `def.state.fromAccessibility` are deprecated compatibility accessors and should be removed in the 0.2 or 0.3 line after cataloged prototypes migrate to protocol-owned state handles. |
 | [`D-STATE-VALIDATION-0001`](../../spec/decisions/D-STATE-VALIDATION-0001.yaml) | `draft` | State value validation remains implementation debt | 0 | State specs define host-neutral value domains, but full runtime validation is not yet treated as an implemented v0 guarantee. |
 
+### TOOLTIP（1）
+
+| Entity | 状态 | 标题 | Criteria | 摘要 |
+| --- | --- | --- | --: | --- |
+| [`D-TOOLTIP-PROTOTYPE-BOUNDARY-0001`](../../spec/decisions/D-TOOLTIP-PROTOTYPE-BOUNDARY-0001.yaml) | `draft` | Tooltip catalogs semantic channels rather than ecosystem part names | 4 | Base Tooltip consists of Root, Trigger, and Content protocols plus an adjacent Group protocol; Portal remains an Overlay projection and Arrow is deferred until it owns a governed geometry channel. |
+
 ### TRIGGER（1）
 
 | Entity | 状态 | 标题 | Criteria | 摘要 |
@@ -748,7 +758,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | Status    | 数量 |
 | --------- | ---: |
 | `active`  |   18 |
-| `passing` |  284 |
+| `passing` |  286 |
 | `planned` |   14 |
 
 ### Implementation 类型
@@ -757,7 +767,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | ----------------- | ---: |
 | `adapter-test`    |   81 |
 | `fixture`         |   17 |
-| `module-test`     |  137 |
+| `module-test`     |  139 |
 | `runtime-test`    |   71 |
 | `workspace-check` |   10 |
 
@@ -767,7 +777,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
-| [`T-A11Y-0001`](../../spec/tests/T-A11Y-0001.yaml) | `draft` | A11y semantic object contract tests | 4 | `passing` 3 | `C-A11Y-0001`<br>`HC-A11Y-0001` | — |
+| [`T-A11Y-0001`](../../spec/tests/T-A11Y-0001.yaml) | `draft` | A11y semantic object contract tests | 5 | `passing` 3 | `C-A11Y-0001`<br>`HC-A11Y-0001` | — |
 
 ### ADAPTER（1）
 
@@ -816,7 +826,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | --- | --- | --- | --: | --- | --- | --- |
 | [`T-AS-TRIGGER-0001`](../../spec/tests/T-AS-TRIGGER-0001.yaml) | `draft` | asTrigger group merge and interaction-surface contract tests | 9 | `passing` 7 | `C-AS-TRIGGER-0001` | — |
 
-### BASE（31）
+### BASE（33）
 
 | Entity | 状态 | 标题 | Cases | Implementations | Verifies | Exercises |
 | --- | --- | --- | --: | --- | --- | --- |
@@ -850,6 +860,8 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 | [`T-BASE-TABS-LIST-0001`](../../spec/tests/T-BASE-TABS-LIST-0001.yaml) | `draft` | Base Tabs List protocol contract tests | 5 | `passing` 3 | `P-BASE-TABS-LIST`<br>`D-FOCUS-ROVING-NAVIGATION-OWNERSHIP-0001` | `P-BASE-TABS-LIST` |
 | [`T-BASE-TABS-TRIGGER-0001`](../../spec/tests/T-BASE-TABS-TRIGGER-0001.yaml) | `draft` | Base Tabs Trigger protocol contract tests | 3 | `passing` 1 | `P-BASE-TABS-TRIGGER` | `P-BASE-TABS-TRIGGER` |
 | [`T-BASE-TOGGLE-0001`](../../spec/tests/T-BASE-TOGGLE-0001.yaml) | `draft` | Base Toggle protocol contract tests | 6 | `passing` 1 | `P-BASE-TOGGLE` | `P-BASE-TOGGLE` |
+| [`T-BASE-TOOLTIP-0001`](../../spec/tests/T-BASE-TOOLTIP-0001.yaml) | `draft` | Base Tooltip compound protocol tests | 5 | `passing` 1 | `P-BASE-TOOLTIP`<br>`P-BASE-TOOLTIP-TRIGGER`<br>`P-BASE-TOOLTIP-CONTENT` | `P-BASE-TOOLTIP`<br>`P-BASE-TOOLTIP-TRIGGER`<br>`P-BASE-TOOLTIP-CONTENT` |
+| [`T-BASE-TOOLTIP-GROUP-0001`](../../spec/tests/T-BASE-TOOLTIP-GROUP-0001.yaml) | `draft` | Base Tooltip Group coordination tests | 2 | `passing` 1 | `P-BASE-TOOLTIP-GROUP` | `P-BASE-TOOLTIP-GROUP`<br>`P-BASE-TOOLTIP` |
 | [`T-BASE-TRANSITION-0001`](../../spec/tests/T-BASE-TRANSITION-0001.yaml) | `draft` | Base Transition prototype protocol contract tests | 5 | `passing` 1 | `P-BASE-TRANSITION` | `C-AS-TRANSITION-0001`<br>`C-LIFECYCLE-0008`<br>`C-DELAY-0001`<br>`P-BASE-TRANSITION` |
 
 ### BOUNDARY（1）
@@ -1242,7 +1254,7 @@ Test 实体连接可寻址 case、被验证的实体准则和仓库中的 execut
 
 ## 十一、当前快照的结构性限制
 
-- 392/437 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
+- 399/444 个实体仍为 draft；catalog 广度不能直接解释为稳定度。
 - 当前只有 5 个 Module 与 4 个 Host Capability 实体；不要据此推断实现中只有这些能力。
 - Adapter 与 Compiler 尚无一级实体类型，因此宿主 profile、支持矩阵和 translation-layer 权衡仍可能主要存在于实现、旧契约和 records。
 - 生成器只验证 schema 与关系完整性，不验证网站内容、README、package exports 或运行时代码与实体完全一致。
