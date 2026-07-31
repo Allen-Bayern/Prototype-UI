@@ -152,6 +152,8 @@ export {
   brutalistDialogHeader,
   brutalistDialogFooter,
 } from './dialog';
+
+export * from './scroll-area';
 export type {
   BrutalistDialogRootProps,
   BrutalistDialogRootExposes,

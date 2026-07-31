@@ -1,5 +1,5 @@
 // packages/adapters/web-component/src/adapt.ts
-import type { Prototype } from '@proto.ui/core';
+import type { Prototype, ScrollProjectionPreference } from '@proto.ui/core';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { type RawPropsSource } from '@proto.ui/module-props';
@@ -77,6 +77,7 @@ export interface WebComponentAdapterOptions<Props extends PropsBaseType = PropsB
     allowContinuousAttr?: boolean;
     allowStringVar?: boolean;
   };
+  scrollProjection?: ScrollProjectionPreference;
   overlayLayer?:
     | (OverlayZIndexLayerSchedulerOptions & {
         scheduler?: OverlayLayerScheduler;
@@ -101,6 +102,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
   const schedule = opt.schedule ?? ((task) => queueMicrotask(task));
   const getMeta = opt.getMeta ?? createDefaultMetaGetter();
   const exposeStateWebMode = opt.exposeStateWebMode;
+  const scrollProjection = opt.scrollProjection;
   const hasCustomOverlayLayerConfig =
     !!opt.overlayLayer &&
     (typeof opt.overlayLayer.baseZIndex !== 'undefined' ||
@@ -324,6 +326,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
             effectsPort: createWebEffectsPort(applier),
             getMeta,
             exposeStateWebMode,
+            scrollProjection,
             setExposes,
             runInCallbackScope,
             isViewReady: () => thisEl.isConnected && !thisEl.closest(`[${PUI_VIEW_DETACHED_ATTR}]`),

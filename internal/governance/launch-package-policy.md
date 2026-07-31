@@ -151,6 +151,7 @@ The following packages should be treated as internal or dependency-directed for 
 - `@proto.ui/module-rule`
 - `@proto.ui/module-rule-expose-state-web`
 - `@proto.ui/module-rule-meta`
+- `@proto.ui/module-scroll`
 - `@proto.ui/module-state`
 - `@proto.ui/module-state-accessibility`
 - `@proto.ui/module-state-interaction`

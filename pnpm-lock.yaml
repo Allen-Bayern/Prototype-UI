@@ -247,6 +247,9 @@ importers:
       '@proto.ui/module-rule-meta':
         specifier: workspace:*
         version: link:../../modules/rule-meta
+      '@proto.ui/module-scroll':
+        specifier: workspace:*
+        version: link:../../modules/scroll
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -329,6 +332,9 @@ importers:
       '@proto.ui/module-rule-meta':
         specifier: workspace:*
         version: link:../../modules/rule-meta
+      '@proto.ui/module-scroll':
+        specifier: workspace:*
+        version: link:../../modules/scroll
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -402,6 +408,9 @@ importers:
       '@proto.ui/module-rule-meta':
         specifier: workspace:*
         version: link:../../modules/rule-meta
+      '@proto.ui/module-scroll':
+        specifier: workspace:*
+        version: link:../../modules/scroll
       '@proto.ui/module-test-sys':
         specifier: workspace:*
         version: link:../../modules/test-sys
@@ -743,6 +752,27 @@ importers:
         specifier: workspace:*
         version: link:../rule
 
+  packages/modules/scroll:
+    dependencies:
+      '@proto.ui/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@proto.ui/module-anatomy':
+        specifier: workspace:*
+        version: link:../anatomy
+      '@proto.ui/module-base':
+        specifier: workspace:*
+        version: link:../base
+      '@proto.ui/module-context':
+        specifier: workspace:*
+        version: link:../context
+      '@proto.ui/module-state':
+        specifier: workspace:*
+        version: link:../state
+      '@proto.ui/types':
+        specifier: workspace:*
+        version: link:../../types
+
   packages/modules/state:
     dependencies:
       '@proto.ui/core':
@@ -827,6 +857,9 @@ importers:
       '@proto.ui/core':
         specifier: workspace:*
         version: link:../../core
+      '@proto.ui/hooks':
+        specifier: workspace:*
+        version: link:../../hooks
       '@proto.ui/prototypes-base':
         specifier: workspace:*
         version: link:../base
@@ -959,6 +992,9 @@ importers:
       '@proto.ui/module-rule-meta':
         specifier: workspace:*
         version: link:../modules/rule-meta
+      '@proto.ui/module-scroll':
+        specifier: workspace:*
+        version: link:../modules/scroll
       '@proto.ui/module-state':
         specifier: workspace:*
         version: link:../modules/state

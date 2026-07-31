@@ -308,6 +308,7 @@ Examples include:
 - rule
 - expose
 - boundary
+- scroll
 
 These packages should usually be understood as:
 

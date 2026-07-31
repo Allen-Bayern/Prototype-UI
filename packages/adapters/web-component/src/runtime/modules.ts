@@ -1,9 +1,14 @@
-import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
+import {
+  createCapsWiring,
+  createWebMoveGestureHost,
+  type LogicalInstanceToken,
+} from '@proto.ui/adapter-base';
 import {
   HOST_ELEMENT_CAP,
   type EffectsPort,
   type FocusEntryConfig,
   type FocusRequestOptions,
+  type ScrollProjectionPreference,
 } from '@proto.ui/core';
 import {
   createDomOrderObserver,
@@ -68,6 +73,7 @@ import {
 import { type RawPropsSource, RAW_PROPS_SOURCE_CAP } from '@proto.ui/module-props';
 import { RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP } from '@proto.ui/module-rule-expose-state-web';
 import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
+import { createWebScrollSurfaceHost, SCROLL_SURFACE_HOST_CAP } from '@proto.ui/module-scroll';
 import { type PropsBaseType } from '@proto.ui/types';
 
 import {
@@ -242,6 +248,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     allowContinuousAttr?: boolean;
     allowStringVar?: boolean;
   };
+  scrollProjection?: ScrollProjectionPreference;
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
   isViewReady: () => boolean;
@@ -257,6 +264,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     effectsPort,
     getMeta,
     exposeStateWebMode,
+    scrollProjection,
     setExposes,
   } = args;
 
@@ -419,6 +427,15 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       [BOUNDARY_HOST_BRIDGE_CAP, createWebBoundaryHostBridge()],
     ])
     .use('positioning', [[ANCHORED_POSITION_HOST_CAP, createFloatingUiAnchoredPositionHost()]])
+    .use('scroll', [
+      [
+        SCROLL_SURFACE_HOST_CAP,
+        createWebScrollSurfaceHost(el, {
+          moveGestureHost: createWebMoveGestureHost(),
+          preference: scrollProjection,
+        }),
+      ],
+    ])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
       [
