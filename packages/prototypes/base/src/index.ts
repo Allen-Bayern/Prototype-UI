@@ -19,3 +19,5 @@ export { default as select } from './select';
 export { default as hoverCard } from './hover-card';
 export { default as tooltip } from './tooltip';
 export { default as dialog } from './dialog';
+export * from './scroll-area';
+export { default as scrollAreaRoot } from './scroll-area';

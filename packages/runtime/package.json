@@ -30,6 +30,7 @@
     "@proto.ui/module-hit-participation": "workspace:*",
     "@proto.ui/module-overlay": "workspace:*",
     "@proto.ui/module-positioning": "workspace:*",
+    "@proto.ui/module-scroll": "workspace:*",
     "@proto.ui/module-presence": "workspace:*",
     "@proto.ui/module-test-sys": "workspace:*"
   },

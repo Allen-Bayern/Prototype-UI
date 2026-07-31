@@ -119,6 +119,6 @@ Important projections include:
 
 - `apps/workspace/public/spec-workspace.json`, generated for the internal workspace UI;
 - release snapshots under `artifacts/spec-releases/` when created by the release workflow;
-- `internal/agent/PROJECT-UNDERSTANDING.zh-CN.md`, generated for Agent orientation.
+- `internal/agent/PROJECT-UNDERSTANDING.zh-CN.md`, generated locally for Agent orientation and intentionally ignored by Git.
 
-Generated views are disposable projections. Change the entities or the generator, then regenerate; do not hand-edit a generated view.
+Generated views are disposable projections. Change the entities or the generator, then regenerate; do not hand-edit or commit a local generated view.

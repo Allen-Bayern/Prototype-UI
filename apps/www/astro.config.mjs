@@ -373,6 +373,11 @@ export default defineConfig({
                   translations: { en: 'Dialog', 'zh-CN': 'Dialog' },
                   slug: 'ui-libraries/brutalist/components/dialog',
                 },
+                {
+                  label: 'Scroll Area',
+                  translations: { en: 'Scroll Area', 'zh-CN': 'Scroll Area' },
+                  slug: 'ui-libraries/brutalist/components/scroll-area',
+                },
               ],
             },
           ],

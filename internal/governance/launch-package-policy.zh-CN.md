@@ -153,6 +153,7 @@ Proto UI 当前已经拥有较多 workspace package，但第一次公开发布�
 - `@proto.ui/module-rule`
 - `@proto.ui/module-rule-expose-state-web`
 - `@proto.ui/module-rule-meta`
+- `@proto.ui/module-scroll`
 - `@proto.ui/module-state`
 - `@proto.ui/module-state-accessibility`
 - `@proto.ui/module-state-interaction`
