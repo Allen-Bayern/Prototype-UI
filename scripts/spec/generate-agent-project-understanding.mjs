@@ -84,20 +84,23 @@ if (checkOnly) {
     current = await readFile(outputPath, 'utf8');
   } catch (error) {
     if (error && typeof error === 'object' && error.code === 'ENOENT') {
-      throw new Error(
-        `Generated Agent document is missing: ${relativeToRoot(outputPath)}. Run pnpm spec:docs:agent.`
-      );
+      current = undefined;
+    } else {
+      throw error;
     }
-    throw error;
   }
 
-  if (current !== document) {
+  if (current === undefined) {
+    console.log(
+      `Agent project understanding is renderable; local projection is absent as expected: ${relativeToRoot(outputPath)}`
+    );
+  } else if (current !== document) {
     throw new Error(
       `Generated Agent document is stale: ${relativeToRoot(outputPath)}. Run pnpm spec:docs:agent.`
     );
+  } else {
+    console.log(`Agent project understanding is current: ${relativeToRoot(outputPath)}`);
   }
-
-  console.log(`Agent project understanding is current: ${relativeToRoot(outputPath)}`);
 } else {
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, document);
@@ -133,7 +136,7 @@ function renderDocument({
   const lines = [
     '# Proto UI 项目理解：spec 工作区快照',
     '',
-    '> 此文件由 `scripts/spec/generate-agent-project-understanding.mjs` 生成。请勿手工编辑；修改 spec 或生成器后运行 `corepack pnpm@10.32.1 spec:docs:agent`。',
+    '> 此文件是由 `scripts/spec/generate-agent-project-understanding.mjs` 生成且被 Git 忽略的本地一次性投影。请勿手工编辑或提交；修改 spec 或生成器后运行 `corepack pnpm@10.32.1 spec:docs:agent` 重新生成。',
     '',
     '本文面向需要快速建立 Proto UI 全局认知的 Agent。它把当前检出版本中的 spec 实体组织成项目模型、协议边界、验证关系与完整索引，同时明确哪些结论不能由 spec 单独推出。',
     '',

@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Move Gesture host binding 必须把一个可解析 target 与 axis/activation hint 绑定为有界 session。宿主接受 primary contact 后发出一次 start、零到多次有序 move，并最终发出一次 end 或 cancel。Samples 使用宿主本地 position、delta 与 totalDelta；session replacement、target detach、host cancellation、ownership loss 与 dispose 必须终止旧会话并释放资源。该契约不授予 Drag and Drop、领域 value 或 accessibility widget semantics。
 
+
   en: >-
     A Move Gesture host binding must bind one resolvable target plus axis and activation hints into a bounded session. After the host accepts a primary contact it emits one start, zero or more ordered moves, and eventually exactly one end or cancel. Samples use host-local position, delta, and totalDelta; session replacement, target detach, host cancellation, ownership loss, and disposal must terminate the old session and release resources. This contract grants no Drag and Drop, domain-value, or accessibility-widget semantics.
+
 
 criteria:
   - id: C-MOVE-GESTURE-0001-A

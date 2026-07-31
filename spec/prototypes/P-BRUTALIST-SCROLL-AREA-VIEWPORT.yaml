@@ -17,8 +17,10 @@ criteria:
       zh-CN: >-
         Viewport 必须通过特权 `asScrollSurface().configure({ projection: 'composed' })` 表达 design-language preference，由 host adapter 解析能力与 fallback。
 
+
       en: >-
         Viewport must express its design-language preference through privileged `asScrollSurface().configure({ projection: 'composed' })`, leaving capability resolution and fallback to the host adapter.
+
 
   - id: P-BRUTALIST-SCROLL-AREA-VIEWPORT-SURFACE
     text:

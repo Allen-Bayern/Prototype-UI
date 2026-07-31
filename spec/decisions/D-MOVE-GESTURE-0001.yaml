@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Proto UI 必须先以内部 host capability 表达 Move Gesture，并由 Scroll Thumb 验证其 session 生命周期。Core 只携带 host-neutral binding/sample/lease vocabulary；各宿主负责 gesture recognition、输入所有权、capture/arena、默认行为协调与 target lifetime。现阶段不得发布 `asMove()`、`asDrag()` 或完整 Drag and Drop API；第二个独立领域消费者出现后，才评估 Module 与 privileged asHook 边界。
 
+
   en: >-
     Proto UI must first express Move Gesture as an internal host capability and validate its session lifecycle with Scroll Thumb. Core carries only host-neutral binding, sample, and lease vocabulary, while each host owns gesture recognition, input ownership, capture or arena mechanics, default-action coordination, and target lifetime. This phase must not publish `asMove()`, `asDrag()`, or a full Drag and Drop API; the Module and privileged-asHook boundary will be evaluated after a second independent domain consumer appears.
+
 
 criteria:
   - id: D-MOVE-GESTURE-0001-A

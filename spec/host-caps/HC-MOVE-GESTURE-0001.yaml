@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Move Gesture host capability 必须把 logical binding 翻译为当前宿主的连续移动 recognizer。Web 可以使用 Pointer Events/pointer capture，Flutter 可以使用 GestureRecognizer/Gesture Arena；宿主必须协调 direct manipulation 与 selection 等默认行为，维持单一所有权，报告本地 samples，并在 end、cancel、replacement、detach 或 dispose 时释放全部资源。
 
+
   en: >-
     The Move Gesture host capability must translate a logical binding into the current host's continuous-movement recognizer. Web may use Pointer Events and pointer capture, while Flutter may use GestureRecognizer and Gesture Arena; the host must coordinate direct-manipulation and selection defaults, retain single ownership, report local samples, and release all resources on end, cancel, replacement, detach, or disposal.
+
 
 criteria:
   - id: HC-MOVE-GESTURE-0001-A

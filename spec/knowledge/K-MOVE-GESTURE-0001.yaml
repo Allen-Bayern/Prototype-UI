@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     Move Gesture 是 primary contact 被宿主接受后形成的有界连续移动会话。它提供 start、move、end、cancel 与宿主本地坐标 sample，但不决定被移动对象、值域、尺寸约束、scroll range、drag payload、drop target、collision、reorder 或 accessibility semantics。Scroll Thumb、Slider、Resize 与未来 Drag and Drop 可以复用该 substrate，再由各自领域把移动解释为 request 或行为。
 
+
   en: >-
     Move Gesture is a bounded continuous-movement session formed after a host accepts a primary contact. It provides start, move, end, cancel, and host-local coordinate samples without deciding the moved object, value range, size constraints, scroll range, drag payload, drop target, collision, reorder, or accessibility semantics. Scroll Thumb, Slider, Resize, and future Drag and Drop may reuse this substrate and let their own domains interpret movement as requests or behavior.
+
 
 criteria:
   - id: K-MOVE-GESTURE-0001-A

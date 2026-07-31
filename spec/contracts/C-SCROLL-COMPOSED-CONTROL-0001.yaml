@@ -8,8 +8,10 @@ statement:
   zh-CN: >-
     在 composed projection 中，Scrollbar control route 必须为后代 Thumb 建立 Move Gesture session。Host 使用 Thumb-local press offset 与当前 track travel 把 samples 映射为 normalized `control-drag` request，驱动同一个宿主 scroll engine；Thumb 的最终位置必须继续从实际 surface facts 投射。Thumb 不因此成为第二个 scroll-state owner、独立 Event/Focus/A11y control 或 Drag and Drop source。
 
+
   en: >-
     In composed projection, the Scrollbar control route must establish a Move Gesture session for its descendant Thumb. The host combines Thumb-local press offset and current track travel to map samples into normalized `control-drag` requests against the same host scrolling engine; final Thumb position must continue to project from actual surface facts. Thumb does not thereby become a second scroll-state owner, independent Event, Focus, or accessibility control, or a Drag and Drop source.
+
 
 criteria:
   - id: C-SCROLL-COMPOSED-CONTROL-0001-A

@@ -229,6 +229,22 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
       await import('../../../../../packages/prototypes/base/src/hover-card/content.proto');
     registerPrototype('base-hover-card-content', mod.default);
   },
+  'base-tooltip-group': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/tooltip/group.proto');
+    registerPrototype('base-tooltip-group', mod.default);
+  },
+  'base-tooltip-root': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/tooltip/root.proto');
+    registerPrototype('base-tooltip-root', mod.default);
+  },
+  'base-tooltip-trigger': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/tooltip/trigger.proto');
+    registerPrototype('base-tooltip-trigger', mod.default);
+  },
+  'base-tooltip-content': async () => {
+    const mod = await import('../../../../../packages/prototypes/base/src/tooltip/content.proto');
+    registerPrototype('base-tooltip-content', mod.default);
+  },
   'base-dropdown-root': async () => {
     const mod = await import('../../../../../packages/prototypes/base/src/dropdown/root.proto');
     registerPrototype('base-dropdown-root', mod.default);
