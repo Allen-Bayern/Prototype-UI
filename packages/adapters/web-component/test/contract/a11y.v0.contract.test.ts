@@ -172,4 +172,56 @@ describe('contract: adapter-web-component / a11y projection (v0)', () => {
     el.getExposes().setDescription('tooltip-b');
     expect(el.getAttribute('aria-describedby')).toBe('host-help tooltip-b');
   });
+
+  it('A11Y-WC-0300: projects live, atomic, and busy a11y states to host attributes', () => {
+    // T-A11Y-0001-CASE-LIVE-ATOMIC-BUSY
+    const P = definePrototype({
+      name: 'x-a11y-wc-live-atomic-busy',
+      setup(def) {
+        const live = def.state.string('live', 'polite');
+        const atomic = def.state.bool('atomic', true);
+        const busy = def.state.bool('busy', false);
+        def.a11y.state('live', live);
+        def.a11y.state('atomic', atomic);
+        def.a11y.state('busy', busy);
+        def.expose.method('setLive', (value: string) => live.set(value));
+        def.expose.method('setAtomic', (value: boolean) => atomic.set(value));
+        def.expose.method('setBusy', (value: boolean) => busy.set(value));
+        return (r) => r.el('div', 'region');
+      },
+    });
+
+    if (!customElements.get(P.name)) {
+      customElements.define(
+        P.name,
+        AdaptToWebComponent(P, { register: false, registerAs: P.name })
+      );
+    }
+
+    const el = document.createElement(P.name) as HTMLElement & {
+      getExposes(): {
+        setLive(value: string): void;
+        setAtomic(value: boolean): void;
+        setBusy(value: boolean): void;
+      };
+    };
+    document.body.appendChild(el);
+
+    expect(el.getAttribute('aria-live')).toBe('polite');
+    expect(el.getAttribute('aria-atomic')).toBe('true');
+    expect(el.getAttribute('aria-busy')).toBe('false');
+
+    el.getExposes().setLive('assertive');
+    expect(el.getAttribute('aria-live')).toBe('assertive');
+
+    el.getExposes().setAtomic(false);
+    expect(el.getAttribute('aria-atomic')).toBe('false');
+
+    el.getExposes().setBusy(true);
+    expect(el.getAttribute('aria-busy')).toBe('true');
+
+    el.getExposes().setBusy(false);
+    expect(el.getAttribute('aria-busy')).toBe('false');
+    el.remove();
+  });
 });
