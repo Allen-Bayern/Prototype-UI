@@ -463,9 +463,6 @@ importers:
       '@proto.ui/module-collection':
         specifier: workspace:*
         version: link:../modules/collection
-      '@proto.ui/module-text-control':
-        specifier: workspace:*
-        version: link:../modules/text-control
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../types
