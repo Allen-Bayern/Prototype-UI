@@ -6,18 +6,24 @@ Contributor-authored Neo-Brutalist Proto UI style library.
 
 ## Purpose
 
-Provides a design-language foundation on top of Proto UI Base: square geometry, strong structural borders, hard offset shadows, flat paired colors, and explicit light/dark theme variables.
+Provides a Proto UI design-language foundation: square geometry, strong structural borders, hard offset shadows, flat paired colors, and explicit light/dark theme variables. Families project Base only when they share a transferable Base protocol; styled-only visual prototypes are defined directly.
 
 This package is not owned by or claimed to be compatible with a named third-party component system. It uses only general Neo-Brutalist visual references.
 
-## Current shipped families
+## Current workspace scope
 
-This package currently includes:
+This private rc.7 workspace package includes:
 
 - shared Brutalist style tokens and theme grammar;
 - package and CLI style-preset integration;
 - Button as the reference family;
-- stable Base family projections: Toggle, Switch, Tabs, Hover Card, Dropdown, Select, Dialog.
+- stable Base family projections: Toggle, Switch, Tabs, Hover Card, Dropdown, Select, and Dialog;
+- the Brutalist Separator projection over Base Separator;
+- the direct styled-only Brutalist Skeleton;
+- private source subpaths for every included family;
+- no public `proto-ui add` entries.
+
+Brutalist Skeleton is passive, contentless, and excluded from the accessibility tree. The consuming async/loading region—not Skeleton—owns busy state, announcements, content replacement timing, and focus continuity.
 
 Additional prototype families continue to land through focused split PRs under incubation #323.
 
@@ -32,10 +38,12 @@ Additional prototype families continue to land through focused split PRs under i
 
 Every fill co-selects its foreground. Solid accents keep black text in both Light and Dark. There is no `outline` variant: structural 2px borders are part of the shared grammar.
 
-## Family import
+## Family imports
 
 ```ts
 import { brutalistButton } from '@proto.ui/prototypes-brutalist/button';
+import { BrutalistSeparatorRoot } from '@proto.ui/prototypes-brutalist/separator';
+import { BrutalistSkeletonRoot } from '@proto.ui/prototypes-brutalist/skeleton';
 ```
 
 ## Maintenance

@@ -7,6 +7,8 @@ export type {
   BrutalistButtonSize,
   BrutalistButtonVariant,
 } from './button';
+export * from './separator';
+export * from './skeleton';
 
 export { default as toggle, default as brutalistToggle } from './toggle';
 export type {

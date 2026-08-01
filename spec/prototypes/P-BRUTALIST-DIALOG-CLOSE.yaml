@@ -6,12 +6,15 @@ since: 0.2.0-rc.7
 summary: >-
   Brutalist Dialog Close inherits Base Dialog Close behavior ownership and provides only an inheritable close surface with no visual styling of its own. The projection is limited to Base inheritance and the direct entry; the visual close-icon variant is a separate prototype (P-BRUTALIST-DIALOG-CLOSE-ICON).
 
+
 statement:
   en: >-
     Brutalist Dialog Close is a draft Proto UI-maintained Neo-Brutalist design-language projection over Base Dialog Close. It preserves inherited Base protocol semantics (close/disabled state ownership) and adds the direct prototype entry only; it contributes no visual styling, acting as a bare slot-bearing close host for composing sibling parts.
 
+
   zh-CN: >-
     Brutalist Dialog Close 是 Proto UI 维护的 draft Neo-Brutalist design-language 投射，建立在 Base Dialog Close 之上。它保留继承的 Base 协议语义（close/disabled 状态归属），仅增加直接 prototype 入口；自身不贡献视觉样式，作为承载 slot 的纯 close 宿主供组合兄弟部件使用。
+
 
 criteria:
   - id: P-BRUTALIST-DIALOG-CLOSE-BASE-INHERITANCE
@@ -19,8 +22,10 @@ criteria:
       en: >-
         The prototype must inherit Base Dialog Close through `asDialogClose()` once and must not redefine Base close or disabled protocol semantics. Visual projection may only consume the projected state handles.
 
+
       zh-CN: >-
         该 prototype 必须通过 `asDialogClose()` 一次性继承 Base Dialog Close，不得重定义 Base 的 close 或 disabled 协议语义；视觉投射只能消费投影出的 state handles。
+
 
   - id: P-BRUTALIST-DIALOG-CLOSE-ENTRY
     text:
@@ -42,5 +47,6 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Dialog Close projection with real public-API criteria (Base inheritance, direct entry) on rc.7. Not present in immutable rc.6.
+
 
 tags: [prototype, brutalist, neo-brutalist, visual, delta, dialog]

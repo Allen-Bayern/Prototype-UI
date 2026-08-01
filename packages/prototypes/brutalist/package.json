@@ -28,6 +28,16 @@
       "import": "./src/button/index.ts",
       "default": "./src/button/index.ts"
     },
+    "./separator": {
+      "types": "./src/separator/index.ts",
+      "import": "./src/separator/index.ts",
+      "default": "./src/separator/index.ts"
+    },
+    "./skeleton": {
+      "types": "./src/skeleton/index.ts",
+      "import": "./src/skeleton/index.ts",
+      "default": "./src/skeleton/index.ts"
+    },
     "./toggle": {
       "types": "./src/toggle/index.ts",
       "import": "./src/toggle/index.ts",
@@ -69,7 +79,7 @@
       "default": "./src/scroll-area/index.ts"
     }
   },
-  "description": "Neo-Brutalist Proto UI style library: shared tokens plus Button and stable Base family projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog/Scroll Area).",
+  "description": "Private Neo-Brutalist Proto UI workspace library: shared tokens, Button, stable Base projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog/Scroll Area/Separator), and a direct styled-only Skeleton.",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {

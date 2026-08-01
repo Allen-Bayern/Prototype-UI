@@ -6,12 +6,15 @@ since: 0.2.0-rc.7
 summary: >-
   Brutalist Dropdown Menu Root inherits Base Dropdown Menu ownership and projects a style-family root: Base open/collection/disabled protocol preserved, with visual behavior delegated to its Trigger, Content, and Item parts.
 
+
 statement:
   en: >-
     Brutalist Dropdown Menu is a draft Proto UI-maintained Neo-Brutalist design-language projection over Base Dropdown Menu. It preserves inherited Base protocol semantics (open state, controlled ownership, collection order, open-entry policy, request arbitration, disabled state) and adds only visual/style behavior delegated to its Trigger, Content, and Item prototype parts.
 
+
   zh-CN: >-
     Brutalist Dropdown Menu 是 Proto UI 维护的 draft Neo-Brutalist design-language 投射，建立在 Base Dropdown Menu 之上。它保留继承的 Base 协议语义（open state、受控 ownership、collection order、open-entry policy、request arbitration、disabled state），仅增加委派给其 Trigger、Content 与 Item prototype 部件的视觉/style 行为。
+
 
 criteria:
   - id: P-BRUTALIST-DROPDOWN-MENU-BASE-INHERITANCE
@@ -19,8 +22,10 @@ criteria:
       en: >-
         The prototype must inherit Base Dropdown Menu through `asDropdownRoot()` once and must not redefine Base open, controlled ownership, collection order, open-entry policy, request arbitration, or disabled protocol semantics. It is a structural root and adds no root fill of its own.
 
+
       zh-CN: >-
         该 prototype 必须通过 `asDropdownRoot()` 一次性继承 Base Dropdown Menu，不得重定义 Base 的 open、受控 ownership、collection order、open-entry policy、request arbitration 或 disabled 协议语义；它是结构根，自身不添加根填充。
+
 
   - id: P-BRUTALIST-DROPDOWN-MENU-ENTRY
     text:
@@ -44,5 +49,6 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Dropdown Menu root projection with real public-API criteria (Base inheritance, structural root entry) on the rc.7 release train. Not present in the immutable rc.6 snapshot.
+
 
 tags: [prototype, brutalist, neo-brutalist, visual, delta, dropdown]

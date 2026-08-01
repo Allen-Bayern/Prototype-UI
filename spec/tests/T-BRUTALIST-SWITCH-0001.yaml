@@ -6,6 +6,7 @@ since: 0.2.0-rc.7
 summary: >-
   Covers the Brutalist Switch public API (root checked-fill pair without padding swap, thumb single-movement checked translation, press/focus/disabled) against P-BRUTALIST-SWITCH and P-BRUTALIST-SWITCH-THUMB criteria.
 
+
 cases:
   - id: T-BRUTALIST-SWITCH-0001-CASE-1
     title: Direct entry and Base Switch inheritance for root and thumb
@@ -71,6 +72,7 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Switch coverage mapped 1:1 to the rc.7 P criteria (entry/inheritance, single-movement, checked pair, interaction, visual grammar). Not present in the immutable rc.6 snapshot.
+
 
 tags:
   - test

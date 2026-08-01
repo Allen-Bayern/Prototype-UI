@@ -20,10 +20,16 @@
 - Content 回归 `flex-1 outline-none` 的无装饰内容承载角色，不再由 Tabs 原型强制生成 border、background、padding 和 shadow；需要卡片面板的用法应在消费端内容中显式组合。
 - Proto style CSS 编译器新增 `w-fit`、`h-fit`、`flex-1`、`shadow-sm` 与 outline 相关 token 支持，确保上述原型样式可进入 Web 产物而不会退化为 unsupported token。
 - 本轮只收敛默认 variant 的横向主路径；`line` variant、垂直布局、显式 dark 分支、SVG 后代规则与完整原生 API/data forwarding 仍保留为后续 parity gap。
+
 ### CLI Brutalist CSS-only style preset
 
 - `proto-ui init --prototypes brutalist` 现在是一等 CSS-only style preset。它会写出 Brutalist 主题（`brutalist-theme.css`，包含 Light/Dark 变量与扁平 canary/mint/lavender/coral/sky 强调调色板），以及从官方 Brutalist prototype 源码扫描生成的 Proto UI token closure，使目标项目在尚未安装任何 prototype package 之前即可获得可用初始 CSS。
 - 该 preset 故意为 CSS-only。私有 workspace package `@proto.ui/prototypes-brutalist`（Button reference family）暂无公开安装路径，且不在 rc.7 BOM 中；在该 package 经过后续 release train 公开发布之前，CLI `add` 组件注册表中不会暴露任何 Brutalist 条目。
+
+### Separator 协议与 Skeleton 视觉原型
+
+- Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为、mounted 后的实时投影，并确保 decorative 模式不残留仅属于语义模式的 orientation。
+- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 视觉投射与直接定义的 styled-only Skeleton source subpath。Skeleton 是 passive、contentless、aria-hidden 且尺寸由消费端拥有的视觉原型；父级 loading region 继续拥有 busy 状态、announcement、替换时机与焦点连续性。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
 
 ## 构建与发布
 
@@ -37,7 +43,7 @@
 ### Bundle、文档与 CI 反馈
 
 - Lucide 固定图标入口与全图标 registry renderer 解耦，代表性单图标 `icons/x` 的 gzip 体积由 119,273 B 降至 1,560 B，避免单个图标传递引入完整 registry。
-- Lucide Gallery 改为有限首屏服务端渲染，英文页面原始 HTML 下降约 63%。内部 Demo Matrix 恢复每个 demo 同时并排挂载 Web Component、React 与 Vue，保留快速跨 adapter 人工验收能力；其中英文路由标记为 development-only draft，不再进入生产文档产物与 sitemap。
+- Lucide Gallery 改为有限首屏服务端渲染，英文页面原始 HTML 下降约 63%。内部 Demo Matrix 恢复每个 demo 同时并排挂载 Web Component、React 与 Vue，保留快速跨 adapter 人工验收能力；中英文路由均标记为 development-only draft，不再进入生产文档产物与 sitemap。
 - CI 现在根据 workspace 生产依赖图计算受影响的公开 package，并为代表性 package entry 固化 gzip budgets；`main` 与手动触发仍执行全量公开包验证。
 - 新增可重复的 monorepo analysis snapshot，记录构建、测试、tarball、bundle、文档产物与 package 更新频率，使上述优化可以在相同口径下复查。
 
@@ -54,4 +60,4 @@
 
 ## 仍待发布准备
 
-- 本草案不代表 rc.7 已经形成可安装发行。后续仍需创建 draft version entity、对齐 `VERSION` 与全部公开 package manifest、生成 package BOM，并通过完整 release rehearsal 后才能进入发布评审。
+- 本草案不代表 rc.7 已可安装。draft version entity、已对齐的公开 package manifest 与 37-package BOM 已存在；完整 release rehearsal、不可变 spec snapshot、Git tag、GitHub prerelease 与 npm publication 仍需在激活前单独验证。

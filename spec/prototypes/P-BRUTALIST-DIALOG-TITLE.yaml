@@ -6,12 +6,15 @@ since: 0.2.0-rc.7
 summary: >-
   Brutalist Dialog Title inherits Base Dialog Title relations and projects heavy uppercase heading typography with flat foreground. The projection is limited to Base inheritance, the direct entry, and heading typography styling.
 
+
 statement:
   en: >-
     Brutalist Dialog Title is a draft Proto UI-maintained Neo-Brutalist design-language projection over Base Dialog Title. It preserves inherited Base protocol semantics (title relation ownership) and adds only visual/style behavior: bold uppercase tracking-tight typography with flat `text-foreground`, and the direct prototype entry.
 
+
   zh-CN: >-
     Brutalist Dialog Title 是 Proto UI 维护的 draft Neo-Brutalist design-language 投射，建立在 Base Dialog Title 之上。它保留继承的 Base 协议语义（标题关系归属），仅增加视觉/style 行为：加粗大写 tracking-tight 排版与平面 `text-foreground`，以及直接 prototype 入口。
+
 
 criteria:
   - id: P-BRUTALIST-DIALOG-TITLE-BASE-INHERITANCE
@@ -19,8 +22,10 @@ criteria:
       en: >-
         The prototype must inherit Base Dialog Title through `asDialogTitle()` once and must not redefine Base title relation protocol semantics. Visual projection may only consume the projected state handles.
 
+
       zh-CN: >-
         该 prototype 必须通过 `asDialogTitle()` 一次性继承 Base Dialog Title，不得重定义 Base 的 title 关系协议语义；视觉投射只能消费投影出的 state handles。
+
 
   - id: P-BRUTALIST-DIALOG-TITLE-ENTRY
     text:
@@ -31,8 +36,10 @@ criteria:
       en: >-
         The title surface uses `font-bold uppercase tracking-tight text-foreground` — flat heading typography with bold weight, uppercase casing, tight tracking, and a flat theme-token foreground without borders, shadows, or fills of its own.
 
+
       zh-CN: >-
         title 表面使用 `font-bold uppercase tracking-tight text-foreground`——平面标题排版，加粗字重、大写字形、紧凑字距，以及平面主题 token 前景，自身不带边框、阴影或填充。
+
 
 sources:
   - path: packages/prototypes/brutalist/src/dialog/title.proto.ts
@@ -50,5 +57,6 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Dialog Title projection with real public-API criteria (Base inheritance, direct entry, heading typography visual grammar) on rc.7. Not present in immutable rc.6.
+
 
 tags: [prototype, brutalist, neo-brutalist, visual, delta, dialog]

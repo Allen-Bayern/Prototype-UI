@@ -113,12 +113,12 @@ export function applyWebA11ySnapshot(
 
   for (const [key, attr] of Object.entries(ARIA_STATE_ATTRS)) {
     if (Object.prototype.hasOwnProperty.call(snapshot.states, key)) {
-      setNullableBooleanAttr(el, attr, snapshot.states[key]);
+      setA11yStateAttr(el, attr, snapshot.states[key]);
     }
   }
 
   if (Object.prototype.hasOwnProperty.call(snapshot.states, 'hidden')) {
-    setNullableBooleanAttr(el, 'aria-hidden', snapshot.states.hidden);
+    setA11yStateAttr(el, 'aria-hidden', snapshot.states.hidden);
     setBooleanPresenceAttr(el, 'hidden', snapshot.states.hidden);
   }
 
@@ -147,10 +147,10 @@ export function applyWebA11ySnapshot(
 
   if (snapshot.tree) {
     if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'hidden')) {
-      setNullableBooleanAttr(el, 'aria-hidden', snapshot.tree.hidden);
+      setA11yStateAttr(el, 'aria-hidden', snapshot.tree.hidden);
     }
     if (Object.prototype.hasOwnProperty.call(snapshot.tree, 'mergeChildren')) {
-      setNullableBooleanAttr(el, 'data-pui-a11y-merge-children', snapshot.tree.mergeChildren);
+      setA11yStateAttr(el, 'data-pui-a11y-merge-children', snapshot.tree.mergeChildren);
     }
   }
 }
@@ -194,8 +194,8 @@ function readTextTarget(value: unknown): string | undefined {
   return undefined;
 }
 
-function setNullableBooleanAttr(el: HTMLElement, attr: string, value: unknown): void {
-  if (value === undefined || value === null) {
+function setA11yStateAttr(el: HTMLElement, attr: string, value: unknown): void {
+  if (value === undefined || value === null || value === '') {
     el.removeAttribute(attr);
     return;
   }

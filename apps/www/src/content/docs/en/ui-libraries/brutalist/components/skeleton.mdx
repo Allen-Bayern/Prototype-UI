@@ -1,0 +1,19 @@
+---
+title: Skeleton
+sidebar:
+  order: 8
+---
+
+import { PrototypePreviewer } from '@/components/PrototypePreviewer';
+import BrutalistPageStyle from '@/components/BrutalistPageStyle.astro';
+
+<BrutalistPageStyle />
+> Status: private workspace draft for rc.7. This page documents incubation behavior, not a public install path.
+
+Brutalist Skeleton is a direct styled-only visual placeholder: a static square Yandu Lavender surface with an ink border and hard shadow. It is passive, contentless, excluded from the accessibility tree, and owns no repeating shimmer or pulse.
+
+Use it inside a parent async/loading region when an unresolved layout benefits from visual shape feedback. The parent owns loading and `aria-busy` state, announcements, placeholder-to-content replacement timing, and focus continuity. Skeleton does not create those semantics; any added motion must also respect reduced-motion preferences.
+
+<div style="--pui-lavender:#DDD6FE;--pui-foreground:#000;background:#f4f1ea;color:#000;border:2px solid #000;box-shadow:3px 3px 0 #000;padding:1rem;">
+  <PrototypePreviewer demoId="demo-brutalist-skeleton" initialRuntime="wc" />
+</div>

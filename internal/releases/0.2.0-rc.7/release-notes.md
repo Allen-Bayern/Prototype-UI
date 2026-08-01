@@ -20,10 +20,16 @@
 - Content returns to an undecorated `flex-1 outline-none` content carrier. Tabs no longer imposes a border, background, padding, or shadow; consumers that need card-like panels compose that surface inside the content explicitly.
 - The Proto style CSS compiler now supports `w-fit`, `h-fit`, `flex-1`, `shadow-sm`, and the required outline tokens so the aligned prototype styles reach Web output without degrading into unsupported tokens.
 - This pass intentionally covers the default variant's horizontal primary path. The `line` variant, vertical layout, explicit dark branch, SVG descendant rules, and complete native API/data forwarding remain tracked parity gaps.
+
 ### CLI Brutalist CSS-only style preset
 
 - `proto-ui init --prototypes brutalist` is now a first-class CSS-only style preset. It writes a Brutalist theme (`brutalist-theme.css` with light/dark variables and the flat canary/mint/lavender/coral/sky accent palette) plus a generated Proto UI token closure scanned from official Brutalist prototype sources, so target projects get usable initial CSS before any prototype package is installed.
 - The preset is intentionally CSS-only. The private workspace package `@proto.ui/prototypes-brutalist` (Button reference family) has no public install path yet and is not part of the rc.7 BOM; the CLI `add` component registry exposes no Brutalist entry until the package is promoted through a later release train.
+
+### Separator protocol and Skeleton visual prototype
+
+- Base Separator now has explicit horizontal/vertical orientation, decorative-versus-semantic accessibility behavior, live post-mount projection, and no semantic-only orientation in decorative mode.
+- The private `@proto.ui/prototypes-brutalist` workspace package adds a Separator projection and a direct styled-only Skeleton source subpath. Skeleton is passive, contentless, aria-hidden, and consumer-sized; the parent loading region retains busy state, announcements, replacement timing, and focus continuity. These candidates remain outside the 37-package rc.7 BOM and add no public Brutalist `proto-ui add` entries.
 
 ## Build and release
 
@@ -54,4 +60,4 @@
 
 ## Release preparation still required
 
-- This draft does not mean rc.7 is an installable release. A draft version entity must still be created, `VERSION` and every public package manifest aligned, the package BOM generated, and the complete release rehearsal passed before publication review.
+- This draft does not mean rc.7 is installable. The draft version entity, aligned public package manifests, and 37-package BOM exist; the complete release rehearsal, immutable spec snapshot, Git tag, GitHub prerelease, and npm publication still require separate verification before activation.

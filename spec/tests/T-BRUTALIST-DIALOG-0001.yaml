@@ -158,6 +158,7 @@ revisions:
     summary: >-
       Introduced draft Brutalist Dialog coverage mapped to the rc.7 P criteria (trigger pair, mask transition, content panel, close-icon pair + a11y, title/description typography, header/footer anatomy). Not present in the immutable rc.6 snapshot.
 
+
 tags:
   - test
   - brutalist

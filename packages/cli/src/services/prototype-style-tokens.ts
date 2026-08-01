@@ -459,6 +459,10 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asSeparatorRoot') {
+    return new Map([['orientation', 'data-[orientation]']]);
+  }
+
   return null;
 }
 
@@ -563,6 +567,11 @@ function resolveStateEqVariant(semantic, expected) {
   if (!expected) return null;
   if (expected.kind === ts.SyntaxKind.TrueKeyword) return semantic;
   if (expected.kind === ts.SyntaxKind.FalseKeyword) return negateDataVariant(semantic);
+  if (ts.isStringLiteralLike(expected)) {
+    const match = semantic.match(/^data-\[([a-zA-Z0-9-]+)\]$/);
+    if (!match || !/^[a-zA-Z0-9_-]+$/.test(expected.text)) return null;
+    return `data-[${match[1]}=${expected.text}]`;
+  }
   return null;
 }
 

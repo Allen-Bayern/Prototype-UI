@@ -109,6 +109,7 @@ revisions:
     summary: >-
       Introduced draft Brutalist Select coverage mapped to the rc.7 P criteria (size, defaults, placeholder, chevron, selected pair, indicator, transition). Not present in the immutable rc.6 snapshot.
 
+
 tags:
   - test
   - brutalist

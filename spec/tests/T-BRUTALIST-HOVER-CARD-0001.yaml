@@ -6,6 +6,7 @@ since: 0.2.0-rc.7
 summary: >-
   Covers the Brutalist Hover Card family public API against P-BRUTALIST-HOVER-CARD criteria: root inline-flex container, trigger main-pair surface with hover/focus-visible/disabled interaction, and content 200ms transition with fade-zoom open animation, side slide-in, and hard-shadowed panel.
 
+
 cases:
   - id: T-BRUTALIST-HOVER-CARD-0001-CASE-1
     title: Root direct entry and Base Hover Card inheritance (relative inline-flex)
@@ -66,6 +67,7 @@ revisions:
     change: introduced
     summary: >-
       Introduced draft Brutalist Hover Card coverage mapped 1:1 to the rc.7 P criteria (root entry+inheritance, trigger pair+interaction, content transition+panel). Not present in the immutable rc.6 snapshot.
+
 
 tags:
   - test

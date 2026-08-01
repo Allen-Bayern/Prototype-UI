@@ -35,6 +35,18 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('../../../../../packages/prototypes/brutalist/src/button/index');
     registerPrototype('brutalist-button', mod.default);
   },
+  'brutalist-separator-root': async () => {
+    const mod = await import('@proto.ui/prototypes-brutalist/separator');
+    registerPrototype('brutalist-separator-root', mod.BrutalistSeparatorRoot);
+  },
+  'brutalist-skeleton-root': async () => {
+    const mod = await import('@proto.ui/prototypes-brutalist/skeleton');
+    registerPrototype('brutalist-skeleton-root', mod.BrutalistSkeletonRoot);
+  },
+  'base-separator-root': async () => {
+    const mod = await import('@proto.ui/prototypes-base/separator');
+    registerPrototype('base-separator-root', mod.default);
+  },
   'brutalist-toggle': async () => {
     const mod = await import('../../../../../packages/prototypes/brutalist/src/toggle/index');
     registerPrototype('brutalist-toggle', mod.default);

@@ -160,7 +160,6 @@ const shadcnCompound = (
     { stylePreset: 'shadcn', preset }
   );
 
-
 const base = (id: string, label: string, prototypeImport: string, exportBaseName: string) =>
   defineSimple(
     id,
@@ -185,7 +184,6 @@ const baseCompound = (
   );
 
 export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
-
   'shadcn-button': shadcn('shadcn-button', 'shadcn Button', 'shadcnButton', 'ShadcnButton'),
   'shadcn-toggle': shadcn('shadcn-toggle', 'shadcn Toggle', 'shadcnToggle', 'ShadcnToggle'),
 
@@ -466,6 +464,7 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
     },
   ]),
 
+  'base-separator': base('base-separator', 'Base Separator', 'separatorRoot', 'BaseSeparatorRoot'),
   'base-dialog': baseCompound('base-dialog', 'base Dialog', [
     {
       prototypeImport: 'dialogRoot',
