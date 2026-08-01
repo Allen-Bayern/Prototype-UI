@@ -46,6 +46,15 @@ implementations:
       - T-BASE-SEPARATOR-0001-CASE-DECORATIVE-ORIENTATION-OMISSION
     exercises:
       - P-BASE-SEPARATOR
+verifies:
+  prototypes:
+    - id: P-BASE-SEPARATOR
+      anchors:
+        - P-BASE-SEPARATOR-ORIENTATION
+        - P-BASE-SEPARATOR-DECORATIVE
+        - P-BASE-SEPARATOR-SEMANTIC
+        - P-BASE-SEPARATOR-CONTENTLESS
+        - P-BASE-SEPARATOR-NO-INTERACTION
 exercises:
   prototypes: [P-BASE-SEPARATOR]
 sources:

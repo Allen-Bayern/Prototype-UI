@@ -74,7 +74,7 @@ export const BRUTALIST_STYLE_TOKENS: string[] = [
   'data-[open]:zoom-in-95',
   'data-[orientation=horizontal]:h-0.5',
   'data-[orientation=horizontal]:w-full',
-  'data-[orientation=vertical]:h-12',
+  'data-[orientation=vertical]:h-full',
   'data-[orientation=vertical]:w-0.5',
   'data-[pressed]:bg-coral',
   'data-[pressed]:bg-main',

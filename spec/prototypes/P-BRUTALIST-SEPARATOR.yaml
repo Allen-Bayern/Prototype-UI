@@ -14,8 +14,8 @@ criteria:
       zh-CN: 该投影必须保留 Base Separator 的 orientation、decorative hiding、semantic role 与 aria-orientation 行为。
   - id: P-BRUTALIST-SEPARATOR-VISUAL-GRAMMAR
     text:
-      en: The projection must render a flat foreground rule with horizontal full-width 2px geometry and vertical fixed-height 2px geometry.
-      zh-CN: 该投影必须渲染平涂 foreground 分隔线；横向为 full-width 2px，纵向为 fixed-height 2px。
+      en: The projection must render a flat foreground rule with consumer-owned length—horizontal full width and vertical full height, each with 2px thickness.
+      zh-CN: 该投影必须渲染平涂 foreground 分隔线并由消费布局决定长度：横向铺满宽度、纵向铺满高度，两者厚度均为 2px。
   - id: P-BRUTALIST-SEPARATOR-DYNAMIC-GEOMETRY
     text:
       en: Geometry must follow the inherited canonical orientation state after mount through state selector projection.

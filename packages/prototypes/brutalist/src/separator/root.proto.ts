@@ -25,7 +25,7 @@ export const BrutalistSeparatorRoot = definePrototype<
     });
     def.rule({
       when: (w) => w.state(orientation).eq('vertical'),
-      intent: (i) => i.feedback.style.use(tw('h-12 w-0.5')),
+      intent: (i) => i.feedback.style.use(tw('h-full w-0.5')),
     });
   },
 });

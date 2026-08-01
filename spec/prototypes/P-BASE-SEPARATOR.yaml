@@ -28,6 +28,14 @@ criteria:
     text:
       zh-CN: Separator 不得声明 focus、tab stop、event、command、activation 或 mutable value 通路。
       en: Separator must declare no focus, tab-stop, event, command, activation, or mutable-value channel.
+dependsOn:
+  contracts:
+    - C-CORE-SYNTAX-0003
+    - C-PROPS-0001
+    - C-STATE-0001
+    - C-EXPOSE-STATE-0001
+    - C-AS-HOOK-0001
+    - C-A11Y-0001
 verifies:
   tests: [T-BASE-SEPARATOR-0001]
 sources:

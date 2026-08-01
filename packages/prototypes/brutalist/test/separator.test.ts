@@ -22,12 +22,12 @@ describe('prototypes/brutalist: separator', () => {
       'bg-foreground',
       'data-[orientation=horizontal]:h-0.5',
       'data-[orientation=horizontal]:w-full',
-      'data-[orientation=vertical]:h-12',
+      'data-[orientation=vertical]:h-full',
       'data-[orientation=vertical]:w-0.5',
     ]) {
       expect(styleContains(el, token)).toBe(true);
     }
-    for (const token of ['h-0.5', 'w-full', 'h-12', 'w-0.5']) {
+    for (const token of ['h-0.5', 'w-full', 'h-full', 'h-12', 'w-0.5']) {
       expect(styleContains(el, token)).toBe(false);
     }
     el.remove();
@@ -49,12 +49,12 @@ describe('prototypes/brutalist: separator', () => {
     for (const token of [
       'data-[orientation=horizontal]:h-0.5',
       'data-[orientation=horizontal]:w-full',
-      'data-[orientation=vertical]:h-12',
+      'data-[orientation=vertical]:h-full',
       'data-[orientation=vertical]:w-0.5',
     ]) {
       expect(styleContains(el, token)).toBe(true);
     }
-    for (const token of ['h-0.5', 'w-full', 'h-12', 'w-0.5']) {
+    for (const token of ['h-0.5', 'w-full', 'h-full', 'h-12', 'w-0.5']) {
       expect(styleContains(el, token)).toBe(false);
     }
     el.remove();
