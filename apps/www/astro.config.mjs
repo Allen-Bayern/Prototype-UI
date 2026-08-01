@@ -236,6 +236,11 @@ export default defineConfig({
                   slug: 'ui-libraries/base/hover-card',
                 },
                 {
+                  label: 'Tooltip',
+                  translations: { en: 'Tooltip', 'zh-CN': 'Tooltip' },
+                  slug: 'ui-libraries/base/tooltip',
+                },
+                {
                   label: 'Dialog',
                   translations: { en: 'Dialog', 'zh-CN': 'Dialog' },
                   slug: 'ui-libraries/base/dialog',
@@ -379,6 +384,11 @@ export default defineConfig({
                   label: 'Dialog',
                   translations: { en: 'Dialog', 'zh-CN': 'Dialog' },
                   slug: 'ui-libraries/brutalist/components/dialog',
+                },
+                {
+                  label: 'Scroll Area',
+                  translations: { en: 'Scroll Area', 'zh-CN': 'Scroll Area' },
+                  slug: 'ui-libraries/brutalist/components/scroll-area',
                 },
               ],
             },

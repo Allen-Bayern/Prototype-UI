@@ -1,5 +1,14 @@
-import { createCapsWiring, type LogicalInstanceToken } from '@proto.ui/adapter-base';
-import { HOST_ELEMENT_CAP, type EffectsPort, type FocusRequestOptions } from '@proto.ui/core';
+import {
+  createCapsWiring,
+  createWebMoveGestureHost,
+  type LogicalInstanceToken,
+} from '@proto.ui/adapter-base';
+import {
+  HOST_ELEMENT_CAP,
+  type EffectsPort,
+  type FocusRequestOptions,
+  type ScrollProjectionPreference,
+} from '@proto.ui/core';
 import {
   createDomOrderObserver,
   ANATOMY_GET_PROTO_CAP,
@@ -63,6 +72,7 @@ import {
 } from '@proto.ui/module-expose-state-web';
 import { RULE_EXPOSE_STATE_WEB_NATIVE_VARIANT_POLICY_CAP } from '@proto.ui/module-rule-expose-state-web';
 import { RULE_META_GET_CAP } from '@proto.ui/module-rule-meta';
+import { createWebScrollSurfaceHost, SCROLL_SURFACE_HOST_CAP } from '@proto.ui/module-scroll';
 import type { PropsBaseType } from '@proto.ui/types';
 
 import {
@@ -177,6 +187,7 @@ export function createVueModules<Props extends PropsBaseType>(args: {
   effectsPort: EffectsPort;
   getMeta: (key: string) => unknown;
   exposeStateWebMode?: ExposeStateWebMode;
+  scrollProjection?: ScrollProjectionPreference;
   setExposes: (record: Record<string, unknown>) => void;
   runInCallbackScope: (fn: () => void) => void;
   isViewReady: () => boolean;
@@ -194,6 +205,7 @@ export function createVueModules<Props extends PropsBaseType>(args: {
     effectsPort,
     getMeta,
     exposeStateWebMode,
+    scrollProjection,
     setExposes,
   } = args;
 
@@ -323,6 +335,15 @@ export function createVueModules<Props extends PropsBaseType>(args: {
       [BOUNDARY_HOST_BRIDGE_CAP, createWebBoundaryHostBridge()],
     ])
     .use('positioning', [[ANCHORED_POSITION_HOST_CAP, createFloatingUiAnchoredPositionHost()]])
+    .use('scroll', [
+      [
+        SCROLL_SURFACE_HOST_CAP,
+        createWebScrollSurfaceHost(el, {
+          moveGestureHost: createWebMoveGestureHost(),
+          preference: scrollProjection,
+        }),
+      ],
+    ])
     .use('overlay', () => [
       [HOST_ELEMENT_CAP, el],
       [OVERLAY_GLOBAL_MOUNT_CAP, createVueOverlayGlobalMount(instanceToken)],

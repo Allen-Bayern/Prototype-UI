@@ -21,12 +21,14 @@ export type A11yActionSpec = {
 
 export type A11yRelationTarget = string | State<string | null | undefined>;
 export type A11yIdentityTarget = string | State<string | null | undefined>;
+export type A11yRelationMode = 'replace' | 'append';
 
 export type A11yRelationSpec = {
   target: A11yRelationTarget;
+  mode?: A11yRelationMode;
 };
 
-// C-A11Y-0001-K — tree behavior may follow governed state; snapshots resolve it to booleans.
+// C-A11Y-0001-L — tree behavior may follow governed state; snapshots resolve it to booleans.
 export type A11yTreeBehavior = {
   hidden?: boolean | State<boolean>;
   mergeChildren?: boolean | State<boolean>;
@@ -45,6 +47,7 @@ export type A11ySemanticObjectSnapshot = {
   states: Record<A11yStateKey, unknown>;
   actions: Record<A11yActionKey, A11yActionSpec>;
   relations: Record<A11yRelationKey, string | null | undefined>;
+  relationModes?: Record<A11yRelationKey, A11yRelationMode>;
   tree?: A11yTreeSnapshot;
 };
 

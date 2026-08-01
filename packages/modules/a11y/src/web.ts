@@ -33,9 +33,10 @@ export function createWebA11yProjector(
     if (lastTarget && lastTarget !== nextTarget && lastSnapshot) {
       clearWebA11ySnapshot(lastTarget, lastSnapshot);
     }
+    const previousSnapshot = lastTarget === nextTarget ? lastSnapshot : null;
     lastTarget = nextTarget;
     lastSnapshot = snapshot;
-    if (nextTarget) applyWebA11ySnapshot(nextTarget, snapshot);
+    if (nextTarget) applyWebA11ySnapshot(nextTarget, snapshot, previousSnapshot ?? undefined);
   };
 
   subscribeTargetChange?.(() => {
@@ -59,7 +60,16 @@ export function clearWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
     el.removeAttribute('hidden');
   }
   for (const [key, attr] of Object.entries(ARIA_RELATION_ATTRS)) {
-    if (Object.prototype.hasOwnProperty.call(snapshot.relations, key)) el.removeAttribute(attr);
+    if (!Object.prototype.hasOwnProperty.call(snapshot.relations, key)) continue;
+    if (snapshot.relationModes?.[key] === 'append') {
+      setTokenListAttr(
+        el,
+        attr,
+        withoutTokens(readTokens(el.getAttribute(attr)), relationTokens(snapshot, key))
+      );
+    } else {
+      el.removeAttribute(attr);
+    }
   }
   if (Object.keys(snapshot.actions).length) el.removeAttribute('data-pui-a11y-actions');
   if (snapshot.tree) {
@@ -72,7 +82,11 @@ export function clearWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
   }
 }
 
-export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObjectSnapshot): void {
+export function applyWebA11ySnapshot(
+  el: HTMLElement,
+  snapshot: A11ySemanticObjectSnapshot,
+  previousSnapshot?: A11ySemanticObjectSnapshot
+): void {
   if (typeof snapshot.id !== 'undefined') {
     setOptionalAttr(el, 'id', snapshot.id ?? undefined);
   }
@@ -110,7 +124,19 @@ export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
 
   for (const [key, attr] of Object.entries(ARIA_RELATION_ATTRS)) {
     if (Object.prototype.hasOwnProperty.call(snapshot.relations, key)) {
-      setOptionalAttr(el, attr, snapshot.relations[key] ?? undefined);
+      if (snapshot.relationModes?.[key] === 'append') {
+        const current = readTokens(el.getAttribute(attr));
+        const previousOwned =
+          previousSnapshot?.relationModes?.[key] === 'append'
+            ? relationTokens(previousSnapshot, key)
+            : [];
+        setTokenListAttr(el, attr, [
+          ...withoutTokens(current, previousOwned),
+          ...relationTokens(snapshot, key),
+        ]);
+      } else {
+        setOptionalAttr(el, attr, snapshot.relations[key] ?? undefined);
+      }
     }
   }
 
@@ -127,6 +153,24 @@ export function applyWebA11ySnapshot(el: HTMLElement, snapshot: A11ySemanticObje
       setA11yStateAttr(el, 'data-pui-a11y-merge-children', snapshot.tree.mergeChildren);
     }
   }
+}
+
+function relationTokens(snapshot: A11ySemanticObjectSnapshot, key: string): string[] {
+  return readTokens(snapshot.relations[key]);
+}
+
+function readTokens(value: unknown): string[] {
+  if (typeof value !== 'string') return [];
+  return [...new Set(value.trim().split(/\s+/).filter(Boolean))];
+}
+
+function withoutTokens(current: string[], removed: string[]): string[] {
+  const removal = new Set(removed);
+  return current.filter((token) => !removal.has(token));
+}
+
+function setTokenListAttr(el: HTMLElement, attr: string, tokens: string[]): void {
+  setOptionalAttr(el, attr, [...new Set(tokens)].join(' '));
 }
 
 function setOptionalAttr(el: HTMLElement, attr: string, value: string | undefined): void {

@@ -52,6 +52,11 @@
       "import": "./dist/hover-card/index.js",
       "default": "./dist/hover-card/index.js"
     },
+    "./tooltip": {
+      "types": "./dist/tooltip/index.d.ts",
+      "import": "./dist/tooltip/index.js",
+      "default": "./dist/tooltip/index.js"
+    },
     "./select": {
       "types": "./dist/select/index.d.ts",
       "import": "./dist/select/index.js",
@@ -86,6 +91,11 @@
       "types": "./dist/separator/index.d.ts",
       "import": "./dist/separator/index.js",
       "default": "./dist/separator/index.js"
+    },
+    "./scroll-area": {
+      "types": "./dist/scroll-area/index.d.ts",
+      "import": "./dist/scroll-area/index.js",
+      "default": "./dist/scroll-area/index.js"
     }
   },
   "description": "Base Proto UI prototype library for reusable interaction prototypes.",

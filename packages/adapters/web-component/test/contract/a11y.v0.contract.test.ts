@@ -141,4 +141,35 @@ describe('contract: adapter-web-component / a11y projection (v0)', () => {
     expect(el.hasAttribute('hidden')).toBe(false);
     el.remove();
   });
+
+  it('A11Y-WC-0200: append relations preserve host-authored IDREF tokens', () => {
+    // T-A11Y-0001-CASE-ADDITIVE-RELATION
+    const P = definePrototype({
+      name: 'x-a11y-wc-additive-relation',
+      setup(def) {
+        const describedBy = def.state.string('describedBy', 'tooltip-a');
+        def.a11y.relation('describedBy', { target: describedBy, mode: 'append' });
+        def.expose.method('setDescription', (value: string) => describedBy.set(value));
+        return (r) => r.el('button', 'Info');
+      },
+    });
+
+    if (!customElements.get(P.name)) {
+      customElements.define(
+        P.name,
+        AdaptToWebComponent(P, { register: false, registerAs: P.name })
+      );
+    }
+
+    const el = document.createElement(P.name) as HTMLElement & {
+      getExposes(): { setDescription(value: string): void };
+    };
+    el.setAttribute('aria-describedby', 'host-help');
+    document.body.appendChild(el);
+
+    expect(el.getAttribute('aria-describedby')).toBe('host-help tooltip-a');
+
+    el.getExposes().setDescription('tooltip-b');
+    expect(el.getAttribute('aria-describedby')).toBe('host-help tooltip-b');
+  });
 });

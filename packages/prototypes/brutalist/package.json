@@ -6,6 +6,7 @@
   "sideEffects": false,
   "dependencies": {
     "@proto.ui/core": "workspace:*",
+    "@proto.ui/hooks": "workspace:*",
     "@proto.ui/prototypes-base": "workspace:*"
   },
   "devDependencies": {
@@ -71,9 +72,14 @@
       "types": "./src/dialog/index.ts",
       "import": "./src/dialog/index.ts",
       "default": "./src/dialog/index.ts"
+    },
+    "./scroll-area": {
+      "types": "./src/scroll-area/index.ts",
+      "import": "./src/scroll-area/index.ts",
+      "default": "./src/scroll-area/index.ts"
     }
   },
-  "description": "Private Neo-Brutalist Proto UI workspace library with stable Base projections and a direct styled-only Skeleton.",
+  "description": "Private Neo-Brutalist Proto UI workspace library: shared tokens, Button, stable Base projections (Toggle/Switch/Tabs/Hover Card/Dropdown/Select/Dialog/Scroll Area/Separator), and a direct styled-only Skeleton.",
   "license": "MIT",
   "homepage": "https://github.com/Proto-UI/Proto-UI/tree/main/packages/prototypes/brutalist",
   "repository": {

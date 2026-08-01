@@ -59,6 +59,7 @@ const PACKAGE_RULES = {
   '@proto.ui/module-rule': moduleRule('rule capability'),
   '@proto.ui/module-rule-expose-state-web': moduleRule('rule-based web state expose capability'),
   '@proto.ui/module-rule-meta': moduleRule('rule metadata capability'),
+  '@proto.ui/module-scroll': moduleRule('host-mediated scroll capability'),
   '@proto.ui/module-state': moduleRule('state capability'),
   '@proto.ui/module-state-accessibility': moduleRule('state accessibility capability'),
   '@proto.ui/module-state-interaction': moduleRule('state interaction capability'),
