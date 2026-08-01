@@ -1,4 +1,8 @@
-import type { Prototype, ScrollProjectionPreference } from '@proto.ui/core';
+import {
+  getModuleDeclaration,
+  type Prototype,
+  type ScrollProjectionPreference,
+} from '@proto.ui/core';
 import type {
   CommitSignal,
   RuntimeCheckpoint,
@@ -17,6 +21,7 @@ import {
   scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
+import { TEXT_CONTROL_DECLARATION } from '@proto.ui/module-text-control';
 import {
   createZIndexOverlayLayerScheduler,
   type OverlayPort,
@@ -142,7 +147,13 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
     const exposeStateWebMode = opt.exposeStateWebMode;
     const scrollProjection = opt.scrollProjection;
     const autoUpdate = opt.autoUpdateOnPropsChange ?? true;
-    const rootTag = opt.rootTag ?? 'div';
+    const textControl = getModuleDeclaration(proto, TEXT_CONTROL_DECLARATION)?.config;
+    if (textControl && opt.rootTag && opt.rootTag !== textControl.target.localName) {
+      throw new Error(
+        `[React Adapter] text-control declaration conflicts with rootTag: ${opt.rootTag}`
+      );
+    }
+    const rootTag = textControl?.target.localName ?? opt.rootTag ?? 'div';
     const hasCustomOverlayLayerConfig =
       !!opt.overlayLayer &&
       (typeof opt.overlayLayer.baseZIndex !== 'undefined' ||

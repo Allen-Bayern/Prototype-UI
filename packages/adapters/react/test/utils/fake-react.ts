@@ -344,7 +344,11 @@ function applyProps(el: HTMLElement, props: Record<string, any>) {
 }
 
 function renderChildren(parent: HTMLElement, children: any[]) {
-  parent.replaceChildren(...(children.flat().map(renderChild).filter(Boolean) as Node[]));
+  const nodes = children.flat().map(renderChild).filter(Boolean) as Node[];
+  // A textarea's defaultValue is represented by a native fallback text node,
+  // not by authored React children. Preserve it across host-only rerenders.
+  if (parent instanceof HTMLTextAreaElement && nodes.length === 0) return;
+  parent.replaceChildren(...nodes);
 }
 
 function renderChild(child: any): Node | null {

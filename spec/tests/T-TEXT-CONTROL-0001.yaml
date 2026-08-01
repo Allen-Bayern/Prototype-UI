@@ -1,0 +1,130 @@
+id: T-TEXT-CONTROL-0001
+type: test
+title: Text Control declaration, host bridge, and adapter tests
+status: draft
+since: 0.2.0-rc.7
+summary: Covers static textarea selection, portable property projection, normalized events, composition-safe value reconciliation, cross-adapter materialization, native-event containment, and lease cleanup.
+cases:
+  - id: T-TEXT-CONTROL-0001-CASE-STATIC-TARGET
+    title: Static declarations materialize one native textarea across Web Component, React, and Vue adapters
+    covers:
+      - C-TEXT-CONTROL-0001-A
+    expectation: declared-native-textarea-is-selected-before-render-without-template-expansion
+  - id: T-TEXT-CONTROL-0001-CASE-PROPERTIES
+    title: Portable patches project every supported native textarea property and defaultValue update
+    covers:
+      - C-TEXT-CONTROL-0001-B
+    expectation: portable-textarea-properties-and-native-default-value-project-live
+  - id: T-TEXT-CONTROL-0001-CASE-EVENTS
+    title: Input, change, and IME composition normalize without native Event payloads
+    covers:
+      - C-TEXT-CONTROL-0001-C
+    expectation: native-editing-sequence-emits-only-normalized-text-control-facts
+  - id: T-TEXT-CONTROL-0001-CASE-VALUE-AND-IME
+    title: Stable value ownership preserves uncontrolled edits and controlled IME candidates through the callback boundary
+    covers:
+      - C-TEXT-CONTROL-0001-D
+      - C-TEXT-CONTROL-0001-E
+    expectation: logical-value-mode-is-stable-and-controlled-restoration-is-composition-safe
+  - id: T-TEXT-CONTROL-0001-CASE-LEASE-BOUNDARY
+    title: Web Component native events remain contained and detach revokes target listeners
+    covers:
+      - C-TEXT-CONTROL-0001-F
+    expectation: inner-native-events-and-listeners-remain-bounded-by-the-wrapper-host-lease
+implementations:
+  - id: module-text-control-web-contract
+    kind: module-test
+    status: passing
+    path: packages/modules/text-control/test/web.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-PROPERTIES
+      - T-TEXT-CONTROL-0001-CASE-EVENTS
+    exercises:
+      - M-TEXT-CONTROL-0001
+      - HC-TEXT-CONTROL-0001
+  - id: module-text-control-value-reconciliation
+    kind: module-test
+    status: passing
+    path: packages/modules/text-control/test/impl-spec.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-VALUE-AND-IME
+      - T-TEXT-CONTROL-0001-CASE-LEASE-BOUNDARY
+    exercises:
+      - M-TEXT-CONTROL-0001
+      - HC-TEXT-CONTROL-0001
+  - id: adapter-web-component-text-control-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/web-component/test/text-control.integration.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-STATIC-TARGET
+      - T-TEXT-CONTROL-0001-CASE-LEASE-BOUNDARY
+    exercises:
+      - M-TEXT-CONTROL-0001
+      - HC-TEXT-CONTROL-0001
+  - id: adapter-react-text-control-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/react/test/text-control.integration.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-STATIC-TARGET
+    exercises:
+      - M-TEXT-CONTROL-0001
+      - HC-TEXT-CONTROL-0001
+  - id: adapter-vue-text-control-integration
+    kind: adapter-test
+    status: passing
+    path: packages/adapters/vue/test/text-control.integration.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-STATIC-TARGET
+    exercises:
+      - M-TEXT-CONTROL-0001
+      - HC-TEXT-CONTROL-0001
+  - id: prototypes-base-textarea-value-reconciliation
+    kind: module-test
+    status: passing
+    path: packages/prototypes/base/test/textarea.test.ts
+    required: true
+    consumesCases:
+      - T-TEXT-CONTROL-0001-CASE-VALUE-AND-IME
+    exercises:
+      - P-BASE-TEXTAREA
+verifies:
+  contracts:
+    - id: C-TEXT-CONTROL-0001
+      anchors:
+        - C-TEXT-CONTROL-0001-A
+        - C-TEXT-CONTROL-0001-B
+        - C-TEXT-CONTROL-0001-C
+        - C-TEXT-CONTROL-0001-D
+        - C-TEXT-CONTROL-0001-E
+        - C-TEXT-CONTROL-0001-F
+exercises:
+  modules:
+    - M-TEXT-CONTROL-0001
+  hostCaps:
+    - HC-TEXT-CONTROL-0001
+  prototypes:
+    - P-BASE-TEXTAREA
+sources:
+  - path: packages/modules/text-control/test/web.test.ts
+  - path: packages/modules/text-control/test/impl-spec.test.ts
+  - path: packages/adapters/react/test/text-control.integration.test.ts
+  - path: packages/adapters/vue/test/text-control.integration.test.ts
+  - path: packages/adapters/web-component/test/text-control.integration.test.ts
+  - path: packages/prototypes/base/test/textarea.test.ts
+revisions:
+  - version: 0.2.0-rc.7
+    change: introduced
+    summary: Added focused Text Control host and cross-adapter conformance coverage.
+tags:
+  - text-control
+  - textarea
+  - test
+  - adapter
+  - host-projection

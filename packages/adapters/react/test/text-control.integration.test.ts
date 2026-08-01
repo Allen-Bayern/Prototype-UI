@@ -1,0 +1,76 @@
+import { describe, expect, it } from 'vitest';
+import { definePrototype, type DefHandle, type TextControlPatch } from '@proto.ui/core';
+import { asTextControl } from '@proto.ui/hooks';
+import { declareTextControl } from '@proto.ui/module-text-control';
+import { createReactAdapter } from '../src/adapt';
+import { createFakeReactRuntime } from './utils/fake-react';
+
+type ControlProps = {
+  defaultValue?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  rows?: number;
+};
+
+function createTextareaPrototype(name: string, values: string[] = []) {
+  return definePrototype({
+    name,
+    modules: [declareTextControl({ target: { namespace: 'web', localName: 'textarea' } })],
+    setup(def: DefHandle<ControlProps>) {
+      def.props.define({
+        defaultValue: { type: 'string', empty: 'fallback' },
+        placeholder: { type: 'string', empty: 'fallback' },
+        disabled: { type: 'boolean', empty: 'fallback' },
+        rows: { type: 'number', empty: 'fallback' },
+      });
+      const control = asTextControl<ControlProps>();
+      control.on('input', (_run, event) => values.push(event.value));
+      const sync = (props: Readonly<ControlProps>) => {
+        const patch: TextControlPatch = {
+          valueMode: 'uncontrolled',
+          defaultValue: props.defaultValue,
+          placeholder: props.placeholder,
+          disabled: props.disabled,
+          rows: props.rows,
+        };
+        control.sync(patch);
+      };
+      def.lifecycle.onCreated((run) => sync(run.props.get()));
+      def.props.watchAll((_run, next) => sync(next));
+      return () => null;
+    },
+  });
+}
+
+describe('adapter-react text control', () => {
+  it('materializes the declared textarea root, projects patches, and routes input', () => {
+    const values: string[] = [];
+    const proto = createTextareaPrototype('react-text-control', values);
+    const fake = createFakeReactRuntime();
+    const Component = createReactAdapter(fake.runtime)(proto, { schedule: (task) => task() });
+    const mounted = fake.render(Component, {
+      defaultValue: 'initial',
+      placeholder: 'Write',
+      disabled: true,
+      rows: 5,
+    });
+    const textarea = mounted.root as HTMLTextAreaElement;
+    expect(textarea.tagName.toLowerCase()).toBe('textarea');
+    expect(textarea.value).toBe('initial');
+    expect(textarea.defaultValue).toBe('initial');
+    expect(textarea.placeholder).toBe('Write');
+    expect(textarea.disabled).toBe(true);
+    expect(Number(textarea.rows)).toBe(5);
+
+    textarea.value = 'edited';
+    textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    expect(values).toEqual(['edited']);
+    mounted.unmount();
+  });
+
+  it('rejects a rootTag that conflicts with the static textarea declaration', () => {
+    const proto = createTextareaPrototype('react-text-control-conflict');
+    const fake = createFakeReactRuntime();
+    expect(() => createReactAdapter(fake.runtime)(proto, { rootTag: 'div' })).toThrow(/rootTag/);
+  });
+});

@@ -260,6 +260,11 @@ export default defineConfig({
                   translations: { en: 'Checkbox', 'zh-CN': 'Checkbox' },
                   slug: 'ui-libraries/base/checkbox',
                 },
+                {
+                  label: 'Textarea',
+                  translations: { en: 'Textarea', 'zh-CN': 'Textarea' },
+                  slug: 'ui-libraries/base/textarea',
+                },
               ],
             },
             {
@@ -344,6 +349,11 @@ export default defineConfig({
                   translations: { en: 'Skeleton', 'zh-CN': 'Skeleton' },
                   slug: 'ui-libraries/brutalist/components/skeleton',
                   badge: inProgressBadge,
+                },
+                {
+                  label: 'Textarea',
+                  translations: { en: 'Textarea', 'zh-CN': 'Textarea' },
+                  slug: 'ui-libraries/brutalist/components/textarea',
                 },
                 {
                   label: 'Button',

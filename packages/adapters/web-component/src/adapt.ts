@@ -1,5 +1,9 @@
 // packages/adapters/web-component/src/adapt.ts
-import type { Prototype, ScrollProjectionPreference } from '@proto.ui/core';
+import {
+  getModuleDeclaration,
+  type Prototype,
+  type ScrollProjectionPreference,
+} from '@proto.ui/core';
 import { PropsBaseType } from '@proto.ui/types';
 
 import { type RawPropsSource } from '@proto.ui/module-props';
@@ -19,6 +23,7 @@ import {
   type OverlayLayerScheduler,
   type OverlayZIndexLayerSchedulerOptions,
 } from '@proto.ui/module-overlay';
+import { TEXT_CONTROL_DECLARATION, type WebTextControl } from '@proto.ui/module-text-control';
 
 import { bindController, getElementProps, setElementProps, unbindController } from './props';
 import { SlotProjector } from './slot-projector';
@@ -96,6 +101,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
   const register = opt.register ?? true;
   const tagName = opt.registerAs ?? proto.name;
   assertKebabCase(tagName);
+  const textControl = getModuleDeclaration(proto, TEXT_CONTROL_DECLARATION)?.config;
 
   const shadow = opt.shadow ?? false;
   const getProps = opt.getProps ?? (() => ({}) as Partial<Props>);
@@ -132,6 +138,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
     private _root: Element | ShadowRoot;
     private _slotProjector: SlotProjector | null = null;
     private _hostDisplay: HostDisplayController | null = null;
+    private _textControlTarget: WebTextControl | null = null;
 
     private _applier: ReturnType<typeof createOwnedTwTokenApplier> | null = null;
     private _exposes: Record<string, unknown> = {};
@@ -139,8 +146,27 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
     constructor() {
       super();
       this._root = shadow ? (this.attachShadow({ mode: 'open' }) as ShadowRoot) : this;
+      if (textControl) {
+        this._textControlTarget = document.createElement(textControl.target.localName);
+      }
       this._instanceToken = createLogicalInstance(proto as Prototype<any>);
       markProtoInstance(this, proto as Prototype<any>, this._instanceToken);
+    }
+
+    override focus(options?: FocusOptions): void {
+      if (this._textControlTarget) {
+        this._textControlTarget.focus(options);
+        return;
+      }
+      super.focus(options);
+    }
+
+    override blur(): void {
+      if (this._textControlTarget) {
+        this._textControlTarget.blur();
+        return;
+      }
+      super.blur();
     }
 
     connectedCallback() {
@@ -248,6 +274,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
           root: thisRoot,
           schedule,
           rawPropsSource,
+          textControlTarget: this._textControlTarget,
           wiring,
           eventGate: {
             enable: () => currentEventGate?.enable(),
@@ -292,7 +319,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
           isEnabled: () => eventGate.isEnabled?.() ?? true,
         });
         bindLogicalEventTarget(this._instanceToken, router.rootTarget);
-        const applier = createOwnedTwTokenApplier(thisEl, {
+        const applier = createOwnedTwTokenApplier(this._textControlTarget ?? thisEl, {
           onChange: () => {
             this._hostDisplay?.sync();
           },
@@ -325,6 +352,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
             rawPropsSource,
             effectsPort: createWebEffectsPort(applier),
             getMeta,
+            textControlTarget: this._textControlTarget,
             exposeStateWebMode,
             scrollProjection,
             setExposes,
@@ -394,6 +422,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
         instanceToken: this._instanceToken,
         rawPropsSource,
         getMeta,
+        textControlTarget: this._textControlTarget,
         exposeStateWebMode,
         setExposes,
         runInCallbackScope,

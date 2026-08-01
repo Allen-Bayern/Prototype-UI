@@ -10,6 +10,7 @@ const ARIA_STATE_ATTRS: Record<string, string> = {
   invalid: 'aria-invalid',
   orientation: 'aria-orientation',
   pressed: 'aria-pressed',
+  readOnly: 'aria-readonly',
   selected: 'aria-selected',
   modal: 'aria-modal',
 };
