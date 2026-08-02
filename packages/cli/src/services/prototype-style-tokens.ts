@@ -459,6 +459,10 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asAsyncRegionRoot') {
+    return new Map([['busy', 'data-[busy]']]);
+  }
+
   if (hookName === 'asSeparatorRoot') {
     return new Map([['orientation', 'data-[orientation]']]);
   }

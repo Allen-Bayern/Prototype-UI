@@ -260,6 +260,16 @@ export default defineConfig({
                   translations: { en: 'Checkbox', 'zh-CN': 'Checkbox' },
                   slug: 'ui-libraries/base/checkbox',
                 },
+                {
+                  label: 'Live Region',
+                  translations: { en: 'Live Region', 'zh-CN': 'Live Region' },
+                  slug: 'ui-libraries/base/live-region',
+                },
+                {
+                  label: 'Async Region',
+                  translations: { en: 'Async Region', 'zh-CN': 'Async Region' },
+                  slug: 'ui-libraries/base/async-region',
+                },
               ],
             },
             {

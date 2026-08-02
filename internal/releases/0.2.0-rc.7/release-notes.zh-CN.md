@@ -29,16 +29,22 @@
 ### Separator 协议与 Skeleton 视觉原型
 
 - Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为、mounted 后的实时投影，并确保 decorative 模式不残留仅属于语义模式的 orientation。
-- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 视觉投射与直接定义的 styled-only Skeleton source subpath。Skeleton 是 passive、contentless、aria-hidden 且尺寸由消费端拥有的视觉原型；父级 loading region 继续拥有 busy 状态、announcement、替换时机与焦点连续性。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
+- 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 视觉投射与直接定义的 styled-only Skeleton source subpath。Skeleton 是 passive、contentless、aria-hidden 且尺寸由消费端拥有的视觉原型；父级 loading region 继续拥有 busy 状态、announcement、替换时机与焦点连续性。这些候选不进入 rc.7 的 38-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
+
+### Live Region 与 Async Region 无障碍边界
+
+- Base Live Region 新增保留内容的 status/alert 边界，通过受治理的 `politeness` 与 `atomic` props 同步投射 `role`、`aria-live` 与 `aria-atomic`，但不拥有 focus、event、command、announcement 时序或替换行为。
+- Base Async Region 新增保留内容与焦点的 `busy` 边界，投射 `aria-busy` 且仅暴露受治理的 `busy` state；loading 视觉、announcement、替换状态与聊天语义仍由消费端拥有。
+- Web accessibility 投射新增 `live`、`atomic` 与 `busy` state key 到对应 ARIA attribute 的映射。两个 Base family 均拥有公开 package subpath 与 `proto-ui add` 条目，不会向当前 rc.7 BOM 新增 package。
 
 ## 构建与发布
 
-### 37 个公开 package 交付可执行产物
+### 38 个公开 package 交付可执行产物
 
-- 全部 37 个公开 `@proto.ui/*` package 现在都会在发布前生成 `dist/*.js` 与 `dist/*.d.ts`，package exports 分别指向 JavaScript runtime 与 declaration output，不再把需要 TypeScript loader 的 `.ts` 源码直接作为 npm runtime entry 发布。
+- 全部 38 个公开 `@proto.ui/*` package 现在都会在发布前生成 `dist/*.js` 与 `dist/*.d.ts`，package exports 分别指向 JavaScript runtime 与 declaration output，不再把需要 TypeScript loader 的 `.ts` 源码直接作为 npm runtime entry 发布。
 - 每个公开 package 现在都有 package-local `build` 与 `prepack` contract；根级 `build:packages` 按生产依赖拓扑构建所选 package 及其上游闭包，验证全部 export targets，并在不加载 TypeScript 的原生 Node ESM 环境中执行 import smoke。
 - Release staging 现在复用并复制开发与 CI 已验证的同一份本地 `dist`，不再维护另一条可能漂移的临时编译路径。
-- 公开 manifest 通过生成器统一维护 `dist` exports、`files` 白名单和 build scripts。源码与测试保留为仓库输入，但不再进入默认 npm payload；37 个 tarball 中的测试文件总量由 1,031,558 B 降至 0 B。
+- 公开 manifest 通过生成器统一维护 `dist` exports、`files` 白名单和 build scripts。源码与测试保留为仓库输入，但不再进入默认 npm payload；38 个 tarball 中的测试文件总量由 1,031,558 B 降至 0 B。
 
 ### Bundle、文档与 CI 反馈
 
@@ -50,7 +56,7 @@
 ## 验证
 
 - Trigger group 与 Tabs v4 样式还原通过完整工作区测试：239 个测试文件、1,077 个测试通过；prototype catalog、style preset、类型检查、Agent 文档生成检查与 Web Component/React/Vue 共享 Dialog conformance journey 通过。
-- 构建优化已验证 37/37 公开 package 的完整构建、export target、原生 Node ESM import、release stage 与 `npm publish --dry-run`；package manifest、bundle budget、类型、测试、Astro check 与文档构建门禁均通过。
+- 构建优化已验证 38/38 公开 package 的完整构建、export target、原生 Node ESM import、release stage 与 `npm publish --dry-run`；package manifest、bundle budget、类型、测试、Astro check 与文档构建门禁均通过。
 - Demo Matrix 开发路由实测同时挂载 27 个 demo、81 个 previewer，Web Component、React 与 Vue 各 27 个；生产构建的 150 个页面、sitemap 与 Pagefind index 均不包含其中英文 Demo Matrix 路由。新增的 development-only 与三 adapter 并排 policy 已进入 37 条 release tests。
 
 ## 升级提示
@@ -60,4 +66,4 @@
 
 ## 仍待发布准备
 
-- 本草案不代表 rc.7 已可安装。draft version entity、已对齐的公开 package manifest 与 37-package BOM 已存在；完整 release rehearsal、不可变 spec snapshot、Git tag、GitHub prerelease 与 npm publication 仍需在激活前单独验证。
+- 本草案不代表 rc.7 已可安装。draft version entity、已对齐的公开 package manifest 与 38-package BOM 已存在；完整 release rehearsal、不可变 spec snapshot、Git tag、GitHub prerelease 与 npm publication 仍需在激活前单独验证。

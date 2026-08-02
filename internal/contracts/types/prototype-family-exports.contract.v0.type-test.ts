@@ -1,4 +1,6 @@
 import { button } from '@proto.ui/prototypes-base/button';
+import { asyncRegionRoot } from '@proto.ui/prototypes-base/async-region';
+import { liveRegionRoot } from '@proto.ui/prototypes-base/live-region';
 import {
   dialogClose,
   dialogContent,
@@ -70,6 +72,8 @@ import { shadcnToggle } from '@proto.ui/prototypes-shadcn/toggle';
 // The CLI registry consumes these exact named exports from family subpaths.
 void [
   button,
+  liveRegionRoot,
+  asyncRegionRoot,
   toggle,
   transition,
   switchRoot,

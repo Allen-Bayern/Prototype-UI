@@ -23,3 +23,7 @@ export * from './separator';
 export { default as separatorRoot } from './separator';
 export * from './scroll-area';
 export { default as scrollAreaRoot } from './scroll-area';
+export * from './live-region';
+export { default as liveRegionRoot } from './live-region';
+export * from './async-region';
+export { default as asyncRegionRoot } from './async-region';
