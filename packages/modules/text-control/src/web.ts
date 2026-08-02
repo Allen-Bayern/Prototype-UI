@@ -39,6 +39,7 @@ function attachTarget(
   let patch = connection.patch;
   let composing = false;
   let disposed = false;
+  let valueProjectionDeferred = false;
 
   const emit = (event: Event) => {
     if (disposed) return;
@@ -58,6 +59,9 @@ function attachTarget(
         inputType: inputEvent?.inputType ?? null,
       })
     );
+    if (type === 'compositionend' && valueProjectionDeferred) {
+      valueProjectionDeferred = applyPatch(target, patch, true);
+    }
   };
 
   const eventTypes = [
@@ -68,13 +72,13 @@ function attachTarget(
     'compositionend',
   ] as const;
   for (const type of eventTypes) target.addEventListener(type, emit);
-  applyPatch(target, patch);
+  valueProjectionDeferred = applyPatch(target, patch, true);
 
   return {
     update(next) {
       if (disposed) return;
       patch = next;
-      applyPatch(target, patch);
+      valueProjectionDeferred = applyPatch(target, patch, !composing);
     },
     snapshot(): TextControlSnapshot {
       return Object.freeze({ value: target.value, composing });
@@ -87,14 +91,20 @@ function attachTarget(
   };
 }
 
-function applyPatch(target: WebTextControl, patch: TextControlPatch): void {
+function applyPatch(
+  target: WebTextControl,
+  patch: TextControlPatch,
+  allowValueProjection: boolean
+): boolean {
+  let valueProjectionDeferred = false;
   if (typeof patch.defaultValue === 'string' && target.defaultValue !== patch.defaultValue) {
     target.defaultValue = patch.defaultValue;
   }
   const value =
     patch.value ?? (patch.valueMode === 'uncontrolled' ? patch.defaultValue : undefined);
   if (typeof value === 'string' && target.value !== value) {
-    replaceValuePreservingSelection(target, value);
+    if (allowValueProjection) replaceValuePreservingEditingSession(target, value);
+    else valueProjectionDeferred = true;
   }
   if (typeof patch.disabled === 'boolean') target.disabled = patch.disabled;
   if (typeof patch.readOnly === 'boolean') target.readOnly = patch.readOnly;
@@ -119,12 +129,15 @@ function applyPatch(target: WebTextControl, patch: TextControlPatch): void {
     else target.maxLength = maxLength;
   }
   if (patch.wrap === 'soft' || patch.wrap === 'hard') target.wrap = patch.wrap;
+  return valueProjectionDeferred;
 }
 
-function replaceValuePreservingSelection(target: WebTextControl, value: string): void {
+function replaceValuePreservingEditingSession(target: WebTextControl, value: string): void {
   const selectionStart = target.selectionStart;
   const selectionEnd = target.selectionEnd;
   const selectionDirection = target.selectionDirection;
+  const scrollTop = target.scrollTop;
+  const scrollLeft = target.scrollLeft;
   target.value = value;
   const nextLength = value.length;
   target.setSelectionRange(
@@ -132,4 +145,6 @@ function replaceValuePreservingSelection(target: WebTextControl, value: string):
     Math.min(selectionEnd, nextLength),
     selectionDirection
   );
+  target.scrollTop = scrollTop;
+  target.scrollLeft = scrollLeft;
 }

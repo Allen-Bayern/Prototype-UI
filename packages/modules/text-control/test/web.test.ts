@@ -167,4 +167,66 @@ describe('module-text-control web bridge', () => {
     lease.dispose();
     textarea.remove();
   });
+
+  it('defers owner value projection during composition without losing the editing session', () => {
+    const textarea = document.createElement('textarea');
+    document.body.appendChild(textarea);
+    const lease = createWebTextControlHost(() => textarea).attach({
+      patch: { valueMode: 'controlled', value: 'abcdef' },
+      onEvent() {},
+    });
+    textarea.focus();
+    textarea.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    textarea.value = '編集中';
+    textarea.setSelectionRange(1, 2, 'backward');
+    textarea.scrollTop = 23;
+    textarea.scrollLeft = 5;
+
+    lease.update({
+      valueMode: 'controlled',
+      value: 'owner update',
+      placeholder: 'Applied during composition',
+    });
+    expect({
+      value: textarea.value,
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+      direction: textarea.selectionDirection,
+      scrollTop: textarea.scrollTop,
+      scrollLeft: textarea.scrollLeft,
+      active: document.activeElement,
+      placeholder: textarea.placeholder,
+    }).toEqual({
+      value: '編集中',
+      start: 1,
+      end: 2,
+      direction: 'backward',
+      scrollTop: 23,
+      scrollLeft: 5,
+      active: textarea,
+      placeholder: 'Applied during composition',
+    });
+
+    textarea.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+    expect({
+      value: textarea.value,
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+      direction: textarea.selectionDirection,
+      scrollTop: textarea.scrollTop,
+      scrollLeft: textarea.scrollLeft,
+      active: document.activeElement,
+    }).toEqual({
+      value: 'owner update',
+      start: 1,
+      end: 2,
+      direction: 'backward',
+      scrollTop: 23,
+      scrollLeft: 5,
+      active: textarea,
+    });
+
+    lease.dispose();
+    textarea.remove();
+  });
 });
