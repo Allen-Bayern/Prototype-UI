@@ -645,6 +645,7 @@ export default defineConfig({
         Hero: './src/components/override/Hero.astro',
         ContentPanel: './src/components/override/ContentPanel.astro',
         Header: './src/components/override/Header.astro',
+        Search: './src/components/override/Search.astro',
         PageFrame: './src/components/override/PageFrame.astro',
         SiteTitle: './src/components/override/SiteTitle.astro',
         ThemeProvider: './src/components/override/ThemeProvider.astro',
