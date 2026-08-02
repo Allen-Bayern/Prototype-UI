@@ -29,7 +29,7 @@
 ### Separator protocol and Skeleton visual prototype
 
 - Base Separator now has explicit horizontal/vertical orientation, decorative-versus-semantic accessibility behavior, live post-mount projection, and no semantic-only orientation in decorative mode.
-- The private `@proto.ui/prototypes-brutalist` workspace package adds a Separator projection and a direct styled-only Skeleton source subpath. Skeleton is passive, contentless, aria-hidden, and consumer-sized; the parent loading region retains busy state, announcements, replacement timing, and focus continuity. These candidates remain outside the 37-package rc.7 BOM and add no public Brutalist `proto-ui add` entries.
+- The private `@proto.ui/prototypes-brutalist` workspace package adds a Separator projection and a direct styled-only Skeleton source subpath. Skeleton is passive, contentless, aria-hidden, and consumer-sized; the parent loading region retains busy state, announcements, replacement timing, and focus continuity. These candidates remain outside the 38-package rc.7 BOM and add no public Brutalist `proto-ui add` entries.
 
 ### Live Region and Async Region accessibility boundaries
 
@@ -39,12 +39,12 @@
 
 ## Build and release
 
-### Executable artifacts for all 37 public packages
+### Executable artifacts for all 38 public packages
 
-- All 37 public `@proto.ui/*` packages now produce `dist/*.js` and `dist/*.d.ts` before publication. Package exports point separately to the JavaScript runtime and declaration outputs instead of publishing `.ts` source as an npm runtime entry that requires a TypeScript loader.
+- All 38 public `@proto.ui/*` packages now produce `dist/*.js` and `dist/*.d.ts` before publication. Package exports point separately to the JavaScript runtime and declaration outputs instead of publishing `.ts` source as an npm runtime entry that requires a TypeScript loader.
 - Every public package now has a package-local `build` and `prepack` contract. The root `build:packages` command builds selected packages and their upstream closure in production-dependency order, validates every export target, and runs import smoke tests in native Node ESM without loading TypeScript.
 - Release staging now reuses and copies the same locally verified `dist` output used by development and CI instead of maintaining a second temporary compilation path that could drift.
-- A generator now maintains public manifest `dist` exports, `files` allowlists, and build scripts consistently. Source and tests remain repository inputs but are excluded from the default npm payload; test files across the 37 tarballs were reduced from 1,031,558 B to 0 B.
+- A generator now maintains public manifest `dist` exports, `files` allowlists, and build scripts consistently. Source and tests remain repository inputs but are excluded from the default npm payload; test files across the 38 tarballs were reduced from 1,031,558 B to 0 B.
 
 ### Bundle, documentation, and CI feedback
 
@@ -56,8 +56,8 @@
 ## Validation
 
 - The trigger-group and Tabs v4 style-fidelity changes pass the complete workspace test suite: 239 test files and 1,077 tests passed, together with the prototype catalog, style preset, type checks, generated Agent-document check, and the shared Web Component/React/Vue Dialog conformance journey.
-- The delivery optimization has validated builds, export targets, native Node ESM imports, release staging, and `npm publish --dry-run` for 37/37 public packages. Package-manifest, bundle-budget, type, test, Astro check, and documentation-build gates also passed.
-- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 37 release tests.
+- The delivery optimization has validated builds, export targets, native Node ESM imports, release staging, and `npm publish --dry-run` for 38/38 public packages. Package-manifest, bundle-budget, type, test, Astro check, and documentation-build gates also passed.
+- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 38 release tests.
 
 ## Upgrade notes
 
@@ -66,4 +66,4 @@
 
 ## Release preparation still required
 
-- This draft does not mean rc.7 is installable. The draft version entity, aligned public package manifests, and 37-package BOM exist; the complete release rehearsal, immutable spec snapshot, Git tag, GitHub prerelease, and npm publication still require separate verification before activation.
+- This draft does not mean rc.7 is installable. The draft version entity, aligned public package manifests, and 38-package BOM exist; the complete release rehearsal, immutable spec snapshot, Git tag, GitHub prerelease, and npm publication still require separate verification before activation.

@@ -127,6 +127,48 @@ describe('@proto.ui/cli', () => {
     });
   });
 
+  it('materializes Base Live Region and Async Region facades for every adapter', () => {
+    const componentIds = ['base-live-region', 'base-async-region'];
+
+    for (const host of ['react', 'vue'] as const) {
+      const source = renderHostIndex(host, componentIds);
+      expect(source).toContain(
+        `import { liveRegionRoot } from '@proto.ui/prototypes-base/live-region';`
+      );
+      expect(source).toContain(
+        `import { asyncRegionRoot } from '@proto.ui/prototypes-base/async-region';`
+      );
+      expect(source).toContain('export const BaseLiveRegionRoot = adapt(liveRegionRoot);');
+      expect(source).toContain('export const BaseAsyncRegionRoot = adapt(asyncRegionRoot);');
+    }
+
+    const wc = renderHostIndex('wc', componentIds);
+    expect(wc).toContain(
+      `export const BaseLiveRegionRootElement = AdaptToWebComponent(liveRegionRoot, { registerAs: 'proto-ui-base-live-region' });`
+    );
+    expect(wc).toContain(
+      `export const BaseAsyncRegionRootElement = AdaptToWebComponent(asyncRegionRoot, { registerAs: 'proto-ui-base-async-region' });`
+    );
+
+    const root = renderRootIndex({
+      react: componentIds,
+      vue: componentIds,
+      wc: componentIds,
+    });
+    expect(root).toContain(
+      `export { BaseLiveRegionRoot as ReactBaseLiveRegionRoot } from './react';`
+    );
+    expect(root).toContain(
+      `export { BaseAsyncRegionRoot as ReactBaseAsyncRegionRoot } from './react';`
+    );
+    expect(root).toContain(`export { BaseLiveRegionRoot as VueBaseLiveRegionRoot } from './vue';`);
+    expect(root).toContain(
+      `export { BaseAsyncRegionRoot as VueBaseAsyncRegionRoot } from './vue';`
+    );
+    expect(root).toContain(`export { BaseLiveRegionRootElement } from './wc';`);
+    expect(root).toContain(`export { BaseAsyncRegionRootElement } from './wc';`);
+  });
+
   it('materializes the replaceable shadcn Switch Thumb preset for every adapter', () => {
     const react = renderHostIndex('react', ['shadcn-switch']);
     expect(react).toContain('export const ShadcnSwitchRoot = adapt(shadcnSwitchRoot);');

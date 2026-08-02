@@ -33,6 +33,7 @@ describe('prototypes/base: live-region', () => {
     expect(el.getAttribute('aria-live')).toBe('polite');
     expect(el.getAttribute('aria-atomic')).toBe('true');
     expect(el.tabIndex).toBe(-1);
+    expect(el.hasAttribute('aria-label')).toBe(false);
     expect(Object.keys(el.getExposes())).toEqual([]);
     expect(el.hasAttribute('data-pui-a11y-actions')).toBe(false);
     el.remove();
