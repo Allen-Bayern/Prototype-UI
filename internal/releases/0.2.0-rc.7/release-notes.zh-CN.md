@@ -57,7 +57,7 @@
 
 - Trigger group 与 Tabs v4 样式还原通过完整工作区测试：239 个测试文件、1,077 个测试通过；prototype catalog、style preset、类型检查、Agent 文档生成检查与 Web Component/React/Vue 共享 Dialog conformance journey 通过。
 - 构建优化已验证 38/38 公开 package 的完整构建、export target、原生 Node ESM import、release stage 与 `npm publish --dry-run`；package manifest、bundle budget、类型、测试、Astro check 与文档构建门禁均通过。
-- Demo Matrix 开发路由实测同时挂载 27 个 demo、81 个 previewer，Web Component、React 与 Vue 各 27 个；生产构建的 150 个页面、sitemap 与 Pagefind index 均不包含其中英文 Demo Matrix 路由。新增的 development-only 与三 adapter 并排 policy 已进入 38 条 release tests。
+- Demo Matrix 开发路由实测同时挂载 27 个 demo、81 个 previewer，Web Component、React 与 Vue 各 27 个；生产构建的 150 个页面、sitemap 与 Pagefind index 均不包含其中英文 Demo Matrix 路由。新增的 development-only 与三 adapter 并排 policy 已进入 37 条 release tests。
 
 ## 升级提示
 

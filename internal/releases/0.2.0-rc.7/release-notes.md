@@ -57,7 +57,7 @@
 
 - The trigger-group and Tabs v4 style-fidelity changes pass the complete workspace test suite: 239 test files and 1,077 tests passed, together with the prototype catalog, style preset, type checks, generated Agent-document check, and the shared Web Component/React/Vue Dialog conformance journey.
 - The delivery optimization has validated builds, export targets, native Node ESM imports, release staging, and `npm publish --dry-run` for 38/38 public packages. Package-manifest, bundle-budget, type, test, Astro check, and documentation-build gates also passed.
-- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 38 release tests.
+- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 37 release tests.
 
 ## Upgrade notes
 
