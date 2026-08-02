@@ -55,7 +55,7 @@
 
 ## 验证
 
-- 完整工作区测试通过：271 个测试文件、1,205 个测试通过，另有 3 个按设计跳过的文件与 34 个 todo case。工作区与文档类型检查覆盖 124 个 Astro 文件，错误、警告和提示均为 0；catalog 统计为 110 个 declaration、151 个 static authoring entry、109 个已编目的 P entity，known debt file 为 0。
+- 完整工作区测试通过：271 个测试文件、1,210 个测试通过，另有 3 个按设计跳过的文件与 34 个 todo case。工作区与文档类型检查覆盖 124 个 Astro 文件，错误、警告和提示均为 0；catalog 统计为 110 个 declaration、151 个 static authoring entry、109 个已编目的 P entity，known debt file 为 0。
 - 40 个公开 package 均通过生产构建、export target 校验、原生 Node ESM import smoke、staging 与 `npm publish --dry-run`。React tarball consumer 实际使用 36/40 个打包产物，CLI multi-host consumer 使用 38/40 个；生产文档构建产出 182 个页面，其中 180 个进入 Pagefind。
 - 已在浏览器中对构建后的 Brutalist Textarea showcase 进行 Web Component、React 与 Vue 三适配器实测。每个适配器均只挂载一个原生 textarea；路由保留原生属性与可访问 label/help 关联，支持非受控编辑，并呈现方角薰衣草紫/ink、纵向 resize 与硬阴影视觉表面。
 - 集成 release rehearsal 已通过 release identity/assets、catalog、types、release tests、runtime tests、spec snapshot 生成与 launch-governance scan，随后在外部 registry-readiness 门禁停止：`@proto.ui/module-text-control` 尚无 npm package identity。`@proto.ui/prototypes-brutalist` 已可解析到非发布 bootstrap identity。正式发布前必须先 bootstrap 剩余 package identity 并配置 Trusted Publisher；registry 门禁之后的所有 rehearsal 步骤均已单独运行并通过。
