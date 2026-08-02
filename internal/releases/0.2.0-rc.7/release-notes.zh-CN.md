@@ -37,6 +37,12 @@
 - Base Textarea 拥有一个 contentless logical multiline editor，提供稳定的受控/非受控 value ownership、归一化 input/change/IME payload、composition-safe 受控恢复、selection/cursor-preserving Web property 投影、accessibility，以及物理 focus/blur method。当前验证是同一 Web host 上的 cross-adapter evidence，不声称多宿主 conformance。
 - Brutalist Textarea 在同一个 target 上继承完整 Base 协议，只增加方角薰衣草紫/ink、等宽字体与硬阴影视觉样式。它不拥有 form workflow、validation message、auto-resize、rich text、live-region announcement 或第二个 control。
 
+### Live Region 与 Async Region 无障碍边界
+
+- Base Live Region 新增保留内容的 status/alert 边界，通过受治理的 `politeness` 与 `atomic` props 同步投射 `role`、`aria-live` 与 `aria-atomic`，但不拥有 focus、event、command、announcement 时序或替换行为。
+- Base Async Region 新增保留内容与焦点的 `busy` 边界，投射 `aria-busy` 且仅暴露受治理的 `busy` state；loading 视觉、announcement、替换状态与聊天语义仍由消费端拥有。
+- Web accessibility 投射新增 `live`、`atomic` 与 `busy` state key 到对应 ARIA attribute 的映射。两个 Base family 均拥有公开 package subpath 与 `proto-ui add` 条目，不会向当前 rc.7 BOM 新增 package。
+
 ## 构建与发布
 
 ### 40 个公开 package 交付可执行产物
@@ -55,10 +61,11 @@
 
 ## 验证
 
-- 完整工作区测试通过：271 个测试文件、1,211 个测试通过，另有 3 个按设计跳过的文件与 34 个 todo case。工作区与文档类型检查覆盖 124 个 Astro 文件，错误、警告和提示均为 0；catalog 统计为 110 个 declaration、151 个 static authoring entry、109 个已编目的 P entity，known debt file 为 0。
-- 40 个公开 package 均通过生产构建、export target 校验、原生 Node ESM import smoke、staging 与 `npm publish --dry-run`。React tarball consumer 实际使用 36/40 个打包产物，CLI multi-host consumer 使用 38/40 个；生产文档构建产出 182 个页面，其中 180 个进入 Pagefind。
+- 完整工作区测试通过：273 个测试文件、1,226 个测试通过，另有 3 个按设计跳过的文件与 34 个 todo case。工作区与文档类型检查覆盖 126 个文件，错误、警告和提示均为 0；catalog 统计为 112 个 declaration、155 个 static authoring entry、111 个已编目的 P entity，known debt file 为 0。
+- 40 个公开 package 均通过生产构建、export target 校验、原生 Node ESM import smoke、staging 与 `npm publish --dry-run`。React tarball consumer 实际使用 36/40 个打包产物，CLI multi-host consumer 使用 38/40 个；生产文档构建产出 186 个页面，其中 184 个进入 Pagefind。
 - 已在浏览器中对构建后的 Brutalist Textarea showcase 进行 Web Component、React 与 Vue 三适配器实测。每个适配器均只挂载一个原生 textarea；路由保留原生属性与可访问 label/help 关联，支持非受控编辑，并呈现方角薰衣草紫/ink、纵向 resize 与硬阴影视觉表面。
 - 集成 release rehearsal 已通过 release identity/assets、catalog、types、release tests、runtime tests、spec snapshot 生成与 launch-governance scan，随后在外部 registry-readiness 门禁停止：`@proto.ui/module-text-control` 尚无 npm package identity。`@proto.ui/prototypes-brutalist` 已可解析到非发布 bootstrap identity。正式发布前必须先 bootstrap 剩余 package identity 并配置 Trusted Publisher；registry 门禁之后的所有 rehearsal 步骤均已单独运行并通过。
+- Demo Matrix 开发路由实测同时挂载 27 个 demo、81 个 previewer，Web Component、React 与 Vue 各 27 个；生产构建的 150 个页面、sitemap 与 Pagefind index 均不包含其中英文 Demo Matrix 路由。新增的 development-only 与三 adapter 并排 policy 已进入 37 条 release tests。
 
 ## 升级提示
 

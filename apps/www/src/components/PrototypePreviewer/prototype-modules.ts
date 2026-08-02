@@ -55,6 +55,14 @@ const manualPrototypeModules: Record<string, PrototypeModuleLoader> = {
     const mod = await import('@proto.ui/prototypes-brutalist/textarea');
     registerPrototype('brutalist-textarea-root', mod.brutalistTextareaRoot);
   },
+  'base-live-region-root': async () => {
+    const mod = await import('@proto.ui/prototypes-base/live-region');
+    registerPrototype('base-live-region-root', mod.default);
+  },
+  'base-async-region-root': async () => {
+    const mod = await import('@proto.ui/prototypes-base/async-region');
+    registerPrototype('base-async-region-root', mod.default);
+  },
   'brutalist-toggle': async () => {
     const mod = await import('../../../../../packages/prototypes/brutalist/src/toggle/index');
     registerPrototype('brutalist-toggle', mod.default);

@@ -37,6 +37,12 @@
 - Base Textarea owns one contentless logical multiline editor with stable controlled or uncontrolled value ownership, normalized input/change/IME payloads, composition-safe controlled restoration, selection/cursor-preserving Web property projection, accessibility, and physical focus/blur methods. Current verification is cross-adapter evidence on one Web host and does not claim multi-host conformance.
 - Brutalist Textarea inherits the complete Base protocol on that same target and adds only square lavender/ink, monospace, hard-shadow styling. It does not own form workflow, validation messaging, auto-resize, rich text, live-region announcements, or a second control.
 
+### Live Region and Async Region accessibility boundaries
+
+- Base Live Region adds a content-preserving status/alert boundary with governed `politeness` and `atomic` props. It synchronizes `role`, `aria-live`, and `aria-atomic` without owning focus, events, commands, announcement timing, or replacement behavior.
+- Base Async Region adds a content- and focus-preserving `busy` boundary. It projects `aria-busy`, exposes only the governed `busy` state, and leaves loading visuals, announcements, replacement state, and chat semantics to consumers.
+- The Web accessibility projection now maps `live`, `atomic`, and `busy` state keys to their ARIA attributes. Both Base families have public package subpaths and `proto-ui add` entries; they add no package to the current rc.7 BOM.
+
 ## Build and release
 
 ### Executable artifacts for all 40 public packages
@@ -55,10 +61,11 @@
 
 ## Validation
 
-- The complete workspace suite passes with 271 test files and 1,211 tests, plus 3 intentionally skipped files and 34 todo cases. Workspace and documentation type checks cover 124 Astro files with zero errors, warnings, or hints; the catalog reports 110 declarations, 151 static authoring entries, 109 cataloged P entities, and zero known debt files.
-- All 40 public packages pass production build, export-target validation, native Node ESM import smoke, staging, and `npm publish --dry-run`. The React tarball consumer uses 36/40 packed packages, the CLI multi-host consumer uses 38/40, and the production documentation build emits 182 pages with 180 indexed by Pagefind.
+- The complete workspace suite passes with 273 test files and 1,226 tests, plus 3 intentionally skipped files and 34 todo cases. Workspace and documentation type checks cover 126 files with zero errors, warnings, or hints; the catalog reports 112 declarations, 155 static authoring entries, 111 cataloged P entities, and zero known debt files.
+- All 40 public packages pass production build, export-target validation, native Node ESM import smoke, staging, and `npm publish --dry-run`. The React tarball consumer uses 36/40 packed packages, the CLI multi-host consumer uses 38/40, and the production documentation build emits 186 pages with 184 indexed by Pagefind.
 - The built Brutalist Textarea showcase was exercised in a browser across Web Component, React, and Vue. Each adapter mounts one native textarea; the route preserves native properties and accessible label/help relations, accepts uncontrolled editing, and renders the square lavender/ink, vertical-resize, hard-shadow surface.
 - The integrated release rehearsal passes release identity/assets, catalog, types, release tests, runtime tests, spec snapshot generation, and launch-governance scan, then stops at the external registry-readiness gate because `@proto.ui/module-text-control` does not yet have an npm package identity. `@proto.ui/prototypes-brutalist` already resolves at its non-release bootstrap identity. The remaining package identity must be bootstrapped and configured with a Trusted Publisher before publication; all post-registry rehearsal steps were run independently and pass.
+- The development Demo Matrix was verified with 27 demos and 81 simultaneously mounted previewers, 27 each for Web Component, React, and Vue. Its English and Chinese routes are absent from the 150-page production build, sitemap, and Pagefind index; the development-only and three-adapter side-by-side policies are now covered by the 37 release tests.
 
 ## Upgrade notes
 

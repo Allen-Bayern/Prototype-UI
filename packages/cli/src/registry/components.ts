@@ -703,6 +703,18 @@ export const COMPONENT_REGISTRY: Record<string, ComponentEntry> = {
   ]),
 
   'base-separator': base('base-separator', 'Base Separator', 'separatorRoot', 'BaseSeparatorRoot'),
+  'base-live-region': base(
+    'base-live-region',
+    'Base Live Region',
+    'liveRegionRoot',
+    'BaseLiveRegionRoot'
+  ),
+  'base-async-region': base(
+    'base-async-region',
+    'Base Async Region',
+    'asyncRegionRoot',
+    'BaseAsyncRegionRoot'
+  ),
   'base-dialog': baseCompound('base-dialog', 'base Dialog', [
     {
       prototypeImport: 'dialogRoot',

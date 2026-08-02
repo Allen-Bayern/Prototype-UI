@@ -3,11 +3,14 @@ import type { A11ySemanticObjectSnapshot } from '@proto.ui/core';
 import type { A11yProjector } from './caps';
 
 const ARIA_STATE_ATTRS: Record<string, string> = {
+  atomic: 'aria-atomic',
+  busy: 'aria-busy',
   checked: 'aria-checked',
   disabled: 'aria-disabled',
   expanded: 'aria-expanded',
   hasPopup: 'aria-haspopup',
   invalid: 'aria-invalid',
+  live: 'aria-live',
   orientation: 'aria-orientation',
   pressed: 'aria-pressed',
   readOnly: 'aria-readonly',

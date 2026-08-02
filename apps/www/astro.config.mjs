@@ -265,6 +265,16 @@ export default defineConfig({
                   translations: { en: 'Textarea', 'zh-CN': 'Textarea' },
                   slug: 'ui-libraries/base/textarea',
                 },
+                {
+                  label: 'Live Region',
+                  translations: { en: 'Live Region', 'zh-CN': 'Live Region' },
+                  slug: 'ui-libraries/base/live-region',
+                },
+                {
+                  label: 'Async Region',
+                  translations: { en: 'Async Region', 'zh-CN': 'Async Region' },
+                  slug: 'ui-libraries/base/async-region',
+                },
               ],
             },
             {

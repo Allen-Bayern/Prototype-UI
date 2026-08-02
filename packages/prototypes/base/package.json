@@ -102,6 +102,16 @@
       "types": "./dist/textarea/index.d.ts",
       "import": "./dist/textarea/index.js",
       "default": "./dist/textarea/index.js"
+    },
+    "./live-region": {
+      "types": "./dist/live-region/index.d.ts",
+      "import": "./dist/live-region/index.js",
+      "default": "./dist/live-region/index.js"
+    },
+    "./async-region": {
+      "types": "./dist/async-region/index.d.ts",
+      "import": "./dist/async-region/index.js",
+      "default": "./dist/async-region/index.js"
     }
   },
   "description": "Base Proto UI prototype library for reusable interaction prototypes.",

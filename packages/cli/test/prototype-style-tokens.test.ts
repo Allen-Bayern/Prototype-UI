@@ -159,4 +159,31 @@ describe('collectProtoStyleTokens', () => {
     expect(tokens).toContain('data-[orientation=vertical]:h-12');
     expect(tokens).toContain('data-[orientation=vertical]:w-0.5');
   });
+
+  it('maps asAsyncRegionRoot busy rules to the data-busy web serialization', async () => {
+    await writeFile(
+      path.join(dir, 'async-region.proto.ts'),
+      [
+        "import { definePrototype, tw } from '@proto.ui/core';",
+        "import { asAsyncRegionRoot } from '@proto.ui/prototypes-base/async-region';",
+        '',
+        'const asyncRegion = definePrototype({',
+        "  name: 'styled-async-region',",
+        '  setup(def) {',
+        '    const { busy } = asAsyncRegionRoot().stateHandles;',
+        '    def.rule({',
+        '      when: (w) => w.state(busy).eq(true),',
+        "      intent: (i) => i.feedback.style.use(tw('opacity-50 cursor-wait')),",
+        '    });',
+        '  },',
+        '});',
+        'export default asyncRegion;',
+      ].join('\n')
+    );
+
+    const tokens = await collectProtoStyleTokens(dir);
+
+    expect(tokens).toContain('data-[busy]:opacity-50');
+    expect(tokens).toContain('data-[busy]:cursor-wait');
+  });
 });

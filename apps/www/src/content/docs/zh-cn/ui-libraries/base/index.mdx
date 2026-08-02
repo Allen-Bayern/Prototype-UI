@@ -8,7 +8,9 @@ import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
 当前页面用于展示更接近协议层的 base 原型。
 
-在 base 层，原型应当停在可被广泛复用的交互语义边界上。以 dropdown-menu 为例，目前边界是：
+Base 准入并不限于交互，但每个进入 Base 的原型都必须拥有可独立测试、可跨宿主迁移的信息通路。Separator 拥有 decorative/semantic orientation 投射；Live Region 拥有 status/alert 与 atomic 播报语义；Async Region 拥有 busy state 投射。仅承担视觉结构的 carrier 继续留在 styled library。
+
+对于交互 family，Base 原型应停在可广泛复用的语义边界。以 dropdown-menu 为例，目前边界是：
 
 - 浮层开合协作
 - collection 顺序与 item snapshot
