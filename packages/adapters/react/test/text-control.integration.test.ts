@@ -53,6 +53,8 @@ describe('adapter-react text control', () => {
       placeholder: 'Write',
       disabled: true,
       rows: 5,
+      surfaceClassName: 'surface-control w-full outline-none',
+      surfaceStyle: { minHeight: '7rem' },
     });
     const textarea = mounted.root as HTMLTextAreaElement;
     expect(textarea.tagName.toLowerCase()).toBe('textarea');
@@ -61,6 +63,10 @@ describe('adapter-react text control', () => {
     expect(textarea.placeholder).toBe('Write');
     expect(textarea.disabled).toBe(true);
     expect(Number(textarea.rows)).toBe(5);
+    expect(textarea.classList.contains('surface-control')).toBe(true);
+    expect(textarea.classList.contains('w-full')).toBe(true);
+    expect(textarea.classList.contains('outline-none')).toBe(true);
+    expect(textarea.style.minHeight).toBe('7rem');
 
     textarea.value = 'edited';
     textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));

@@ -36,6 +36,13 @@ cases:
     covers:
       - C-TEXT-CONTROL-0001-G
     expectation: web-host-patches-preserve-selection-cursor-and-active-composition
+  - id: T-TEXT-CONTROL-0001-CASE-PRESENTATION-SURFACE
+    title: Wrapper-backed Web Component projection keeps boundary metadata on the custom element and visual intent on the textarea
+    covers:
+      - C-TEXT-CONTROL-0001-H
+      - C-HOST-SURFACE-PROJECTION-0001-B
+      - C-HOST-SURFACE-PROJECTION-0001-C
+    expectation: wc-text-control-wrapper-is-logical-only-while-textarea-is-the-presentation-surface
 implementations:
   - id: module-text-control-web-contract
     kind: module-test
@@ -68,6 +75,7 @@ implementations:
     consumesCases:
       - T-TEXT-CONTROL-0001-CASE-STATIC-TARGET
       - T-TEXT-CONTROL-0001-CASE-LEASE-BOUNDARY
+      - T-TEXT-CONTROL-0001-CASE-PRESENTATION-SURFACE
     exercises:
       - M-TEXT-CONTROL-0001
       - HC-TEXT-CONTROL-0001
@@ -111,6 +119,11 @@ verifies:
         - C-TEXT-CONTROL-0001-E
         - C-TEXT-CONTROL-0001-F
         - C-TEXT-CONTROL-0001-G
+        - C-TEXT-CONTROL-0001-H
+    - id: C-HOST-SURFACE-PROJECTION-0001
+      anchors:
+        - C-HOST-SURFACE-PROJECTION-0001-B
+        - C-HOST-SURFACE-PROJECTION-0001-C
 exercises:
   modules:
     - M-TEXT-CONTROL-0001

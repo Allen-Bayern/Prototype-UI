@@ -45,12 +45,27 @@ describe('adapter-web-component text control', () => {
     const shell = document.createElement('x-wc-text-control') as WebComponentAdapterElement<
       typeof textareaPrototype
     >;
-    setElementProps(shell, { defaultValue: 'initial', placeholder: 'Write', rows: 6 });
+    setElementProps(shell, {
+      className: 'boundary-only',
+      surfaceClassName: 'surface-control w-full outline-none',
+      surfaceStyle: { minHeight: '7rem' },
+      defaultValue: 'initial',
+      placeholder: 'Write',
+      rows: 6,
+    });
     document.body.appendChild(shell);
     await flush();
     const textarea = shell.querySelector('textarea');
     expect(shell.tagName.toLowerCase()).toBe('x-wc-text-control');
+    expect(shell.getAttribute('data-pui-root')).toBe('');
+    expect(shell.classList.contains('boundary-only')).toBe(true);
+    expect(shell.classList.contains('surface-control')).toBe(false);
     expect(shell.querySelectorAll('textarea')).toHaveLength(1);
+    expect(textarea?.getAttribute('part')).toBe('control');
+    expect(textarea?.classList.contains('surface-control')).toBe(true);
+    expect(textarea?.classList.contains('w-full')).toBe(true);
+    expect(textarea?.classList.contains('outline-none')).toBe(true);
+    expect(textarea?.style.minHeight).toBe('7rem');
     expect(textarea?.value).toBe('initial');
     expect(textarea?.defaultValue).toBe('initial');
     expect(textarea?.placeholder).toBe('Write');
@@ -66,6 +81,17 @@ describe('adapter-web-component text control', () => {
     textarea.value = 'edited';
     textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
     expect(moduleInputValues).toEqual(['edited']);
+
+    setElementProps(shell, {
+      defaultValue: 'initial',
+      placeholder: 'Write',
+      rows: 6,
+      surfaceClassName: 'surface-next',
+    });
+    shell.update();
+    expect(textarea.classList.contains('surface-control')).toBe(false);
+    expect(textarea.classList.contains('surface-next')).toBe(true);
+    expect(textarea.style.minHeight).toBe('');
     expect(leakedNativeInputs).toHaveLength(0);
 
     shell.remove();

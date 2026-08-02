@@ -10,11 +10,13 @@ import { type RawPropsSource } from '@proto.ui/module-props';
 
 import {
   createHostWiring,
+  createHostSurfaceProjection,
   createEventGate,
   createScopedExposesReader,
   createWebProtoEventRouter,
   createViewEpochOwner,
   scheduleAfterWebLayout,
+  type HostSurfaceProjection,
   type LogicalInstanceToken,
   type ProtoAdapterProps,
 } from '@proto.ui/adapter-base';
@@ -29,7 +31,13 @@ import {
   type WebTextControl,
 } from '@proto.ui/module-text-control';
 
-import { bindController, getElementProps, setElementProps, unbindController } from './props';
+import {
+  bindController,
+  bindElementSurfaceProjection,
+  getElementProps,
+  setElementProps,
+  unbindController,
+} from './props';
 import { SlotProjector } from './slot-projector';
 import { createOwnedTwTokenApplier } from './feedback-style';
 import { installDebugHooks, removeDebugHooks } from './debug/hooks';
@@ -143,6 +151,7 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
     private _slotProjector: SlotProjector | null = null;
     private _hostDisplay: HostDisplayController | null = null;
     private _textControlTarget: WebTextControl | null = null;
+    private _surfaceProjection: HostSurfaceProjection<HTMLElement>;
 
     private _applier: ReturnType<typeof createOwnedTwTokenApplier> | null = null;
     private _exposes: Record<string, unknown> = {};
@@ -154,7 +163,13 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
         this._textControlTarget = document.createElement(
           resolveWebTextControlLocalName(textControl)
         );
+        this._textControlTarget.setAttribute('part', 'control');
       }
+      this._surfaceProjection = createHostSurfaceProjection<HTMLElement>(
+        this,
+        this._textControlTarget ?? this
+      );
+      bindElementSurfaceProjection(this, this._surfaceProjection);
       this._instanceToken = createLogicalInstance(proto as Prototype<any>);
       markProtoInstance(this, proto as Prototype<any>, this._instanceToken);
     }

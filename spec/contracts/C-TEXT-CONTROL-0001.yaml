@@ -42,6 +42,10 @@ criteria:
     text:
       zh-CN: 宿主必须默认保留 selection、cursor、IME 与系统 editing chrome；普通 property patch 或未改变 value 的同步不得破坏 active editing session，controlled composition 期间的无关 patch 不得写回 owner value。
       en: The host must preserve selection, cursor, IME, and system editing chrome by default; ordinary property patches or synchronization with an unchanged value must not disrupt the active editing session, and unrelated patches during controlled composition must not write the owner value back.
+  - id: C-TEXT-CONTROL-0001-H
+    text:
+      zh-CN: 在 adapter 使用 infrastructure wrapper 的 profile 中，wrapper 必须保留 logical boundary，host-owned physical editor 必须成为 Root visual intent 的 surfaceTarget；不得把 surface class/style 留在 wrapper 上形成第二个视觉控件或错位的 focus surface。
+      en: In profiles where an adapter uses an infrastructure wrapper, the wrapper must retain the logical boundary while the host-owned physical editor becomes the surfaceTarget for Root visual intent; surface class or style must not remain on the wrapper and create a second visual control or a displaced focus surface.
 sources:
   - path: packages/core/src/text-control.ts
   - path: packages/modules/text-control/src/impl.ts
@@ -50,11 +54,15 @@ dependsOn:
   decisions:
     - D-TEXT-CONTROL-PROJECTION-0001
   contracts:
+    - C-HOST-SURFACE-PROJECTION-0001
     - C-TEMPLATE-0001
     - C-MODULE-DECLARATION-0001
     - C-TEMPLATE-0002
     - C-EVENT-0002
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Required wrapper-backed Text Control profiles to project Root visual intent onto the physical editor surface.
   - version: 0.2.0-rc.7
     change: revised
     summary: Replaced the Web target declaration with host-neutral editing requirements and added editing-session preservation.

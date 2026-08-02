@@ -41,6 +41,7 @@ import {
   createExposeStateWebNameMap,
   createExposeStateWebNativeVariantPolicy,
   EXPOSE_STATE_WEB_MAP_CAP,
+  EXPOSE_STATE_WEB_MIRROR_TARGETS_CAP,
   EXPOSE_STATE_WEB_MODE_CAP,
 } from '@proto.ui/module-expose-state-web';
 import {
@@ -307,6 +308,10 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     };
   };
   const physicalControl = () => args.textControlTarget;
+  // Keep canonical instance-facing state markers on the custom-element
+  // boundary while mirroring only the generated selector context needed by
+  // translated feedback.style tokens on a split presentation surface.
+  const presentationSurface = args.textControlTarget ?? el;
 
   return createCapsWiring()
     .use('text-control', [
@@ -412,6 +417,10 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
     .use('expose-state-web', () => [
       [HOST_ELEMENT_CAP, el],
       [EXPOSE_STATE_WEB_MAP_CAP, createExposeStateWebNameMap],
+      [
+        EXPOSE_STATE_WEB_MIRROR_TARGETS_CAP,
+        () => (presentationSurface === el ? [] : [presentationSurface]),
+      ],
       ...(exposeStateWebMode ? [[EXPOSE_STATE_WEB_MODE_CAP, exposeStateWebMode] as const] : []),
     ])
     .use('context', [

@@ -32,6 +32,10 @@ criteria:
     text:
       zh-CN: 物理 target 必须保留 textbox role，将 ariaLabel、labelledBy、describedBy、disabled 与 readOnly 投影为对应 aria 信息，并提供 disabled-aware focusSelf()、blurSelf() 与 live value/disabled/readOnly/focused/focusVisible/composing state。
       en: The physical target must retain the textbox role; project ariaLabel, labelledBy, describedBy, disabled, and readOnly to the corresponding ARIA information; and expose disabled-aware focusSelf(), blurSelf(), and live value/disabled/readOnly/focused/focusVisible/composing state.
+  - id: P-BASE-TEXTAREA-PRESENTATION-SURFACE
+    text:
+      zh-CN: Root visual intent 必须投影到同一个物理 editor；adapter infrastructure wrapper 可以保留 logical boundary，但不得接收本应作用于 textarea 的 surface class/style 或 focus pseudo-class。
+      en: Root visual intent must project to the same physical editor; an adapter infrastructure wrapper may retain the logical boundary but must not receive surface class or style, or focus pseudo-classes, that are intended for the textarea.
   - id: P-BASE-TEXTAREA-BOUNDARY
     text:
       zh-CN: Root 不得拥有 form submission、hidden-field、form-data、validation message、auto-resize、rich-text、live-region announcement、系统 selection/edit menu chrome 或第二个 physical editor；长按输入模态不得产生 touch-only Textarea 原型。
@@ -44,6 +48,7 @@ dependsOn:
     - D-TEXT-CONTROL-PROJECTION-0001
   contracts:
     - C-AS-HOOK-0001
+    - C-HOST-SURFACE-PROJECTION-0001
     - C-TEXT-CONTROL-0001
     - C-PROPS-0001
     - C-STATE-0001
@@ -56,6 +61,9 @@ verifies:
   tests:
     - T-BASE-TEXTAREA-0001
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Required Root visual intent to target the physical editor across wrapper-backed adapters.
   - version: 0.2.0-rc.7
     change: revised
     summary: Made physical materialization host-selected and kept system editing chrome outside the prototype boundary.

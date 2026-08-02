@@ -75,8 +75,10 @@ export type ReactAdapterProps<Props extends PropsBaseType> = Props &
     children?: any;
     className?: string;
     hostClassName?: string;
+    surfaceClassName?: string;
     style?: any;
     hostStyle?: any;
+    surfaceStyle?: any;
     [key: `on${string}`]: unknown;
   };
 
@@ -105,7 +107,16 @@ type ReactRuntimeInput = ReactRuntime | { React: ReactRuntime };
 function defaultGetProps<Props extends PropsBaseType>(
   props: ReactAdapterProps<Props>
 ): Partial<Props> {
-  const { children, className, hostClassName, style, hostStyle, ...rest } = (props ?? {}) as any;
+  const {
+    children,
+    className,
+    hostClassName,
+    surfaceClassName,
+    style,
+    hostStyle,
+    surfaceStyle,
+    ...rest
+  } = (props ?? {}) as any;
   const filtered: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(rest)) {
     if (isFrameworkEventProp(key, value)) continue;
@@ -507,8 +518,12 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
             rootTag,
             {
               ref: rootRef as { current: HTMLElement | null },
-              className: mergeHostClassName([props.hostClassName, props.className]),
-              style: mergeHostStyle([props.hostStyle, props.style]),
+              className: mergeHostClassName([
+                props.surfaceClassName,
+                props.hostClassName,
+                props.className,
+              ]),
+              style: mergeHostStyle([props.surfaceStyle, props.hostStyle, props.style]),
               'data-pui-root': '',
               [PUI_VIEW_PENDING_ATTR]: viewReadyRef.current ? undefined : '',
               'data-pui-style': serializeStyleTokens(hostTokens),

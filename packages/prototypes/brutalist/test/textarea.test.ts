@@ -84,4 +84,36 @@ describe('prototypes/brutalist: textarea', () => {
     expect(element.getExposes().value.get()).toBe('one\ntwo');
     element.remove();
   });
+
+  it('projects state selector context onto the styled textarea surface', async () => {
+    const element = document.createElement('brutalist-textarea-root') as TextareaElement;
+    setElementProps(element, {
+      disabled: true,
+      readOnly: true,
+    });
+    document.body.appendChild(element);
+    await flush();
+
+    const target = physicalTextarea(element);
+    expect(element.hasAttribute('data-disabled')).toBe(true);
+    expect(element.hasAttribute('data-read-only')).toBe(true);
+    expect(target.hasAttribute('data-disabled')).toBe(true);
+    expect(target.hasAttribute('data-read-only')).toBe(true);
+    expect(target.hasAttribute('data-pui-root')).toBe(false);
+    expect(styleContains(target, 'data-[disabled]:opacity-50')).toBe(true);
+
+    setElementProps(element, {
+      disabled: false,
+      readOnly: false,
+    });
+    element.update();
+    await flush();
+
+    expect(element.hasAttribute('data-disabled')).toBe(false);
+    expect(element.hasAttribute('data-read-only')).toBe(false);
+    expect(target.hasAttribute('data-disabled')).toBe(false);
+    expect(target.hasAttribute('data-read-only')).toBe(false);
+
+    element.remove();
+  });
 });

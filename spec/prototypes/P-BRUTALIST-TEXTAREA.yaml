@@ -33,6 +33,7 @@ relates:
 dependsOn:
   contracts:
     - C-AS-HOOK-0001
+    - C-HOST-SURFACE-PROJECTION-0001
     - C-RULE-INTENT-FEEDBACK-STYLE-0001
 inherits:
   prototypes:

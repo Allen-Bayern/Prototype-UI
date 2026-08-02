@@ -40,6 +40,8 @@ describe('adapter-vue text control', () => {
       defaultValue: 'initial',
       placeholder: 'Write',
       rows: 4,
+      surfaceClass: 'surface-control w-full outline-none',
+      surfaceStyle: { minHeight: '7rem' },
     });
     await flushVue();
     const textarea = mounted.root as HTMLTextAreaElement;
@@ -48,6 +50,10 @@ describe('adapter-vue text control', () => {
     expect(textarea.defaultValue).toBe('initial');
     expect(textarea.placeholder).toBe('Write');
     expect(Number(textarea.rows)).toBe(4);
+    expect(textarea.classList.contains('surface-control')).toBe(true);
+    expect(textarea.classList.contains('w-full')).toBe(true);
+    expect(textarea.classList.contains('outline-none')).toBe(true);
+    expect(textarea.style.minHeight).toBe('7rem');
 
     textarea.value = 'edited';
     textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
