@@ -188,16 +188,19 @@ export const asTextareaRoot = defineAsHook<
   TextareaRootAsHookContract
 >({
   name: 'as-textarea-root',
+  modules: [
+    declareTextControl({
+      content: 'plain-text',
+      lineMode: 'multiline',
+      engine: 'host',
+    }),
+  ],
   setup: setupTextareaRoot,
 });
 
 const textareaRoot = definePrototype({
   name: 'base-textarea-root',
-  modules: [
-    declareTextControl({
-      target: { namespace: 'web', localName: 'textarea' },
-    }),
-  ],
+  modules: asTextareaRoot.modules,
   setup: setupTextareaRoot,
 });
 

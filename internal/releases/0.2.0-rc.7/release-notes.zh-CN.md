@@ -33,8 +33,8 @@
 
 ### 原生 Textarea 协议与 Brutalist 投影
 
-- 新增 typed static module-declaration 基础，使 prototype 可以在 render 前选择 adapter-owned host infrastructure，而无需扩大 Template v0。公开 `@proto.ui/module-text-control` package 通过该机制在 Web Component、React 与 Vue 中 lease 一个原生 textarea。
-- Base Textarea 拥有一个 contentless 物理原生 textarea，提供稳定的受控/非受控 value ownership、归一化 input/change/IME payload、composition-safe 受控恢复、实时原生 property 与 accessibility 投影，以及物理 focus/blur method。
+- 新增 typed static module-declaration 基础，使 prototype 可以在 render 前声明 adapter-owned host infrastructure requirement，而无需扩大 Template v0；authored asHook 可以发布冻结 requirements 供 caller definition 显式复用。公开 `@proto.ui/module-text-control` package 使用 host-neutral plain-text/multiline declaration，当前 Web profile 在 Web Component、React 与 Vue 中 lease 一个原生 textarea。
+- Base Textarea 拥有一个 contentless logical multiline editor，提供稳定的受控/非受控 value ownership、归一化 input/change/IME payload、composition-safe 受控恢复、selection/cursor-preserving Web property 投影、accessibility，以及物理 focus/blur method。当前验证是同一 Web host 上的 cross-adapter evidence，不声称多宿主 conformance。
 - Brutalist Textarea 在同一个 target 上继承完整 Base 协议，只增加方角薰衣草紫/ink、等宽字体与硬阴影视觉样式。它不拥有 form workflow、validation message、auto-resize、rich text、live-region announcement 或第二个 control。
 
 ## 构建与发布

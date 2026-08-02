@@ -3,7 +3,7 @@ type: test
 title: Base Textarea protocol tests
 status: draft
 since: 0.2.0-rc.7
-summary: Web Component coverage for one contentless native textarea, stable value ownership, normalized edit and IME events, native property and accessibility projection, physical focus, and the bounded expose surface.
+summary: Web Component coverage for one contentless Web textarea profile, shared direct/asHook static requirements, stable value ownership, normalized edit and IME events, native property and accessibility projection, physical focus, and the bounded expose surface.
 cases:
   - id: T-BASE-TEXTAREA-0001-CASE-PHYSICAL-SURFACE
     title: Root materializes one contentless native textarea with the complete initial property surface
@@ -38,11 +38,11 @@ cases:
       - P-BASE-TEXTAREA-NATIVE-PROPS
     expectation: live-a11y-and-focus-project-to-the-same-native-textarea
   - id: T-BASE-TEXTAREA-0001-CASE-AUTHORING-SURFACE
-    title: Direct and asHook entries expose the same bounded Textarea protocol
+    title: Direct and asHook entries expose the same bounded Textarea protocol and static requirements
     covers:
       - P-BASE-TEXTAREA-AUTHORING-ENTRIES
       - P-BASE-TEXTAREA-BOUNDARY
-    expectation: direct-and-authored-textarea-entries-share-one-exact-protocol
+    expectation: direct-and-authored-textarea-entries-share-one-protocol-and-module-requirement
 implementations:
   - id: prototypes-base-textarea-contract
     kind: module-test
@@ -77,6 +77,9 @@ exercises:
 sources:
   - path: packages/prototypes/base/test/textarea.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added host-neutral direct/asHook static requirement coverage.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Added executable Base Textarea protocol coverage.

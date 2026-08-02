@@ -320,7 +320,7 @@ module 包不是通用 end-user package。
 - scroll
 - text control
 
-`@proto.ui/module-text-control` 拥有 declared native text control 的 adapter-facing host boundary：稳定的 controlled/uncontrolled value ownership、归一化 input/change/composition event、原生 property 投影与 physical focus access。它是 Base Textarea 与官方 adapter 的 dependency-directed 基础设施，不是 `Maker` 的通用入口。
+`@proto.ui/module-text-control` 拥有 semantic host-owned text-editor requirement 的 adapter-facing host boundary：稳定的 controlled/uncontrolled value ownership、归一化 input/change/composition event、property 投影、editing-session preservation 与 physical focus access。当前 Web profile 将 multiline plain text 解析为 `HTMLTextAreaElement`；其它宿主通过等价 capability 接入，不向 prototype 暴露 widget 名称。它是 Base Textarea 与官方 adapter 的 dependency-directed 基础设施，不是 `Maker` 的通用入口。
 
 这些 package 更适合被理解为：
 

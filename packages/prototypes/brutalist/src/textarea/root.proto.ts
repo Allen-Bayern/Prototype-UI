@@ -1,5 +1,4 @@
 import { definePrototype, tw } from '@proto.ui/core';
-import { declareTextControl } from '@proto.ui/module-text-control';
 import { asTextareaRoot } from '@proto.ui/prototypes-base/textarea';
 import { BRUTALIST_FOCUS_TOKENS } from '../style';
 import type { BrutalistTextareaRootExposes, BrutalistTextareaRootProps } from './types';
@@ -9,11 +8,7 @@ export const BrutalistTextareaRoot = definePrototype<
   BrutalistTextareaRootExposes
 >({
   name: 'brutalist-textarea-root',
-  modules: [
-    declareTextControl({
-      target: { namespace: 'web', localName: 'textarea' },
-    }),
-  ],
+  modules: asTextareaRoot.modules,
   setup(def) {
     const textarea = asTextareaRoot();
     const state = textarea.stateHandles;

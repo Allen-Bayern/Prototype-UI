@@ -136,4 +136,35 @@ describe('module-text-control web bridge', () => {
     textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
     expect(seen).toHaveLength(5);
   });
+
+  it('preserves cursor and selection across host patches and controlled restoration', () => {
+    const textarea = document.createElement('textarea');
+    document.body.appendChild(textarea);
+    const lease = createWebTextControlHost(() => textarea).attach({
+      patch: { valueMode: 'controlled', value: '0123456789' },
+      onEvent() {},
+    });
+    textarea.focus();
+    textarea.setSelectionRange(3, 7, 'forward');
+
+    lease.update({
+      valueMode: 'controlled',
+      value: '0123456789',
+      placeholder: 'Unrelated host patch',
+    });
+    expect({
+      active: document.activeElement,
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+      direction: textarea.selectionDirection,
+    }).toEqual({ active: textarea, start: 3, end: 7, direction: 'forward' });
+
+    lease.update({ valueMode: 'controlled', value: 'short' });
+    expect({ start: textarea.selectionStart, end: textarea.selectionEnd }).toEqual({
+      start: 3,
+      end: 5,
+    });
+    lease.dispose();
+    textarea.remove();
+  });
 });

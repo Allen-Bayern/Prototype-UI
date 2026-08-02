@@ -1,12 +1,12 @@
 ---
 title: 'Textarea'
 desp: 'Textarea 基础原型'
-description: '无内容渲染的原生多行文本控件原型'
+description: '无内容渲染的宿主协同多行文本控件原型'
 ---
 
 import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
-`base-textarea-root` 是一个无内容渲染的 Base 原型。它拥有一个物理原生 `<textarea>`，以及围绕该元素定义的窄多行文本控件协议。
+`base-textarea-root` 是一个无内容渲染的 Base 原型。它静态声明 `plain-text`、`multiline` 与 host-owned editing requirement，由 adapter 选择一个物理宿主 editor。当前 Web profile 将该 requirement 解析为原生 `<textarea>`；Web Component、React 与 Vue 的演示是同一 Web host 上的 cross-adapter evidence，不代表已经完成多宿主 conformance。
 
 <div>
   <PrototypePreviewer
@@ -31,6 +31,8 @@ import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
 在受控 IME 会话期间，物理 textarea 会保留正在输入的候选文本。`compositionEnd` 后，如果 owner 没有接纳候选值，控件才恢复为当前受控 `value`；恢复不会打断组合输入。
 
+普通 property update 或未改变 value 的同步会保留当前 cursor/selection。长按选择、selection handles、软件键盘与系统复制/剪切/粘贴菜单属于宿主 editing session；Base Textarea 不另外定义 touch-only 原型，也不替换系统 editing chrome。
+
 ## 原生控件投影
 
 Root 将这些 props 投影到同一个物理 textarea：`disabled`、`readOnly`、`required`、`name`、`placeholder`、`autoComplete`、`minLength`、`maxLength`、`rows` 与 `wrap`。`value` 和 `defaultValue` 遵循上述所有权规则，不会创建第二个控件。
@@ -39,9 +41,11 @@ Expose surface 提供 `focusSelf()`、`blurSelf()`，以及 `value`、`disabled`
 
 Base 不提供 child renderer，也不提供视觉样式。应用作者应在这个 contentless 协议边界之外为原生控件添加样式与标签，而不是在 Root 内放入 authored content 或 rich text。
 
+`asTextareaRoot.modules` 公开该 authored asHook 的冻结 pre-render module requirements。使用 `asTextareaRoot()` 创建 styled prototype 时，调用者必须在自己的 prototype definition 上复用这个 surface；setup-time 调用不会事后改变 adapter 已完成的 target selection。
+
 ## 当前边界
 
-`base-textarea-root` 不拥有 form submission、hidden field、form-data 协作、validation message、auto-resize、rich-text editing、status/live-region announcement，也不拥有单一原生 textarea 之外的组合能力。原生表单相关 props 可以被投影，但这不会让原型成为表单工作流的 owner。
+`base-textarea-root` 不拥有 form submission、hidden field、form-data 协作、validation message、auto-resize、rich-text editing、status/live-region announcement、系统 selection/edit-menu chrome，也不拥有单一物理 editor 之外的组合能力。Web 表单相关 props 可以被投影，但这不会让原型成为表单工作流的 owner。
 
 ## 参考
 

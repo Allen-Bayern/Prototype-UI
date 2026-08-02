@@ -33,8 +33,8 @@
 
 ### Native Textarea protocol and Brutalist projection
 
-- A typed static module-declaration substrate now lets a prototype select adapter-owned host infrastructure before render without widening Template v0. The public `@proto.ui/module-text-control` package uses it to lease one native textarea across Web Component, React, and Vue.
-- Base Textarea owns one contentless physical native textarea with stable controlled or uncontrolled value ownership, normalized input/change/IME payloads, composition-safe controlled restoration, live native property and accessibility projection, and physical focus/blur methods.
+- A typed static module-declaration substrate now lets a prototype declare adapter-owned host-infrastructure requirements before render without widening Template v0; authored asHooks may publish frozen requirements for explicit caller-definition reuse. The public `@proto.ui/module-text-control` package uses a host-neutral plain-text/multiline declaration whose current Web profile leases one native textarea across Web Component, React, and Vue.
+- Base Textarea owns one contentless logical multiline editor with stable controlled or uncontrolled value ownership, normalized input/change/IME payloads, composition-safe controlled restoration, selection/cursor-preserving Web property projection, accessibility, and physical focus/blur methods. Current verification is cross-adapter evidence on one Web host and does not claim multi-host conformance.
 - Brutalist Textarea inherits the complete Base protocol on that same target and adds only square lavender/ink, monospace, hard-shadow styling. It does not own form workflow, validation messaging, auto-resize, rich text, live-region announcements, or a second control.
 
 ## Build and release

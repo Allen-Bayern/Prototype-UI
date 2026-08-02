@@ -9,7 +9,7 @@ type ControlProps = { defaultValue?: string; placeholder?: string; rows?: number
 
 const textareaPrototype = definePrototype({
   name: 'x-wc-text-control',
-  modules: [declareTextControl({ target: { namespace: 'web', localName: 'textarea' } })],
+  modules: [declareTextControl({ content: 'plain-text', lineMode: 'multiline', engine: 'host' })],
   setup(def: DefHandle<ControlProps>) {
     def.props.define({
       defaultValue: { type: 'string', empty: 'fallback' },

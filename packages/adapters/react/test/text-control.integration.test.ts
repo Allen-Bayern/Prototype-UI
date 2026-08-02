@@ -15,7 +15,7 @@ type ControlProps = {
 function createTextareaPrototype(name: string, values: string[] = []) {
   return definePrototype({
     name,
-    modules: [declareTextControl({ target: { namespace: 'web', localName: 'textarea' } })],
+    modules: [declareTextControl({ content: 'plain-text', lineMode: 'multiline', engine: 'host' })],
     setup(def: DefHandle<ControlProps>) {
       def.props.define({
         defaultValue: { type: 'string', empty: 'fallback' },
@@ -72,5 +72,22 @@ describe('adapter-react text control', () => {
     const proto = createTextareaPrototype('react-text-control-conflict');
     const fake = createFakeReactRuntime();
     expect(() => createReactAdapter(fake.runtime)(proto, { rootTag: 'div' })).toThrow(/rootTag/);
+  });
+
+  it('clears previously authored textarea children without clearing native fallback text later', () => {
+    const fake = createFakeReactRuntime();
+    const Component = (props: { authored: boolean }) =>
+      fake.runtime.createElement('textarea', null, ...(props.authored ? ['authored'] : []));
+    const mounted = fake.render(Component, { authored: true });
+    const textarea = mounted.root as HTMLTextAreaElement;
+    expect(textarea.textContent).toBe('authored');
+
+    mounted.update({ authored: false });
+    expect(textarea.childNodes).toHaveLength(0);
+
+    textarea.defaultValue = 'native fallback';
+    mounted.update({ authored: false });
+    expect(textarea.textContent).toBe('native fallback');
+    mounted.unmount();
   });
 });

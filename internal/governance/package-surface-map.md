@@ -319,7 +319,7 @@ Examples include:
 - scroll
 - text control
 
-`@proto.ui/module-text-control` owns the adapter-facing host boundary for declared native text controls: stable controlled/uncontrolled value ownership, normalized input/change/composition events, native-property projection, and physical focus access. It is dependency-directed infrastructure for Base Textarea and official adapters, not a general Maker entry point.
+`@proto.ui/module-text-control` owns the adapter-facing host boundary for semantic host-owned text-editor requirements: stable controlled/uncontrolled value ownership, normalized input/change/composition events, property projection, editing-session preservation, and physical focus access. The current Web profile resolves multiline plain text to `HTMLTextAreaElement`; other hosts provide equivalent capabilities without exposing widget names to prototypes. It is dependency-directed infrastructure for Base Textarea and official adapters, not a general Maker entry point.
 
 These packages should usually be understood as:
 

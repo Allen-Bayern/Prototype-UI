@@ -23,7 +23,11 @@ import {
   type OverlayLayerScheduler,
   type OverlayZIndexLayerSchedulerOptions,
 } from '@proto.ui/module-overlay';
-import { TEXT_CONTROL_DECLARATION, type WebTextControl } from '@proto.ui/module-text-control';
+import {
+  resolveWebTextControlLocalName,
+  TEXT_CONTROL_DECLARATION,
+  type WebTextControl,
+} from '@proto.ui/module-text-control';
 
 import { bindController, getElementProps, setElementProps, unbindController } from './props';
 import { SlotProjector } from './slot-projector';
@@ -147,7 +151,9 @@ export function AdaptToWebComponent<TProto extends Prototype<any, any>>(
       super();
       this._root = shadow ? (this.attachShadow({ mode: 'open' }) as ShadowRoot) : this;
       if (textControl) {
-        this._textControlTarget = document.createElement(textControl.target.localName);
+        this._textControlTarget = document.createElement(
+          resolveWebTextControlLocalName(textControl)
+        );
       }
       this._instanceToken = createLogicalInstance(proto as Prototype<any>);
       markProtoInstance(this, proto as Prototype<any>, this._instanceToken);

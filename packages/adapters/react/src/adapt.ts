@@ -21,7 +21,10 @@ import {
   scheduleAfterWebLayout,
 } from '@proto.ui/adapter-base';
 import type { ExposeStateWebMode } from '@proto.ui/module-expose-state-web';
-import { TEXT_CONTROL_DECLARATION } from '@proto.ui/module-text-control';
+import {
+  resolveWebTextControlLocalName,
+  TEXT_CONTROL_DECLARATION,
+} from '@proto.ui/module-text-control';
 import {
   createZIndexOverlayLayerScheduler,
   type OverlayPort,
@@ -148,12 +151,15 @@ export function createReactAdapter(runtimeInput: ReactRuntimeInput) {
     const scrollProjection = opt.scrollProjection;
     const autoUpdate = opt.autoUpdateOnPropsChange ?? true;
     const textControl = getModuleDeclaration(proto, TEXT_CONTROL_DECLARATION)?.config;
-    if (textControl && opt.rootTag && opt.rootTag !== textControl.target.localName) {
+    const textControlRootTag = textControl
+      ? resolveWebTextControlLocalName(textControl)
+      : undefined;
+    if (textControlRootTag && opt.rootTag && opt.rootTag !== textControlRootTag) {
       throw new Error(
         `[React Adapter] text-control declaration conflicts with rootTag: ${opt.rootTag}`
       );
     }
-    const rootTag = textControl?.target.localName ?? opt.rootTag ?? 'div';
+    const rootTag = textControlRootTag ?? opt.rootTag ?? 'div';
     const hasCustomOverlayLayerConfig =
       !!opt.overlayLayer &&
       (typeof opt.overlayLayer.baseZIndex !== 'undefined' ||

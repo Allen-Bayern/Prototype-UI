@@ -6,7 +6,9 @@ import {
 } from '@proto.ui/adapter-web-component';
 import type { ProtoAdapterExposes } from '@proto.ui/adapter-base';
 import type { State } from '@proto.ui/core';
+import { TEXT_CONTROL_DECLARATION } from '@proto.ui/module-text-control';
 import textareaRoot, {
+  asTextareaRoot,
   type TextareaCompositionDetail,
   type TextareaRootExposes,
   type TextareaRootProps,
@@ -39,6 +41,15 @@ function exposes(element: TextareaElement): ProtoAdapterExposes<typeof textareaR
 }
 
 describe('prototypes/base: textarea', () => {
+  it('publishes one host-neutral static requirement on both direct and asHook entries', () => {
+    expect(textareaRoot.modules).toEqual(asTextareaRoot.modules);
+    expect(asTextareaRoot.modules).toHaveLength(1);
+    expect(asTextareaRoot.modules[0]).toMatchObject({
+      id: TEXT_CONTROL_DECLARATION.id,
+      config: { content: 'plain-text', lineMode: 'multiline', engine: 'host' },
+    });
+  });
+
   it('preserves the public multiline state and event types', () => {
     expectTypeOf<StateValue<TextareaRootExposes['value']>>().toEqualTypeOf<string>();
     expectTypeOf<StateValue<TextareaRootStateHandles['composing']>>().toEqualTypeOf<boolean>();

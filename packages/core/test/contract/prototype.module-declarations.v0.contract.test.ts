@@ -1,6 +1,12 @@
 // packages/core/test/contract/prototype.module-declarations.v0.contract.test.ts
 import { describe, expect, it } from 'vitest';
-import { declareModule, definePrototype, getModuleDeclaration, moduleDeclaration } from '../../src';
+import {
+  declareModule,
+  defineAsHook,
+  definePrototype,
+  getModuleDeclaration,
+  moduleDeclaration,
+} from '../../src';
 import type { ModuleDeclarationToken, PrototypeModuleDeclaration } from '../../src';
 
 /**
@@ -98,5 +104,35 @@ describe('contract: core / prototype static module declarations (v0)', () => {
     const decl = getModuleDeclaration(proto, token);
     expect(Object.isFrozen(decl)).toBe(true);
     expect(Object.isFrozen(decl?.config)).toBe(true);
+  });
+
+  it('lets authored asHooks publish frozen static module requirements for caller definitions', () => {
+    const token = moduleDeclaration<{ kind: 'plain-text' }>('M-CORE-DECL-AS-HOOK');
+    const asTextEditing = defineAsHook({
+      name: 'as-text-editing',
+      modules: [declareModule(token, { kind: 'plain-text' })],
+      setup() {},
+    });
+    const proto = definePrototype({
+      name: 'x-core-decl-as-hook',
+      modules: asTextEditing.modules,
+      setup() {},
+    });
+
+    expect(Object.isFrozen(asTextEditing.modules)).toBe(true);
+    expect(asTextEditing.definition.modules).toBe(asTextEditing.modules);
+    expect(getModuleDeclaration(proto, token)?.config).toEqual({ kind: 'plain-text' });
+  });
+
+  it('rejects duplicate module requirement ids on authored asHooks', () => {
+    const first = moduleDeclaration('M-CORE-DECL-AS-HOOK-DUP');
+    const second = moduleDeclaration('M-CORE-DECL-AS-HOOK-DUP');
+    expect(() =>
+      defineAsHook({
+        name: 'as-duplicate-static-requirement',
+        modules: [declareModule(first, {}), declareModule(second, {})],
+        setup() {},
+      })
+    ).toThrow(/AsHook.*duplicate module declaration/);
   });
 });

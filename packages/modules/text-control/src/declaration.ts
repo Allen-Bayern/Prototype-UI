@@ -5,13 +5,10 @@ import {
   type PrototypeModuleDeclaration,
 } from '@proto.ui/core';
 
-export type TextControlWebTarget = Readonly<{
-  namespace: 'web';
-  localName: 'textarea';
-}>;
-
 export type TextControlDeclaration = Readonly<{
-  target: TextControlWebTarget;
+  content: 'plain-text';
+  lineMode: 'multiline';
+  engine: 'host';
 }>;
 
 export const TEXT_CONTROL_DECLARATION: ModuleDeclarationToken<TextControlDeclaration> =

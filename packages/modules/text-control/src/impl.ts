@@ -147,10 +147,12 @@ export class TextControlModuleImpl extends ModuleBase {
   }
 
   private effectivePatch(): TextControlPatch {
+    const { value: _declaredValue, ...patchWithoutValue } = this.patch;
+    const shouldProjectValue = !(this.valueMode === 'controlled' && this.composing);
     return Object.freeze({
-      ...this.patch,
+      ...patchWithoutValue,
       valueMode: this.valueMode ?? 'uncontrolled',
-      value: this.value,
+      ...(shouldProjectValue ? { value: this.value } : {}),
     });
   }
 

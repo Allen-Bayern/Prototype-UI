@@ -1,7 +1,22 @@
 import type { TextControlEvent, TextControlPatch, TextControlSnapshot } from '@proto.ui/core';
 import type { TextControlHost, TextControlHostConnection, TextControlHostLease } from './caps';
+import type { TextControlDeclaration } from './declaration';
 
 export type WebTextControl = HTMLTextAreaElement;
+export type WebTextControlLocalName = 'textarea';
+
+export function resolveWebTextControlLocalName(
+  declaration: TextControlDeclaration
+): WebTextControlLocalName {
+  if (
+    declaration.content !== 'plain-text' ||
+    declaration.lineMode !== 'multiline' ||
+    declaration.engine !== 'host'
+  ) {
+    throw new Error('[TextControl] unsupported Web text-control declaration.');
+  }
+  return 'textarea';
+}
 
 export function createWebTextControlHost(
   getTarget: () => WebTextControl | null,
@@ -78,7 +93,9 @@ function applyPatch(target: WebTextControl, patch: TextControlPatch): void {
   }
   const value =
     patch.value ?? (patch.valueMode === 'uncontrolled' ? patch.defaultValue : undefined);
-  if (typeof value === 'string' && target.value !== value) target.value = value;
+  if (typeof value === 'string' && target.value !== value) {
+    replaceValuePreservingSelection(target, value);
+  }
   if (typeof patch.disabled === 'boolean') target.disabled = patch.disabled;
   if (typeof patch.readOnly === 'boolean') target.readOnly = patch.readOnly;
   if (typeof patch.placeholder === 'string') target.placeholder = patch.placeholder;
@@ -102,4 +119,17 @@ function applyPatch(target: WebTextControl, patch: TextControlPatch): void {
     else target.maxLength = maxLength;
   }
   if (patch.wrap === 'soft' || patch.wrap === 'hard') target.wrap = patch.wrap;
+}
+
+function replaceValuePreservingSelection(target: WebTextControl, value: string): void {
+  const selectionStart = target.selectionStart;
+  const selectionEnd = target.selectionEnd;
+  const selectionDirection = target.selectionDirection;
+  target.value = value;
+  const nextLength = value.length;
+  target.setSelectionRange(
+    Math.min(selectionStart, nextLength),
+    Math.min(selectionEnd, nextLength),
+    selectionDirection
+  );
 }

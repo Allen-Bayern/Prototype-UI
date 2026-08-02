@@ -10,7 +10,7 @@ type ControlProps = { defaultValue?: string; placeholder?: string; rows?: number
 const textControlValues: string[] = [];
 const textareaPrototype = definePrototype({
   name: 'vue-text-control',
-  modules: [declareTextControl({ target: { namespace: 'web', localName: 'textarea' } })],
+  modules: [declareTextControl({ content: 'plain-text', lineMode: 'multiline', engine: 'host' })],
   setup(def: DefHandle<ControlProps>) {
     def.props.define({
       defaultValue: { type: 'string', empty: 'fallback' },

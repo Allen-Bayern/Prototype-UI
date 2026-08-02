@@ -183,6 +183,8 @@ export type AsHookPrototype<
   Handle = AsHookResult<Props, ContractInput>,
 > = {
   name: string;
+  /** Static module requirements that a caller prototype must carry before adapter selection. */
+  modules?: readonly PrototypeModuleDeclaration[];
   setup: (def: DefHandle<Props, Exposes>) => RenderFn | void;
   /**
    * Projects the captured authored-asHook result into its public caller handle.
@@ -219,6 +221,7 @@ export type AsHookCaller<
 > = (() => Handle) & {
   readonly kind: 'asHook';
   readonly definition: AsHookPrototype<Props, Exposes, ContractInput, Handle>;
+  readonly modules: readonly PrototypeModuleDeclaration[];
 };
 
 export type HookContract = AsHookContract;
@@ -297,16 +300,23 @@ export function definePrototype<P extends PropsBaseType, E = Record<string, unkn
   if (typeof proto.setup !== 'function') {
     throw new Error(`[Prototype] setup must be a function.`);
   }
-  const declarations = proto.modules ?? [];
+  proto.modules = freezeModuleDeclarations(proto.modules, 'Prototype');
+  return proto;
+}
+
+function freezeModuleDeclarations(
+  declarations: readonly PrototypeModuleDeclaration[] | undefined,
+  owner: 'Prototype' | 'AsHook'
+): readonly PrototypeModuleDeclaration[] {
+  const values = declarations ?? [];
   const ids = new Set<string>();
-  for (const declaration of declarations) {
+  for (const declaration of values) {
     if (ids.has(declaration.id)) {
-      throw new Error(`[Prototype] duplicate module declaration id: ${declaration.id}`);
+      throw new Error(`[${owner}] duplicate module declaration id: ${declaration.id}`);
     }
     ids.add(declaration.id);
   }
-  proto.modules = Object.freeze(declarations.slice());
-  return proto;
+  return Object.freeze(values.slice());
 }
 
 /**
@@ -340,6 +350,18 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
   }
   if (typeof proto.setup !== 'function') {
     throw new Error(`[${kind === 'hook' ? 'Hook' : 'AsHook'}] setup must be a function.`);
+  }
+  const staticModules =
+    kind === 'asHook'
+      ? freezeModuleDeclarations((proto as AsHookPrototype<P, E, C, unknown>).modules, 'AsHook')
+      : Object.freeze([] as PrototypeModuleDeclaration[]);
+  if (kind === 'asHook') {
+    Object.defineProperty(proto, 'modules', {
+      value: staticModules,
+      enumerable: true,
+      configurable: false,
+      writable: false,
+    });
   }
   // TODO: 寻找更可靠的验证函数名
   // if (!/^as[A-Z]/.test(proto.name)) {
@@ -471,6 +493,14 @@ function createHookCaller<P extends PropsBaseType, E = Record<string, unknown>, 
     configurable: false,
     writable: false,
   });
+  if (kind === 'asHook') {
+    Object.defineProperty(caller, 'modules', {
+      value: staticModules,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    });
+  }
 
   return caller;
 }

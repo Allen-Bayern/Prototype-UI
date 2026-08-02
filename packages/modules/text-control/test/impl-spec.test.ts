@@ -66,7 +66,7 @@ function createHarness(withHost = true) {
   const lease: TextControlHostLease = {
     update(patch) {
       updateCount += 1;
-      patchValue = patch.value ?? '';
+      if (typeof patch.value === 'string') patchValue = patch.value;
     },
     snapshot: () => ({ value: patchValue, composing: false }),
     dispose() {
@@ -84,7 +84,9 @@ function createHarness(withHost = true) {
   const module = createTextControlModule({
     init: {
       prototypeName: 'x-textarea',
-      declarations: [declareTextControl({ target: { namespace: 'web', localName: 'textarea' } })],
+      declarations: [
+        declareTextControl({ content: 'plain-text', lineMode: 'multiline', engine: 'host' }),
+      ],
     },
     caps: vault,
     deps: {
@@ -160,6 +162,9 @@ describe('module-text-control', () => {
     expect(harness.getPatchValue()).toBe('編');
     expect(control.snapshot()).toEqual({ value: 'fixed', composing: true });
     expect(harness.getUpdateCount()).toBe(beforeComposition);
+
+    control.sync({ disabled: true });
+    expect(harness.getPatchValue()).toBe('編');
 
     connection.onEvent(event('compositionend', '編'));
     expect(harness.getPatchValue()).toBe('編');
