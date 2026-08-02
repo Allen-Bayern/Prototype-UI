@@ -31,6 +31,12 @@
 - Base Separator now has explicit horizontal/vertical orientation, decorative-versus-semantic accessibility behavior, live post-mount projection, and no semantic-only orientation in decorative mode.
 - The private `@proto.ui/prototypes-brutalist` workspace package adds a Separator projection and a direct styled-only Skeleton source subpath. Skeleton is passive, contentless, aria-hidden, and consumer-sized; the parent loading region retains busy state, announcements, replacement timing, and focus continuity. These candidates remain outside the 37-package rc.7 BOM and add no public Brutalist `proto-ui add` entries.
 
+### Live Region and Async Region accessibility boundaries
+
+- Base Live Region adds a content-preserving status/alert boundary with governed `politeness` and `atomic` props. It synchronizes `role`, `aria-live`, and `aria-atomic` without owning focus, events, commands, announcement timing, or replacement behavior.
+- Base Async Region adds a content- and focus-preserving `busy` boundary. It projects `aria-busy`, exposes only the governed `busy` state, and leaves loading visuals, announcements, replacement state, and chat semantics to consumers.
+- The Web accessibility projection now maps `live`, `atomic`, and `busy` state keys to their ARIA attributes. Both Base families have public package subpaths and `proto-ui add` entries; they add no package to the current rc.7 BOM.
+
 ## Build and release
 
 ### Executable artifacts for all 37 public packages

@@ -2,10 +2,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
 import asyncRegionRoot from '../src/async-region';
 import type { State } from '@proto.ui/core';
-import type {
-  AsyncRegionRootExposes,
-  AsyncRegionRootStateHandles,
-} from '../src/async-region';
+import type { AsyncRegionRootExposes, AsyncRegionRootStateHandles } from '../src/async-region';
 
 type StateValue<T> =
   T extends State<infer V> ? V : T extends { kind: 'state'; state: State<infer V> } ? V : never;
@@ -15,12 +12,8 @@ AdaptToWebComponent(asyncRegionRoot);
 describe('prototypes/base: async-region', () => {
   it('preserves the boolean busy type across public state handles', () => {
     // T-BASE-ASYNC-REGION-0001-CASE-TYPED-BUSY
-    expectTypeOf<
-      StateValue<AsyncRegionRootExposes['busy']>
-    >().toEqualTypeOf<boolean>();
-    expectTypeOf<
-      StateValue<AsyncRegionRootStateHandles['busy']>
-    >().toEqualTypeOf<boolean>();
+    expectTypeOf<StateValue<AsyncRegionRootExposes['busy']>>().toEqualTypeOf<boolean>();
+    expectTypeOf<StateValue<AsyncRegionRootStateHandles['busy']>>().toEqualTypeOf<boolean>();
   });
 
   it('defaults to not-busy semantics with governed busy expose and no interaction', async () => {
@@ -32,6 +25,7 @@ describe('prototypes/base: async-region', () => {
     await Promise.resolve();
 
     expect(el.getAttribute('aria-busy')).toBe('false');
+    expect(el.hasAttribute('data-busy')).toBe(false);
     expect(el.hasAttribute('role')).toBe(false);
     expect(el.hasAttribute('aria-label')).toBe(false);
     expect(el.tabIndex).toBe(-1);
@@ -43,13 +37,12 @@ describe('prototypes/base: async-region', () => {
   it('projects aria-busy true when busy prop is set', async () => {
     // T-BASE-ASYNC-REGION-0001-CASE-BUSY-TRUE
     const el = document.createElement('base-async-region-root');
+    setElementProps(el, { busy: true });
     document.body.appendChild(el);
     await Promise.resolve();
 
-    setElementProps(el, { busy: true });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('aria-busy')).toBe('true');
+    expect(el.hasAttribute('data-busy')).toBe(true);
     el.remove();
   });
 
@@ -64,15 +57,13 @@ describe('prototypes/base: async-region', () => {
     expect(el.getExposes().busy.get()).toBe(false);
 
     setElementProps(el, { busy: true });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('aria-busy')).toBe('true');
+    expect(el.hasAttribute('data-busy')).toBe(true);
     expect(el.getExposes().busy.get()).toBe(true);
 
     setElementProps(el, { busy: false });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('aria-busy')).toBe('false');
+    expect(el.hasAttribute('data-busy')).toBe(false);
     expect(el.getExposes().busy.get()).toBe(false);
     el.remove();
   });
@@ -85,20 +76,20 @@ describe('prototypes/base: async-region', () => {
     el.appendChild(button);
     document.body.appendChild(el);
     await Promise.resolve();
+    button.focus();
+    expect(document.activeElement).toBe(button);
 
     expect(el.textContent).toBe('Retry');
 
     setElementProps(el, { busy: true });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.textContent).toBe('Retry');
     expect(el.getAttribute('aria-busy')).toBe('true');
+    expect(document.activeElement).toBe(button);
 
     setElementProps(el, { busy: false });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.textContent).toBe('Retry');
     expect(el.getAttribute('aria-busy')).toBe('false');
+    expect(document.activeElement).toBe(button);
     el.remove();
   });
 });

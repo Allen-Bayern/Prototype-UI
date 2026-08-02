@@ -1,4 +1,4 @@
-import type { DefHandle } from '@proto.ui/core';
+import type { DefHandle, RenderFn } from '@proto.ui/core';
 import { defineAsHook, definePrototype } from '@proto.ui/core';
 import type {
   AsyncRegionRootAsHookContract,
@@ -13,7 +13,9 @@ export type {
   AsyncRegionRootAsHookContract,
 } from './types';
 
-function setupAsyncRegionRoot(def: DefHandle<AsyncRegionRootProps, AsyncRegionRootExposes>) {
+function setupAsyncRegionRoot(
+  def: DefHandle<AsyncRegionRootProps, AsyncRegionRootExposes>
+): RenderFn {
   // P-BASE-ASYNC-REGION-BUSY
   def.props.define({
     busy: { type: 'boolean', empty: 'fallback' },
@@ -42,5 +44,8 @@ export const asAsyncRegionRoot = defineAsHook<
   AsyncRegionRootAsHookContract
 >({ name: 'as-async-region-root', setup: setupAsyncRegionRoot });
 
-const asyncRegionRoot = definePrototype({ name: 'base-async-region-root', setup: setupAsyncRegionRoot });
+const asyncRegionRoot = definePrototype({
+  name: 'base-async-region-root',
+  setup: setupAsyncRegionRoot,
+});
 export default asyncRegionRoot;

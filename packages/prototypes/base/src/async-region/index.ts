@@ -1,4 +1,4 @@
-export { asAsyncRegionRoot, default as asyncRegionRoot } from './root.proto';
+export { asAsyncRegionRoot, default, default as asyncRegionRoot } from './root.proto';
 export type {
   AsyncRegionRootProps,
   AsyncRegionRootExposes,

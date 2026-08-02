@@ -96,6 +96,37 @@ describe('@proto.ui/cli', () => {
     }
   });
 
+  it('registers Base Live Region and Async Region public facades', () => {
+    expect(COMPONENT_REGISTRY['base-live-region']).toMatchObject({
+      packageName: '@proto.ui/prototypes-base',
+      importPath: '@proto.ui/prototypes-base/live-region',
+      stylePreset: null,
+      items: [
+        {
+          prototypeImport: 'liveRegionRoot',
+          reactExport: 'BaseLiveRegionRoot',
+          vueExport: 'BaseLiveRegionRoot',
+          wcExport: 'BaseLiveRegionRootElement',
+          elementName: 'proto-ui-base-live-region',
+        },
+      ],
+    });
+    expect(COMPONENT_REGISTRY['base-async-region']).toMatchObject({
+      packageName: '@proto.ui/prototypes-base',
+      importPath: '@proto.ui/prototypes-base/async-region',
+      stylePreset: null,
+      items: [
+        {
+          prototypeImport: 'asyncRegionRoot',
+          reactExport: 'BaseAsyncRegionRoot',
+          vueExport: 'BaseAsyncRegionRoot',
+          wcExport: 'BaseAsyncRegionRootElement',
+          elementName: 'proto-ui-base-async-region',
+        },
+      ],
+    });
+  });
+
   it('materializes the replaceable shadcn Switch Thumb preset for every adapter', () => {
     const react = renderHostIndex('react', ['shadcn-switch']);
     expect(react).toContain('export const ShadcnSwitchRoot = adapt(shadcnSwitchRoot);');

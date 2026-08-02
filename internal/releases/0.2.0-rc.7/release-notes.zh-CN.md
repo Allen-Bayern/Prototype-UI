@@ -31,6 +31,12 @@
 - Base Separator 现已明确横向/纵向 orientation、decorative 与 semantic accessibility 行为、mounted 后的实时投影，并确保 decorative 模式不残留仅属于语义模式的 orientation。
 - 私有 workspace package `@proto.ui/prototypes-brutalist` 新增 Separator 视觉投射与直接定义的 styled-only Skeleton source subpath。Skeleton 是 passive、contentless、aria-hidden 且尺寸由消费端拥有的视觉原型；父级 loading region 继续拥有 busy 状态、announcement、替换时机与焦点连续性。这些候选不进入 rc.7 的 37-package BOM，也不新增公开 Brutalist `proto-ui add` 条目。
 
+### Live Region 与 Async Region 无障碍边界
+
+- Base Live Region 新增保留内容的 status/alert 边界，通过受治理的 `politeness` 与 `atomic` props 同步投射 `role`、`aria-live` 与 `aria-atomic`，但不拥有 focus、event、command、announcement 时序或替换行为。
+- Base Async Region 新增保留内容与焦点的 `busy` 边界，投射 `aria-busy` 且仅暴露受治理的 `busy` state；loading 视觉、announcement、替换状态与聊天语义仍由消费端拥有。
+- Web accessibility 投射新增 `live`、`atomic` 与 `busy` state key 到对应 ARIA attribute 的映射。两个 Base family 均拥有公开 package subpath 与 `proto-ui add` 条目，不会向当前 rc.7 BOM 新增 package。
+
 ## 构建与发布
 
 ### 37 个公开 package 交付可执行产物

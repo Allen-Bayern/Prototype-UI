@@ -31,13 +31,13 @@ cases:
       - P-BASE-LIVE-REGION-SEMANTICS
     expectation: atomic-false-projects-aria-atomic-false
   - id: T-BASE-LIVE-REGION-0001-CASE-DYNAMIC-SEMANTICS
-    title: Mounted prop transitions update role, aria-live, and aria-atomic atomically
+    title: Mounted prop transitions update role, aria-live, and aria-atomic synchronously
     covers:
       - P-BASE-LIVE-REGION-POLITENESS
       - P-BASE-LIVE-REGION-ATOMIC
       - P-BASE-LIVE-REGION-SEMANTICS
       - P-BASE-LIVE-REGION-DYNAMIC
-    expectation: mounted-prop-transitions-update-all-three-attributes-atomically
+    expectation: mounted-prop-transitions-update-all-three-attributes-synchronously
   - id: T-BASE-LIVE-REGION-0001-CASE-CONTENT-PRESERVATION
     title: Authored child content is preserved as the announcement payload across prop transitions
     covers:

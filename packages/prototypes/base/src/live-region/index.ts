@@ -1,4 +1,4 @@
-export { asLiveRegionRoot, default as liveRegionRoot } from './root.proto';
+export { asLiveRegionRoot, default, default as liveRegionRoot } from './root.proto';
 export type {
   LiveRegionPoliteness,
   LiveRegionRootProps,

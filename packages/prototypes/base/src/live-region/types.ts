@@ -1,5 +1,3 @@
-import type { State } from '@proto.ui/core';
-
 export type LiveRegionPoliteness = 'polite' | 'assertive';
 
 export interface LiveRegionRootProps {

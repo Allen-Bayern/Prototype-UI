@@ -6,13 +6,13 @@ description: 'Live Region base prototype'
 
 import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
-`base-live-region` is a narrow async accessibility primitive that projects governed ARIA live-region semantics without interaction.
+`base-live-region-root` is a narrow async accessibility primitive that projects governed ARIA live-region semantics without interaction.
 
 <div>
   <PrototypePreviewer demoId="demo-base-live-region" initialRuntime="wc" />
 </div>
 
-It derives `role`, `aria-live`, and `aria-atomic` atomically from two props:
+It derives `role`, `aria-live`, and `aria-atomic` from two props:
 
 - `politeness`: `polite` (default) projects `role=status` + `aria-live=polite`; `assertive` projects `role=alert` + `aria-live=assertive`
 - `atomic`: `true` (default) projects `aria-atomic=true`; `false` projects `aria-atomic=false`
@@ -21,7 +21,7 @@ Authored child content is the announcement payload. The prototype declares no fo
 
 ## Current v0 Boundary
 
-`base-live-region` currently includes:
+`base-live-region-root` currently includes:
 
 - polite/assertive role and aria-live projection
 - atomic aria-atomic projection

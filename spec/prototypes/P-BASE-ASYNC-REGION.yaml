@@ -5,8 +5,14 @@ status: draft
 since: 0.2.0-rc.7
 summary: Base Async Region projects governed aria-busy state and exposes the busy handle; authored descendants and focus are preserved on prop-only transitions.
 statement:
-  zh-CN: Base Async Region 仅拥有 busy 语义：将 busy prop（默认 false）投射为 aria-busy，并暴露受治理的 busy state handle。不声明 role、accessible name、loading 定时器、替换状态机、announcement、action、event、command 或聊天语义；authored 后代与焦点在 prop-only 转换中保留。
-  en: Base Async Region owns only busy semantics: it projects the busy prop (default false) as aria-busy and exposes the governed busy state handle. No role, accessible name, loading timers, replacement state machine, announcements, action, event, command, or chat semantics are declared; authored descendants and focus are preserved on prop-only transitions.
+  zh-CN: >-
+    Base Async Region 仅拥有 busy 语义：将 busy prop（默认 false）投射为 aria-busy，并暴露受治理的 busy state handle。不声明 role、accessible name、loading 定时器、替换状态机、announcement、 action、event、command 或聊天语义；authored 后代与焦点在 prop-only 转换中保留。
+
+
+  en: >-
+    Base Async Region owns only busy semantics: it projects the busy prop (default false) as aria-busy and exposes the governed busy state handle. No role, accessible name, loading timers, replacement state machine, announcements, action, event, command, or chat semantics are declared; authored descendants and focus are preserved on prop-only transitions.
+
+
 criteria:
   - id: P-BASE-ASYNC-REGION-BUSY
     text:

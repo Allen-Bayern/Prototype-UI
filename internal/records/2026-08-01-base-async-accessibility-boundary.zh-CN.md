@@ -1,6 +1,6 @@
 # 2026-08-01 Base 异步无障碍边界：Live Region 与 Async Region
 
-> Internal record. Not normative. 本记录整理 OpenWebUI 应用探针发现的异步无障碍缺口、Base 层窄边界原语的建模判断与后续实体规划。稳定结论已提升到 `C-ASYNC-A11Y-0001`、`P-BASE-LIVE-REGION`、`P-BASE-ASYNC-REGION`、`T-BASE-LIVE-REGION-0001` 与 `T-BASE-ASYNC-REGION-0001`；本文不替代这些真相源。
+> Internal record. Not normative. 本记录整理 OpenWebUI 应用探针发现的异步无障碍缺口、Base 层窄边界原语的建模判断与后续实体规划。当前编目方向已进入 draft `C-ASYNC-A11Y-0001`、`P-BASE-LIVE-REGION`、`P-BASE-ASYNC-REGION`、`T-BASE-LIVE-REGION-0001` 与 `T-BASE-ASYNC-REGION-0001`；本文不替代这些真相源。
 
 ---
 
@@ -17,7 +17,7 @@ OpenWebUI 应用探针在组合消息状态反馈（"正在生成…"、"3 条�
 
 ### 2.1 不引入第二个 `BaseXxxRoot` 命名约定
 
-遵循 `separatorRoot`、`scrollAreaRoot` 等既有模式：默认导出 prototype，命名导出 `liveRegionRoot` / `asyncRegionRoot`，as-hook 导出 `asLiveRegionRoot` / `asAsyncRegionRoot`。不引入 `BaseLiveRegionRoot` / `BaseAsyncRegionRoot` PascalCase 包装。
+Package prototype export 遵循 `separatorRoot`、`scrollAreaRoot` 等既有模式：默认导出 prototype，命名导出 `liveRegionRoot` / `asyncRegionRoot`，as-hook 导出 `asLiveRegionRoot` / `asAsyncRegionRoot`。不在 prototype package 中引入 `BaseLiveRegionRoot` / `BaseAsyncRegionRoot` PascalCase 包装；CLI 生成的 adapter facade 继续遵循既有 PascalCase 约定。
 
 ### 2.2 Live Region 不是 status 组件
 
@@ -30,6 +30,10 @@ Async Region 与 Brutalist Skeleton 有本质区别：Skeleton 是 styled-only�
 ### 2.4 Web a11y 投影扩展
 
 `packages/modules/a11y/src/web.ts` 的 `ARIA_STATE_ATTRS` 新增 `live → aria-live`、`atomic → aria-atomic`、`busy → aria-busy` 三个受治理映射。这遵循既有 `ARIA_STATE_ATTRS` 模式（`checked → aria-checked` 等），不改变 `hidden` 的特殊处理逻辑。
+
+### 2.5 公开消费面
+
+两个原语分别通过 `@proto.ui/prototypes-base/live-region` 与 `@proto.ui/prototypes-base/async-region` 提供默认 export、命名 root export 与 as-hook，并进入 CLI 的 `base-live-region` / `base-async-region` 组件注册表。Async Region 的 `busy` expose 继续遵循既有 Web state 序列化，供 styled family 使用 `data-[busy]` variant；不新增公开 package，也不改变 rc.7 BOM package 数量。
 
 ## 3）实体规划
 

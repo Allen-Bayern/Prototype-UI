@@ -1,4 +1,4 @@
-import type { DefHandle } from '@proto.ui/core';
+import type { DefHandle, RenderFn } from '@proto.ui/core';
 import { defineAsHook, definePrototype } from '@proto.ui/core';
 import type {
   LiveRegionRootAsHookContract,
@@ -14,7 +14,7 @@ export type {
   LiveRegionRootAsHookContract,
 } from './types';
 
-function setupLiveRegionRoot(def: DefHandle<LiveRegionRootProps, LiveRegionRootExposes>) {
+function setupLiveRegionRoot(def: DefHandle<LiveRegionRootProps, LiveRegionRootExposes>): RenderFn {
   // P-BASE-LIVE-REGION-POLITENESS, P-BASE-LIVE-REGION-ATOMIC
   def.props.define({
     politeness: { type: 'enum', empty: 'fallback', options: ['polite', 'assertive'] },
@@ -51,5 +51,8 @@ export const asLiveRegionRoot = defineAsHook<
   LiveRegionRootAsHookContract
 >({ name: 'as-live-region-root', setup: setupLiveRegionRoot });
 
-const liveRegionRoot = definePrototype({ name: 'base-live-region-root', setup: setupLiveRegionRoot });
+const liveRegionRoot = definePrototype({
+  name: 'base-live-region-root',
+  setup: setupLiveRegionRoot,
+});
 export default liveRegionRoot;

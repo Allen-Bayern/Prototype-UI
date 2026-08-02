@@ -41,12 +41,10 @@ describe('prototypes/base: live-region', () => {
   it('projects alert role and assertive aria-live for assertive politeness', async () => {
     // T-BASE-LIVE-REGION-0001-CASE-ASSERTIVE
     const el = document.createElement('base-live-region-root');
+    setElementProps(el, { politeness: 'assertive' });
     document.body.appendChild(el);
     await Promise.resolve();
 
-    setElementProps(el, { politeness: 'assertive' });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('role')).toBe('alert');
     expect(el.getAttribute('aria-live')).toBe('assertive');
     expect(el.getAttribute('aria-atomic')).toBe('true');
@@ -56,34 +54,28 @@ describe('prototypes/base: live-region', () => {
   it('projects aria-atomic false when atomic prop is false', async () => {
     // T-BASE-LIVE-REGION-0001-CASE-ATOMIC-FALSE
     const el = document.createElement('base-live-region-root');
+    setElementProps(el, { atomic: false });
     document.body.appendChild(el);
     await Promise.resolve();
 
-    setElementProps(el, { atomic: false });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('aria-atomic')).toBe('false');
     expect(el.getAttribute('role')).toBe('status');
     expect(el.getAttribute('aria-live')).toBe('polite');
     el.remove();
   });
 
-  it('updates role, aria-live, and aria-atomic atomically on mounted prop transitions', async () => {
+  it('updates role, aria-live, and aria-atomic synchronously on mounted prop transitions', async () => {
     // T-BASE-LIVE-REGION-0001-CASE-DYNAMIC-SEMANTICS
     const el = document.createElement('base-live-region-root');
     document.body.appendChild(el);
     await Promise.resolve();
 
     setElementProps(el, { politeness: 'assertive', atomic: false });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('role')).toBe('alert');
     expect(el.getAttribute('aria-live')).toBe('assertive');
     expect(el.getAttribute('aria-atomic')).toBe('false');
 
     setElementProps(el, { politeness: 'polite', atomic: true });
-    await Promise.resolve();
-    await Promise.resolve();
     expect(el.getAttribute('role')).toBe('status');
     expect(el.getAttribute('aria-live')).toBe('polite');
     expect(el.getAttribute('aria-atomic')).toBe('true');

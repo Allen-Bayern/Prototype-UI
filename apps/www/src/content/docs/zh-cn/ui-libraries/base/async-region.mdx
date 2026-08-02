@@ -6,7 +6,7 @@ description: 'Async Region base prototype'
 
 import { PrototypePreviewer } from '@/components/PrototypePreviewer';
 
-`base-async-region` 是一个窄异步无障碍原语，投射受治理的 `aria-busy` 状态并暴露 busy handle。
+`base-async-region-root` 是一个窄异步无障碍原语，投射受治理的 `aria-busy` 状态并暴露 busy handle。
 
 <div>
   <PrototypePreviewer demoId="demo-base-async-region" initialRuntime="wc" />
@@ -21,7 +21,7 @@ Authored 后代与焦点在 prop-only 转换中保留。原型不声明 role、a
 
 ## 当前 v0 边界
 
-`base-async-region` 目前包含：
+`base-async-region-root` 目前包含：
 
 - 从 busy prop 受治理投射 aria-busy
 - 通过 `getExposes().busy` 暴露 busy state handle
