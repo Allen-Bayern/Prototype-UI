@@ -30,7 +30,7 @@ Select every applicable item. Original, third-party, AI-assisted, and employer o
 
 ## DCO
 
-Every commit in this PR must contain a valid `Signed-off-by` trailer.
+Every human-authored commit in this PR must have a valid DCO sign-off. Prefer a `Signed-off-by` trailer on the commit itself; an unsigned published commit may instead be covered by an individual remediation commit from its original author.
 
 This checkbox is only a reminder; it does not replace commit sign-off.
 
