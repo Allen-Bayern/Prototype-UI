@@ -2,7 +2,28 @@
 
 This policy defines the source information that contributors must provide and the review steps maintainers use when contribution rights are unclear. It applies to contributions first submitted on or after August 2, 2026. It does not require rewriting Git history that was already merged before that date.
 
-The [Developer Certificate of Origin 1.1](../../DCO.md) applies to every human-authored commit in a pull request. The signer remains responsible for the submitted content. Provenance disclosure supplements the DCO; it does not replace sign-off or prove that material may be submitted.
+The [Developer Certificate of Origin 1.1](../../DCO.md) applies to every human-authored commit in a pull request. Each commit requires either its own valid `Signed-off-by` trailer or an individual remediation from that commit's original author as described below. The signer remains responsible for the submitted content. Provenance disclosure supplements the DCO; it does not replace sign-off or prove that material may be submitted.
+
+## Individual DCO remediation
+
+Contributors should normally add `Signed-off-by` while creating each commit, for example with `git commit -s`. When an open pull request already contains an unsigned commit, the commit's original author may add an individual remediation commit instead of rewriting published history. This preserves existing commit identities and cryptographic signatures while leaving an auditable certification in the pull request.
+
+An individual remediation commit must:
+
+- be authored by the same name and email as the unsigned commit;
+- identify every remediated commit by its full commit SHA using the exact form required by the DCO App;
+- contain a matching `Signed-off-by` trailer for the remediation commit itself; and
+- remediate only commits authored by that signer.
+
+Use one certification line per unsigned commit, followed by the remediation commit's own trailer:
+
+```text
+I, Example Author <author@example.com>, hereby add my Signed-off-by to this commit: FULL_COMMIT_SHA
+
+Signed-off-by: Example Author <author@example.com>
+```
+
+Third-party remediation remains disabled. A maintainer must not sign on behalf of another contributor, copy another contributor's trailer, or use the DCO override button as a substitute for author certification. Individual remediation is a recovery mechanism for published history, not the default contribution workflow.
 
 ## Original contributions
 
