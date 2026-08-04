@@ -23,6 +23,7 @@ const failureBody = isChinese
   ? '搜索索引未能加载。请检查网络连接后重试。'
   : 'The search index could not be loaded. Check your connection and try again.';
 const retryLabel = isChinese ? '重试' : 'Retry';
+const loadingLabel = isChinese ? '正在加载搜索…' : 'Loading search…';
 ---
 
 <site-search class={Astro.props.class} {...dataAttributes}>
@@ -91,9 +92,13 @@ const retryLabel = isChinese ? '重试' : 'Retry';
         ) : (
           <>
             <div class="search-container">
-              <div id="starlight__search" data-hint={searchHint} />
+              <div class="search-initializing" role="status" aria-live="polite">
+                <span class="search-initializing__spinner" aria-hidden="true" />
+                <span>{loadingLabel}</span>
+              </div>
+              <div id="starlight__search" data-hint={searchHint} hidden />
             </div>
-            <div class="search-failure" role="status" hidden>
+            <div class="search-failure" role="status" aria-live="polite" hidden>
               <svg
                 class="search-failure__icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -126,9 +131,8 @@ const retryLabel = isChinese ? '重试' : 'Retry';
 
 {
   /**
-   * This is intentionally inlined to avoid briefly showing an invalid shortcut.
-   * Purposely using the deprecated `navigator.platform` property to detect Apple devices, as the
-   * user agent is spoofed by some browsers when opening the devtools.
+   * Use User-Agent Client Hints when available and the user-agent fallback elsewhere.
+   * The fallback keeps the shortcut correct in Safari and browsers without the hint API.
    */
 }
 <script is:inline>
@@ -137,7 +141,9 @@ const retryLabel = isChinese ? '重试' : 'Retry';
     const shortcut = openBtn?.querySelector('kbd');
     if (!openBtn || !(shortcut instanceof HTMLElement)) return;
     const platformKey = shortcut.querySelector('kbd');
-    if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+    const userAgentData = navigator['userAgentData'];
+    const platform = userAgentData?.platform || navigator.userAgent;
+    if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(platform)) {
       platformKey.textContent = '⌘';
       openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
     }
@@ -156,6 +162,8 @@ const retryLabel = isChinese ? '重试' : 'Retry';
       const dialog = this.querySelector('dialog')!;
       const dialogFrame = this.querySelector('.dialog-frame')!;
       const searchContainer = this.querySelector<HTMLElement>('.search-container');
+      const initializingEl = this.querySelector<HTMLElement>('.search-initializing');
+      const searchRoot = this.querySelector<HTMLElement>('#starlight__search');
       const failureEl = this.querySelector<HTMLElement>('.search-failure');
       const retryBtn = this.querySelector<HTMLButtonElement>('.search-failure__retry');
       const baseUrl = import.meta.env.BASE_URL;
@@ -174,22 +182,53 @@ const retryLabel = isChinese ? '重试' : 'Retry';
       };
 
       let uiInitialized = false;
+      let pagefindUI: { destroy: () => void } | null = null;
       let indexAvailable: boolean | null = null;
+      let probePromise: Promise<boolean> | null = null;
+      let initPromise: Promise<void> | null = null;
       let loadingWatchdog: number | undefined;
-
+      let previouslyFocused: HTMLElement | null = null;
+      let searchBlocked = false;
       const focusSearchInput = () => {
         this.querySelector<HTMLElement>('.pagefind-ui__search-input')?.focus();
       };
 
+      const showInitializing = () => {
+        if (!searchContainer || !initializingEl || !searchRoot || !failureEl) return;
+        searchBlocked = false;
+        failureEl.hidden = true;
+        searchContainer.hidden = false;
+        initializingEl.hidden = false;
+        searchRoot.hidden = true;
+      };
+      const hideInitializing = () => {
+        if (!initializingEl || !searchRoot) return;
+        initializingEl.hidden = true;
+        searchRoot.hidden = false;
+      };
       const showFailure = () => {
         if (!failureEl || !searchContainer) return;
+        searchBlocked = true;
+        initializingEl && (initializingEl.hidden = true);
         failureEl.hidden = false;
         searchContainer.hidden = true;
+        if (dialog.open) retryBtn?.focus();
       };
       const hideFailure = () => {
         if (!failureEl || !searchContainer) return;
+        searchBlocked = false;
         failureEl.hidden = true;
         searchContainer.hidden = false;
+      };
+      const resetPagefindUI = () => {
+        try {
+          pagefindUI?.destroy();
+        } finally {
+          pagefindUI = null;
+          uiInitialized = false;
+          searchRoot?.replaceChildren();
+          if (searchRoot) searchRoot.hidden = true;
+        }
       };
 
       /**
@@ -200,50 +239,132 @@ const retryLabel = isChinese ? '重试' : 'Retry';
        */
       const probeIndex = async (): Promise<boolean> => {
         if (indexAvailable !== null) return indexAvailable;
+        if (probePromise) return probePromise;
+
+        const currentProbe = (async (): Promise<boolean> => {
+          const controller = new AbortController();
+          const timeout = window.setTimeout(() => controller.abort(), 5000);
+          try {
+            const res = await fetch(bundlePath + 'pagefind.js', {
+              method: 'HEAD',
+              cache: 'no-store',
+              signal: controller.signal,
+            });
+            indexAvailable = res.ok;
+            return indexAvailable;
+          } catch {
+            indexAvailable = false;
+            return false;
+          } finally {
+            window.clearTimeout(timeout);
+          }
+        })();
+
+        probePromise = currentProbe;
         try {
-          const res = await fetch(bundlePath + 'pagefind.js', {
-            method: 'HEAD',
-            cache: 'no-store',
-          });
-          indexAvailable = res.ok;
-        } catch {
-          indexAvailable = false;
+          return await currentProbe;
+        } finally {
+          if (probePromise === currentProbe) probePromise = null;
         }
-        return indexAvailable;
       };
 
       const initPagefindUI = async () => {
         if (uiInitialized) return;
-        uiInitialized = true;
-        // @ts-expect-error — Missing types for @pagefind/default-ui package.
-        const { PagefindUI } = await import('@pagefind/default-ui');
-        new PagefindUI({
-          ...pagefindUserConfig,
-          element: '#starlight__search',
-          baseUrl,
-          bundlePath,
-          showImages: false,
-          translations,
-          showSubResults: true,
-          processResult: (result: { url: string; sub_results: Array<{ url: string }> }) => {
-            result.url = formatURL(result.url);
-            result.sub_results = result.sub_results.map((sub_result) => {
-              sub_result.url = formatURL(sub_result.url);
-              return sub_result;
+        if (initPromise) return initPromise;
+
+        const currentInit = (async (): Promise<void> => {
+          try {
+            // Preflight the runtime module so Pagefind's internal polling loop
+            // never starts for an import that is already known to fail.
+            const runtimeImport = import(/* @vite-ignore */ `${bundlePath}pagefind.js`);
+            let runtimeTimeout: number | undefined;
+            try {
+              await Promise.race([
+                runtimeImport,
+                new Promise<never>((_, reject) => {
+                  runtimeTimeout = window.setTimeout(
+                    () => reject(new Error('Pagefind runtime import timed out')),
+                    5000
+                  );
+                }),
+              ]);
+            } finally {
+              if (runtimeTimeout !== undefined) window.clearTimeout(runtimeTimeout);
+              runtimeImport.catch(() => {});
+            }
+            // @ts-expect-error — Missing types for @pagefind/default-ui package.
+            const defaultUIImport = import('@pagefind/default-ui');
+            let defaultUITimeout: number | undefined;
+            let defaultUI: Awaited<typeof defaultUIImport>;
+            try {
+              defaultUI = await Promise.race([
+                defaultUIImport,
+                new Promise<never>((_, reject) => {
+                  defaultUITimeout = window.setTimeout(
+                    () => reject(new Error('Pagefind UI import timed out')),
+                    5000
+                  );
+                }),
+              ]);
+            } finally {
+              if (defaultUITimeout !== undefined) window.clearTimeout(defaultUITimeout);
+              defaultUIImport.catch(() => {});
+            }
+            const { PagefindUI } = defaultUI;
+            pagefindUI = new PagefindUI({
+              ...pagefindUserConfig,
+              element: '#starlight__search',
+              baseUrl,
+              bundlePath,
+              showImages: false,
+              translations,
+              showSubResults: true,
+              processResult: (result: { url: string; sub_results: Array<{ url: string }> }) => {
+                result.url = formatURL(result.url);
+                result.sub_results = result.sub_results.map((sub_result) => {
+                  sub_result.url = formatURL(sub_result.url);
+                  return sub_result;
+                });
+              },
             });
-          },
-        });
-        if (dialog.open) focusSearchInput();
+            uiInitialized = true;
+            if (dialog.open) focusSearchInput();
+          } catch {
+            pagefindUI = null;
+            uiInitialized = false;
+            showFailure();
+          }
+        })();
+
+        initPromise = currentInit;
+        try {
+          await currentInit;
+        } finally {
+          if (initPromise === currentInit) initPromise = null;
+        }
       };
 
       const ensureSearchReady = async () => {
-        if (import.meta.env.DEV) return;
+        if (import.meta.env.DEV) {
+          hideInitializing();
+          return;
+        }
+        if (searchBlocked) {
+          showFailure();
+          return;
+        }
+        if (uiInitialized) {
+          hideInitializing();
+          return;
+        }
+        showInitializing();
         if (!(await probeIndex())) {
           showFailure();
           return;
         }
         hideFailure();
         await initPagefindUI();
+        if (uiInitialized) hideInitializing();
       };
 
       /**
@@ -261,7 +382,10 @@ const retryLabel = isChinese ? '重试' : 'Retry';
             !drawer.classList.contains('pagefind-ui__hidden') &&
             !!drawer.querySelector('.pagefind-ui__message') &&
             !drawer.querySelector('.pagefind-ui__results');
-          if (stuck) showFailure();
+          if (stuck) {
+            resetPagefindUI();
+            showFailure();
+          }
         }, 8000);
       };
       searchContainer?.addEventListener('input', (event) => {
@@ -276,39 +400,59 @@ const retryLabel = isChinese ? '重试' : 'Retry';
       });
 
       const openModal = async (event?: MouseEvent) => {
+        previouslyFocused = openBtn;
         dialog.showModal();
+        document.documentElement.toggleAttribute('data-search-modal-open', true);
         document.body.toggleAttribute('data-search-modal-open', true);
-        await ensureSearchReady();
-        focusSearchInput();
         event?.stopPropagation();
         window.addEventListener('click', onClick);
+        await ensureSearchReady();
+        if (dialog.open) focusSearchInput();
       };
 
-      const closeModal = () => dialog.close();
+      const cleanupModal = () => {
+        document.documentElement.toggleAttribute('data-search-modal-open', false);
+        document.body.toggleAttribute('data-search-modal-open', false);
+        window.removeEventListener('click', onClick);
+        window.clearTimeout(loadingWatchdog);
+        if (previouslyFocused?.isConnected) previouslyFocused.focus();
+        previouslyFocused = null;
+      };
+
+      const closeModal = () => {
+        if (dialog.open) dialog.close();
+        cleanupModal();
+      };
 
       openBtn.addEventListener('click', openModal);
       openBtn.disabled = false;
       closeBtn.addEventListener('click', closeModal);
+      dialog.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        closeModal();
+      });
 
       retryBtn?.addEventListener('click', async () => {
         retryBtn.disabled = true;
-        indexAvailable = null;
-        const ok = await probeIndex();
-        if (ok) {
-          hideFailure();
-          await initPagefindUI();
-          focusSearchInput();
-        } else {
-          showFailure();
+        try {
+          resetPagefindUI();
+          indexAvailable = null;
+          showInitializing();
+          const ok = await probeIndex();
+          if (ok) {
+            hideFailure();
+            await initPagefindUI();
+            if (uiInitialized) hideInitializing();
+          } else {
+            showFailure();
+          }
+        } finally {
+          retryBtn.disabled = false;
+          if (dialog.open && failureEl && !failureEl.hidden) retryBtn.focus();
         }
-        retryBtn.disabled = false;
       });
 
-      dialog.addEventListener('close', () => {
-        document.body.toggleAttribute('data-search-modal-open', false);
-        window.removeEventListener('click', onClick);
-        window.clearTimeout(loadingWatchdog);
-      });
+      dialog.addEventListener('close', cleanupModal);
 
       // Listen for `ctrl + k` and `cmd + k` keyboard shortcuts.
       window.addEventListener('keydown', (e) => {

@@ -109,6 +109,28 @@
     @apply w-full;
   }
 
+  /* Initialization state, before Pagefind mounts its form. */
+  site-search dialog .search-initializing {
+    @apply flex min-h-36 flex-col items-center justify-center gap-2 py-10 text-sm text-muted-foreground;
+  }
+  site-search dialog .search-initializing[hidden] {
+    display: none;
+  }
+  site-search dialog .search-initializing__spinner {
+    @apply size-5 rounded-full border-2 border-border border-t-muted-foreground;
+    animation: search-spin 0.8s linear infinite;
+  }
+  @keyframes search-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    site-search dialog .search-initializing__spinner {
+      animation: none;
+    }
+  }
+
   /* The Pagefind drawer (results) is a child of the form, so the input row is
      kept pinned by giving the drawer its own scroll region. */
   site-search dialog .pagefind-ui__form {
@@ -162,6 +184,9 @@
     padding: 0;
     background-color: transparent;
     overflow: hidden;
+    font-size: 0;
+    line-height: 0;
+    white-space: nowrap;
   }
   site-search dialog .pagefind-ui__search-clear:hover {
     @apply bg-secondary;
@@ -235,9 +260,9 @@
     height: 1.25rem;
     margin-inline-end: 0.625rem;
     background-color: var(--color-muted-foreground);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
       center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-linecap='round' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
 
@@ -356,12 +381,10 @@
     background-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-surface));
   }
 
-  /* Tree guide (Starlight supplies the masks; we recolor them). */
+  /* Nested results use plain content rows; suppress Starlight's tree guide. */
   site-search dialog .pagefind-ui__result-nested::before {
-    inset-inline-start: 1rem;
-    width: 1.5rem;
-    background: var(--color-muted-foreground);
-    opacity: 0.4;
+    content: none;
+    display: none;
   }
 
   site-search dialog .pagefind-ui__result-nested .pagefind-ui__result-title {
