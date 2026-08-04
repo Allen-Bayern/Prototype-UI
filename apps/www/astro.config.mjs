@@ -344,6 +344,18 @@ export default defineConfig({
                   slug: 'ui-libraries/brutalist/design-contract',
                 },
                 {
+                  label: 'Badge',
+                  translations: { en: 'Badge', 'zh-CN': 'Badge' },
+                  slug: 'ui-libraries/brutalist/components/badge',
+                  badge: inProgressBadge,
+                },
+                {
+                  label: 'Card',
+                  translations: { en: 'Card', 'zh-CN': 'Card' },
+                  slug: 'ui-libraries/brutalist/components/card',
+                  badge: inProgressBadge,
+                },
+                {
                   label: 'Separator',
                   translations: { en: 'Separator', 'zh-CN': 'Separator' },
                   slug: 'ui-libraries/brutalist/components/separator',
