@@ -250,6 +250,9 @@ importers:
       '@proto.ui/module-scroll':
         specifier: workspace:*
         version: link:../../modules/scroll
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../../modules/text-control
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -335,6 +338,9 @@ importers:
       '@proto.ui/module-scroll':
         specifier: workspace:*
         version: link:../../modules/scroll
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../../modules/text-control
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -414,6 +420,9 @@ importers:
       '@proto.ui/module-test-sys':
         specifier: workspace:*
         version: link:../../modules/test-sys
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../../modules/text-control
       '@proto.ui/runtime':
         specifier: workspace:*
         version: link:../../runtime
@@ -824,6 +833,18 @@ importers:
         specifier: workspace:*
         version: link:../../types
 
+  packages/modules/text-control:
+    dependencies:
+      '@proto.ui/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@proto.ui/module-base':
+        specifier: workspace:*
+        version: link:../base
+      '@proto.ui/types':
+        specifier: workspace:*
+        version: link:../../types
+
   packages/prototypes/base:
     dependencies:
       '@proto.ui/core':
@@ -832,6 +853,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../../hooks
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../../modules/text-control
     devDependencies:
       '@proto.ui/module-anatomy':
         specifier: workspace:*
@@ -860,6 +884,9 @@ importers:
       '@proto.ui/hooks':
         specifier: workspace:*
         version: link:../../hooks
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../../modules/text-control
       '@proto.ui/prototypes-base':
         specifier: workspace:*
         version: link:../base
@@ -1007,6 +1034,9 @@ importers:
       '@proto.ui/module-test-sys':
         specifier: workspace:*
         version: link:../modules/test-sys
+      '@proto.ui/module-text-control':
+        specifier: workspace:*
+        version: link:../modules/text-control
       '@proto.ui/types':
         specifier: workspace:*
         version: link:../types
