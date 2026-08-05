@@ -15,9 +15,7 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 
 // Locale-aware copy for states Pagefind does not translate itself.
 const isChinese = (Astro.locals.starlightRoute.locale || 'en').toLowerCase().startsWith('zh');
-const searchHint = isChinese
-  ? '输入关键词，跨中英文搜索全部文档'
-  : 'Search across all documentation in English and Chinese';
+const searchHint = isChinese ? '输入关键词搜索全部文档' : 'Search across all documentation';
 const failureTitle = isChinese ? '搜索暂时不可用' : 'Search is unavailable';
 const failureBody = isChinese
   ? '搜索索引未能加载。请检查网络连接后重试。'
@@ -442,7 +440,10 @@ const loadingLabel = isChinese ? '正在加载搜索…' : 'Loading search…';
           if (ok) {
             hideFailure();
             await initPagefindUI();
-            if (uiInitialized) hideInitializing();
+            if (uiInitialized) {
+              hideInitializing();
+              window.requestAnimationFrame(focusSearchInput);
+            }
           } else {
             showFailure();
           }
