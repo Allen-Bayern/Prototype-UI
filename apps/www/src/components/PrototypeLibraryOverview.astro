@@ -102,6 +102,15 @@ const entriesByLibrary: Record<LibraryId, PrototypeEntry[]> = {
         : 'Busy-state projection and asynchronous result announcements.',
       href: './async-region/',
     },
+    {
+      id: 'textarea',
+      name: 'Textarea',
+      demoId: 'demo-base-textarea',
+      description: isZh
+        ? '宿主介导的原生多行文本编辑。'
+        : 'Host-mediated native multiline text editing.',
+      href: './textarea/',
+    },
   ],
   shadcn: [
     {
@@ -267,6 +276,15 @@ const entriesByLibrary: Record<LibraryId, PrototypeEntry[]> = {
         ? '可见的轨道、滑块与原生滚动。'
         : 'Visible track and thumb over native scrolling.',
       href: './components/scroll-area/',
+    },
+    {
+      id: 'textarea',
+      name: 'Textarea',
+      demoId: 'demo-brutalist-textarea',
+      description: isZh
+        ? '带方角、硬阴影与原生编辑能力的多行输入。'
+        : 'Native multiline editing with square geometry and a hard shadow.',
+      href: './components/textarea/',
     },
   ],
 };
