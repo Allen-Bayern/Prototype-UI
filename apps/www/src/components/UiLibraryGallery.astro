@@ -1,4 +1,6 @@
 ---
+import StaticLucideIcon from './StaticLucideIcon.astro';
+
 type Locale = 'en' | 'zh-cn';
 type LibraryId = 'base' | 'shadcn' | 'lucide' | 'brutalist';
 
@@ -10,13 +12,16 @@ type LibraryCard = {
   id: LibraryId;
   name: string;
   mark: string;
+  logoSrc?: string;
   type: string;
   status?: string;
   description: string;
   bestFor: string;
   sourceLabel: string;
   source: string;
+  sourceHref: string;
   author: string;
+  authorHref: string;
   cta: string;
   href: string;
 };
@@ -37,12 +42,15 @@ const copy =
             id: 'base',
             name: 'Base',
             mark: 'B',
+            logoSrc: '/favicon.svg',
             type: '协议型组件库',
-            description: '克制、无预设风格，优先提供可跨宿主复用的交互语义。',
+            description: '默认无样式，只提供可跨宿主复用的交互语义，让视觉完全由你定义。',
             bestFor: '自建设计体系、需要完整掌控视觉的产品',
             sourceLabel: '设计体系',
             source: 'Proto UI Base',
+            sourceHref: 'https://www.proto-ui.com',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: '浏览 Base',
             href: './base/',
           },
@@ -50,12 +58,15 @@ const copy =
             id: 'shadcn',
             name: 'Shadcn',
             mark: 'sh',
+            logoSrc: '/brands/shadcn.svg',
             type: '风格组件库',
             description: '熟悉、清晰且实用的产品界面风格，建立在 Base 协议之上。',
             bestFor: '后台、SaaS 与希望快速获得成熟界面的产品',
             sourceLabel: '设计来源',
             source: 'shadcn/ui',
+            sourceHref: 'https://ui.shadcn.com',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: '浏览 Shadcn',
             href: './shadcn/',
           },
@@ -63,12 +74,15 @@ const copy =
             id: 'lucide',
             name: 'Lucide',
             mark: '✦',
+            logoSrc: '/brands/lucide.svg',
             type: '图标库',
             description: '轻量一致的线性图标，以逐图标入口提供可按需引入的原型。',
             bestFor: '需要统一图标语言与精细包体积控制的界面',
             sourceLabel: '图标来源',
             source: 'Lucide contributors',
+            sourceHref: 'https://lucide.dev',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: '浏览 Lucide',
             href: './lucide/',
           },
@@ -82,7 +96,9 @@ const copy =
             bestFor: '创意工具、作品集与需要鲜明个性的产品',
             sourceLabel: '设计体系',
             source: 'Proto UI Neo-Brutalist',
+            sourceHref: 'https://github.com/Proto-UI/Proto-UI',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: '浏览 Brutalist',
             href: './brutalist/',
           },
@@ -100,13 +116,16 @@ const copy =
             id: 'base',
             name: 'Base',
             mark: 'B',
+            logoSrc: '/favicon.svg',
             type: 'Protocol components',
             description:
-              'Restrained and unstyled, focused on reusable interaction semantics across hosts.',
+              'Unstyled by default, providing reusable interaction semantics while leaving visuals entirely to you.',
             bestFor: 'Custom design systems and products that need full visual control',
             sourceLabel: 'Design system',
             source: 'Proto UI Base',
+            sourceHref: 'https://www.proto-ui.com',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: 'Explore Base',
             href: './base/',
           },
@@ -114,13 +133,16 @@ const copy =
             id: 'shadcn',
             name: 'Shadcn',
             mark: 'sh',
+            logoSrc: '/brands/shadcn.svg',
             type: 'Styled components',
             description:
               'A familiar, crisp product UI language reconstructed on top of Base protocols.',
             bestFor: 'Dashboards, SaaS, and products that want a mature interface quickly',
             sourceLabel: 'Design source',
             source: 'shadcn/ui',
+            sourceHref: 'https://ui.shadcn.com',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: 'Explore Shadcn',
             href: './shadcn/',
           },
@@ -128,13 +150,16 @@ const copy =
             id: 'lucide',
             name: 'Lucide',
             mark: '✦',
+            logoSrc: '/brands/lucide.svg',
             type: 'Icon library',
             description:
               'A consistent line icon set exposed as tree-shakeable, per-icon prototypes.',
             bestFor: 'Interfaces that need a coherent icon language and precise bundle control',
             sourceLabel: 'Icon source',
             source: 'Lucide contributors',
+            sourceHref: 'https://lucide.dev',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: 'Explore Lucide',
             href: './lucide/',
           },
@@ -149,7 +174,9 @@ const copy =
             bestFor: 'Creative tools, portfolios, and products that want a distinct personality',
             sourceLabel: 'Design system',
             source: 'Proto UI Neo-Brutalist',
+            sourceHref: 'https://github.com/Proto-UI/Proto-UI',
             author: 'Proto UI contributors',
+            authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: 'Explore Brutalist',
             href: './brutalist/',
           },
@@ -168,122 +195,145 @@ const copy =
     {
       copy.cards.map((library) => (
         <article class:list={['library-card', `library-card--${library.id}`]}>
-          <a class="library-card__link" href={library.href} aria-label={library.cta}>
-            <header class="library-card__header">
-              <span class="library-card__logo" aria-hidden="true">
-                {library.mark}
-              </span>
-              <span class="library-card__identity">
-                <strong>{library.name}</strong>
-                <span>{library.type}</span>
-              </span>
-              {library.status && <span class="library-card__status">{library.status}</span>}
-            </header>
+          <header class="library-card__header">
+            <span class="library-card__logo" aria-hidden="true">
+              {library.logoSrc ? <img src={library.logoSrc} alt="" /> : library.mark}
+            </span>
+            <span class="library-card__identity">
+              <strong>{library.name}</strong>
+              <span>{library.type}</span>
+            </span>
+            {library.status && <span class="library-card__status">{library.status}</span>}
+          </header>
 
-            <div class="library-card__preview" aria-hidden="true">
-              {library.id === 'base' && (
-                <div class="base-preview">
-                  <div class="base-preview__toolbar">
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <div class="base-preview__body">
-                    <div class="base-preview__title" />
-                    <div class="base-preview__copy" />
-                    <div class="base-preview__row">
-                      <span class="base-preview__field" />
-                      <span class="base-preview__switch">
-                        <i />
-                      </span>
-                    </div>
-                    <div class="base-preview__actions">
-                      <span />
-                      <span />
-                    </div>
-                  </div>
+          <div class="library-card__preview" aria-hidden="true">
+            {library.id === 'base' && (
+              <div class="base-preview">
+                <span class="base-preview__watermark">HEADLESS</span>
+                <div class="base-preview__toolbar">
+                  <i />
+                  <i />
+                  <i />
                 </div>
-              )}
-
-              {library.id === 'shadcn' && (
-                <div class="shadcn-preview">
-                  <div class="shadcn-preview__nav">
-                    <i />
-                    <span />
-                    <span />
-                    <b />
-                  </div>
-                  <div class="shadcn-preview__panel">
-                    <div class="shadcn-preview__title" />
-                    <div class="shadcn-preview__copy" />
-                    <div class="shadcn-preview__fields">
-                      <span />
-                      <span />
-                    </div>
-                    <div class="shadcn-preview__button" />
-                  </div>
-                </div>
-              )}
-
-              {library.id === 'lucide' && (
-                <div class="lucide-preview">
-                  <div class="lucide-preview__search">
-                    <span class="lucide-preview__magnifier" />
-                    <i />
-                  </div>
-                  <div class="lucide-preview__icons">
-                    <span class="line-icon line-icon--sun" />
-                    <span class="line-icon line-icon--check" />
-                    <span class="line-icon line-icon--heart" />
-                    <span class="line-icon line-icon--sparkle">✦</span>
-                    <span class="line-icon line-icon--arrow">↗</span>
-                    <span class="line-icon line-icon--command">⌘</span>
-                  </div>
-                </div>
-              )}
-
-              {library.id === 'brutalist' && (
-                <div class="brutalist-preview">
-                  <div class="brutalist-preview__poster">
-                    <span class="brutalist-preview__sticker">NEW</span>
-                    <strong>
-                      BUILD
-                      <br />
-                      LOUD.
-                    </strong>
-                    <div class="brutalist-preview__controls">
-                      <span>SELECT</span>
+                <div class="base-preview__body">
+                  <div class="base-preview__title" />
+                  <div class="base-preview__copy" />
+                  <div class="base-preview__row">
+                    <span class="base-preview__field" />
+                    <span class="base-preview__switch">
                       <i />
-                    </div>
+                    </span>
                   </div>
-                  <div class="brutalist-preview__dot" />
+                  <div class="base-preview__actions">
+                    <span />
+                    <span />
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div class="library-card__body">
-              <p class="library-card__description">{library.description}</p>
-              <p class="library-card__best-for">
-                <span>{copy.bestFor}</span>
-                {library.bestFor}
-              </p>
-              <dl class="library-card__credits">
-                <div>
-                  <dt>{library.sourceLabel}</dt>
-                  <dd>{library.source}</dd>
+            {library.id === 'shadcn' && (
+              <div class="shadcn-preview">
+                <div class="shadcn-preview__nav">
+                  <i />
+                  <span />
+                  <span />
+                  <b />
                 </div>
-                <div>
-                  <dt>{copy.prototypeAuthor}</dt>
-                  <dd>{library.author}</dd>
+                <div class="shadcn-preview__panel">
+                  <div class="shadcn-preview__title" />
+                  <div class="shadcn-preview__copy" />
+                  <div class="shadcn-preview__fields">
+                    <span />
+                    <span />
+                  </div>
+                  <div class="shadcn-preview__button" />
                 </div>
-              </dl>
-            </div>
+              </div>
+            )}
 
-            <footer class="library-card__footer">
+            {library.id === 'lucide' && (
+              <div class="lucide-preview">
+                <div class="lucide-preview__search">
+                  <StaticLucideIcon name="search" />
+                  <i />
+                </div>
+                <div class="lucide-preview__icons">
+                  <span class="line-icon">
+                    <StaticLucideIcon name="sun" />
+                  </span>
+                  <span class="line-icon">
+                    <StaticLucideIcon name="circle-check" />
+                  </span>
+                  <span class="line-icon">
+                    <StaticLucideIcon name="heart" />
+                  </span>
+                  <span class="line-icon">
+                    <StaticLucideIcon name="sparkles" />
+                  </span>
+                  <span class="line-icon">
+                    <StaticLucideIcon name="arrow-up-right" />
+                  </span>
+                  <span class="line-icon">
+                    <StaticLucideIcon name="panels-top-left" />
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {library.id === 'brutalist' && (
+              <div class="brutalist-preview">
+                <div class="brutalist-preview__poster">
+                  <span class="brutalist-preview__sticker">NEW</span>
+                  <strong>
+                    BUILD
+                    <br />
+                    LOUD.
+                  </strong>
+                  <div class="brutalist-preview__controls">
+                    <span>SELECT</span>
+                    <i />
+                  </div>
+                </div>
+                <div class="brutalist-preview__dot" />
+              </div>
+            )}
+          </div>
+
+          <div class="library-card__body">
+            <p class="library-card__description">{library.description}</p>
+            <p class="library-card__best-for">
+              <span>{copy.bestFor}</span>
+              {library.bestFor}
+            </p>
+            <dl class="library-card__credits">
+              <div>
+                <dt>{library.sourceLabel}</dt>
+                <dd>
+                  <a href={library.sourceHref} target="_blank" rel="noreferrer">
+                    {library.source}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>{copy.prototypeAuthor}</dt>
+                <dd>
+                  <a href={library.authorHref} target="_blank" rel="noreferrer">
+                    {library.author}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <footer class="library-card__footer">
+            <a class="library-card__primary-link" href={library.href} aria-label={library.cta}>
               <span>{library.cta}</span>
               <span aria-hidden="true">↗</span>
-            </footer>
-          </a>
+            </a>
+          </footer>
         </article>
       ))
     }
@@ -326,6 +376,9 @@ const copy =
   }
 
   .library-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
     min-width: 0;
     margin: 0;
     border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
@@ -346,20 +399,6 @@ const copy =
       0 14px 32px color-mix(in oklab, var(--color-foreground) 8%, transparent),
       0 1px 0 color-mix(in oklab, var(--color-foreground) 8%, transparent);
     transform: translateY(-2px);
-  }
-
-  .library-card__link {
-    display: grid;
-    height: 100%;
-    color: inherit;
-    grid-template-rows: auto auto 1fr auto;
-    text-decoration: none;
-  }
-
-  .library-card__link:focus-visible {
-    border-radius: 0.75rem;
-    outline: 2px solid var(--color-primary);
-    outline-offset: -3px;
   }
 
   .library-card__header {
@@ -384,6 +423,13 @@ const copy =
     font-size: 0.85rem;
     font-weight: 800;
     letter-spacing: -0.04em;
+    overflow: hidden;
+  }
+
+  .library-card__logo img {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .library-card--shadcn .library-card__logo {
@@ -392,11 +438,18 @@ const copy =
     text-transform: lowercase;
   }
 
+  .library-card--shadcn .library-card__logo img {
+    filter: invert(1);
+  }
+
+  .library-card--base .library-card__logo img {
+    width: 100%;
+    height: 100%;
+  }
+
   .library-card--lucide .library-card__logo {
-    background: #f56565;
-    border-color: #f56565;
-    color: #fff;
-    font-size: 1rem;
+    background: #fff;
+    border-color: #f1cfcc;
   }
 
   .library-card--brutalist .library-card__logo {
@@ -511,9 +564,29 @@ const copy =
     white-space: nowrap;
   }
 
+  .library-card__credits a {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    max-width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    color: inherit;
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+    text-underline-offset: 0.18em;
+  }
+
+  .library-card__credits a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  .library-card__credits a span {
+    color: var(--color-muted-foreground);
+    font-size: 0.62rem;
+  }
+
   .library-card__footer {
-    display: flex;
-    justify-content: space-between;
     border-top: 1px solid color-mix(in oklab, var(--color-border) 78%, transparent);
     color: var(--color-foreground);
     font-size: 0.72rem;
@@ -521,11 +594,35 @@ const copy =
     padding: 0.72rem 0.95rem;
   }
 
-  .library-card__footer span:last-child {
+  .library-card__primary-link {
+    display: flex;
+    justify-content: space-between;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .library-card__primary-link::after {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    border-radius: 0.85rem;
+    content: '';
+  }
+
+  .library-card__primary-link:focus-visible {
+    outline: none;
+  }
+
+  .library-card__primary-link:focus-visible::after {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -3px;
+  }
+
+  .library-card__primary-link span:last-child {
     transition: transform 180ms ease;
   }
 
-  .library-card:hover .library-card__footer span:last-child {
+  .library-card:hover .library-card__primary-link span:last-child {
     transform: translate(2px, -2px);
   }
 
@@ -541,16 +638,33 @@ const copy =
   }
 
   .base-preview {
+    position: relative;
     width: 78%;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.55rem;
-    background: #fff;
-    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+    overflow: hidden;
+    border: 1px dashed #64748b;
+    border-radius: 0.2rem;
+    background: rgba(255, 255, 255, 0.82);
     color: #0f172a;
     transform: rotate(-1deg);
   }
 
+  .base-preview__watermark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    color: rgba(15, 23, 42, 0.08);
+    font-family: var(--font-mono);
+    font-size: clamp(1.35rem, 4.5vw, 2.3rem);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    white-space: nowrap;
+  }
+
   .base-preview__toolbar {
+    position: relative;
+    z-index: 1;
     display: flex;
     gap: 0.3rem;
     border-bottom: 1px solid #e2e8f0;
@@ -565,6 +679,8 @@ const copy =
   }
 
   .base-preview__body {
+    position: relative;
+    z-index: 1;
     display: grid;
     gap: 0.72rem;
     padding: 1rem;
@@ -575,8 +691,8 @@ const copy =
   .base-preview__field,
   .base-preview__actions span {
     display: block;
-    border-radius: 0.16rem;
-    background: #0f172a;
+    border-radius: 0;
+    background: #64748b;
   }
 
   .base-preview__title {
@@ -598,8 +714,8 @@ const copy =
 
   .base-preview__row {
     justify-content: space-between;
-    border-top: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
+    border-top: 1px dashed #94a3b8;
+    border-bottom: 1px dashed #94a3b8;
     padding-block: 0.7rem;
   }
 
@@ -615,16 +731,18 @@ const copy =
     height: 0.95rem;
     justify-content: flex-end;
     align-items: center;
-    border-radius: 999px;
-    background: #0f172a;
+    border: 1px solid #64748b;
+    border-radius: 0;
+    background: transparent;
     padding: 0.12rem;
   }
 
   .base-preview__switch i {
     width: 0.7rem;
     height: 0.7rem;
-    border-radius: 50%;
-    background: #fff;
+    border: 1px solid #64748b;
+    border-radius: 0;
+    background: #e2e8f0;
   }
 
   .base-preview__actions {
@@ -640,8 +758,9 @@ const copy =
   }
 
   .base-preview__actions span:last-child {
-    border-color: #0f172a;
-    background: #0f172a;
+    border-style: dashed;
+    border-color: #64748b;
+    background: transparent;
   }
 
   /* Shadcn preview */
@@ -770,23 +889,10 @@ const copy =
     background: #e8b1ad;
   }
 
-  .lucide-preview__magnifier {
-    position: relative;
-    width: 0.65rem;
-    height: 0.65rem;
-    border: 1.5px solid #8f5d5a;
-    border-radius: 50%;
-  }
-
-  .lucide-preview__magnifier::after {
-    position: absolute;
-    right: -0.27rem;
-    bottom: -0.2rem;
-    width: 0.34rem;
-    height: 1.5px;
-    background: #8f5d5a;
-    content: '';
-    rotate: 45deg;
+  .lucide-preview__search :global(.static-lucide-icon) {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: #8f5d5a;
   }
 
   .lucide-preview__icons {
@@ -796,7 +902,6 @@ const copy =
   }
 
   .line-icon {
-    position: relative;
     display: grid;
     place-items: center;
     min-width: 0;
@@ -804,49 +909,11 @@ const copy =
     border-radius: 0.5rem;
     background: rgba(255, 255, 255, 0.72);
     color: #70413e;
-    font-family: var(--font-mono);
-    font-size: 1.35rem;
-    font-style: normal;
-    line-height: 1;
   }
 
-  .line-icon--sun::before {
-    width: 1rem;
-    height: 1rem;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
-    box-shadow:
-      0 -0.48rem 0 -0.4rem currentColor,
-      0 0.48rem 0 -0.4rem currentColor,
-      0.48rem 0 0 -0.4rem currentColor,
-      -0.48rem 0 0 -0.4rem currentColor;
-    content: '';
-  }
-
-  .line-icon--check::before {
-    width: 1.1rem;
-    height: 1.1rem;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
-    content: '';
-  }
-
-  .line-icon--check::after {
-    position: absolute;
-    width: 0.48rem;
-    height: 0.24rem;
-    border-bottom: 1.5px solid currentColor;
-    border-left: 1.5px solid currentColor;
-    content: '';
-    rotate: -45deg;
-    translate: 0 -0.05rem;
-  }
-
-  .line-icon--heart::before {
-    content: '♡';
-    font-family: sans-serif;
-    font-size: 1.75rem;
-    font-weight: 300;
+  .line-icon :global(.static-lucide-icon) {
+    width: 1.7rem;
+    height: 1.7rem;
   }
 
   /* Brutalist preview */
