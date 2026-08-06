@@ -19,7 +19,7 @@ type LibraryCard = {
   bestFor: string;
   sourceLabel: string;
   source: string;
-  sourceHref: string;
+  sourceHref?: string;
   author: string;
   authorHref: string;
   cta: string;
@@ -37,6 +37,7 @@ const copy =
         iconCount: '1 个图标库',
         bestFor: '适合',
         prototypeAuthor: '原型实现',
+        unstyledMark: '无样式',
         cards: [
           {
             id: 'base',
@@ -47,8 +48,7 @@ const copy =
             description: '默认无样式，只提供可跨宿主复用的交互语义，让视觉完全由你定义。',
             bestFor: '自建设计体系、需要完整掌控视觉的产品',
             sourceLabel: '设计体系',
-            source: 'Proto UI Base',
-            sourceHref: 'https://www.proto-ui.com',
+            source: '无',
             author: 'Proto UI contributors',
             authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: '浏览 Base',
@@ -111,6 +111,7 @@ const copy =
         iconCount: '1 icon library',
         bestFor: 'Best for',
         prototypeAuthor: 'Prototype implementation',
+        unstyledMark: 'HEADLESS',
         cards: [
           {
             id: 'base',
@@ -122,8 +123,7 @@ const copy =
               'Unstyled by default, providing reusable interaction semantics while leaving visuals entirely to you.',
             bestFor: 'Custom design systems and products that need full visual control',
             sourceLabel: 'Design system',
-            source: 'Proto UI Base',
-            sourceHref: 'https://www.proto-ui.com',
+            source: 'None',
             author: 'Proto UI contributors',
             authorHref: 'https://github.com/Proto-UI/Proto-UI',
             cta: 'Explore Base',
@@ -209,7 +209,7 @@ const copy =
           <div class="library-card__preview" aria-hidden="true">
             {library.id === 'base' && (
               <div class="base-preview">
-                <span class="base-preview__watermark">HEADLESS</span>
+                <span class="base-preview__watermark">{copy.unstyledMark}</span>
                 <div class="base-preview__toolbar">
                   <i />
                   <i />
@@ -310,10 +310,14 @@ const copy =
               <div>
                 <dt>{library.sourceLabel}</dt>
                 <dd>
-                  <a href={library.sourceHref} target="_blank" rel="noreferrer">
-                    {library.source}
-                    <span aria-hidden="true">↗</span>
-                  </a>
+                  {library.sourceHref ? (
+                    <a href={library.sourceHref} target="_blank" rel="noreferrer">
+                      {library.source}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    library.source
+                  )}
                 </dd>
               </div>
               <div>
@@ -573,11 +577,13 @@ const copy =
     justify-content: flex-end;
     gap: 0.25rem;
     color: inherit;
-    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+    text-decoration: none;
     text-underline-offset: 0.18em;
   }
 
-  .library-card__credits a:hover {
+  .library-card__credits a:hover,
+  .library-card__credits a:focus-visible {
+    text-decoration: underline;
     text-decoration-color: currentColor;
   }
 
