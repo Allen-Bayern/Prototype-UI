@@ -318,14 +318,9 @@ export default defineConfig({
               translations: { en: 'Lucide', 'zh-CN': 'Lucide' },
               items: [
                 {
-                  label: 'Overview',
-                  translations: { en: 'Overview', 'zh-CN': '概览' },
+                  label: 'Icon Library',
+                  translations: { en: 'Icon Library', 'zh-CN': '图标库' },
                   slug: 'ui-libraries/lucide',
-                },
-                {
-                  label: 'Icons',
-                  translations: { en: 'Icons', 'zh-CN': '图标列表' },
-                  slug: 'ui-libraries/lucide/icons',
                 },
               ],
             },
