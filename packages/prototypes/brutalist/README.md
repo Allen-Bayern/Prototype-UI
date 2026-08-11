@@ -2,7 +2,7 @@
 
 Contributor-authored Neo-Brutalist Proto UI style library.
 
-> **Release status:** public `0.2.0-rc.7` draft release candidate in the 40-package rc.7 BOM. The npm bootstrap identity exists, but rc.7 is not installable until the release rehearsal and publication complete.
+> **Release status:** public `0.2.0-rc.7` package in the 40-package rc.7 BOM, published on npm under `next`.
 
 ## Purpose
 
@@ -10,9 +10,9 @@ Provides a Proto UI design-language foundation: square geometry, strong structur
 
 This package is not owned by or claimed to be compatible with a named third-party component system. It uses only general Neo-Brutalist visual references.
 
-## Current workspace scope
+## Published rc.7 scope
 
-The rc.7 release-candidate package includes:
+The published rc.7 package includes:
 
 - shared Brutalist style tokens, light/dark theme grammar, and the CLI style preset;
 - Button as the reference family;
