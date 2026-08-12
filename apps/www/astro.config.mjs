@@ -75,6 +75,19 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Proto UI',
+      expressiveCode: {
+        styleOverrides: {
+          borderRadius: 'calc(0.75rem - 1px)',
+          borderColor: 'var(--color-border)',
+          codeFontSize: '0.8125rem',
+          codeLineHeight: '1.5rem',
+          codeBackground: 'var(--color-muted)',
+          frames: {
+            editorBackground: 'var(--color-muted)',
+            terminalBackground: 'var(--color-muted)',
+          },
+        },
+      },
 
       defaultLocale: 'zh-cn',
       locales: {
@@ -88,6 +101,10 @@ export default defineConfig({
         },
       },
       head: [
+        {
+          tag: 'style',
+          content: '@layer base, starlight, components, utilities;',
+        },
         // 双 theme-color
         {
           tag: 'script',
