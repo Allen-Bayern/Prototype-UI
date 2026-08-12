@@ -265,9 +265,9 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       [FOCUS_IS_NATIVELY_FOCUSABLE_CAP, isNativelyFocusable],
       [
         FOCUS_SET_FOCUSABLE_CAP,
-        (target: HTMLElement, enabled: boolean) => {
+        (target: HTMLElement, enabled: boolean, options?: { programmatic?: boolean }) => {
           const surface = getLogicalTriggerSurfaceRoot(instanceToken);
-          projectFocusable(target, enabled && (!surface || surface === target));
+          projectFocusable(target, enabled && (!surface || surface === target), options);
         },
       ],
       [
@@ -389,11 +389,15 @@ function isNativelyFocusable(el: HTMLElement): boolean {
   return false;
 }
 
-function projectFocusable(target: HTMLElement, enabled: boolean): void {
+function projectFocusable(
+  target: HTMLElement,
+  enabled: boolean,
+  options?: { programmatic?: boolean }
+): void {
   if (enabled) {
-    target.tabIndex = 0;
-  } else if (isNativelyFocusable(target)) {
-    target.tabIndex = -1;
+    target.setAttribute('tabindex', '0');
+  } else if (options?.programmatic || isNativelyFocusable(target)) {
+    target.setAttribute('tabindex', '-1');
   } else {
     target.removeAttribute('tabindex');
   }
