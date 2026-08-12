@@ -12,7 +12,7 @@ Adapter-facing dependency used by Base Textarea and official Web Component, Reac
 
 ## Install
 
-`0.2.0-rc.7` is a draft release candidate and is not installable until the rc.7 publication completes.
+`0.2.0-rc.7` is published on npm under `next`; pin the exact version for reproducible trials.
 
 ```bash
 npm install @proto.ui/module-text-control@0.2.0-rc.7
