@@ -25,6 +25,22 @@ Brutalist Skeleton is passive, contentless, and excluded from the accessibility 
 
 Only families present in this package's exports and CLI registry are in the rc.7 release scope; draft PR #323 remains incubation history rather than a second release surface.
 
+## Theme preset
+
+`BRUTALIST_THEME` is the canonical Light/Dark semantic-color manifest. Both modes expose the same keys and explicit background/foreground pairs. `renderBrutalistThemeCss()` projects that manifest for package consumers; the CLI carries a checked generated copy so initialization also works before this package is installed.
+
+```ts
+import { BRUTALIST_THEME, renderBrutalistThemeCss } from '@proto.ui/prototypes-brutalist/theme';
+```
+
+Initialize a project with the matching project-wide preset:
+
+```sh
+proto-ui init --prototypes brutalist
+```
+
+Config v1 supports one enabled style preset. `proto-ui add` rejects a Brutalist component when another preset is enabled rather than silently replacing the application's theme. `--no-styles` remains an explicit consumer-owned styling mode; in that mode `add` succeeds with a note and the application must provide every required `--pui-*` semantic token.
+
 ## Button public API
 
 | Prop       | Values                                             | Default             |

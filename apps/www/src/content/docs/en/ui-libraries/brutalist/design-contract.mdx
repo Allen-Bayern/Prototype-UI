@@ -29,6 +29,12 @@ Position, labels, geometry, and state are primary signals; color is supplementar
 
 Each accent fill is shipped as a fixed background/foreground pair (for example `bg-main` with `text-main-foreground`). Accent foregrounds stay ink in both Light and Dark. Theme-dependent surfaces such as paper panels resolve through CSS variables so a host theme change repaints mounted controls without a pointer refresh.
 
+## Preset delivery
+
+The package-owned `BRUTALIST_THEME` manifest is the authoring source for Light and Dark semantic values. Documentation pages and the CLI preset consume generated projections of the same complete key set; examples do not maintain local palette subsets.
+
+Proto UI config v1 enables one project-wide style preset. Start a Brutalist project with `proto-ui init --prototypes brutalist`. Adding a Brutalist component to a project with another enabled preset fails before installation or generated-file changes; the CLI does not replace the application's theme automatically. With `--no-styles`, `add` succeeds with an ownership note and the application explicitly supplies every required `--pui-*` semantic token.
+
 ## Accessibility
 
 - Focus uses a visible hard outline with offset.
