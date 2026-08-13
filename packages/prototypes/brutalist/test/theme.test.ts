@@ -1,0 +1,66 @@
+import { describe, expect, it } from 'vitest';
+import { BRUTALIST_THEME, renderBrutalistThemeCss } from '../src/theme';
+import {
+  BRUTALIST_THEME as GENERATED_BRUTALIST_THEME,
+  BRUTALIST_THEME_CSS,
+} from '../../../cli/src/generated/brutalist-theme';
+
+const REQUIRED_PAIRS = [
+  ['main', 'main-foreground'],
+  ['mint', 'mint-foreground'],
+  ['lavender', 'lavender-foreground'],
+  ['coral', 'coral-foreground'],
+  ['sky', 'sky-foreground'],
+  ['destructive', 'destructive-foreground'],
+  ['secondary-background', 'foreground'],
+] as const;
+
+describe('prototypes/brutalist: canonical theme manifest', () => {
+  it('keeps identical Light and Dark keys with complete fill pairs', () => {
+    expect(Object.keys(BRUTALIST_THEME.light).sort()).toEqual(
+      Object.keys(BRUTALIST_THEME.dark).sort()
+    );
+
+    for (const mode of [BRUTALIST_THEME.light, BRUTALIST_THEME.dark]) {
+      for (const [background, foreground] of REQUIRED_PAIRS) {
+        expect(mode[background]).toBeTruthy();
+        expect(mode[background]).not.toBe('transparent');
+        expect(mode[foreground]).toBeTruthy();
+      }
+    }
+  });
+
+  it('keeps accent and destructive ink paired in both modes', () => {
+    for (const mode of [BRUTALIST_THEME.light, BRUTALIST_THEME.dark]) {
+      for (const foreground of [
+        'main-foreground',
+        'mint-foreground',
+        'lavender-foreground',
+        'coral-foreground',
+        'sky-foreground',
+        'destructive-foreground',
+      ] as const) {
+        expect(mode[foreground]).toBe('#000000');
+      }
+    }
+  });
+
+  it('renders deterministic selectors and variable prefixes', () => {
+    const css = renderBrutalistThemeCss({
+      variablePrefix: 'pui-',
+      lightSelector: '.light-scope',
+      darkSelector: '.dark-scope',
+    });
+
+    expect(css).toContain('.light-scope {');
+    expect(css).toContain('.dark-scope {');
+    expect(css).toContain('--pui-background: #f5f5f5;');
+    expect(css).toContain('--pui-secondary-background: #262626;');
+    expect(css).toContain('--pui-mint-foreground: #000000;');
+    expect(css).not.toContain(':root');
+  });
+  it('keeps the offline CLI theme projection byte-equivalent to the package renderer', () => {
+    expect(GENERATED_BRUTALIST_THEME).toEqual(BRUTALIST_THEME);
+    expect(BRUTALIST_THEME_CSS).toBe(renderBrutalistThemeCss());
+  });
+});
