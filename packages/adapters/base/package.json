@@ -5,7 +5,6 @@
   "type": "module",
   "dependencies": {
     "@proto.ui/core": "workspace:*",
-    "@proto.ui/module-expose": "workspace:*",
     "@proto.ui/module-expose-state": "workspace:*",
     "@proto.ui/runtime": "workspace:*",
     "@proto.ui/types": "workspace:*"

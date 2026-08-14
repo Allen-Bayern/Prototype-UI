@@ -1,5 +1,7 @@
-import { isExposeEventDeclaration } from '@proto.ui/module-expose';
-import { isExposeStateExternalHandle } from '@proto.ui/module-expose-state';
+import {
+  isAppMakerExposeRecordEntry,
+  isExposeStateExternalHandle,
+} from '@proto.ui/module-expose-state';
 
 export type CallbackScopeInvoker = (fn: () => void) => void;
 
@@ -31,7 +33,7 @@ export function createScopedExposesReader(
     };
 
     for (const [key, value] of Object.entries(record)) {
-      if (isExposeEventDeclaration(value)) continue;
+      if (!isAppMakerExposeRecordEntry(value)) continue;
 
       if (typeof value === 'function') {
         defineEntry(key, (...args: unknown[]) => {

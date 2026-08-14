@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { ExposeStateModuleImpl } from '../src/impl';
 import { EXPOSES_RECORD_SINK_CAP, EXPOSE_STATE_SET_EXPOSES_CAP } from '../src/caps';
+import { isAppMakerExposeRecordEntry } from '../src/types';
 import { createSysCaps, makeCaps } from './utils/fake-caps';
 import type { StateEvent, StateSpec } from '@proto.ui/types';
 import { createExposeEventDeclaration } from '@proto.ui/module-expose';
@@ -113,8 +114,9 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     const caps = makeCaps({ sys });
     const { statePort } = createStateHarness();
     const authorValue = { __pui_expose: 'event', spec: { payload: 'json' } };
+    const declaration = createExposeEventDeclaration({ payload: 'json' });
     const exposePort = makeExposePort({
-      ready: createExposeEventDeclaration({ payload: 'json' }),
+      ready: declaration,
       authorValue,
     });
     const impl = new ExposeStateModuleImpl(caps as any, makeDeps(exposePort, statePort));
@@ -122,6 +124,8 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     const all = impl.port.getAll();
     expect(all.ready).toBeTruthy();
     expect(all.authorValue).toBe(authorValue);
+    expect(isAppMakerExposeRecordEntry(declaration)).toBe(false);
+    expect(isAppMakerExposeRecordEntry(authorValue)).toBe(true);
   });
 
   it('external subscribe receives StateEvent without run', () => {
