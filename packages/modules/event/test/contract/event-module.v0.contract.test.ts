@@ -1,6 +1,7 @@
 // packages/modules/event/test/contracts/event-module.v0.contract.test.ts
 import { describe, it, expect } from 'vitest';
 import { EventModuleImpl } from '../../src/impl';
+import { EventError } from '../../src/error';
 import { makeCaps, createSysCaps } from '../utils/fake-caps';
 
 type ExecPhase = 'setup' | 'render' | 'callback' | 'unknown';
@@ -46,6 +47,15 @@ function createMockTarget(label: string) {
   return target;
 }
 
+function captureError(run: () => unknown): unknown {
+  try {
+    run();
+  } catch (error) {
+    return error;
+  }
+  throw new Error('Expected operation to throw');
+}
+
 describe('event-module: contract v0 (module semantics)', () => {
   it('EV-MOD-V0-0100: event type validation accepts semantic and host:* types only', () => {
     const sys = createSysCaps();
@@ -64,6 +74,32 @@ describe('event-module: contract v0 (module semantics)', () => {
     expect(() => impl.on('native:click' as any)).toThrow(/invalid event type/i);
     expect(() => impl.on('host.click' as any)).toThrow(/invalid event type/i);
     expect(() => impl.on('host:' as any)).toThrow(/invalid event type/i);
+  });
+
+  it('EV-MOD-V0-0150: invalid arguments and unavailable targets use canonical EventError codes', () => {
+    const sys = createSysCaps();
+    const caps = makeCaps({
+      sys,
+      getRootTarget: () => null,
+    });
+    const impl = new EventModuleImpl(caps as any, 'test-proto');
+
+    sys.__setExecPhase('setup');
+    const invalidArgument = captureError(() => impl.on('host:' as any));
+    expect(invalidArgument).toBeInstanceOf(EventError);
+    expect(invalidArgument).toMatchObject({
+      name: 'EventError',
+      code: 'EVENT_INVALID_ARGUMENT',
+    });
+
+    impl.on('host:click' as any);
+    sys.__setExecPhase('render');
+    const unavailableTarget = captureError(() => impl.bind(() => {}));
+    expect(unavailableTarget).toBeInstanceOf(EventError);
+    expect(unavailableTarget).toMatchObject({
+      name: 'EventError',
+      code: 'EVENT_TARGET_UNAVAILABLE',
+    });
   });
 
   it('EV-MOD-V0-1000: bind() with no registrations MUST be no-op and MUST NOT read targets', () => {
