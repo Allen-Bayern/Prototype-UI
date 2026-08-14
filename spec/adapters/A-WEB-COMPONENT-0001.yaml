@@ -3,7 +3,7 @@ type: adapter
 title: Official Web Component Adapter profile
 status: active
 since: 0.2.0-rc.7
-summary: The official Web Component Adapter translates Custom Element attributes or imperative element snapshots into the required Proto UI Props channel.
+summary: The official Web Component Adapter translates Custom Element configuration and Web interaction input into the required Props and Event modules.
 adapterProfile:
   package: '@proto.ui/adapter-web-component'
   target:
@@ -12,11 +12,11 @@ adapterProfile:
       name: custom-elements
 statement:
   zh-CN: >-
-    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。
+    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。Event slice 固定安装 required Event Module，通过共用 Web router 把 Custom Element 及其 logical/portal surface 的 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 detach/dispose 时停止 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。
 
 
   en: >-
-    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically.
+    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically. Its Event slice installs the required Event module, uses the shared Web router to translate native input from the Custom Element and its logical or portal surfaces into root and global Proto event streams, routes semantic events by logical interaction owner, stops delivery on detach or disposal, and translates default-action requests to DOM `preventDefault()`.
 
 
 criteria:
@@ -36,16 +36,33 @@ criteria:
     text:
       zh-CN: '`setElementProps` 必须剥离 class/style presentation fields 后走 `controller.applyRawProps` direct-push path；该路径可以派发 watcher，但不得被误写为 source notification 或隐式 render。'
       en: '`setElementProps` must exclude class and style presentation fields and use the `controller.applyRawProps` direct-push path; this path may dispatch watchers but must not be represented as source notification or implicit rendering.'
+  - id: A-WEB-COMPONENT-0001-E
+    text:
+      zh-CN: Adapter 必须把 Event Module 作为 required Module 接入，并以 translated capability 提供 `HC-EVENT-BINDING-0001` 与 `HC-DEFAULT-ACTION-0001`；这些关系不得把 DOM `EventTarget` 写成跨宿主保证。
+      en: The Adapter must wire the Event module as required and provide `HC-EVENT-BINDING-0001` and `HC-DEFAULT-ACTION-0001` as translated capabilities; these relations must not turn DOM `EventTarget` into a cross-host guarantee.
+  - id: A-WEB-COMPONENT-0001-F
+    text:
+      zh-CN: Web Component view wiring 必须把 element、logical child 与 portal surface 的 host input 只路由给当前 logical owner，翻译为当前支持的 root/global Event type，并在 detach/dispose 后停止旧 route 的 delivery。
+      en: Web Component view wiring must route host input from the element, logical children, and portal surfaces only to the current logical owner, translate it into currently supported root and global Event types, and stop delivery from the old route after detach or disposal.
 supports:
   modules:
     - id: M-PROPS-0001
       role: required-module
       note: Props is required for the standard Maker-to-Component configuration channel.
+    - id: M-EVENT-0001
+      role: required-module
+      note: Event is installed for the standard User-to-Component interaction channel; host binding is only required for scopes with registrations.
 provides:
   hostCaps:
     - id: HC-PROPS-SOURCE-0001
       role: translated-capability
       note: A custom getProps classifier and MutationObserver provide the attribute-backed source; imperative snapshots use a separate direct-push path.
+    - id: HC-EVENT-BINDING-0001
+      role: translated-capability
+      note: The shared Web router translates DOM input from Custom Element and logical surfaces into Adapter-owned root and global Proto event streams.
+    - id: HC-DEFAULT-ACTION-0001
+      role: translated-capability
+      note: Default-action cancellation requests are translated to preventDefault when the native DOM event supports it.
 relates:
   decisions:
     - D-ADAPTER-PROFILE-0001
@@ -53,6 +70,7 @@ verifies:
   tests:
     - T-ADAPTER-PROFILE-0001
     - T-PROPS-0012
+    - T-EVENT-0003
 openQuestions:
   - id: A-WEB-COMPONENT-0001-Q-INGRESS-PRECEDENCE
     question:
@@ -69,8 +87,14 @@ sources:
   - path: packages/adapters/web-component/src/runtime/modules.ts
   - path: packages/adapters/web-component/test/contract/props-host-source.v0.contract.test.ts
   - path: packages/adapters/web-component/test/props-reprovide.test.ts
+  - path: packages/adapters/base/src/events/web-event-router.ts
+  - path: packages/adapters/web-component/test/contract/event.router.mapping.v0.contract.test.ts
+  - path: packages/adapters/web-component/test/contract/event.router.dispose.v0.contract.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added required Event Module support, translated scoped Event binding, Default Action provision, logical-owner routing and disposal criteria, and conformance evidence.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Cataloged the official Web Component profile identity and its source plus direct-push Props translation slice.
-tags: [adapter, web-component, custom-elements, web, props, official]
+tags: [adapter, web-component, custom-elements, web, props, event, official]

@@ -108,7 +108,7 @@ describe('adapter profile schema', () => {
     }
   });
 
-  it('keeps official profile targets aligned with package metadata and the Props slice', async () => {
+  it('keeps official profile targets aligned with package metadata and the Props/Event slices', async () => {
     const root = process.cwd();
     const workspace = await loadSpecWorkspaceFromDirectory(path.join(root, 'spec'));
 
@@ -155,12 +155,21 @@ describe('adapter profile schema', () => {
       expect(entity?.supports?.modules).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: 'M-PROPS-0001', role: 'required-module' }),
+          expect.objectContaining({ id: 'M-EVENT-0001', role: 'required-module' }),
         ])
       );
       expect(entity?.provides?.hostCaps).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             id: 'HC-PROPS-SOURCE-0001',
+            role: 'translated-capability',
+          }),
+          expect.objectContaining({
+            id: 'HC-EVENT-BINDING-0001',
+            role: 'translated-capability',
+          }),
+          expect.objectContaining({
+            id: 'HC-DEFAULT-ACTION-0001',
             role: 'translated-capability',
           }),
         ])
