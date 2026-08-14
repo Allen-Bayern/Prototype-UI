@@ -13,11 +13,11 @@ adapterProfile:
       versionRange: '>=18.2.0 <20'
 statement:
   zh-CN: >-
-    该 profile 表示 `@proto.ui/adapter-react` 在 Web platform 上面向 React `>=18.2.0 <20` 的 official translation identity。当前已编目的 Props slice 固定安装 required Props Module，以稳定 `RawPropsSource` 读取经过 Adapter 分类的 component props，在 React effect 中发送 snapshot invalidation，并由 runtime sync point 完成语义 diff 与 watcher dispatch。`autoUpdateOnPropsChange` 是 profile render policy，不属于 Props host capability。Event slice 固定安装 required Event Module，通过共用 Web router 把 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 view lifecycle 中启用或禁用 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。Lifecycle slice 由一个 React component owner 持有一个 RuntimeSession，将内部 view attach/detach 与 StrictMode replay 翻译为 repeatable mount epoch，将 terminal owner teardown 翻译为 dispose，并透传结构化 lifecycle diagnostics；Lifecycle 是 Runtime 与 Adapter 的执行协议，不虚构对应 Module 或 host-cap。
+    该 profile 表示 `@proto.ui/adapter-react` 在 Web platform 上面向 React `>=18.2.0 <20` 的 official translation identity。当前已编目的 Props slice 固定安装 required Props Module，以稳定 `RawPropsSource` 读取经过 Adapter 分类的 component props，在 React effect 中发送 snapshot invalidation，并由 runtime sync point 完成语义 diff 与 watcher dispatch。`autoUpdateOnPropsChange` 是 profile render policy，不属于 Props host capability。Event slice 固定安装 required Event Module，通过共用 Web router 把 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 view lifecycle 中启用或禁用 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。Lifecycle slice 由一个 React component owner 持有一个 RuntimeSession，将内部 view attach/detach 与 StrictMode replay 翻译为 repeatable mount epoch，将 terminal owner teardown 翻译为 dispose，并透传结构化 lifecycle diagnostics；Lifecycle 是 Runtime 与 Adapter 的执行协议，不虚构对应 Module 或 host-cap。State slice 使用 standard Runtime 固定安装的 required State Module；其 value 与 watcher 属于 instance lifetime，mutation 不隐式触发 React render，且纯内存语义不要求 Adapter 提供 State host-cap。
 
 
   en: >-
-    This profile is the official translation identity of `@proto.ui/adapter-react` for React `>=18.2.0 <20` on the Web platform. Its currently cataloged Props slice installs the required Props Module, exposes Adapter-classified component props through a stable `RawPropsSource`, sends snapshot invalidation from a React effect, and leaves semantic diffing and watcher dispatch to runtime synchronization points. `autoUpdateOnPropsChange` is a profile render policy rather than part of the Props host capability. Its Event slice installs the required Event module, uses the shared Web router to translate native input into root and global Proto event streams, routes semantic events by logical interaction owner, enables or disables delivery with the view lifecycle, and translates default-action requests to DOM `preventDefault()`. Its Lifecycle slice lets one React component owner retain one RuntimeSession, translates internal view attachment, detachment, and StrictMode replay into repeatable mount epochs, maps terminal owner teardown to disposal, and forwards structured lifecycle diagnostics. Lifecycle is a Runtime-to-Adapter execution protocol and does not invent a corresponding Module or host capability.
+    This profile is the official translation identity of `@proto.ui/adapter-react` for React `>=18.2.0 <20` on the Web platform. Its currently cataloged Props slice installs the required Props Module, exposes Adapter-classified component props through a stable `RawPropsSource`, sends snapshot invalidation from a React effect, and leaves semantic diffing and watcher dispatch to runtime synchronization points. `autoUpdateOnPropsChange` is a profile render policy rather than part of the Props host capability. Its Event slice installs the required Event module, uses the shared Web router to translate native input into root and global Proto event streams, routes semantic events by logical interaction owner, enables or disables delivery with the view lifecycle, and translates default-action requests to DOM `preventDefault()`. Its Lifecycle slice lets one React component owner retain one RuntimeSession, translates internal view attachment, detachment, and StrictMode replay into repeatable mount epochs, maps terminal owner teardown to disposal, and forwards structured lifecycle diagnostics. Lifecycle is a Runtime-to-Adapter execution protocol and does not invent a corresponding Module or host capability. Its State slice uses the required State module installed by the standard Runtime; values and watchers belong to instance lifetime, mutation does not implicitly render React output, and the in-memory semantics require no State host capability from the Adapter.
 
 
 criteria:
@@ -57,6 +57,10 @@ criteria:
     text:
       zh-CN: React owner 必须在 created callbacks 后按最新 ViewIntent 调和首次及后续 view epoch，在首次 commit 与 view effects 一致前保持新 root 隐藏，并让 terminal teardown 权限高于 desired presence。
       en: The React owner must reconcile the latest ViewIntent into initial and subsequent view epochs after created callbacks, keep a new root hidden until its first commit and view effects are coherent, and let terminal teardown authority override desired presence.
+  - id: A-REACT-18-19-0001-J
+    text:
+      zh-CN: Adapter 必须通过 standard Runtime 接入 required State Module，跨 repeatable view epoch 保留其 instance-owned value 与 watcher；State mutation 不得绕过显式 Adapter update 触发 React render，且 profile 不得虚构 State host-cap。
+      en: The Adapter must wire the required State module through the standard Runtime and retain its instance-owned values and watchers across repeatable view epochs; State mutation must not bypass explicit Adapter update to render React output, and the profile must not invent a State host capability.
 supports:
   modules:
     - id: M-PROPS-0001
@@ -65,6 +69,9 @@ supports:
     - id: M-EVENT-0001
       role: required-module
       note: Event is installed for the standard User-to-Component interaction channel; host binding is only required for scopes with registrations.
+    - id: M-STATE-0001
+      role: required-module
+      note: State is the host-neutral instance memory baseline and requires no Adapter-provided host capability.
 provides:
   hostCaps:
     - id: HC-PROPS-SOURCE-0001
@@ -87,6 +94,7 @@ verifies:
     - T-LIFECYCLE-0003
     - T-LIFECYCLE-0005
     - T-LIFECYCLE-0006
+    - T-STATE-0005
 sources:
   - path: packages/adapters/react/package.json
   - path: packages/adapters/react/src/adapt.ts
@@ -101,7 +109,11 @@ sources:
   - path: packages/adapters/react/test/lifecycle-repeatable-mount.test.ts
   - path: packages/adapters/react/test/lifecycle-strict-replay.test.ts
   - path: packages/adapters/react/test/lifecycle-view-intent.test.ts
+  - path: packages/adapters/react/test/contract/state-runtime.v0.contract.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added required host-neutral State Module support, instance-lifetime preservation, explicit-render behavior, and no-host-cap criteria.
   - version: 0.2.0-rc.7
     change: revised
     summary: Cataloged lifecycle ownership, repeatable mount epochs, structured diagnostics, and ViewIntent reconciliation without inventing a Lifecycle Module or host capability.
@@ -111,4 +123,4 @@ revisions:
   - version: 0.2.0-rc.7
     change: introduced
     summary: Cataloged the official React 18.2-19 profile identity and its required Props translation slice.
-tags: [adapter, react, web, props, event, lifecycle, official]
+tags: [adapter, react, web, props, event, lifecycle, state, official]

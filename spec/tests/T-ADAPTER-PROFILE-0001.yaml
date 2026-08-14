@@ -3,7 +3,7 @@ type: test
 title: Adapter Profile schema and graph conformance
 status: active
 since: 0.2.0-rc.7
-summary: Schema, workspace-loader, and graph tests verify first-class Adapter identities, target metadata, honest Module support or omission, host-capability provision roles, and Adapter-targeted relations.
+summary: Schema, workspace-loader, and graph tests verify first-class Adapter identities, target metadata, honest Module support or omission including host-neutral State, host-capability provision roles, and Adapter-targeted relations.
 cases:
   - id: T-ADAPTER-PROFILE-0001-CASE-IDENTITY
     title: Adapter identities require package and target metadata
@@ -81,6 +81,9 @@ sources:
   - path: packages/spec/fixtures/test/adapter-profile-schema.test.ts
   - path: packages/spec/graph/test/adapter-profile.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Extended official profile fixture coverage to required State support without adding a State host capability.
   - version: 0.2.0-rc.7
     change: revised
     summary: Extended official profile fixture coverage from the Props slice to required Event support and translated Event host capabilities.
