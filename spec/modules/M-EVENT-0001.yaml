@@ -16,8 +16,8 @@ statement:
 criteria:
   - id: M-EVENT-0001-A
     text:
-      zh-CN: Module facade 必须提供 setup-time `on`、`onGlobal` 与 precise-token `off` registration surface；runtime 必须只把它们投影到 `def.event`，不得固化普通 prototype-author `run.event` API。
-      en: The module facade must provide setup-time `on`, `onGlobal`, and precise-token `off` registration surfaces; the runtime must project them only onto `def.event` and must not stabilize an ordinary prototype-author `run.event` API.
+      zh-CN: Event-channel-owned `EventChannelFacade` 必须提供 setup-time `on`、`onGlobal` 与 precise-token `off` registration surface；runtime 必须只把它们投影到 `def.event`，不得固化普通 prototype-author `run.event` API。
+      en: The Event-channel-owned `EventChannelFacade` must provide setup-time `on`, `onGlobal`, and precise-token `off` registration surfaces; the runtime must project them only onto `def.event` and must not stabilize an ordinary prototype-author `run.event` API.
   - id: M-EVENT-0001-B
     text:
       zh-CN: Module port 必须为 runtime、其它 Module 与特权 asHook 提供 internal `on`/`onGlobal`、`bind`/`unbind`、`dispatchInternal`、root redirect、semantic-only root redirect 与 diagnostics；这些能力不得直接进入普通作者 surface。
@@ -44,8 +44,8 @@ criteria:
       en: The privileged port's default-action request must be projected through the separate `HC-DEFAULT-ACTION-0001`, must not require callers to depend on DOM `preventDefault()`, and must not merge default-action control with Event routing or boundary classification.
   - id: M-EVENT-0001-H
     text:
-      zh-CN: 当前 Event package 内的 `registerExposeEvent`、`emit` 与 `EVENT_EMIT_CAP` 只能作为 Expose Event bridge 被 runtime 消费；它们不属于 Event 信息通路 author facade 或 Event host-cap baseline，后续由 Expose 编目承接所有权。
-      en: The `registerExposeEvent`, `emit`, and `EVENT_EMIT_CAP` entries currently in the Event package may only be consumed by the runtime as an Expose Event bridge; they do not belong to the Event information-channel author facade or Event host-cap baseline, and their ownership must be handled by the later Expose catalog pass.
+      zh-CN: 当前 Event package 内的 `ExposeEventFacade` 与 `EXPOSE_EVENT_SINK_CAP` 由 `M-EXPOSE-EVENT-0001` 拥有；它们不属于 Event 信息通路 author facade 或 Event host-cap baseline。Composite `EventFacade` 与 legacy `EVENT_EMIT_CAP` alias 只能作为 physical/source compatibility，不得重新混合语义所有权。
+      en: The `ExposeEventFacade` and `EXPOSE_EVENT_SINK_CAP` currently in the Event package are owned by `M-EXPOSE-EVENT-0001`; they do not belong to the Event information-channel author facade or Event host-cap baseline. The composite `EventFacade` and legacy `EVENT_EMIT_CAP` alias exist only for physical or source compatibility and must not merge semantic ownership again.
 satisfies:
   contracts:
     - C-EVENT-0001
@@ -78,6 +78,9 @@ dependsOn:
     - K-COMPONENT-ACTOR-0001
     - K-INFORMATION-CHANNEL-0001
     - K-DESIGN-TRADEOFF-0001
+references:
+  modules:
+    - M-EXPOSE-EVENT-0001
 sources:
   - path: internal/records/2026-08-13-module-host-cap-adapter-catalog-route.zh-CN.md
   - path: internal/records/2026-08-14-event-module-host-cap-adapter-audit.zh-CN.md
@@ -107,15 +110,10 @@ openQuestions:
       zh-CN: 当前 Runtime 固定安装 Event Module，official Web profiles 全部支持；没有 registration 时无需 host cap，因此 package installation 与实际 host requirement 不能简单等同。
       en: The current Runtime installs the Event module and every official Web profile supports it; because no host cap is needed without registrations, package installation and an actual host requirement are not equivalent.
     blocks: [configurable-runtime-module-selection, adapter-module-omission-diagnostics]
-  - id: M-EVENT-0001-Q-EXPOSE-BRIDGE
-    question:
-      zh-CN: Expose Event 编目后，应把 registry/emit 从 EventFacade 移到独立 Expose port，还是保留 package 内部 bridge 但建立明确的 ownership adapter？
-      en: After Expose Event is cataloged, should registry and emit move from EventFacade to a separate Expose port, or remain as a package-internal bridge with an explicit ownership adapter?
-    context:
-      zh-CN: 当前 runtime 已把它们投影为 `def.expose.event` 与 `run.expose.emit`，普通作者 surface 没有 `run.event`；问题是内部物理所有权，不是公开 API 行为。
-      en: The runtime already projects them as `def.expose.event` and `run.expose.emit`, with no ordinary `run.event`; the issue is internal physical ownership rather than public API behavior.
-    blocks: [expose-core-module-catalog]
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Assigned the co-located Expose Event facade and canonical signal sink to M-EXPOSE-EVENT-0001 while retaining source-compatible package aliases.
   - version: 0.2.0-rc.7
     change: revised
     summary: Cataloged the Event facade and privileged port, required official profile support, host-neutral binding and default-action capabilities, lifecycle ownership, Expose Event boundary, and current EventTarget portability debt.

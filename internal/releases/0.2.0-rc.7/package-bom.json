@@ -406,6 +406,7 @@
       "publishOrder": 37,
       "internalDependencies": [
         "@proto.ui/core",
+        "@proto.ui/module-expose",
         "@proto.ui/module-expose-state",
         "@proto.ui/runtime",
         "@proto.ui/types"

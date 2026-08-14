@@ -1,9 +1,23 @@
 // packages/modules/expose/test/impl-spec.test.ts
 import { describe, it, expect } from 'vitest';
 import { ExposeModuleImpl } from '../src/impl';
+import { createExposeEventDeclaration, isExposeEventDeclaration } from '../src/types';
 import { makeCaps, createSysCaps } from './utils/fake-caps';
 
 describe('ExposeModuleImpl (contract-ish)', () => {
+  it('brands runtime-created outward signal declarations without matching author values', () => {
+    const declaration = createExposeEventDeclaration({ payload: 'json' });
+
+    expect(isExposeEventDeclaration(declaration)).toBe(true);
+    expect(isExposeEventDeclaration({ __pui_expose: 'event', spec: { payload: 'json' } })).toBe(
+      false
+    );
+    expect(declaration).toMatchObject({
+      __pui_expose: 'event',
+      spec: { payload: 'json' },
+    });
+  });
+
   it('setup-only: def.expose throws after setup', () => {
     const sys = createSysCaps();
     const caps = makeCaps({ sys });

@@ -108,7 +108,7 @@ describe('adapter profile schema', () => {
     }
   });
 
-  it('keeps official profile targets aligned with package metadata and the Props/Event/State/Expose State slices', async () => {
+  it('keeps official profile targets aligned with package metadata and the Props/Event/State/Expose slices', async () => {
     const root = process.cwd();
     const workspace = await loadSpecWorkspaceFromDirectory(path.join(root, 'spec'));
 
@@ -159,6 +159,7 @@ describe('adapter profile schema', () => {
           expect.objectContaining({ id: 'M-STATE-0001', role: 'required-module' }),
           expect.objectContaining({ id: 'M-EXPOSE-0001', role: 'required-module' }),
           expect.objectContaining({ id: 'M-EXPOSE-STATE-0001', role: 'required-module' }),
+          expect.objectContaining({ id: 'M-EXPOSE-EVENT-0001', role: 'required-module' }),
         ])
       );
       expect(entity?.provides?.hostCaps).toEqual(
@@ -177,6 +178,10 @@ describe('adapter profile schema', () => {
           }),
           expect.objectContaining({
             id: 'HC-EXPOSES-RECORD-SINK-0001',
+            role: 'translated-capability',
+          }),
+          expect.objectContaining({
+            id: 'HC-EXPOSE-EVENT-SINK-0001',
             role: 'translated-capability',
           }),
         ])

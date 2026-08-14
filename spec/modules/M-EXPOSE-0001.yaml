@@ -16,8 +16,8 @@ statement:
 criteria:
   - id: M-EXPOSE-0001-A
     text:
-      zh-CN: Module facade 必须提供 setup-only `expose(key, value)` registration；runtime 必须将 base、value、state、method 与 event declaration syntax 汇入同一 core registry，且不得建立普通 `run.expose` registry mutation surface。
-      en: The module facade must provide setup-only `expose(key, value)` registration; the runtime must route the base, value, state, method, and event declaration syntax into one core registry and must not create an ordinary `run.expose` registry-mutation surface.
+      zh-CN: Module facade 必须提供 setup-only `expose(key, value)` registration；runtime 必须将 base、value、state、method 与 branded event declaration reservation 汇入同一 core registry，且不得建立普通 `run.expose` registry mutation surface。
+      en: The module facade must provide setup-only `expose(key, value)` registration; the runtime must route base, value, state, method, and branded event-declaration reservation into one core registry and must not create an ordinary `run.expose` registry-mutation surface.
   - id: M-EXPOSE-0001-B
     text:
       zh-CN: Module port 必须只向 runtime、其它 Module 与特权 asHook 提供 `get`、`getAll`、`has`、`keys` 与 diagnostics 等读取能力；这些能力不得直接提升为普通 prototype-author API。
@@ -28,8 +28,8 @@ criteria:
       en: The core registry must maintain one non-empty-string key namespace across all classifications, reject duplicate registration, and return record snapshots that cannot mutate the live registry; every valid key, including special property names such as `__proto__`, must remain an ordinary own entry and must not alter the snapshot prototype.
   - id: M-EXPOSE-0001-D
     text:
-      zh-CN: Core Module 拥有 base registration、shared namespace 以及 value/method promise；state registration 与 event declaration 可以共享该 registry，但 App-Maker-facing state handle projection 与 outward emission 分别属于 Expose State 与 Expose Event 组合层，不得把 specialized semantics 冒充 core 行为。
-      en: The core Module owns base registration, the shared namespace, and value or method promises; state registration and event declaration may share the registry, but App-Maker-facing state-handle projection and outward emission belong respectively to the Expose State and Expose Event composition layers and must not be represented as core behavior.
+      zh-CN: Core Module 拥有 base registration、shared namespace 以及 value/method promise；state registration 与 event declaration 可以共享该 registry，但 App-Maker-facing state handle projection、event declaration translation/omission 与 outward emission 分别属于 Expose State、Adapter translation 与 Expose Event 组合层，不得把 specialized semantics 冒充 core 行为。
+      en: The core Module owns base registration, the shared namespace, and value or method promises; state registration and event declaration may share the registry, but App-Maker-facing State-handle projection, event-declaration translation or omission, and outward emission belong respectively to Expose State, Adapter translation, and the Expose Event composition layer and must not be represented as core behavior.
   - id: M-EXPOSE-0001-E
     text:
       zh-CN: Standard Runtime 与 official Adapter profile 必须安装 Expose core Module，使 Component → App Maker standard channel 可用；未来可配置 runtime 若缺失 Expose，必须在使用相关 syntax 或 dependent Module 前明确拒绝，而不是静默 no-op。
@@ -75,6 +75,7 @@ dependsOn:
 references:
   modules:
     - M-EXPOSE-STATE-0001
+    - M-EXPOSE-EVENT-0001
 sources:
   - path: internal/records/2026-08-13-module-host-cap-adapter-catalog-route.zh-CN.md
   - path: internal/records/2026-08-14-expose-core-module-adapter-audit.zh-CN.md
@@ -97,6 +98,9 @@ openQuestions:
       en: The current Runtime installs ExposeModuleDef unconditionally and the three official Adapters have no normal missing path; a future generic module-selection mechanism still needs to enforce required status.
     blocks: [configurable-runtime-module-selection]
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Clarified branded Expose Event shared-key reservation, internal declaration metadata, and Expose Event composition ownership.
   - version: 0.2.0-rc.7
     change: revised
     summary: Resolved finalized-record publication ownership in favor of the Expose State compositor and its host-neutral record sink.

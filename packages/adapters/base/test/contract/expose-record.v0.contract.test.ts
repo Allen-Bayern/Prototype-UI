@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createExposeEventDeclaration } from '@proto.ui/module-expose';
 import { EXPOSE_STATE_EXTERNAL_HANDLE } from '@proto.ui/module-expose-state';
 
 import { createScopedExposesReader } from '../../src/host/exposes';
@@ -38,5 +39,18 @@ describe('adapter-base contract: expose record (v0)', () => {
     const second = reader.read({ ready: handle }).ready;
 
     expect(second).toBe(first);
+  });
+
+  it('omits branded signal declarations from the public record without removing author values', () => {
+    const reader = createScopedExposesReader(() => null);
+    const authorValue = { __pui_expose: 'event', spec: { payload: 'json' } };
+
+    const snapshot = reader.read({
+      ready: createExposeEventDeclaration({ payload: 'json' }),
+      authorValue,
+    });
+
+    expect(snapshot).toEqual({ authorValue });
+    expect(snapshot.authorValue).not.toBe(authorValue);
   });
 });

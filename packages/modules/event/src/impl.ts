@@ -11,7 +11,7 @@ import {
   EVENT_CANCEL_DEFAULT_ACTION_CAP,
   EVENT_GLOBAL_TARGET_CAP,
   EVENT_ROOT_TARGET_CAP,
-  EVENT_EMIT_CAP,
+  EXPOSE_EVENT_SINK_CAP,
 } from './caps';
 import { eventInvalidArg, eventTargetUnavailable } from './error';
 
@@ -241,8 +241,8 @@ export class EventModuleImpl extends ModuleBase {
         key,
       });
     }
-    if (!this.caps.has(EVENT_EMIT_CAP)) return;
-    const sink = this.caps.get(EVENT_EMIT_CAP);
+    if (!this.caps.has(EXPOSE_EVENT_SINK_CAP)) return;
+    const sink = this.caps.get(EXPOSE_EVENT_SINK_CAP);
     if (!sink) return;
     try {
       sink(key, payload, options);

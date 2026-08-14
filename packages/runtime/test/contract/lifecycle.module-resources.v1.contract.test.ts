@@ -10,6 +10,7 @@ import {
 } from '@proto.ui/core';
 import { A11Y_PROJECT_CAP } from '@proto.ui/module-a11y';
 import { asOverlay } from '@proto.ui/hooks';
+import { EXPOSE_EVENT_SINK_CAP } from '@proto.ui/module-event';
 import { EXPOSES_RECORD_SINK_CAP } from '@proto.ui/module-expose-state';
 import { EFFECTS_CAP, type FeedbackPort } from '@proto.ui/module-feedback';
 import {
@@ -36,6 +37,37 @@ function createImmediateHost(
 }
 
 describe('runtime contract: lifecycle module resource ownership (v1)', () => {
+  it('keeps Expose Event declarations across view epochs and invalidates emit at disposal', async () => {
+    const emitted: string[] = [];
+    let retainedRun: any;
+    const proto = definePrototype({
+      name: 'lifecycle-expose-event-resource-owner',
+      setup(def) {
+        def.expose.event('ready');
+        def.lifecycle.onMounted((run) => {
+          retainedRun = run;
+          run.expose.emit('ready');
+        });
+        return (run) => run.el('div', 'ok');
+      },
+    });
+    const session = createRuntimeSession(
+      proto,
+      createImmediateHost((wiring) => {
+        wiring.attach('event', [[EXPOSE_EVENT_SINK_CAP, (key: string) => emitted.push(key)]]);
+      })
+    );
+
+    await session.mount();
+    await session.unmount();
+    await session.mount();
+
+    expect(emitted).toEqual(['ready', 'ready']);
+
+    await session.dispose();
+    expect(() => retainedRun.expose.emit('ready')).toThrow();
+  });
+
   it('keeps Feedback logical style state while suppressing detached host flushes', async () => {
     const queued: unknown[] = [];
     const stylesSeenAtCommit: unknown[] = [];

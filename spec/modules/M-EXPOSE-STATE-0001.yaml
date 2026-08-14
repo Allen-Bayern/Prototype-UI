@@ -3,25 +3,25 @@ type: module
 title: Expose State compositor module
 status: draft
 since: 0.1.0
-summary: The required Expose State module composes Expose and State into a finalized App Maker record, projects internal State handles as stable read-only external handles, and publishes that record through one host-neutral sink capability.
+summary: The required Expose State module composes Expose and State into a classified Adapter translation record, projects internal State handles as stable read-only external handles, and publishes that record through one host-neutral sink capability.
 statement:
   zh-CN: >-
-    Expose State 是 standard Runtime 与 official Adapter 的 required instance composition Module。它没有普通 prototype-author facade；`def.expose.state` registration 仍通过 runtime 投影到 Expose core facade，Module 则消费 Expose port 与 State port，把 internal State handle 降权为 App-Maker-facing external handle，并让其它 core expose entry 按原语义通过，形成完整 finalized outward record。Privileged port 供 runtime、dependent Module 与诊断读取 finalized record，不提供 App Maker write authority。Module 通过 `HC-EXPOSES-RECORD-SINK-0001` 发布 replacement snapshot，维护 sink rebind 与 terminal cleanup；external handle identity、subscription 与 same-source value 属于 instance lifetime。DOM attribute/CSS variable mirror 属于独立 Web extension，不是本 Module 或该 host-cap 的跨宿主要求。
+    Expose State 是 standard Runtime 与 official Adapter 的 required instance composition Module。它没有普通 prototype-author facade；`def.expose.state` registration 仍通过 runtime 投影到 Expose core facade，Module 则消费 Expose port 与 State port，把 internal State handle 降权为 App-Maker-facing external handle，并让其它 classified expose entry 按原语义通过，形成完整 Adapter translation record。该 record 可以包含供 Adapter 识别 outward signal 的 branded declaration descriptor；Adapter public-record projection 必须在完成宿主翻译后删除 descriptor。Privileged port 供 runtime、dependent Module 与诊断读取 translation record，不提供 App Maker write authority。Module 通过 `HC-EXPOSES-RECORD-SINK-0001` 发布 replacement snapshot，维护 sink rebind 与 terminal cleanup；external handle identity、subscription 与 same-source value 属于 instance lifetime。DOM attribute/CSS variable mirror 属于独立 Web extension，不是本 Module 或该 host-cap 的跨宿主要求。
 
 
   en: >-
-    Expose State is a required instance composition Module for the standard Runtime and official Adapters. It has no ordinary prototype-author facade: `def.expose.state` registration is still projected by the runtime onto the Expose core facade, while this Module consumes the Expose and State ports, attenuates internal State handles into App-Maker-facing external handles, and passes other core Expose entries through with their existing semantics to form the complete finalized outward record. Its privileged port lets the runtime, dependent Modules, and diagnostics read the finalized record without granting App Maker write authority. The Module publishes replacement snapshots through `HC-EXPOSES-RECORD-SINK-0001` and owns sink rebinding and terminal cleanup; external-handle identity, subscriptions, and same-source values belong to the instance lifetime. DOM attribute and CSS-variable mirroring belongs to a separate Web extension and is not a cross-host requirement of this Module or capability.
+    Expose State is a required instance composition Module for the standard Runtime and official Adapters. It has no ordinary prototype-author facade: `def.expose.state` registration is still projected by the runtime onto the Expose core facade, while this Module consumes the Expose and State ports, attenuates internal State handles into App-Maker-facing external handles, and passes other classified Expose entries through with their existing semantics to form the complete Adapter translation record. That record may include branded declaration descriptors that let an Adapter recognize outward signals; the Adapter's public-record projection must remove those descriptors after host translation. Its privileged port lets the runtime, dependent Modules, and diagnostics read the translation record without granting App Maker write authority. The Module publishes replacement snapshots through `HC-EXPOSES-RECORD-SINK-0001` and owns sink rebinding and terminal cleanup; external-handle identity, subscriptions, and same-source values belong to the instance lifetime. DOM attribute and CSS-variable mirroring belongs to a separate Web extension and is not a cross-host requirement of this Module or capability.
 
 
 criteria:
   - id: M-EXPOSE-STATE-0001-A
     text:
-      zh-CN: Module 必须依赖 Expose core port 与 State port 组成 finalized outward record，并保持空 author facade；`def.expose.state` 是 runtime 对 Expose registration 的分类投影，不得伪装成本 Module 自有的普通 facade。
-      en: The Module must compose a finalized outward record from the Expose core and State ports while retaining an empty author facade; `def.expose.state` is a runtime-classified projection of Expose registration and must not be represented as this Module's own ordinary facade.
+      zh-CN: Module 必须依赖 Expose core port 与 State port 组成 classified Adapter translation record，并保持空 author facade；`def.expose.state` 是 runtime 对 Expose registration 的分类投影，不得伪装成本 Module 自有的普通 facade。
+      en: The Module must compose a classified Adapter translation record from the Expose core and State ports while retaining an empty author facade; `def.expose.state` is a runtime-classified projection of Expose registration and must not be represented as this Module's own ordinary facade.
   - id: M-EXPOSE-STATE-0001-B
     text:
-      zh-CN: Privileged port 必须提供按 key 与完整 record 的 finalized read 以及 diagnostics；internal State handle 必须被替换为 external handle，非 State entry 必须保持其 core value identity 与语义，返回 record 不得成为 live mutable registry。
-      en: The privileged port must provide finalized reads by key and as a complete record plus diagnostics; internal State handles must be replaced by external handles, non-State entries must retain their core value identities and semantics, and returned records must not become a live mutable registry.
+      zh-CN: Privileged port 必须提供按 key 与完整 translation record 的 read 以及 diagnostics；internal State handle 必须被替换为 external handle，branded Expose Event declaration metadata 必须保持到 Adapter translation boundary，其它 entry 必须保持 core value identity 与语义，返回 record 不得成为 live mutable registry。
+      en: The privileged port must provide reads by key and as a complete translation record plus diagnostics; internal State handles must be replaced by external handles, branded Expose Event declaration metadata must survive to the Adapter translation boundary, other entries must retain their core value identities and semantics, and returned records must not become a live mutable registry.
   - id: M-EXPOSE-STATE-0001-C
     text:
       zh-CN: External state handle 必须提供只读 `get`、`subscribe`/unsubscribe 与 `spec`，不得暴露 `set`、`setDefault`、raw slot 或 prototype-author owned/borrowed/observed authority。
@@ -44,8 +44,8 @@ criteria:
       en: Sink attachment, replacement, and capability epochs must publish the current complete record; replacement, removal, and terminal disposal must clear the previous sink, while repeatable view detachment must not clear the record of a still-live owner.
   - id: M-EXPOSE-STATE-0001-H
     text:
-      zh-CN: Canonical wiring token 必须表达 complete finalized record sink；旧 `EXPOSE_STATE_SET_EXPOSES_CAP` 可以作为同一 token 的 deprecated source-compatible alias，但不得继续把 capability 解释为只发布 state entry。
-      en: The canonical wiring token must express a complete finalized record sink; legacy `EXPOSE_STATE_SET_EXPOSES_CAP` may remain as a deprecated source-compatible alias of the same token but must no longer cause the capability to be interpreted as publishing only State entries.
+      zh-CN: Canonical wiring token 必须表达 complete classified translation record sink；旧 `EXPOSE_STATE_SET_EXPOSES_CAP` 可以作为同一 token 的 deprecated source-compatible alias，但不得继续把 capability 解释为只发布 state entry。
+      en: The canonical wiring token must express a complete classified translation-record sink; legacy `EXPOSE_STATE_SET_EXPOSES_CAP` may remain as a deprecated source-compatible alias of the same token but must no longer cause the capability to be interpreted as publishing only State entries.
   - id: M-EXPOSE-STATE-0001-I
     text:
       zh-CN: Expose State core 不得镜像 DOM attribute、CSS variable 或 ARIA；这些 Web-specific projection 属于 `@proto.ui/module-expose-state-web` 及相关 rule optimization，非 Web Adapter 可以诚实地不接入这些外围 Module。
@@ -65,6 +65,7 @@ verifies:
 dependsOn:
   modules:
     - M-EXPOSE-0001
+    - M-EXPOSE-EVENT-0001
     - M-STATE-0001
   contracts:
     - C-EXPOSE-0008
@@ -86,11 +87,11 @@ sources:
 openQuestions:
   - id: M-EXPOSE-STATE-0001-Q-COMPOSITOR-IDENTITY
     question:
-      zh-CN: 当未来出现更多需要转换的 outward entry 类型时，finalized record compositor 是否应从 Expose State 更名或抽象为通用 projector pipeline？
-      en: When more outward entry types require transformation, should the finalized-record compositor be renamed from Expose State or generalized into a projector pipeline?
+      zh-CN: 当未来出现更多需要转换的 outward entry 类型时，translation record compositor 是否应从 Expose State 更名或抽象为通用 projector pipeline？
+      en: When more outward entry types require transformation, should the translation-record compositor be renamed from Expose State or generalized into a projector pipeline?
     context:
-      zh-CN: 当前只有 State handle 需要在发布前强制降权，因而由 Expose State 拥有 final sink 最简单且能避免 raw handle 泄漏；package 名称对完整 record ownership 的表达仍不理想。
-      en: State handles are currently the only entries requiring mandatory attenuation before publication, so Expose State ownership of the final sink is the simplest way to prevent raw-handle leakage; the package name still describes complete-record ownership imperfectly.
+      zh-CN: 当前 State handle 需要在进入 Adapter 前强制降权，而 Expose Event declaration metadata 必须保留到 Adapter translation 后再从 public record 删除；Expose State 已成为 classified translation record compositor，但 package 名称难以完整表达该 ownership。
+      en: State handles require mandatory attenuation before entering the Adapter, while Expose Event declaration metadata must survive through Adapter translation and then be removed from the public record; Expose State has become the classified translation-record compositor, but the package name no longer fully describes that ownership.
     blocks: [generalized-expose-projector-pipeline]
   - id: M-EXPOSE-STATE-0001-Q-REQUIRED-MODULE-VALIDATION
     question:
@@ -103,7 +104,10 @@ openQuestions:
 revisions:
   - version: 0.2.0-rc.7
     change: revised
-    summary: Cataloged Expose State as the required finalized-record compositor, stable read-only external-handle projector, sink lifecycle owner, and host-neutral boundary from Web projection.
+    summary: Preserved branded Expose Event declaration metadata through the Adapter translation boundary while keeping it out of App Maker records.
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Cataloged Expose State as the required translation-record compositor, stable read-only external-handle projector, sink lifecycle owner, and host-neutral boundary from Web projection.
   - version: 0.1.0
     change: introduced
     summary: Established the Expose State intersection module identity.

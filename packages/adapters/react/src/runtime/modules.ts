@@ -31,7 +31,7 @@ import { CONTEXT_INSTANCE_TOKEN_CAP, CONTEXT_PARENT_CAP } from '@proto.ui/module
 import { EFFECTS_CAP } from '@proto.ui/module-feedback';
 import {
   EVENT_CANCEL_DEFAULT_ACTION_CAP,
-  EVENT_EMIT_CAP,
+  EXPOSE_EVENT_SINK_CAP,
   EVENT_GLOBAL_TARGET_CAP,
   EVENT_ROOT_TARGET_CAP,
 } from '@proto.ui/module-event';
@@ -127,7 +127,7 @@ export function createReactOwnerModules<Props extends PropsBaseType>(
 
   return createCapsWiring()
     .use('props', [[RAW_PROPS_SOURCE_CAP, rawPropsSource]])
-    .use('event', [[EVENT_EMIT_CAP, emit]])
+    .use('event', [[EXPOSE_EVENT_SINK_CAP, emit]])
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],
       [FOCUS_PARENT_CAP, (inst: unknown) => getLogicalParent(inst as LogicalInstanceToken)],
@@ -248,7 +248,7 @@ export function createReactModules<Props extends PropsBaseType>(args: {
       [EVENT_ROOT_TARGET_CAP, () => router.rootTarget],
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],
       [EVENT_CANCEL_DEFAULT_ACTION_CAP, cancelWebEventDefaultAction],
-      [EVENT_EMIT_CAP, emit],
+      [EXPOSE_EVENT_SINK_CAP, emit],
     ])
     .use('focus', [
       [FOCUS_INSTANCE_TOKEN_CAP, instanceToken],

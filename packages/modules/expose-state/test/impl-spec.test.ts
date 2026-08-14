@@ -4,6 +4,7 @@ import { ExposeStateModuleImpl } from '../src/impl';
 import { EXPOSES_RECORD_SINK_CAP, EXPOSE_STATE_SET_EXPOSES_CAP } from '../src/caps';
 import { createSysCaps, makeCaps } from './utils/fake-caps';
 import type { StateEvent, StateSpec } from '@proto.ui/types';
+import { createExposeEventDeclaration } from '@proto.ui/module-expose';
 
 type FakeHandle<V> = {
   get(): V;
@@ -105,6 +106,22 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     expect(ext.spec.kind).toBe('bool');
     expect(ext.set).toBeUndefined();
     expect(ext.setDefault).toBeUndefined();
+  });
+
+  it('retains branded signal declarations for Adapter translation without confusing author values', () => {
+    const sys = createSysCaps();
+    const caps = makeCaps({ sys });
+    const { statePort } = createStateHarness();
+    const authorValue = { __pui_expose: 'event', spec: { payload: 'json' } };
+    const exposePort = makeExposePort({
+      ready: createExposeEventDeclaration({ payload: 'json' }),
+      authorValue,
+    });
+    const impl = new ExposeStateModuleImpl(caps as any, makeDeps(exposePort, statePort));
+
+    const all = impl.port.getAll();
+    expect(all.ready).toBeTruthy();
+    expect(all.authorValue).toBe(authorValue);
   });
 
   it('external subscribe receives StateEvent without run', () => {

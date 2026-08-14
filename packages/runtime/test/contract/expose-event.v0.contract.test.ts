@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import type { Prototype } from '@proto.ui/core';
 import type { RuntimeHost } from '../../src';
 import { executeWithHost } from '../../src';
-import { EVENT_EMIT_CAP } from '@proto.ui/module-event';
+import { EXPOSE_EVENT_SINK_CAP } from '@proto.ui/module-event';
+import { isExposeEventDeclaration } from '@proto.ui/module-expose';
 import { EXPOSES_RECORD_SINK_CAP } from '@proto.ui/module-expose-state';
 
 function createMockHost() {
@@ -23,7 +24,7 @@ function createMockHost() {
     onRuntimeReady(wiring) {
       wiring.attach('event', [
         [
-          EVENT_EMIT_CAP,
+          EXPOSE_EVENT_SINK_CAP,
           (key: string, payload: unknown, options: unknown) => {
             emitted.push({ key, payload, options });
           },
@@ -57,7 +58,7 @@ describe('runtime contract: expose-event (v0)', () => {
     expect(emitted).toEqual([{ key: 'ready', payload: { ok: true }, options: { note: 'x' } }]);
     expect(exposes.length).toBeGreaterThan(0);
     const last = exposes[exposes.length - 1];
-    expect((last as any).ready).toMatchObject({ __pui_expose: 'event' });
+    expect(isExposeEventDeclaration(last.ready)).toBe(true);
   });
 
   it('emit unregistered expose.event throws', () => {

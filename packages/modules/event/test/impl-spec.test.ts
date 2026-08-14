@@ -1,6 +1,7 @@
 // packages/modules/event/test/impl-spec.test.ts
 import { describe, it, expect } from 'vitest';
 import { EventModuleImpl } from '../src/impl';
+import { EVENT_EMIT_CAP, EXPOSE_EVENT_SINK_CAP } from '../src/caps';
 import { FakeEventTarget } from './utils/fake-event-target';
 import { makeCaps, createSysCaps } from './utils/fake-caps';
 
@@ -11,6 +12,10 @@ function makeDispatch() {
 }
 
 describe('EventModuleImpl (contract-ish)', () => {
+  it('keeps the legacy emit token as an alias of the outward signal sink', () => {
+    expect(EVENT_EMIT_CAP).toBe(EXPOSE_EVENT_SINK_CAP);
+  });
+
   it('setup-only: on/onGlobal/off/redirectRoot/redirectSemanticRoot/token.desc throw after setup', () => {
     const root = new FakeEventTarget();
     const sys = createSysCaps();
@@ -305,5 +310,43 @@ describe('EventModuleImpl (contract-ish)', () => {
     expect(calls).toEqual([{ key: 'ready', payload: { ok: true }, options: { any: 1 } }]);
 
     expect(() => impl.emit('missing', 1)).toThrow();
+  });
+
+  it('expose-event: uses the current sink without replaying previous emissions', () => {
+    const sys = createSysCaps();
+    const first: string[] = [];
+    const second: string[] = [];
+    const caps = makeCaps({ sys, emit: (key) => first.push(key) });
+    const impl = new EventModuleImpl(caps, 'p-x');
+
+    sys.__setExecPhase('setup');
+    impl.registerExposeEvent('ready');
+    sys.__setExecPhase('callback');
+
+    impl.emit('ready');
+    caps.__set('emit', (key: string) => second.push(key));
+    impl.emit('ready');
+    caps.__set('emit', undefined);
+    impl.emit('ready');
+
+    expect(first).toEqual(['ready']);
+    expect(second).toEqual(['ready']);
+  });
+
+  it('expose-event: terminal cleanup removes registrations', () => {
+    const sys = createSysCaps();
+    const calls: string[] = [];
+    const caps = makeCaps({ sys, emit: (key) => calls.push(key) });
+    const impl = new EventModuleImpl(caps, 'p-x');
+
+    sys.__setExecPhase('setup');
+    impl.registerExposeEvent('ready');
+    sys.__setExecPhase('callback');
+    impl.emit('ready');
+
+    impl.onProtoPhase('unmounted');
+
+    expect(() => impl.emit('ready')).toThrow();
+    expect(calls).toEqual(['ready']);
   });
 });

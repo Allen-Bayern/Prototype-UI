@@ -12,9 +12,9 @@ Adapters provide the host interaction capabilities needed by the registrations a
 
 Runtime module package with distinct author-facade, privileged-port, and host-capability boundaries. Concrete native event routing remains adapter-owned; the portable contract does not require prototype authors to access DOM `EventTarget`, `window`, or native event objects.
 
-The currently co-located Expose Event registry and emission bridge are consumed as Expose functionality and do not create a prototype-author `run.event` API.
+The currently co-located `ExposeEventFacade` and `EXPOSE_EVENT_SINK_CAP` are consumed as the separate Expose Event semantic module and do not create a prototype-author `run.event` API. `EventFacade` remains the physical composite facade for compatibility, while `EVENT_EMIT_CAP` is a deprecated alias of the canonical outward-signal sink token.
 
-The machine-governed entity for this package is `spec/modules/M-EVENT-0001.yaml`.
+The machine-governed semantic entities realized by this package are `spec/modules/M-EVENT-0001.yaml` and `spec/modules/M-EXPOSE-EVENT-0001.yaml`.
 
 ## Install
 

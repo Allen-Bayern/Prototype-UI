@@ -32,7 +32,7 @@ import { CONTEXT_INSTANCE_TOKEN_CAP, CONTEXT_PARENT_CAP } from '@proto.ui/module
 import { EFFECTS_CAP } from '@proto.ui/module-feedback';
 import {
   EVENT_CANCEL_DEFAULT_ACTION_CAP,
-  EVENT_EMIT_CAP,
+  EXPOSE_EVENT_SINK_CAP,
   EVENT_GLOBAL_TARGET_CAP,
   EVENT_ROOT_TARGET_CAP,
 } from '@proto.ui/module-event';
@@ -181,7 +181,7 @@ export function createWebComponentOwnerModules<Props extends PropsBaseType>(
     ])
     .use('event', [
       [
-        EVENT_EMIT_CAP,
+        EXPOSE_EVENT_SINK_CAP,
         (key: string, payload?: unknown, options?: Record<string, unknown>) => {
           el.dispatchEvent(
             new CustomEvent(key, {
@@ -337,7 +337,7 @@ export function createWebComponentModules<Props extends PropsBaseType>(args: {
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],
       [EVENT_CANCEL_DEFAULT_ACTION_CAP, cancelWebEventDefaultAction],
       [
-        EVENT_EMIT_CAP,
+        EXPOSE_EVENT_SINK_CAP,
         (key: string, payload?: unknown, options?: Record<string, unknown>) => {
           const ev = new CustomEvent(key, {
             detail: payload,
