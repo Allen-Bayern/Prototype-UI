@@ -3,7 +3,7 @@ type: adapter
 title: Official Web Component Adapter profile
 status: active
 since: 0.2.0-rc.7
-summary: The official Web Component Adapter translates Custom Element configuration and Web interaction input into the required Props and Event modules.
+summary: The official Web Component Adapter owns the Runtime lifecycle boundary and translates Custom Element configuration and Web input into required semantic modules.
 adapterProfile:
   package: '@proto.ui/adapter-web-component'
   target:
@@ -12,11 +12,11 @@ adapterProfile:
       name: custom-elements
 statement:
   zh-CN: >-
-    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。Event slice 固定安装 required Event Module，通过共用 Web router 把 Custom Element 及其 logical/portal surface 的 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 detach/dispose 时停止 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。
+    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。Event slice 固定安装 required Event Module，通过共用 Web router 把 Custom Element 及其 logical/portal surface 的 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 detach/dispose 时停止 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。Lifecycle slice 由 Custom Element owner 持有 RuntimeSession，将内部 view materialization 翻译为 repeatable mount epoch；同步 DOM move 不得终止 instance，确认断开后的 terminal teardown 才 dispose，并透传结构化 lifecycle diagnostics。Lifecycle 是 Runtime 与 Adapter 的执行协议，不虚构对应 Module 或 host-cap。
 
 
   en: >-
-    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically. Its Event slice installs the required Event module, uses the shared Web router to translate native input from the Custom Element and its logical or portal surfaces into root and global Proto event streams, routes semantic events by logical interaction owner, stops delivery on detach or disposal, and translates default-action requests to DOM `preventDefault()`.
+    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically. Its Event slice installs the required Event module, uses the shared Web router to translate native input from the Custom Element and its logical or portal surfaces into root and global Proto event streams, routes semantic events by logical interaction owner, stops delivery on detach or disposal, and translates default-action requests to DOM `preventDefault()`. Its Lifecycle slice lets the Custom Element owner retain the RuntimeSession and translates internal view materialization into repeatable mount epochs; a synchronous DOM move must not terminate the instance, while terminal teardown after confirmed disconnection disposes it. The Adapter also forwards structured lifecycle diagnostics. Lifecycle is a Runtime-to-Adapter execution protocol and does not invent a corresponding Module or host capability.
 
 
 criteria:
@@ -44,6 +44,18 @@ criteria:
     text:
       zh-CN: Web Component view wiring 必须把 element、logical child 与 portal surface 的 host input 只路由给当前 logical owner，翻译为当前支持的 root/global Event type，并在 detach/dispose 后停止旧 route 的 delivery。
       en: Web Component view wiring must route host input from the element, logical children, and portal surfaces only to the current logical owner, translate it into currently supported root and global Event types, and stop delivery from the old route after detach or disposal.
+  - id: A-WEB-COMPONENT-0001-G
+    text:
+      zh-CN: Custom Element lifecycle owner 必须持有一个 Proto RuntimeSession；内部 view detach/remount 必须推进 repeatable mount epoch，同步 DOM move 不得触发 terminal teardown，而确认断开后的 owner teardown 必须且只能 dispose 该 instance 一次。
+      en: The Custom Element lifecycle owner must retain one Proto RuntimeSession; internal view detach/remount must advance repeatable mount epochs, a synchronous DOM move must not trigger terminal teardown, and owner teardown after confirmed disconnection must dispose that instance exactly once.
+  - id: A-WEB-COMPONENT-0001-H
+    text:
+      zh-CN: Adapter diagnostics 必须透传 Runtime 的 structured lifecycle event stream；deprecated CP0-CP10 只允许作为有损兼容投影，且该协议不得被建模为 Module support 或 host-cap provision。
+      en: Adapter diagnostics must forward Runtime's structured lifecycle event stream; deprecated CP0-CP10 checkpoints may exist only as a lossy compatibility projection, and this protocol must not be modeled as Module support or host-capability provision.
+  - id: A-WEB-COMPONENT-0001-I
+    text:
+      zh-CN: Custom Element owner 必须在 created callbacks 后按最新 ViewIntent 调和首次及后续内部 view epoch，在首次 commit 与 view effects 一致前隐藏 retained shell 或新 root，并让 terminal teardown 权限高于 desired presence。
+      en: The Custom Element owner must reconcile the latest ViewIntent into initial and subsequent internal view epochs after created callbacks, hide its retained shell or new root until the first commit and view effects are coherent, and let terminal teardown authority override desired presence.
 supports:
   modules:
     - id: M-PROPS-0001
@@ -71,6 +83,9 @@ verifies:
     - T-ADAPTER-PROFILE-0001
     - T-PROPS-0012
     - T-EVENT-0003
+    - T-LIFECYCLE-0003
+    - T-LIFECYCLE-0005
+    - T-LIFECYCLE-0006
 openQuestions:
   - id: A-WEB-COMPONENT-0001-Q-INGRESS-PRECEDENCE
     question:
@@ -90,11 +105,18 @@ sources:
   - path: packages/adapters/base/src/events/web-event-router.ts
   - path: packages/adapters/web-component/test/contract/event.router.mapping.v0.contract.test.ts
   - path: packages/adapters/web-component/test/contract/event.router.dispose.v0.contract.test.ts
+  - path: packages/adapters/web-component/src/runtime/session.ts
+  - path: packages/adapters/web-component/test/contract/lifecycle-events.v1.contract.test.ts
+  - path: packages/adapters/web-component/test/contract/lifecycle-wc-adapter.v0.contract.test.ts
+  - path: packages/adapters/web-component/test/lifecycle-view-intent.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Cataloged lifecycle ownership, repeatable mount epochs, structured diagnostics, confirmed-disconnection disposal, and ViewIntent reconciliation without inventing a Lifecycle Module or host capability.
   - version: 0.2.0-rc.7
     change: revised
     summary: Added required Event Module support, translated scoped Event binding, Default Action provision, logical-owner routing and disposal criteria, and conformance evidence.
   - version: 0.2.0-rc.7
     change: introduced
     summary: Cataloged the official Web Component profile identity and its source plus direct-push Props translation slice.
-tags: [adapter, web-component, custom-elements, web, props, event, official]
+tags: [adapter, web-component, custom-elements, web, props, event, lifecycle, official]
