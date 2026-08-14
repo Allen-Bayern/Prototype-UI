@@ -108,7 +108,7 @@ describe('adapter profile schema', () => {
     }
   });
 
-  it('keeps official profile targets aligned with package metadata and the Props/Event/State slices', async () => {
+  it('keeps official profile targets aligned with package metadata and the Props/Event/State/Expose slices', async () => {
     const root = process.cwd();
     const workspace = await loadSpecWorkspaceFromDirectory(path.join(root, 'spec'));
 
@@ -157,6 +157,7 @@ describe('adapter profile schema', () => {
           expect.objectContaining({ id: 'M-PROPS-0001', role: 'required-module' }),
           expect.objectContaining({ id: 'M-EVENT-0001', role: 'required-module' }),
           expect.objectContaining({ id: 'M-STATE-0001', role: 'required-module' }),
+          expect.objectContaining({ id: 'M-EXPOSE-0001', role: 'required-module' }),
         ])
       );
       expect(entity?.provides?.hostCaps).toEqual(

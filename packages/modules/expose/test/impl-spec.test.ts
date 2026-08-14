@@ -42,6 +42,21 @@ describe('ExposeModuleImpl (contract-ish)', () => {
     expect(all).toEqual({ a: 1, b: { x: true } });
   });
 
+  it('preserves special property names as own snapshot entries', () => {
+    const sys = createSysCaps();
+    const caps = makeCaps({ sys });
+    const impl = new ExposeModuleImpl(caps, 'p-x');
+    const value = { safe: true };
+
+    sys.__setExecPhase('setup');
+    impl.expose('__proto__', value);
+
+    const all = impl.port.getAll();
+    expect(Object.getPrototypeOf(all)).toBe(Object.prototype);
+    expect(Object.hasOwn(all, '__proto__')).toBe(true);
+    expect(all.__proto__).toBe(value);
+  });
+
   it('port helpers: get/has/keys work', () => {
     const sys = createSysCaps();
     const caps = makeCaps({ sys });

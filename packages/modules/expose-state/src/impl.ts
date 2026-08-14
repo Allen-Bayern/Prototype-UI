@@ -1,5 +1,5 @@
 // packages/modules/expose-state/src/impl.ts
-import type { CapsVaultView, InstancePhase, ProtoPhase, OwnedStateHandle } from '@proto.ui/core';
+import type { CapsVaultView, InstancePhase, OwnedStateHandle } from '@proto.ui/core';
 import { ModuleBase } from '@proto.ui/module-base';
 import type { ModuleDeps } from '@proto.ui/module-base';
 import type { StateEvent, StateSpec } from '@proto.ui/types';
@@ -59,7 +59,14 @@ export class ExposeStateModuleImpl extends ModuleBase {
       this.ensureAlive('rt.exposeState.getAll');
       this.sync();
       const out: Record<string, unknown> = {};
-      for (const [k, v] of this.cache) out[k] = v;
+      for (const [k, v] of this.cache) {
+        Object.defineProperty(out, k, {
+          value: v,
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        });
+      }
       return out;
     },
 
@@ -78,11 +85,6 @@ export class ExposeStateModuleImpl extends ModuleBase {
   // -------------------------
   // lifecycle + caps wiring
   // -------------------------
-
-  override onProtoPhase(phase: ProtoPhase): void {
-    super.onProtoPhase(phase);
-    if (phase === 'unmounted') this.dispose();
-  }
 
   override onInstancePhase(phase: InstancePhase): void {
     super.onInstancePhase(phase);

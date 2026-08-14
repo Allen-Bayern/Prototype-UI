@@ -17,9 +17,18 @@ export function createScopedExposesReader(
   const wrapRecord = (record: Record<string, unknown>): Record<string, unknown> => {
     const wrapped: Record<string, unknown> = {};
 
+    const defineEntry = (key: string, value: unknown) => {
+      Object.defineProperty(wrapped, key, {
+        value,
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
+    };
+
     for (const [key, value] of Object.entries(record)) {
       if (typeof value === 'function') {
-        wrapped[key] = (...args: unknown[]) => {
+        defineEntry(key, (...args: unknown[]) => {
           let result: unknown;
           const invoke = getInvoker();
           const call = () => {
@@ -30,11 +39,11 @@ export function createScopedExposesReader(
           else call();
 
           return result;
-        };
+        });
       } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        wrapped[key] = wrapRecord(value as Record<string, unknown>);
+        defineEntry(key, wrapRecord(value as Record<string, unknown>));
       } else {
-        wrapped[key] = value;
+        defineEntry(key, value);
       }
     }
 
