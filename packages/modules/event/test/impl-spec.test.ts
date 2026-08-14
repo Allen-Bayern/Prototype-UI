@@ -205,6 +205,7 @@ describe('EventModuleImpl (contract-ish)', () => {
 
   it('unmounted phase triggers cleanupAll()', () => {
     const root = new FakeEventTarget();
+    const semantic = new FakeEventTarget();
     const sys = createSysCaps();
     const caps = makeCaps({
       sys,
@@ -215,15 +216,17 @@ describe('EventModuleImpl (contract-ish)', () => {
     const impl = new EventModuleImpl(caps, 'p-x');
 
     sys.__setExecPhase('setup');
-    impl.on('press.commit' as any);
+    impl.redirectSemanticRoot(semantic as any);
+    impl.on('host:focus' as any);
 
     sys.__setExecPhase('callback');
     impl.bind(makeDispatch().dispatch);
-    expect(root.count('press.commit')).toBe(1);
+    expect(root.count('host:focus')).toBe(1);
 
     impl.onProtoPhase('unmounted' as any);
 
-    expect(root.count('press.commit')).toBe(0);
+    expect(root.count('host:focus')).toBe(0);
+    expect((impl as any).overriddenSemanticRootTarget).toBeNull();
     sys.__setExecPhase('callback');
     expect(() => impl.unbind()).not.toThrow();
   });

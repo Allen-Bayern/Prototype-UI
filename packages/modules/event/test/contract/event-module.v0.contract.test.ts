@@ -91,7 +91,9 @@ describe('event-module: contract v0 (module semantics)', () => {
     const caps = makeCaps({
       sys,
       getRootTarget: () => null,
-      getGlobalTarget: () => null,
+      getGlobalTarget: () => {
+        throw new Error('should not read global target');
+      },
     });
 
     const impl = new EventModuleImpl(caps as any, 'test-proto');
@@ -107,11 +109,12 @@ describe('event-module: contract v0 (module semantics)', () => {
 
   it('EV-MOD-V0-1200: global target required only if global registrations exist', () => {
     const sys = createSysCaps();
-    const root = createMockTarget('root');
 
     const caps = makeCaps({
       sys,
-      getRootTarget: () => root,
+      getRootTarget: () => {
+        throw new Error('should not read root target');
+      },
       getGlobalTarget: () => null,
     });
 

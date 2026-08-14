@@ -1,4 +1,5 @@
 import {
+  cancelWebEventDefaultAction,
   createCapsWiring,
   createWebMoveGestureHost,
   type LogicalInstanceToken,
@@ -30,7 +31,6 @@ import { CONTEXT_INSTANCE_TOKEN_CAP, CONTEXT_PARENT_CAP } from '@proto.ui/module
 import { EFFECTS_CAP } from '@proto.ui/module-feedback';
 import {
   EVENT_CANCEL_DEFAULT_ACTION_CAP,
-  type EventDefaultActionCancelRequest,
   EVENT_EMIT_CAP,
   EVENT_GLOBAL_TARGET_CAP,
   EVENT_ROOT_TARGET_CAP,
@@ -247,14 +247,7 @@ export function createReactModules<Props extends PropsBaseType>(args: {
     .use('event', [
       [EVENT_ROOT_TARGET_CAP, () => router.rootTarget],
       [EVENT_GLOBAL_TARGET_CAP, () => router.globalTarget],
-      [
-        EVENT_CANCEL_DEFAULT_ACTION_CAP,
-        ({ event }: EventDefaultActionCancelRequest) => {
-          if (typeof (event as Event | undefined)?.preventDefault === 'function') {
-            (event as Event).preventDefault();
-          }
-        },
-      ],
+      [EVENT_CANCEL_DEFAULT_ACTION_CAP, cancelWebEventDefaultAction],
       [EVENT_EMIT_CAP, emit],
     ])
     .use('focus', [

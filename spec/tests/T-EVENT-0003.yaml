@@ -131,11 +131,11 @@ implementations:
       - T-EVENT-0003-CASE-SCOPED-TRANSLATION
   - id: adapter-official-web-default-action-projection
     kind: adapter-test
-    status: planned
+    status: passing
     path: packages/adapters/base/test/contract/event-default-action.v0.contract.test.ts
     required: true
     notes:
-      - Current source wiring calls preventDefault in all three official Web profiles, but no Adapter test invokes the injected capability with a cancelable DOM Event yet.
+      - React, Vue, and Web Component profiles inject the tested Adapter Base projection as their Event default-action capability.
     consumesCases:
       - T-EVENT-0003-CASE-DEFAULT-ACTION-WEB
 verifies:

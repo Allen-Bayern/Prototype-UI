@@ -41,6 +41,8 @@ sources:
   - path: internal/records/2026-08-14-event-module-host-cap-adapter-audit.zh-CN.md
   - path: packages/modules/event/src/caps.ts
   - path: packages/modules/event/src/impl.ts
+  - path: packages/adapters/base/src/events/web-default-action.ts
+  - path: packages/adapters/base/test/contract/event-default-action.v0.contract.test.ts
   - path: packages/adapters/react/src/runtime/modules.ts
   - path: packages/adapters/vue/src/runtime/modules.ts
   - path: packages/adapters/web-component/src/runtime/modules.ts

@@ -287,7 +287,7 @@ export class EventModuleImpl extends ModuleBase {
       ? this.caps.get(EVENT_GLOBAL_TARGET_CAP)
       : undefined;
 
-    const root = rootGetter?.() ?? null;
+    const root = needsRoot ? (rootGetter?.() ?? null) : null;
 
     const global = needsGlobal ? (globalGetter?.() ?? null) : null;
     if (needsGlobal && !global) {
@@ -370,6 +370,7 @@ export class EventModuleImpl extends ModuleBase {
       this.lastDispatch = null;
       this.isBound = false;
       this.overriddenRootTarget = null;
+      this.overriddenSemanticRootTarget = null;
       this.exposedEvents.clear();
       this.internalCallbacks.clear();
     }
