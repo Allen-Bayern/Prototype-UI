@@ -108,6 +108,7 @@ function defaultGetProps<Props extends PropsBaseType>(
     class: className,
     hostClass,
     surfaceClass,
+    style,
     hostStyle,
     surfaceStyle,
     ...rest
