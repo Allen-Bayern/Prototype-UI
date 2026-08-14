@@ -88,4 +88,26 @@ describe('adapter-vue: expose', () => {
     off();
     mounted.unmount();
   });
+
+  it('invalidates an App Maker-held expose method after terminal unmount', async () => {
+    let calls = 0;
+    const proto: Prototype = {
+      name: 'vue-expose-terminal-invalidation',
+      setup(def) {
+        def.expose.method('ping', () => ++calls);
+        return (r) => [r.el('div', 'ok')];
+      },
+    };
+
+    const mounted = createMountedVueAdapter(proto);
+    await flushVue();
+    const ping = mounted.vm.getExposes().ping as () => number;
+
+    expect(ping()).toBe(1);
+    mounted.unmount();
+    await flushVue();
+
+    expect(() => ping()).toThrow(/terminal disposal/);
+    expect(calls).toBe(1);
+  });
 });

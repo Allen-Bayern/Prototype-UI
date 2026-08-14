@@ -83,4 +83,25 @@ describe('adapter-react: expose', () => {
     off();
     mounted.unmount();
   });
+
+  it('invalidates an App Maker-held expose method after terminal unmount', async () => {
+    let calls = 0;
+    const proto: Prototype = {
+      name: 'react-expose-terminal-invalidation',
+      setup(def) {
+        def.expose.method('ping', () => ++calls);
+        return (r) => [r.el('div', 'ok')];
+      },
+    };
+
+    const mounted = createMountedReactAdapter(proto);
+    const ping = mounted.ref.current.getExposes().ping as () => number;
+
+    expect(ping()).toBe(1);
+    mounted.unmount();
+    await Promise.resolve();
+
+    expect(() => ping()).toThrow(/terminal disposal/);
+    expect(calls).toBe(1);
+  });
 });

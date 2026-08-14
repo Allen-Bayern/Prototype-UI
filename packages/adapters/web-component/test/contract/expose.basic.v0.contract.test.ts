@@ -71,6 +71,30 @@ describe('expose contract (adapter-web-component)', () => {
     expect(el.getExposes()).toEqual({});
   });
 
+  it('invalidates an App Maker-held expose method after terminal disposal', async () => {
+    let calls = 0;
+    const P: Prototype = {
+      name: 'x-expose-terminal-invalidation',
+      setup(def) {
+        def.expose.method('ping', () => ++calls);
+        return (r) => [r.el('div', 'ok')];
+      },
+    };
+
+    AdaptToWebComponent(P);
+
+    const el = document.createElement('x-expose-terminal-invalidation') as any;
+    document.body.appendChild(el);
+    const ping = el.getExposes().ping as () => number;
+
+    expect(ping()).toBe(1);
+    document.body.removeChild(el);
+    await Promise.resolve();
+
+    expect(() => ping()).toThrow(/terminal disposal/);
+    expect(calls).toBe(1);
+  });
+
   it('exposed state is projected to external handle with spec and subscribe', async () => {
     const events: any[] = [];
 

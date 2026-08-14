@@ -192,6 +192,7 @@ export function createVueAdapter(runtime: VueRuntime) {
         const eventGateRef = runtime.ref<ReturnType<typeof createEventGate> | null>(null);
         const exposesRef = runtime.ref<Record<string, unknown>>({});
         const invokeRef = runtime.ref<((fn: () => void) => void) | null>(null);
+        const scopedExposesReader = createScopedExposesReader(() => invokeRef.value);
         const instanceToken = createLogicalInstance(proto as Prototype<any>);
         const supportsOwnerContext = !!runtime.provide && !!runtime.inject;
         const parentToken = supportsOwnerContext
@@ -261,6 +262,8 @@ export function createVueAdapter(runtime: VueRuntime) {
               commitVersion.value += 1;
             },
             onAfterUnmount: () => {
+              scopedExposesReader.invalidate();
+              invokeRef.value = null;
               hostSession = null;
               controllerRef.value = null;
               exposesRef.value = {};
@@ -299,8 +302,6 @@ export function createVueAdapter(runtime: VueRuntime) {
           const initialIntent = hostSession.viewIntent.getSnapshot();
           shouldExist.value = initialIntent.present;
         }
-
-        const scopedExposesReader = createScopedExposesReader(() => invokeRef.value);
 
         ctx.expose({
           update: () => controllerRef.value?.update(),

@@ -24,6 +24,82 @@ describe('adapter-base contract: expose record (v0)', () => {
     expect(invoke).toHaveBeenCalledOnce();
   });
 
+  it('preserves the owning receiver when projecting nested methods', () => {
+    const invoke = vi.fn((call: () => void) => call());
+    const reader = createScopedExposesReader(() => invoke);
+    const api = {
+      answer: 42,
+      getAnswer() {
+        return this.answer;
+      },
+    };
+
+    const snapshot = reader.read({ api });
+
+    expect((snapshot.api as typeof api).getAnswer()).toBe(42);
+    expect(invoke).toHaveBeenCalledOnce();
+  });
+
+  it('preserves opaque host values and projects cyclic plain-record graphs safely', () => {
+    const reader = createScopedExposesReader(() => (call) => call());
+    class HostValue {
+      constructor(readonly value: string) {}
+    }
+
+    const date = new Date('2026-08-14T00:00:00.000Z');
+    const map = new Map([['answer', 42]]);
+    const hostValue = new HostValue('host-local');
+    const shared = { label: 'shared' };
+    const cyclic: Record<string, unknown> = { shared };
+    cyclic.self = cyclic;
+
+    const snapshot = reader.read({
+      values: { date, map, hostValue, cyclic, shared },
+      alias: shared,
+    });
+    const values = snapshot.values as Record<string, any>;
+
+    expect(values.date).toBe(date);
+    expect(values.map).toBe(map);
+    expect(values.hostValue).toBe(hostValue);
+    expect(values.cyclic).not.toBe(cyclic);
+    expect(values.cyclic.self).toBe(values.cyclic);
+    expect(values.shared).toBe(snapshot.alias);
+  });
+
+  it('projects array callables in callback scope while preserving cycles', () => {
+    const invoke = vi.fn((call: () => void) => call());
+    const reader = createScopedExposesReader(() => invoke);
+    const values: unknown[] = [() => 'ok'];
+    values.push(values);
+
+    const snapshot = reader.read({ values });
+    const projected = snapshot.values as Array<unknown>;
+
+    expect((projected[0] as () => string)()).toBe('ok');
+    expect(invoke).toHaveBeenCalledOnce();
+    expect(projected[1]).toBe(projected);
+  });
+
+  it('invalidates held callables at terminal disposal instead of bypassing callback scope', () => {
+    const invoke = vi.fn((call: () => void) => call());
+    const reader = createScopedExposesReader(() => invoke);
+    const ping = reader.read({ ping: () => 'pong' }).ping as () => string;
+
+    expect(ping()).toBe('pong');
+    reader.invalidate();
+
+    expect(reader.read({ ping: () => 'pong' })).toEqual({});
+    expect(() => ping()).toThrow(/terminal disposal/);
+  });
+
+  it('fails explicitly when a callable has no live callback scope', () => {
+    const reader = createScopedExposesReader(() => null);
+    const ping = reader.read({ ping: () => 'pong' }).ping as () => string;
+
+    expect(() => ping()).toThrow(/live callback scope/);
+  });
+
   it('preserves a finalized external state handle across record replacement', () => {
     const reader = createScopedExposesReader((() => (call: () => void) => call()) as any);
     const handle = {
