@@ -99,6 +99,8 @@ The migration is complete only when the relevant behavior, identity, relations, 
 
 ## Authoring workflow
 
+For the reusable vertical-slice method that connects Module ownership, host capabilities, Adapter profiles, conformance evidence, and drift handling, read [`MODULE-HOST-CAP-ADAPTER-CATALOGING.zh-CN.md`](./MODULE-HOST-CAP-ADAPTER-CATALOGING.zh-CN.md).
+
 Before adding or changing an entity:
 
 1. Search existing IDs, criteria, aliases, tags, and relations for the concept.
