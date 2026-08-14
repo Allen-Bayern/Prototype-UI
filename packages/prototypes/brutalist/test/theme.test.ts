@@ -15,6 +15,28 @@ const REQUIRED_PAIRS = [
   ['secondary-background', 'foreground'],
 ] as const;
 
+function relativeLuminance(hex: string): number {
+  const channels = hex
+    .slice(1)
+    .match(/.{2}/g)
+    ?.map((channel) => Number.parseInt(channel, 16) / 255);
+  if (!channels || channels.length !== 3 || channels.some(Number.isNaN)) {
+    throw new Error(`Expected a six-digit hex color, received ${hex}`);
+  }
+  const [red, green, blue] = channels.map((channel) =>
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+  );
+  return 0.2126 * red! + 0.7152 * green! + 0.0722 * blue!;
+}
+
+function contrastRatio(first: string, second: string): number {
+  const firstLuminance = relativeLuminance(first);
+  const secondLuminance = relativeLuminance(second);
+  const lighter = Math.max(firstLuminance, secondLuminance);
+  const darker = Math.min(firstLuminance, secondLuminance);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 describe('prototypes/brutalist: canonical theme manifest', () => {
   it('keeps identical Light and Dark keys with complete fill pairs', () => {
     expect(Object.keys(BRUTALIST_THEME.light).sort()).toEqual(
@@ -42,6 +64,14 @@ describe('prototypes/brutalist: canonical theme manifest', () => {
       ] as const) {
         expect(mode[foreground]).toBe('#000000');
       }
+    }
+  });
+
+  it('uses a theme-relative focus ring with at least 3:1 adjacent-color contrast', () => {
+    for (const mode of [BRUTALIST_THEME.light, BRUTALIST_THEME.dark]) {
+      expect(mode.ring).toBe(mode.foreground);
+      expect(contrastRatio(mode.ring, mode.background)).toBeGreaterThanOrEqual(3);
+      expect(contrastRatio(mode.ring, mode['secondary-background'])).toBeGreaterThanOrEqual(3);
     }
   });
 
