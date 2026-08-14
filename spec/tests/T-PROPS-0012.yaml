@@ -126,6 +126,22 @@ verifies:
         - HC-PROPS-SOURCE-0001-C
         - HC-PROPS-SOURCE-0001-D
         - HC-PROPS-SOURCE-0001-E
+  adapters:
+    - id: A-REACT-18-19-0001
+      anchors:
+        - A-REACT-18-19-0001-B
+        - A-REACT-18-19-0001-C
+        - A-REACT-18-19-0001-D
+    - id: A-VUE-3-0001
+      anchors:
+        - A-VUE-3-0001-B
+        - A-VUE-3-0001-C
+        - A-VUE-3-0001-D
+    - id: A-WEB-COMPONENT-0001
+      anchors:
+        - A-WEB-COMPONENT-0001-B
+        - A-WEB-COMPONENT-0001-C
+        - A-WEB-COMPONENT-0001-D
 exercises:
   contracts:
     - id: C-PROPS-0008

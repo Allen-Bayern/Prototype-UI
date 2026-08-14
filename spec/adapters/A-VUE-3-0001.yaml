@@ -1,0 +1,67 @@
+id: A-VUE-3-0001
+type: adapter
+title: Official Vue 3 Web Adapter profile
+status: active
+since: 0.2.0-rc.7
+summary: The official Vue 3 Web Adapter translates Vue component props and attrs into the required Proto UI Props channel.
+adapterProfile:
+  package: '@proto.ui/adapter-vue'
+  target:
+    platform: web
+    runtime:
+      name: vue
+      versionRange: '>=3.4.0 <4'
+statement:
+  zh-CN: >-
+    该 profile 表示 `@proto.ui/adapter-vue` 在 Web platform 上面向 Vue `>=3.4.0 <4` 的 official translation identity。当前已编目的 Props slice 合并 component props 与 `ctx.attrs` 后执行 Adapter 分类，通过 deep watch、attrs reconciliation 与 component-updated hook 发送 invalidation。Vue component-updated 阶段的其它工作可以形成 callback-safe runtime sync point，因此关闭 auto update 后 watcher 仍可能在同一 host update 中派发，但不得因此产生 Proto render commit。
+
+
+  en: >-
+    This profile is the official translation identity of `@proto.ui/adapter-vue` for Vue `>=3.4.0 <4` on the Web platform. Its currently cataloged Props slice combines component props with `ctx.attrs`, applies Adapter classification, and sends invalidation through deep watches, attrs reconciliation, and a component-updated hook. Other work in Vue's component-updated phase may form a callback-safe runtime synchronization point, so watchers may still dispatch during the same host update when automatic update is disabled, but this must not produce a Proto render commit by itself.
+
+
+criteria:
+  - id: A-VUE-3-0001-A
+    text:
+      zh-CN: Profile identity 必须对应 `@proto.ui/adapter-vue` 与 peer range `vue >=3.4.0 <4`，不得被表述为所有 Vue 版本或非 Web host 的保证。
+      en: The profile identity must correspond to `@proto.ui/adapter-vue` and peer range `vue >=3.4.0 <4` and must not be represented as a guarantee for every Vue version or a non-Web host.
+  - id: A-VUE-3-0001-B
+    text:
+      zh-CN: Adapter 必须把 Props Module 作为 required Module 接入，并以 translated capability 提供 `HC-PROPS-SOURCE-0001`。
+      en: The Adapter must wire the Props Module as required and provide `HC-PROPS-SOURCE-0001` as a translated capability.
+  - id: A-VUE-3-0001-C
+    text:
+      zh-CN: 默认 Props normalization 必须在合并 component props 与 attrs 后剥离 class/style presentation fields 与函数型 `onXxx` listeners，同时允许显式 `getProps` option 替换分类策略。
+      en: Default Props normalization must combine component props and attrs, then exclude class and style presentation fields and function-valued `onXxx` listeners while allowing an explicit `getProps` option to replace the classification policy.
+  - id: A-VUE-3-0001-D
+    text:
+      zh-CN: 'Host input change 只能使 snapshot 失效；Vue component-updated 中合法 callback-safe sync 可以派发 watcher，但 `autoUpdateOnPropsChange: false` 时不得仅因 Props invalidation 产生 Proto render commit。'
+      en: 'A host-input change may only invalidate the snapshot; a legitimate callback-safe sync during Vue component-updated may dispatch watchers, but with `autoUpdateOnPropsChange: false`, Props invalidation alone must not produce a Proto render commit.'
+supports:
+  modules:
+    - id: M-PROPS-0001
+      role: required-module
+      note: Props is required for the standard Maker-to-Component configuration channel.
+provides:
+  hostCaps:
+    - id: HC-PROPS-SOURCE-0001
+      role: translated-capability
+      note: Vue props and attrs are normalized into a readable source with watch and component-updated invalidation.
+relates:
+  decisions:
+    - D-ADAPTER-PROFILE-0001
+verifies:
+  tests:
+    - T-ADAPTER-PROFILE-0001
+    - T-PROPS-0012
+sources:
+  - path: packages/adapters/vue/package.json
+  - path: packages/adapters/vue/src/adapt.ts
+  - path: packages/adapters/vue/src/runtime/modules.ts
+  - path: packages/adapters/vue/test/contract/props-host-source.v0.contract.test.ts
+  - path: packages/adapters/vue/test/framework-contract.test.ts
+revisions:
+  - version: 0.2.0-rc.7
+    change: introduced
+    summary: Cataloged the official Vue 3 profile identity and its required Props translation slice.
+tags: [adapter, vue, web, props, official]
