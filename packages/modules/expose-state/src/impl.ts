@@ -7,8 +7,13 @@ import type { StateEvent, StateSpec } from '@proto.ui/types';
 import type { ExposePort } from '@proto.ui/module-expose';
 import type { StatePort } from '@proto.ui/module-state';
 
-import type { ExposeStateDiag, ExposeStateExternalHandle, ExposeStatePort } from './types';
-import { EXPOSE_STATE_SET_EXPOSES_CAP } from './caps';
+import {
+  EXPOSE_STATE_EXTERNAL_HANDLE,
+  type ExposeStateDiag,
+  type ExposeStateExternalHandle,
+  type ExposeStatePort,
+} from './types';
+import { EXPOSES_RECORD_SINK_CAP, type ExposesRecordSink } from './caps';
 
 const STATE_ID = '__stateId';
 const STATE_SPEC = '__stateSpec';
@@ -36,7 +41,9 @@ export class ExposeStateModuleImpl extends ModuleBase {
   private disposed = false;
 
   private cache = new Map<string, unknown>();
+  private readonly externalHandleCache = new WeakMap<object, ExposeStateExternalHandle<any>>();
   private readonly externalSubscriptions = new Set<() => void>();
+  private publishedSink: ExposesRecordSink | null = null;
 
   constructor(caps: CapsVaultView, deps: ModuleDeps) {
     super(caps);
@@ -137,7 +144,11 @@ export class ExposeStateModuleImpl extends ModuleBase {
         throw new Error(`[ExposeState] missing StateSpec on exposed handle: ${key}`);
       }
 
-      const external = this.wrapExternalHandle(value, spec);
+      let external = this.externalHandleCache.get(value);
+      if (!external) {
+        external = this.wrapExternalHandle(value, spec);
+        this.externalHandleCache.set(value, external);
+      }
       this.cache.set(key, external);
     }
   }
@@ -147,6 +158,7 @@ export class ExposeStateModuleImpl extends ModuleBase {
     spec: StateSpec
   ): ExposeStateExternalHandle<V> {
     const external: ExposeStateExternalHandle<V> = {
+      [EXPOSE_STATE_EXTERNAL_HANDLE]: true,
       get: () => {
         this.ensureAlive('rt.exposeState.external.get');
         return handle.get();
@@ -177,21 +189,23 @@ export class ExposeStateModuleImpl extends ModuleBase {
   }
 
   private publishToHost(clear = false): void {
-    if (!clear && this.instancePhase === 'setup') return;
-    if (!this.caps.has(EXPOSE_STATE_SET_EXPOSES_CAP)) return;
-    const sink = this.caps.get(EXPOSE_STATE_SET_EXPOSES_CAP);
-    if (!sink) return;
+    const nextSink =
+      !clear && this.caps.has(EXPOSES_RECORD_SINK_CAP)
+        ? this.caps.get(EXPOSES_RECORD_SINK_CAP)
+        : null;
 
-    if (clear) {
+    if (this.publishedSink && this.publishedSink !== nextSink) {
       try {
-        sink({});
+        this.publishedSink({});
       } catch {}
-      return;
     }
+    this.publishedSink = nextSink;
+
+    if (clear || !nextSink || this.instancePhase === 'setup') return;
 
     const record = this.port.getAll();
     try {
-      sink(record);
+      nextSink(record);
     } catch {
       // ignore host errors
     }

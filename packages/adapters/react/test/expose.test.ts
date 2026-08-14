@@ -62,14 +62,25 @@ describe('adapter-react: expose', () => {
 
     const mounted = createMountedReactAdapter(proto);
     const handle = mounted.ref.current;
+    const phase = handle.getExposes().phase;
+    const events: Array<{ type: string; next?: string }> = [];
 
     expect(typeof handle.invokeInCallbackScope).toBe('function');
-    expect(handle.getExposes().phase.get()).toBe('idle');
+    expect(phase.get()).toBe('idle');
+    expect(phase.spec).toMatchObject({ kind: 'enum' });
+    expect(typeof phase.subscribe).toBe('function');
+    expect(phase.set).toBeUndefined();
+    const off = phase.subscribe((event: { type: string; next?: string }) => events.push(event));
 
     handle.getExposes().controls.run();
 
-    expect(handle.getExposes().phase.get()).toBe('running');
+    expect(phase.get()).toBe('running');
+    expect(events.at(-1)).toMatchObject({ type: 'next', next: 'running' });
 
+    mounted.update();
+    expect(handle.getExposes().phase).toBe(phase);
+
+    off();
     mounted.unmount();
   });
 });

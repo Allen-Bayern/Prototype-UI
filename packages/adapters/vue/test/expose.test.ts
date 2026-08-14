@@ -65,15 +65,27 @@ describe('adapter-vue: expose', () => {
 
     const mounted = createMountedVueAdapter(proto);
     await flushVue();
+    const phase = mounted.vm.getExposes().phase;
+    const events: Array<{ type: string; next?: string }> = [];
 
     expect(typeof mounted.vm.invokeInCallbackScope).toBe('function');
-    expect(mounted.vm.getExposes().phase.get()).toBe('idle');
+    expect(phase.get()).toBe('idle');
+    expect(phase.spec).toMatchObject({ kind: 'enum' });
+    expect(typeof phase.subscribe).toBe('function');
+    expect(phase.set).toBeUndefined();
+    const off = phase.subscribe((event: { type: string; next?: string }) => events.push(event));
 
     mounted.vm.getExposes().controls.run();
     await flushVue();
 
-    expect(mounted.vm.getExposes().phase.get()).toBe('running');
+    expect(phase.get()).toBe('running');
+    expect(events.at(-1)).toMatchObject({ type: 'next', next: 'running' });
 
+    mounted.vm.update();
+    await flushVue();
+    expect(mounted.vm.getExposes().phase).toBe(phase);
+
+    off();
     mounted.unmount();
   });
 });

@@ -1,6 +1,7 @@
 // packages/modules/expose-state/test/impl-spec.test.ts
 import { describe, it, expect } from 'vitest';
 import { ExposeStateModuleImpl } from '../src/impl';
+import { EXPOSES_RECORD_SINK_CAP, EXPOSE_STATE_SET_EXPOSES_CAP } from '../src/caps';
 import { createSysCaps, makeCaps } from './utils/fake-caps';
 import type { StateEvent, StateSpec } from '@proto.ui/types';
 
@@ -78,6 +79,10 @@ function makeDeps(exposePort: any, statePort: any) {
 }
 
 describe('ExposeStateModuleImpl (contract-ish)', () => {
+  it('keeps the legacy sink token as an alias of the finalized record sink', () => {
+    expect(EXPOSE_STATE_SET_EXPOSES_CAP).toBe(EXPOSES_RECORD_SINK_CAP);
+  });
+
   it('projects exposed state handle into external handle shape', () => {
     const sys = createSysCaps();
     const caps = makeCaps({ sys });
@@ -127,6 +132,29 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     expect(got.next).toBe(true);
 
     off();
+  });
+
+  it('preserves external handle identity across reads and publications', () => {
+    const sys = createSysCaps();
+    const calls: Array<Record<string, unknown>> = [];
+    const caps = makeCaps({
+      sys,
+      setExposes: (record: Record<string, unknown>) => calls.push(record),
+    });
+    const { createHandle, statePort } = createStateHarness();
+    const h = createHandle(false, { kind: 'bool' });
+    const impl = new ExposeStateModuleImpl(
+      caps as any,
+      makeDeps(makeExposePort({ ready: h }), statePort)
+    );
+
+    const first = impl.port.get('ready');
+    expect(impl.port.getAll().ready).toBe(first);
+
+    impl.onInstancePhase('alive');
+    impl.afterRenderCommit();
+
+    expect(calls.at(-1)?.ready).toBe(first);
   });
 
   it('dispose invalidates external handles and clears external subscriptions', () => {
@@ -195,5 +223,35 @@ describe('ExposeStateModuleImpl (contract-ish)', () => {
     impl.dispose();
 
     expect(calls[calls.length - 1]).toEqual({});
+  });
+
+  it('clears a replaced or removed host sink before publishing elsewhere', () => {
+    const sys = createSysCaps();
+    const firstCalls: Array<Record<string, unknown>> = [];
+    const secondCalls: Array<Record<string, unknown>> = [];
+    const caps = makeCaps({
+      sys,
+      setExposes: (record: Record<string, unknown>) => firstCalls.push(record),
+    });
+    const { createHandle, statePort } = createStateHarness();
+    const h = createHandle(false, { kind: 'bool' });
+    const impl = new ExposeStateModuleImpl(
+      caps as any,
+      makeDeps(makeExposePort({ ready: h }), statePort)
+    );
+
+    impl.onInstancePhase('alive');
+    expect(firstCalls.at(-1)).toHaveProperty('ready');
+
+    caps.__set('setExposes', (record: Record<string, unknown>) => secondCalls.push(record));
+    caps.__bumpEpoch();
+
+    expect(firstCalls.at(-1)).toEqual({});
+    expect(secondCalls.at(-1)).toHaveProperty('ready');
+
+    caps.__set('setExposes', undefined);
+    caps.__bumpEpoch();
+
+    expect(secondCalls.at(-1)).toEqual({});
   });
 });

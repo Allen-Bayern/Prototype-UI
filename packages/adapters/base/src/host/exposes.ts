@@ -1,3 +1,5 @@
+import { isExposeStateExternalHandle } from '@proto.ui/module-expose-state';
+
 export type CallbackScopeInvoker = (fn: () => void) => void;
 
 export interface ScopedExposesReader {
@@ -13,6 +15,7 @@ export function createScopedExposesReader(
 ): ScopedExposesReader {
   let lastRaw: Record<string, unknown> | null = null;
   let lastWrapped: Record<string, unknown> = {};
+  const externalHandleCache = new WeakMap<object, Record<string, unknown>>();
 
   const wrapRecord = (record: Record<string, unknown>): Record<string, unknown> => {
     const wrapped: Record<string, unknown> = {};
@@ -41,7 +44,16 @@ export function createScopedExposesReader(
           return result;
         });
       } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-        defineEntry(key, wrapRecord(value as Record<string, unknown>));
+        if (isExposeStateExternalHandle(value)) {
+          let projected = externalHandleCache.get(value);
+          if (!projected) {
+            projected = wrapRecord(value as unknown as Record<string, unknown>);
+            externalHandleCache.set(value, projected);
+          }
+          defineEntry(key, projected);
+        } else {
+          defineEntry(key, wrapRecord(value as Record<string, unknown>));
+        }
       } else {
         defineEntry(key, value);
       }

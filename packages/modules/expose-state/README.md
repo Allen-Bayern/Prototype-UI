@@ -1,10 +1,10 @@
 # @proto.ui/module-expose-state
 
-Proto UI module that provides state expose capability for adapters.
+Proto UI module that finalizes the Adapter-facing exposes record and projects internal State handles as read-only external handles.
 
 ## Purpose
 
-Provides state expose capability to adapters running Proto UI prototypes.
+Composes the Expose and State module outputs, preserves non-State entries, attenuates State authority, and publishes complete replacement snapshots through `EXPOSES_RECORD_SINK_CAP`.
 
 ## Package Role
 

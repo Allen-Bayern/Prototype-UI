@@ -79,9 +79,7 @@ describe('expose contract (adapter-web-component)', () => {
       setup(def) {
         const s = def.state.bool('ready', false);
         def.expose('ready', s);
-        def.lifecycle.onMounted(() => {
-          s.set(true);
-        });
+        def.expose.method('activate', () => s.set(true));
         return (r) => [r.el('div', 'ok')];
       },
     };
@@ -102,10 +100,13 @@ describe('expose contract (adapter-web-component)', () => {
     expect((ready as any).set).toBeUndefined();
 
     const off = ready.subscribe((e: any) => events.push(e));
-    await Promise.resolve();
+    exposes.activate();
 
     expect(events.length).toBeGreaterThan(0);
     expect(events[0].type).toBe('next');
+    expect(events[0].next).toBe(true);
+    expect(ready.get()).toBe(true);
+    expect(el.getExposes().ready).toBe(ready);
 
     off();
   });

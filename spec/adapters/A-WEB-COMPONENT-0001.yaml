@@ -12,11 +12,11 @@ adapterProfile:
       name: custom-elements
 statement:
   zh-CN: >-
-    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。Event slice 固定安装 required Event Module，通过共用 Web router 把 Custom Element 及其 logical/portal surface 的 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 detach/dispose 时停止 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。Lifecycle slice 由 Custom Element owner 持有 RuntimeSession，将内部 view materialization 翻译为 repeatable mount epoch；同步 DOM move 不得终止 instance，确认断开后的 terminal teardown 才 dispose，并透传结构化 lifecycle diagnostics。Lifecycle 是 Runtime 与 Adapter 的执行协议，不虚构对应 Module 或 host-cap。State slice 使用 standard Runtime 固定安装的 required State Module；其 value 与 watcher 属于 instance lifetime，mutation 不隐式触发 Custom Element render，且纯内存语义不要求 Adapter 提供 State host-cap。Expose core slice 同样由 standard Runtime 固定安装；Custom Element 通过 `getExposes()` 提供 detached App Maker record，递归 callable 自动进入 instance callback scope，registry 跨内部 repeatable view epoch 与同步 DOM move 保留且 core 不要求直接 host-cap。
+    该 profile 表示 `@proto.ui/adapter-web-component` 面向 Web Custom Elements runtime 的 official translation identity。当前 Props slice 同时存在 attribute-backed pull source 与 `setElementProps` direct-push：前者通过 profile `getProps(el)` 分类并由 `MutationObserver` 发送 invalidation，后者剥离 presentation fields 后调用 runtime `applyRawProps`。两条入口共享 Props kernel，但 direct push 不是 host capability，attribute invalidation 也不自动 render。Event slice 固定安装 required Event Module，通过共用 Web router 把 Custom Element 及其 logical/portal surface 的 native input 翻译为 root/global Proto event stream，按 logical interaction owner 路由 semantic event，在 detach/dispose 时停止 delivery，并把 default-action request 翻译为 DOM `preventDefault()`。Lifecycle slice 由 Custom Element owner 持有 RuntimeSession，将内部 view materialization 翻译为 repeatable mount epoch；同步 DOM move 不得终止 instance，确认断开后的 terminal teardown 才 dispose，并透传结构化 lifecycle diagnostics。Lifecycle 是 Runtime 与 Adapter 的执行协议，不虚构对应 Module 或 host-cap。State slice 使用 standard Runtime 固定安装的 required State Module；其 value 与 watcher 属于 instance lifetime，mutation 不隐式触发 Custom Element render，且纯内存语义不要求 Adapter 提供 State host-cap。Expose core slice 同样由 standard Runtime 固定安装；Custom Element 通过 `getExposes()` 提供 detached App Maker record，递归 callable 自动进入 instance callback scope，registry 跨内部 repeatable view epoch 与同步 DOM move 保留且 core 不要求直接 host-cap。Expose State slice 将 internal State handle 降权为稳定、只读、同源的 external handle，并通过 Adapter 提供的 complete record sink 发布到同一 Custom Element；sink rebind/terminal disposal 清理旧 record，DOM/CSS mirror 不属于该 baseline。
 
 
   en: >-
-    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically. Its Event slice installs the required Event module, uses the shared Web router to translate native input from the Custom Element and its logical or portal surfaces into root and global Proto event streams, routes semantic events by logical interaction owner, stops delivery on detach or disposal, and translates default-action requests to DOM `preventDefault()`. Its Lifecycle slice lets the Custom Element owner retain the RuntimeSession and translates internal view materialization into repeatable mount epochs; a synchronous DOM move must not terminate the instance, while terminal teardown after confirmed disconnection disposes it. The Adapter also forwards structured lifecycle diagnostics. Lifecycle is a Runtime-to-Adapter execution protocol and does not invent a corresponding Module or host capability. Its State slice uses the required State module installed by the standard Runtime; values and watchers belong to instance lifetime, mutation does not implicitly render Custom Element output, and the in-memory semantics require no State host capability from the Adapter. Its Expose core slice is likewise installed by the standard Runtime; the Custom Element provides detached App Maker records through `getExposes()`, recursively callable values automatically enter the instance callback scope, the registry survives internal repeatable view epochs and synchronous DOM moves, and the core requires no direct host capability.
+    This profile is the official translation identity of `@proto.ui/adapter-web-component` for the Web Custom Elements runtime. Its current Props slice has both an attribute-backed pull source and a `setElementProps` direct-push path: the former classifies through profile `getProps(el)` and sends invalidation through `MutationObserver`, while the latter excludes presentation fields and calls runtime `applyRawProps`. Both ingress paths share the Props kernel, but direct push is not a host capability and attribute invalidation does not render automatically. Its Event slice installs the required Event module, uses the shared Web router to translate native input from the Custom Element and its logical or portal surfaces into root and global Proto event streams, routes semantic events by logical interaction owner, stops delivery on detach or disposal, and translates default-action requests to DOM `preventDefault()`. Its Lifecycle slice lets the Custom Element owner retain the RuntimeSession and translates internal view materialization into repeatable mount epochs; a synchronous DOM move must not terminate the instance, while terminal teardown after confirmed disconnection disposes it. The Adapter also forwards structured lifecycle diagnostics. Lifecycle is a Runtime-to-Adapter execution protocol and does not invent a corresponding Module or host capability. Its State slice uses the required State module installed by the standard Runtime; values and watchers belong to instance lifetime, mutation does not implicitly render Custom Element output, and the in-memory semantics require no State host capability from the Adapter. Its Expose core slice is likewise installed by the standard Runtime; the Custom Element provides detached App Maker records through `getExposes()`, recursively callable values automatically enter the instance callback scope, the registry survives internal repeatable view epochs and synchronous DOM moves, and the core requires no direct host capability. Its Expose State slice attenuates internal State handles into stable, read-only, same-source external handles and publishes them to the same Custom Element through an Adapter-provided complete-record sink; sink rebinding and terminal disposal clear old records, while DOM or CSS mirroring is outside this baseline.
 
 
 criteria:
@@ -64,6 +64,10 @@ criteria:
     text:
       zh-CN: Adapter 必须通过 standard Runtime 接入 required Expose core Module，以 Custom Element `getExposes()` 向 App Maker 返回 detached record，跨内部 repeatable view epoch 与同步 DOM move 保留 registry，并让 record 中的 JavaScript callable 自动进入所属 instance callback scope；terminal owner disposal 后 surface 必须不可用，且 profile 不得虚构 core Expose host-cap。
       en: The Adapter must wire the required Expose core module through the standard Runtime, return a detached App Maker record from Custom Element `getExposes()`, preserve the registry across internal repeatable view epochs and synchronous DOM moves, and automatically enter the owning instance callback scope for JavaScript callables in that record; the surface must become unavailable after terminal owner disposal, and the profile must not invent a core Expose host capability.
+  - id: A-WEB-COMPONENT-0001-L
+    text:
+      zh-CN: Adapter 必须接入 required Expose State Module，并以 translated capability 提供 `HC-EXPOSES-RECORD-SINK-0001`；Custom Element 中的 state 必须是稳定、只读、同源 external handle，跨内部 repeatable view epoch 与同步 DOM move 保留，sink replacement/removal 与 terminal disposal 必须清理旧 record，且该关系不得暗含 DOM/CSS projection。
+      en: The Adapter must wire the required Expose State module and provide `HC-EXPOSES-RECORD-SINK-0001` as a translated capability; State entries on the Custom Element must be stable, read-only, same-source external handles retained across internal repeatable view epochs and synchronous DOM moves, sink replacement or removal and terminal disposal must clear old records, and this relation must not imply DOM or CSS projection.
 supports:
   modules:
     - id: M-PROPS-0001
@@ -78,6 +82,9 @@ supports:
     - id: M-EXPOSE-0001
       role: required-module
       note: Expose core provides the standard Component-to-App-Maker registry and directly requires no Adapter-provided host capability.
+    - id: M-EXPOSE-STATE-0001
+      role: required-module
+      note: Expose State finalizes the complete outward record and attenuates internal State handles before Adapter publication.
 provides:
   hostCaps:
     - id: HC-PROPS-SOURCE-0001
@@ -89,6 +96,9 @@ provides:
     - id: HC-DEFAULT-ACTION-0001
       role: translated-capability
       note: Default-action cancellation requests are translated to preventDefault when the native DOM event supports it.
+    - id: HC-EXPOSES-RECORD-SINK-0001
+      role: translated-capability
+      note: The Custom Element stores complete finalized record snapshots for getExposes access.
 relates:
   decisions:
     - D-ADAPTER-PROFILE-0001
@@ -102,6 +112,7 @@ verifies:
     - T-LIFECYCLE-0006
     - T-STATE-0005
     - T-EXPOSE-0002
+    - T-EXPOSE-STATE-0002
 openQuestions:
   - id: A-WEB-COMPONENT-0001-Q-INGRESS-PRECEDENCE
     question:
@@ -129,6 +140,9 @@ sources:
   - path: packages/adapters/base/src/host/exposes.ts
   - path: packages/adapters/web-component/test/contract/expose.basic.v0.contract.test.ts
 revisions:
+  - version: 0.2.0-rc.7
+    change: revised
+    summary: Added required Expose State composition, finalized-record sink provision, stable read-only external handles, and sink lifecycle criteria.
   - version: 0.2.0-rc.7
     change: revised
     summary: Added required host-neutral Expose core support, Custom Element record access, instance-lifetime preservation, terminal invalidation, and automatic callback-scope translation.

@@ -10,7 +10,7 @@ import {
 } from '@proto.ui/core';
 import { A11Y_PROJECT_CAP } from '@proto.ui/module-a11y';
 import { asOverlay } from '@proto.ui/hooks';
-import { EXPOSE_STATE_SET_EXPOSES_CAP } from '@proto.ui/module-expose-state';
+import { EXPOSES_RECORD_SINK_CAP } from '@proto.ui/module-expose-state';
 import { EFFECTS_CAP, type FeedbackPort } from '@proto.ui/module-feedback';
 import {
   HIT_PARTICIPATION_HOST_BRIDGE_CAP,
@@ -112,13 +112,14 @@ describe('runtime contract: lifecycle module resource ownership (v1)', () => {
           [A11Y_PROJECT_CAP, (snapshot: A11ySemanticObjectSnapshot) => snapshots.push(snapshot)],
         ]);
         wiring.attach('expose-state', [
-          [EXPOSE_STATE_SET_EXPOSES_CAP, (record: Record<string, unknown>) => exposes.push(record)],
+          [EXPOSES_RECORD_SINK_CAP, (record: Record<string, unknown>) => exposes.push(record)],
         ]);
       })
     );
 
     expect(snapshots).toEqual([]);
     expect(exposes.at(-1)).toHaveProperty('disabled');
+    const initialExternalHandle = exposes.at(-1)?.disabled;
     await session.mount();
     expect(snapshots.at(-1)?.states.disabled).toBe(false);
     expect(exposes.at(-1)).toHaveProperty('disabled');
@@ -135,6 +136,7 @@ describe('runtime contract: lifecycle module resource ownership (v1)', () => {
     await session.mount();
     expect(snapshots.at(-1)?.states.disabled).toBe(true);
     expect((exposes.at(-1)?.disabled as { get(): boolean }).get()).toBe(true);
+    expect(exposes.at(-1)?.disabled).toBe(initialExternalHandle);
   });
 
   it('keeps HitParticipation regions detached and re-syncs them on the next mount', async () => {
