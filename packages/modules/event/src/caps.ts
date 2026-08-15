@@ -7,9 +7,20 @@ export const EVENT_ROOT_TARGET_CAP = cap<EventTargetGetter>('@proto.ui/event/get
 
 export const EVENT_GLOBAL_TARGET_CAP = cap<EventTargetGetter>('@proto.ui/event/getGlobalTarget');
 
-export type EventEmitSink = (key: string, payload?: any, options?: Record<string, unknown>) => void;
+export type ExposeEventSink = (
+  key: string,
+  payload?: any,
+  options?: Record<string, unknown>
+) => void;
 
-export const EVENT_EMIT_CAP = cap<EventEmitSink>('@proto.ui/event/emit');
+/** Receives one validated Component-to-App-Maker outward signal emission. */
+export const EXPOSE_EVENT_SINK_CAP = cap<ExposeEventSink>('@proto.ui/event/emit');
+
+/** @deprecated Use EXPOSE_EVENT_SINK_CAP. */
+export const EVENT_EMIT_CAP = EXPOSE_EVENT_SINK_CAP;
+
+/** @deprecated Use ExposeEventSink. */
+export type EventEmitSink = ExposeEventSink;
 
 export type EventDefaultActionCancelRequest = Readonly<{
   event?: unknown;
