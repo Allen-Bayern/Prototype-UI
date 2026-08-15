@@ -1,54 +1,41 @@
 ---
-title: 'Adapter 指南'
-desp: '如何编写适配器'
-description: '如何编写适配器'
+title: 'Adapter 贡献指南暂缓发布'
+description: '为什么当前不从尚未完成的 catalog 和实现推导通用 Adapter 作者流程。'
 ---
 
-## 这篇解决什么工程问题？
+Proto UI 当前不发布通用 Adapter 贡献指南。
 
-写作提示：
+Module、Host Capability 和官方 Adapter profile 的实体编目仍在推进，相关架构责任、缺失策略、生命周期资源所有权和 executable conformance 还没有全部收口。现有 React、Vue 和 Web Component 实现是重要证据，但其中仍可能存在尚未处理的 drift，不能仅靠模仿当前代码推导稳定作者 API。
 
-- 解释 Adapter 在 Proto UI 里到底负责什么。
-- 解释适配器如何在不重定义协议语义的前提下，把原型落到宿主。
+在这条 catalog chain 完成前，本页不会：
 
-## 主要读者是谁？
+- 把当前 Web Adapter 结构描述成跨宿主稳定架构；
+- 给出新增 Adapter 的逐步实现教程；
+- 从 package dependency 推断完整 Module support；
+- 把未编目的 fallback 或 host wiring 描述成正式保证；
+- 鼓励贡献者通过 Prototype 私有逻辑修补 Adapter parity 问题。
 
-写作提示：
+## 现在仍可以参与什么？
 
-- 给想理解适配层责任的读者。
-- 给未来可能编写适配器的人，但不必把它写成逐步实操教程。
+边界明确的 Adapter parity bug 仍可能开放给有经验的贡献者。对应 Issue 必须说明：
 
-## 前置阅读
+- 适用的 `C-*`、`M-*`、`HC-*`、`A-*` 与 `T-*` 实体；
+- 问题属于哪个 owner layer；
+- 预期行为和不能改变的协议边界；
+- focused conformance test；
+- Web Component、React、Vue 中需要保持或对齐的证据；
+- implementation 是否已经被 maintainer 明确授权。
 
-写作提示：
+新的 Adapter proposal 当前只用于 maintainer-guided research。它可以收集 host capability inventory、缺失策略和最小 feasibility evidence，但不自动授权实现 PR。
 
-- 指向 `Whitepaper / 翻译层：Adapter / Compiler`
-- 指向 `Specifications / Core` 与相关能力规范
-- 指向 `Runtime 架构`
+## 何时发布完整指南？
 
-## 核心结构 / 机制
+至少需要：
 
-写作提示：
+- 相关 Module 的 facade、port 和 Host Capability owner 已编目；
+- official Adapter 的 `supports`、`omits` 与 `provides` 关系有 reviewed evidence；
+- lifecycle、attach/rebind/reset/disposal 责任可执行验证；
+- 主要实现与实体 drift 已解决或显式记录；
+- 一个完整纵向切片可以作为可信 exemplar。
 
-- 解释适配器的责任模型、翻译边界、与 runtime / host-cap 的协作方式。
-- 解释哪些问题属于适配器必须处理的，哪些不应由适配器擅自重定义。
-
-## 关键 API / SPI
-
-写作提示：
-
-- 只列实现适配层真正关键的接口与扩展点。
-
-## 常见误解或边界
-
-写作提示：
-
-- 区分“宿主最佳实践适配”与“协议语义重解释”。
-- 区分“允许有损翻译”与“允许任意破坏一致性”。
-
-## 下一步读什么？
-
-写作提示：
-
-- 如果想看宿主能力边界：前往 `Host Caps`
-- 如果想看模块分层与扩展点：前往 `模块与扩展架构`
+在此之前，请从[贡献指南](/zh-cn/build/contribute/)选择 Prototype、文档、Demo 或已明确边界的 bug 路径。

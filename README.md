@@ -72,7 +72,7 @@ For contributors and Agents:
 
 - [Agent repository guide](AGENTS.md)
 - [Spec catalog guide](spec/README.md)
-- [Generated project understanding](internal/agent/PROJECT-UNDERSTANDING.zh-CN.md)
+- Generated project understanding: run `corepack pnpm@10.32.1 spec:docs:agent`, then read the Git-ignored local file documented in [AGENTS.md](AGENTS.md)
 - [Contributing guide](CONTRIBUTING.md)
 
 ## Repository map
@@ -92,7 +92,7 @@ For contributors and Agents:
 
 ## Local development
 
-Use the pnpm version declared in `package.json`; it is aligned with the lockfile and CI.
+Use Node.js 22, which is the current CI baseline. Use the pnpm version declared in `package.json`; it is aligned with the lockfile and CI.
 
 ```sh
 corepack pnpm@10.32.1 install --frozen-lockfile
