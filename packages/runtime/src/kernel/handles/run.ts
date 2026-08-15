@@ -4,7 +4,7 @@ import type { ModuleOrchestratorFacadeView } from '../../orchestrator/module-orc
 import { RunHandle } from '@proto.ui/core';
 import { PropsFacade } from '@proto.ui/module-props';
 import { ContextFacade } from '@proto.ui/module-context';
-import { EventFacade } from '@proto.ui/module-event';
+import { ExposeEventFacade } from '@proto.ui/module-event';
 import { AnatomyFacade } from '@proto.ui/module-anatomy';
 import { FeedbackFacade } from '@proto.ui/module-feedback';
 import type { RuleMetaFacade } from '@proto.ui/module-rule-meta';
@@ -17,7 +17,7 @@ export const createRunHandle = <P extends PropsBaseType>(
   const facades = moduleHub.getFacades();
   const props = facades['props'] as PropsFacade<P>;
   const context = facades['context'] as ContextFacade;
-  const event = facades['event'] as EventFacade;
+  const event = facades['event'] as ExposeEventFacade;
   const anatomy = facades['anatomy'] as AnatomyFacade | undefined;
   const feedback = facades['feedback'] as FeedbackFacade;
   const meta = facades['rule-meta'] as RuleMetaFacade | undefined;
