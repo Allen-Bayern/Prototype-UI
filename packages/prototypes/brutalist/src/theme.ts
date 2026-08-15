@@ -12,7 +12,6 @@ const SHARED_ACCENTS = {
   'destructive-foreground': '#000000',
   border: '#000000',
   input: '#000000',
-  ring: '#ddd6fe',
   primary: '#fef08a',
   'primary-foreground': '#000000',
   secondary: '#ddd6fe',
@@ -47,6 +46,7 @@ export const BRUTALIST_THEME: BrutalistThemeManifest = Object.freeze({
     'popover-foreground': '#171717',
     muted: '#e5e5e5',
     'muted-foreground': '#525252',
+    ring: '#171717',
     ...SHARED_ACCENTS,
   }),
   dark: Object.freeze({
@@ -62,6 +62,7 @@ export const BRUTALIST_THEME: BrutalistThemeManifest = Object.freeze({
     'popover-foreground': '#f5f5f5',
     muted: '#404040',
     'muted-foreground': '#d4d4d4',
+    ring: '#f5f5f5',
     ...SHARED_ACCENTS,
   }),
 });

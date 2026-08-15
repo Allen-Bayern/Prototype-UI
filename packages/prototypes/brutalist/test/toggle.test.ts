@@ -151,6 +151,17 @@ describe('prototypes/brutalist: toggle', () => {
     invokeUnmounted();
   });
 
+  it('uses a persistent inset frame as the active non-color signal', () => {
+    // T-BRUTALIST-TOGGLE-0001-CASE-7
+    const { context, controller, invokeUnmounted } = executeToggle({ defaultActive: true });
+    const tokens = controller.getRuleStyleTokens();
+
+    expect(context.getExposes().active.get()).toBe(true);
+    expect(tokens).toContain('shadow-[inset_0_0_0_2px_#000,3px_3px_0_0_#000]');
+
+    invokeUnmounted();
+  });
+
   it.each([
     ['default', ['h-10', 'min-w-10', 'px-3', 'text-sm'], ['h-9', 'h-12']],
     ['sm', ['h-9', 'min-w-9', 'px-2.5', 'text-xs'], ['h-10', 'h-12']],
@@ -257,6 +268,41 @@ describe('prototypes/brutalist: toggle', () => {
     expect(tokens).toEqual(
       expect.arrayContaining(['pointer-events-none', 'opacity-50', 'rounded-none'])
     );
+
+    invokeUnmounted();
+  });
+
+  it('gives press precedence over hover and outer active elevation', () => {
+    // T-BRUTALIST-TOGGLE-0001-CASE-8
+    const { context, controller, invokeUnmounted } = executeToggle();
+
+    context.rootTarget.dispatchEvent(new CustomEvent('pointer.enter'));
+    context.rootTarget.dispatchEvent(new CustomEvent('pointer.down'));
+    let tokens = controller.getRuleStyleTokens();
+    expect(context.getExposes().hovered.get()).toBe(true);
+    expect(context.getExposes().pressed.get()).toBe(true);
+    expect(tokens).toEqual(
+      expect.arrayContaining(['translate-x-px', 'translate-y-px', 'shadow-none'])
+    );
+    expect(tokens).not.toContain('-translate-x-px');
+    expect(tokens).not.toContain('-translate-y-px');
+    expect(tokens).not.toContain('shadow-[4px_4px_0_0_#000]');
+
+    context.rootTarget.dispatchEvent(new CustomEvent('pointer.leave'));
+    expect(context.getExposes().hovered.get()).toBe(false);
+    expect(context.getExposes().pressed.get()).toBe(false);
+
+    context.rootTarget.dispatchEvent(new CustomEvent('press.commit'));
+    context.rootTarget.dispatchEvent(new CustomEvent('pointer.down'));
+    tokens = controller.getRuleStyleTokens();
+    expect(context.getExposes().active.get()).toBe(true);
+    expect(context.getExposes().pressed.get()).toBe(true);
+    expect(tokens).toContain('shadow-[inset_0_0_0_2px_#000]');
+    expect(tokens).not.toContain('shadow-[inset_0_0_0_2px_#000,3px_3px_0_0_#000]');
+
+    context.rootTarget.dispatchEvent(new CustomEvent('pointer.leave'));
+    tokens = controller.getRuleStyleTokens();
+    expect(tokens).toContain('shadow-[inset_0_0_0_2px_#000,3px_3px_0_0_#000]');
 
     invokeUnmounted();
   });
