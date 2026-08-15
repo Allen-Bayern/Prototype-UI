@@ -3,6 +3,8 @@ title: '基于 Base 长出一个带风格的原型库'
 description: '当你想做新的表现层，而不是新的交互边界时，该怎样复用 Base。'
 ---
 
+> 这篇解释风格库的设计思路。准备向 Proto UI 仓库提交完整投射时，请使用[从 Base 投射风格化 Prototype](/zh-cn/build/prototypes/projecting-base-into-a-design-language/)中的 P/T、来源、测试、导出、Demo 和验证流程。
+
 有时候你想做的并不是新的交互，而是新的表现。
 
 这时最重要的判断不是“要不要新写原型”，而是：

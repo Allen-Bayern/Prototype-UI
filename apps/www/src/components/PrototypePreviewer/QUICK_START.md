@@ -207,6 +207,17 @@ Error: registerPrototype: invalid id
 
 ---
 
+## 官网 Demo 的消费拟真要求
+
+新增公开 Prototype identity 或 anatomy family 时，必须在同一 PR 中提供接入官网文档入口的可访问页面，并在 PR 中填写本地预览路由。Demo 应消费真实 public package export，尽量复现开发者安装 package 后的直接使用方式。
+
+- 自治 Prototype 应使用自己的 anatomy、trigger、state、event 和 default behavior；
+- Dialog 应通过 Dialog Trigger 打开，不要让无关 Button callback 调用 Dialog expose；
+- 不要用页面私有 CSS、脚本或额外 owner 掩盖 Prototype 或 Adapter 问题；
+- 只有没有自然 trigger，或公开 controls 本身就是演示对象时，才使用最小外部 orchestration，例如 Toast-style invocation 或直接驱动 Transition；
+- 例外逻辑必须位于 Prototype 之外、只调用 public API，并在 Demo source 与 PR 中说明它不会随 package 安装、消费者需要自行实现什么；
+- 内部 Demo Matrix 只能补充验证，不能替代官网页面。
+
 ## 💡 最佳实践速查
 
 ✅ **DO**
@@ -215,6 +226,7 @@ Error: registerPrototype: invalid id
 - 使用 `*.demo.proto.ts` 后缀，靠近文档就近维护
 - 让系统自动按需加载
 - 为原型添加有意义的注释
+- 优先让 Demo 依靠 Prototype 自身公开交互完成演示
 
 ❌ **DON'T**
 

@@ -458,6 +458,30 @@ export default defineConfig({
                   slug: 'build/prototypes',
                 },
                 {
+                  label: 'Maintaining an Existing Prototype',
+                  translations: {
+                    en: 'Maintaining an Existing Prototype',
+                    'zh-CN': '维护已有 Prototype',
+                  },
+                  slug: 'build/prototypes/maintaining-an-existing-prototype',
+                },
+                {
+                  label: 'Projecting Base into a Design Language',
+                  translations: {
+                    en: 'Projecting Base into a Design Language',
+                    'zh-CN': '从 Base 投射风格化 Prototype',
+                  },
+                  slug: 'build/prototypes/projecting-base-into-a-design-language',
+                },
+                {
+                  label: 'Implementing an Approved Base Slice',
+                  translations: {
+                    en: 'Implementing an Approved Base Slice',
+                    'zh-CN': '实现已批准的 Base Slice',
+                  },
+                  slug: 'build/prototypes/implementing-an-approved-base-slice',
+                },
+                {
                   label: 'When Not To Write A New Prototype',
                   translations: {
                     en: 'When Not To Write A New Prototype',
