@@ -72,7 +72,7 @@ Proto UI 以 [`spec/**`](spec/) 下的版本化实体作为机器治理的真理
 
 - [Agent 仓库指引](AGENTS.md)
 - [Spec catalog 指引](spec/README.md)
-- [自动生成的项目理解](internal/agent/PROJECT-UNDERSTANDING.zh-CN.md)
+- 自动生成的项目理解：运行 `corepack pnpm@10.32.1 spec:docs:agent`，再按 [AGENTS.md](AGENTS.md) 说明阅读被 Git 忽略的本地文件
 - [贡献指南](CONTRIBUTING.md)
 
 ## 仓库导航
@@ -92,7 +92,7 @@ Proto UI 以 [`spec/**`](spec/) 下的版本化实体作为机器治理的真理
 
 ## 本地开发
 
-请使用 `package.json` 中声明的 pnpm 版本；该版本已与 lockfile 和 CI 对齐。
+请使用当前 CI 基线 Node.js 22，并通过 Corepack 使用 `package.json` 中声明的 pnpm 版本；该版本已与 lockfile 和 CI 对齐。
 
 ```sh
 corepack pnpm@10.32.1 install --frozen-lockfile

@@ -73,7 +73,7 @@ When recording unsettled work:
 
 ## Commands and verification
 
-Use the pnpm version declared in `package.json` through Corepack.
+Use Node.js 22, the current CI baseline, and the pnpm version declared in `package.json` through Corepack.
 
 Common checks:
 
