@@ -89,13 +89,7 @@ function recordServerOutput(chunk: Buffer): void {
   serverOutput = `${serverOutput}${chunk.toString()}`.slice(-20_000);
 }
 
-async function startServer(): Promise<string> {
-  const externalBaseUrl = process.env.PROTO_UI_BROWSER_BASE_URL?.replace(/\/$/, '');
-  if (externalBaseUrl) {
-    await waitForServer(`${externalBaseUrl}${TEXTAREA_ROUTE}`);
-    return externalBaseUrl;
-  }
-
+async function spawnServer(): Promise<string> {
   const port = await availablePort();
   const executable = process.platform === 'win32' ? 'corepack.cmd' : 'corepack';
   devServer = spawn(
@@ -124,6 +118,30 @@ async function startServer(): Promise<string> {
   const url = `http://127.0.0.1:${port}`;
   await waitForServer(`${url}${TEXTAREA_ROUTE}`);
   return url;
+}
+
+async function startServer(): Promise<string> {
+  const externalBaseUrl = process.env.PROTO_UI_BROWSER_BASE_URL?.replace(/\/$/, '');
+  if (externalBaseUrl) {
+    await waitForServer(`${externalBaseUrl}${TEXTAREA_ROUTE}`);
+    return externalBaseUrl;
+  }
+
+  // availablePort() releases the socket before the child binds it, so two
+  // browser suites running in parallel can be handed the same port and
+  // --strictPort kills the loser. Retry on a fresh port instead.
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await spawnServer();
+    } catch (error) {
+      lastError = error;
+      await stopServer();
+      devServer = null;
+      serverOutput = '';
+    }
+  }
+  throw lastError;
 }
 
 async function stopServer(): Promise<void> {
