@@ -20,7 +20,7 @@ type ColorScheme = (typeof COLOR_SCHEMES)[number];
 
 const TEXTAREA_ROUTE = '/en/ui-libraries/base/textarea/';
 const TEXTAREA_DEMO_SCOPE = '[data-demo-id="demo-base-textarea"]';
-const TEXTAREA_OUTPUT_SURFACES = ['stateLabel', 'eventLog'] as const;
+const TEXTAREA_OUTPUT_SURFACES = ['stateLabel', 'eventLog', 'help'] as const;
 const MIN_TEXT_CONTRAST = 4.5;
 
 let browser: Browser;
