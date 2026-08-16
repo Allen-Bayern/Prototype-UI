@@ -25,6 +25,7 @@ const spacing: Record<string, string> = {
   '10': '2.5rem',
   '11': '2.75rem',
   '12': '3rem',
+  '16': '4rem',
   '32': '8rem',
   '64': '16rem',
   '28': '7rem',

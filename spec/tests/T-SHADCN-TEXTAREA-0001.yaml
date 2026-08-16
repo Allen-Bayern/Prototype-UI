@@ -1,0 +1,60 @@
+id: T-SHADCN-TEXTAREA-0001
+type: test
+title: Shadcn Textarea Root delta protocol contract tests
+status: draft
+since: 0.3.0-alpha.0
+summary: Covers Textarea Root identity, Base inheritance, the single host-owned editor, state-driven presentation, the restated contentless renderer, and its slice boundary.
+cases:
+  - id: T-SHADCN-TEXTAREA-0001-CASE-EXPORTS
+    title: Root is a direct unofficial projection reachable through exact package entries
+    covers:
+      [
+        P-SHADCN-TEXTAREA-UPSTREAM-IDENTITY,
+        P-SHADCN-TEXTAREA-DIRECT-ENTRY,
+        P-SHADCN-TEXTAREA-COMPATIBILITY-SUBSET,
+      ]
+    expectation: shadcn-textarea-root-direct-entry-is-exported-once
+  - id: T-SHADCN-TEXTAREA-0001-CASE-EDITOR-OWNERSHIP
+    title: Base keeps one host-owned editor with unchanged value and accessibility projection
+    covers:
+      [
+        P-SHADCN-TEXTAREA-BASE-INHERITANCE,
+        P-SHADCN-TEXTAREA-CURRENT-BASE-DEVIATIONS,
+        P-SHADCN-TEXTAREA-BOUNDARY,
+      ]
+    expectation: shadcn-textarea-materializes-exactly-one-host-owned-editor
+  - id: T-SHADCN-TEXTAREA-0001-CASE-SURFACE
+    title: Root projects the current field surface
+    covers: [P-SHADCN-TEXTAREA-CURRENT-VISUAL-SURFACE]
+    expectation: shadcn-textarea-projects-the-current-field-surface
+  - id: T-SHADCN-TEXTAREA-0001-CASE-CONTENTLESS
+    title: Projection stays contentless and adds no second editing surface
+    covers: [P-SHADCN-TEXTAREA-CONTENTLESS, P-SHADCN-TEXTAREA-BOUNDARY]
+    expectation: shadcn-textarea-drops-authored-children-and-declares-no-second-editor
+  - id: T-SHADCN-TEXTAREA-0001-CASE-WEB-STATE-EVIDENCE
+    title: Focus, disabled, and dark rules reach the web style projection as conditional presentation
+    covers: [P-SHADCN-TEXTAREA-STATE-DRIVEN-STYLES]
+    expectation: shadcn-textarea-state-rules-lower-to-conditional-web-presentation
+implementations:
+  - id: prototypes-shadcn-textarea-contract
+    kind: module-test
+    status: passing
+    path: packages/prototypes/shadcn/test/textarea.test.ts
+    required: true
+    consumesCases:
+      [
+        T-SHADCN-TEXTAREA-0001-CASE-EXPORTS,
+        T-SHADCN-TEXTAREA-0001-CASE-EDITOR-OWNERSHIP,
+        T-SHADCN-TEXTAREA-0001-CASE-SURFACE,
+        T-SHADCN-TEXTAREA-0001-CASE-CONTENTLESS,
+        T-SHADCN-TEXTAREA-0001-CASE-WEB-STATE-EVIDENCE,
+      ]
+    exercises: &id001 [P-SHADCN-TEXTAREA, P-BASE-TEXTAREA]
+    notes:
+      - Positive tests cover only the current Proto UI guarantee; asChild omission, auto-resize, aria-invalid presentation, and remaining parity gaps are bounded by the decision, declared surface, and centralized compatibility question.
+      - The web-state case asserts Adapter lowering of the three condition-driven rules on the Web Component host. Host attribute form is evidence for that lowering, not a portable guarantee; the portable surface stays the inherited focus, disabled, and value state handles.
+verifies:
+  prototypes:
+    - id: P-SHADCN-TEXTAREA
+exercises:
+  prototypes: *id001
