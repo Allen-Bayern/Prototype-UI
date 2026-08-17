@@ -36,6 +36,22 @@ async function editorBackground(page: Page): Promise<{ rgba: number[]; alpha: nu
   });
 }
 
+/**
+ * The surface carries `transition-all duration-150`, so a read taken as soon as
+ * the theme attribute flips can land mid-transition. Sample until the value
+ * stops moving instead of racing the animation.
+ */
+async function settledEditorBackground(page: Page): Promise<{ rgba: number[]; alpha: number }> {
+  let previous = await editorBackground(page);
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await page.waitForTimeout(50);
+    const next = await editorBackground(page);
+    if (next.rgba.join(',') === previous.rgba.join(',')) return next;
+    previous = next;
+  }
+  return previous;
+}
+
 beforeAll(async () => {
   baseUrl = await startServer(TEXTAREA_ROUTE);
   browser = await launchBrowser();
@@ -106,15 +122,15 @@ describe.sequential('shadcn control documentation browser regressions', () => {
         // that paints a non-transparent background. Switching away must clear
         // it again: a rule that samples the scheme once would stay stale.
         await applyColorScheme(page, 'light');
-        const lightBefore = await editorBackground(page);
+        const lightBefore = await settledEditorBackground(page);
         expect(lightBefore.alpha, `${runtime}/light-before`).toBe(0);
 
         await applyColorScheme(page, 'dark');
-        const dark = await editorBackground(page);
+        const dark = await settledEditorBackground(page);
         expect(dark.alpha, `${runtime}/dark`).toBeGreaterThan(0);
 
         await applyColorScheme(page, 'light');
-        const lightAfter = await editorBackground(page);
+        const lightAfter = await settledEditorBackground(page);
         expect(lightAfter.alpha, `${runtime}/light-after`).toBe(0);
       }
     } finally {
