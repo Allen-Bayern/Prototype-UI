@@ -17,6 +17,9 @@ const SURFACE_TOKENS = [
   'py-2',
   'text-base',
   'shadow-xs',
+  'transition-all',
+  'duration-150',
+  'ease-in-out',
   'outline-none',
 ];
 

@@ -46,8 +46,8 @@ criteria:
       contracts: [C-CORE-SYNTAX-0003]
   - id: P-SHADCN-TEXTAREA-CURRENT-VISUAL-SURFACE
     text:
-      zh-CN: Root 必须投射当前已实现的 field surface：`flex min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs outline-none`。这些 tokens 是当前 passing surface，不表示与 upstream 精确一致。
-      en: Root must project the currently implemented field surface, `flex min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs outline-none`. These tokens form the current passing surface and do not imply exact upstream parity.
+      zh-CN: Root 必须投射当前已实现的 field surface：`flex min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-all duration-150 ease-in-out outline-none`。这些 tokens 是当前 passing surface，不表示与 upstream 精确一致。
+      en: Root must project the currently implemented field surface, `flex min-h-16 w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-xs transition-all duration-150 ease-in-out outline-none`. These tokens form the current passing surface and do not imply exact upstream parity.
     dependsOn:
       contracts: [C-RULE-INTENT-FEEDBACK-STYLE-0001]
   - id: P-SHADCN-TEXTAREA-STATE-DRIVEN-STYLES
@@ -93,7 +93,7 @@ openQuestions:
       en: Against the pinned shadcn/ui Textarea baseline, which current differences are intentional deviations versus implementation gaps, and in what order should the gaps converge?
     context:
       zh-CN: >-
-        已确定的 intentional deviation 有三项。`asChild` 依 `D-AS-CHILD-OMISSION-0001` 不提供。upstream 的 `field-sizing-content` 是 auto-resize，被本 issue 明确排除在范围外。upstream 的 `aria-invalid:*` 呈现不实现——Base Textarea 未投出 invalid state，若照搬会得到一个没有协议背书、纯由宿主 ARIA 属性驱动的呈现；这与 `P-SHADCN-BUTTON` 把 `aria-invalid` 选择器记为 compatibility difference 的既有处理一致。待实现或待评审差异包括 `placeholder:text-muted-foreground` 与 `md:text-sm`——两者都是 author channel 无法书写（`C-FEEDBACK-STYLE-0004` 禁止 tw token 含 `:`）且无法由 rule 降级产生的 variant，因为它们不对应任何 state；以及 `transition-[color,box-shadow]`、`data-slot`、className 与 native prop forwarding。这些项目通过实现与测试前不得扩大 passing guarantee。
+        已确定的 intentional deviation 有三项。`asChild` 依 `D-AS-CHILD-OMISSION-0001` 不提供。upstream 的 `field-sizing-content` 是 auto-resize，被本 issue 明确排除在范围外。upstream 的 `aria-invalid:*` 呈现不实现——Base Textarea 未投出 invalid state，若照搬会得到一个没有协议背书、纯由宿主 ARIA 属性驱动的呈现；这与 `P-SHADCN-BUTTON` 把 `aria-invalid` 选择器记为 compatibility difference 的既有处理一致。待实现或待评审差异包括 `placeholder:text-muted-foreground` 与 `md:text-sm`——两者都是 author channel 无法书写（`C-FEEDBACK-STYLE-0004` 禁止 tw token 含 `:`）且无法由 rule 降级产生的 variant，因为它们不对应任何 state；`transition-[color,box-shadow]` 以 `transition-all duration-150 ease-in-out` 近似——duration 与缓动与 upstream 的 Tailwind 默认一致，但过渡属性集更宽；以及 `data-slot`、className 与 native prop forwarding。这些项目通过实现与测试前不得扩大 passing guarantee。
 
 
       en: >-
