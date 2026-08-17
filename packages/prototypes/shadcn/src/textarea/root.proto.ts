@@ -35,8 +35,13 @@ export const ShadcnTextareaRoot = definePrototype<
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
     // P-SHADCN-TEXTAREA-STATE-DRIVEN-STYLES
+    // Upstream keys the ring on `:focus-visible`. For a text control that is
+    // equivalent to being focused at all: a UA always indicates focus on a text
+    // field, so `:focus-visible` matches pointer focus too. Keying on the
+    // inherited `focused` state reproduces that without inventing a second
+    // focus owner.
     def.rule({
-      when: (w) => w.state(state.focusVisible).eq(true),
+      when: (w) => w.state(state.focused).eq(true),
       intent: (i) => i.feedback.style.use(tw('border-ring ring-ring/50 ring-3')),
     });
     def.rule({

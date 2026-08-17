@@ -47,6 +47,50 @@ afterAll(async () => {
 });
 
 describe.sequential('shadcn control documentation browser regressions', () => {
+  it('rings the Textarea on pointer focus wherever focus reaches the projection', async () => {
+    const { context, page, previewer } = await openRoute(browser, baseUrl, TEXTAREA_ROUTE, {
+      width: 1440,
+      height: 900,
+    });
+
+    try {
+      await previewer.scrollIntoViewIfNeeded();
+      for (const runtime of RUNTIMES) {
+        await selectRuntime(page, previewer, runtime, '[data-pui-root]', 3);
+        await applyColorScheme(page, 'light');
+        await previewer.locator('textarea').first().click();
+        await page.waitForTimeout(200);
+
+        const state = await page.evaluate(() => {
+          const editor = document.querySelector('[data-previewer-id] textarea');
+          if (!editor) throw new Error('The shadcn Textarea demo must render a host-owned editor.');
+          const style = getComputedStyle(editor);
+          return {
+            focusProjected: editor.hasAttribute('data-focused'),
+            nativeFocusVisible: editor.matches(':focus-visible'),
+            ringPainted:
+              !/^rgba\(0, 0, 0, 0\) 0px 0px 0px 0px(, rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)*$/.test(
+                style.boxShadow
+              ),
+          };
+        });
+
+        // A text control always matches :focus-visible once focused, which is
+        // what upstream keys the ring on.
+        expect(state.nativeFocusVisible, `${runtime}/native`).toBe(true);
+
+        if (state.focusProjected) {
+          expect(state.ringPainted, `${runtime}/ring`).toBe(true);
+        }
+        // Web Components does not project text-control focus onto the host yet,
+        // so the ring cannot paint there. That gap is #395, fixed by #426; this
+        // case starts covering wc automatically once that lands.
+      }
+    } finally {
+      await context.close();
+    }
+  }, 180_000);
+
   it('repaints the Textarea colorScheme surface across light-dark-light in all runtimes', async () => {
     const { context, page, previewer } = await openRoute(browser, baseUrl, TEXTAREA_ROUTE, {
       width: 1440,
