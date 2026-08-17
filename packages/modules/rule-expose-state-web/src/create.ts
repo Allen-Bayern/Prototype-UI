@@ -215,9 +215,17 @@ class RuleExposeStateWebImpl extends ModuleBase {
 
   private tryApply(): void {
     if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
-    const map = this.exposeStateWeb.getExposedStateMap();
-    if (!map || map.size === 0) return;
+    // A pure-meta candidate resolves before the map is consulted, so an empty
+    // exposed-state map must not short-circuit the pass. State candidates find
+    // no binding and are retried on the next attempt.
+    const map =
+      this.exposeStateWeb.getExposedStateMap() ?? new Map<string, ExposeStateWebBinding>();
     const allowNativeVariant = this.getAllowNativeVariant();
+    // With no exposed state there is nothing web-specific to key off except the
+    // host's own variant policy, which only a web adapter declares. Without it
+    // the lowered selector would never render, so the default plan keeps the
+    // rule and `C-RULE-EXTENSION-0001-C` equivalent execution still holds.
+    if (map.size === 0 && !allowNativeVariant) return;
 
     if (!this.candidatesReady) {
       this.candidates = this.collectCandidates();
