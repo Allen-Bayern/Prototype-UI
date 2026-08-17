@@ -1,0 +1,80 @@
+// @vitest-environment node
+
+import type { Browser, Page } from 'playwright-core';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import {
+  RUNTIMES,
+  applyColorScheme,
+  launchBrowser,
+  openRoute,
+  selectRuntime,
+  startServer,
+  stopServer,
+} from './browser-harness';
+
+const TEXTAREA_ROUTE = '/en/ui-libraries/shadcn/textarea/';
+
+let browser: Browser;
+let baseUrl = '';
+
+/** Painted background of the first editor, resolved through a canvas. */
+async function editorBackground(page: Page): Promise<{ rgba: number[]; alpha: number }> {
+  return page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) throw new Error('Canvas 2D context is required to resolve painted colours.');
+    const editor = document.querySelector('[data-previewer-id] textarea');
+    if (!editor) throw new Error('The shadcn Textarea demo must render a host-owned editor.');
+    context.clearRect(0, 0, 1, 1);
+    context.fillStyle = 'rgba(0,0,0,0)';
+    context.fillStyle = getComputedStyle(editor).backgroundColor;
+    context.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = context.getImageData(0, 0, 1, 1).data;
+    return { rgba: [r, g, b, a], alpha: a / 255 };
+  });
+}
+
+beforeAll(async () => {
+  baseUrl = await startServer(TEXTAREA_ROUTE);
+  browser = await launchBrowser();
+}, 150_000);
+
+afterAll(async () => {
+  await browser?.close();
+  await stopServer();
+});
+
+describe.sequential('shadcn control documentation browser regressions', () => {
+  it('repaints the Textarea colorScheme surface across light-dark-light in all runtimes', async () => {
+    const { context, page, previewer } = await openRoute(browser, baseUrl, TEXTAREA_ROUTE, {
+      width: 1440,
+      height: 900,
+    });
+
+    try {
+      await previewer.scrollIntoViewIfNeeded();
+      for (const runtime of RUNTIMES) {
+        await selectRuntime(page, previewer, runtime, '[data-pui-root]', 3);
+
+        // The dark fill is `bg-input/30`, so it is the only one of the three
+        // that paints a non-transparent background. Switching away must clear
+        // it again: a rule that samples the scheme once would stay stale.
+        await applyColorScheme(page, 'light');
+        const lightBefore = await editorBackground(page);
+        expect(lightBefore.alpha, `${runtime}/light-before`).toBe(0);
+
+        await applyColorScheme(page, 'dark');
+        const dark = await editorBackground(page);
+        expect(dark.alpha, `${runtime}/dark`).toBeGreaterThan(0);
+
+        await applyColorScheme(page, 'light');
+        const lightAfter = await editorBackground(page);
+        expect(lightAfter.alpha, `${runtime}/light-after`).toBe(0);
+      }
+    } finally {
+      await context.close();
+    }
+  }, 180_000);
+});

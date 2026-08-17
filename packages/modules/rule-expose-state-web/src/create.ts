@@ -22,17 +22,19 @@ type Candidate = {
   tokens: string[];
 };
 
+// A meta-only rule is lowerable too: `meta.dark` has a selector form, so a rule
+// conditioned on colorScheme alone must not fall back to the default plan, which
+// samples the scheme once and leaves stale presentation after a theme switch.
 function isStateMetaDeps<Props extends {}>(rule: RuleIR<Props>): boolean {
-  let hasStateDep = false;
+  let hasLowerableDep = false;
   for (const dep of rule.deps) {
-    if (dep.kind === 'state') {
-      hasStateDep = true;
+    if (dep.kind === 'state' || dep.kind === 'meta') {
+      hasLowerableDep = true;
       continue;
     }
-    if (dep.kind === 'meta') continue;
     return false;
   }
-  return hasStateDep;
+  return hasLowerableDep;
 }
 
 function extractConditions<Props extends {}>(expr: WhenExpr<Props>): Condition[] | null {

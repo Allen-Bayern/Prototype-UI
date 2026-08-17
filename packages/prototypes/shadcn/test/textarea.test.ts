@@ -21,11 +21,12 @@ const SURFACE_TOKENS = [
 ];
 
 /**
- * Web-host lowering of the state-driven rules. The dark colorScheme rule is not
- * asserted here: like the other shadcn projections it resolves through host
- * metadata at runtime rather than lowering to a static token. These tokens are
- * evidence that inherited state and host metadata reach the style projection;
- * they are not a portable guarantee of this projection.
+ * Web-host lowering of the condition-driven rules, including the colorScheme
+ * rule. `dark:bg-input/30` must be present as a static token: the selector form
+ * is what makes a theme switch repaint, whereas a rule left on the default plan
+ * samples the scheme once and goes stale. These tokens are evidence that
+ * inherited state and host metadata reach the style projection; they are not a
+ * portable guarantee of this projection.
  */
 const WEB_STATE_TOKENS = [
   'data-[focus-visible]:border-ring',
@@ -33,9 +34,16 @@ const WEB_STATE_TOKENS = [
   'data-[focus-visible]:ring-3',
   'data-[disabled]:cursor-not-allowed',
   'data-[disabled]:opacity-50',
+  'dark:bg-input/30',
 ];
 
-const UNSCOPED_STATE_TOKENS = ['border-ring', 'ring-3', 'cursor-not-allowed', 'opacity-50'];
+const UNSCOPED_STATE_TOKENS = [
+  'border-ring',
+  'ring-3',
+  'cursor-not-allowed',
+  'opacity-50',
+  'bg-input/30',
+];
 
 async function flush(): Promise<void> {
   for (let index = 0; index < 4; index += 1) await Promise.resolve();
@@ -111,7 +119,7 @@ describe('prototypes/shadcn: textarea', () => {
     el.remove();
   });
 
-  it('lowers focus, disabled, and dark rules to conditional web presentation', async () => {
+  it('lowers focus, disabled, and colorScheme rules to conditional web presentation', async () => {
     // T-SHADCN-TEXTAREA-0001-CASE-WEB-STATE-EVIDENCE
     const el = document.createElement('shadcn-textarea-root');
     document.body.appendChild(el);
