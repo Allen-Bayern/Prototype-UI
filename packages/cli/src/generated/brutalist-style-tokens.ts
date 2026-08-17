@@ -17,6 +17,7 @@ export const BRUTALIST_STYLE_TOKENS: string[] = [
   'bg-destructive',
   'bg-foreground',
   'bg-lavender',
+  'bg-lavender-foreground',
   'bg-main',
   'bg-mint',
   'bg-overlay',
