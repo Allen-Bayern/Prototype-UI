@@ -31,8 +31,6 @@ export const BRUTALIST_STYLE_TOKENS: string[] = [
   'border-t-2',
   'border-transparent',
   'bottom-0',
-  'brutalist-border-bottom-black',
-  'brutalist-border-top-black',
   'cursor-default',
   'cursor-not-allowed',
   'data-[active]:bg-main',
