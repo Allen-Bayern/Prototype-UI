@@ -211,6 +211,7 @@ export const SHADCN_STYLE_TOKENS: string[] = [
   'top-1/2',
   'top-4',
   'tracking-tight',
+  'transition-[color,box-shadow]',
   'transition-all',
   'transition-colors',
   'transition-none',
