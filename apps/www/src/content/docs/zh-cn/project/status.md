@@ -5,7 +5,7 @@ description: 'Proto UI 当前阶段的能力边界、适用范围与预期管理
 
 # 当前状态
 
-Proto UI 仍处于 **v0** 阶段，但 **0.2** release line 已经完成发布。[Proto UI 0.2.0](https://github.com/Proto-UI/Proto-UI/releases/tag/v0.2.0) 是当前通过 npm `latest` 提供的稳定生态发行；同一应用内的全部公开 `@proto.ui/*` dependency 必须精确对齐到 `0.2.0`。[0.2 RC 试用](/zh-cn/start-here/rc-trial/) 仅作为可复现的候选版本历史保留。
+Proto UI 仍处于 **v0** 阶段，但 **0.2** release line 已经完成发布。[Proto UI 0.2.0](https://github.com/Proto-UI/Proto-UI/releases/tag/v0.2.0) 是当前通过 npm `latest` 提供的稳定生态发行；同一应用内的全部公开 `@proto.ui/*` dependency 必须精确对齐到 `0.2.0`。当前安装说明请使用[快速开始](/zh-cn/start-here/quick-start/)。
 
 npm 稳定版可用性与项目成熟度描述的是不同边界。0.2 package release 已稳定发布，但 Proto UI 仍是 v0 协议项目；单项语义保证仍以 spec entity 的 active、draft、deprecated 或 removed 生命周期状态为准。一个 package 随 0.2.0 发布，不会让其中全部 draft prototype 或 capability 自动转为 active。
 
