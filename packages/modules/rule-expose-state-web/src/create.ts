@@ -22,17 +22,19 @@ type Candidate = {
   tokens: string[];
 };
 
+// A meta-only rule is lowerable too: `meta.dark` has a selector form, so a rule
+// conditioned on colorScheme alone must not fall back to the default plan, which
+// samples the scheme once and leaves stale presentation after a theme switch.
 function isStateMetaDeps<Props extends {}>(rule: RuleIR<Props>): boolean {
-  let hasStateDep = false;
+  let hasLowerableDep = false;
   for (const dep of rule.deps) {
-    if (dep.kind === 'state') {
-      hasStateDep = true;
+    if (dep.kind === 'state' || dep.kind === 'meta') {
+      hasLowerableDep = true;
       continue;
     }
-    if (dep.kind === 'meta') continue;
     return false;
   }
-  return hasStateDep;
+  return hasLowerableDep;
 }
 
 function extractConditions<Props extends {}>(expr: WhenExpr<Props>): Condition[] | null {
@@ -213,9 +215,17 @@ class RuleExposeStateWebImpl extends ModuleBase {
 
   private tryApply(): void {
     if (this.mountPhase === 'detached' || this.mountPhase === 'unmounting') return;
-    const map = this.exposeStateWeb.getExposedStateMap();
-    if (!map || map.size === 0) return;
+    // A pure-meta candidate resolves before the map is consulted, so an empty
+    // exposed-state map must not short-circuit the pass. State candidates find
+    // no binding and are retried on the next attempt.
+    const map =
+      this.exposeStateWeb.getExposedStateMap() ?? new Map<string, ExposeStateWebBinding>();
     const allowNativeVariant = this.getAllowNativeVariant();
+    // With no exposed state there is nothing web-specific to key off except the
+    // host's own variant policy, which only a web adapter declares. Without it
+    // the lowered selector would never render, so the default plan keeps the
+    // rule and `C-RULE-EXTENSION-0001-C` equivalent execution still holds.
+    if (map.size === 0 && !allowNativeVariant) return;
 
     if (!this.candidatesReady) {
       this.candidates = this.collectCandidates();

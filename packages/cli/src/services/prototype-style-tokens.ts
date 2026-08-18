@@ -205,7 +205,10 @@ function resolveExpression(node, scope) {
       if (!value.single) return emptyValue();
       parts.push(value.single);
     }
-    return asStringValue([parts.join(',')]);
+    // Keep the element list: a comma-joined string cannot tell an element
+    // boundary from a comma inside an arbitrary token such as
+    // `transition-[color,box-shadow]`.
+    return { ...asStringValue([parts.join(',')]), elements: parts };
   }
 
   if (
@@ -292,6 +295,7 @@ function resolveJoinCall(node, scope) {
       ? separatorArg.text
       : ',';
   const base = resolveExpression(node.expression.expression, scope);
+  if (base.elements) return asStringValue([base.elements.join(separator)]);
   if (!base.single) return emptyValue();
   return asStringValue([base.single.split(',').join(separator)]);
 }

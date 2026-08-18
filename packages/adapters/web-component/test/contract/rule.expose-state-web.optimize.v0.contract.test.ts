@@ -181,6 +181,36 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
     document.body.removeChild(el);
   });
 
+  it('optimizes a pure meta(colorScheme=dark) rule on a Prototype with no exposed state', async () => {
+    const proto: Prototype = {
+      name: 'x-rule-meta-only-dark-opt',
+      setup(def: DefHandle<any>) {
+        // No def.state, no def.expose: the exposed-state map stays empty, and a
+        // pure-meta candidate must still lower rather than fall back to the
+        // default plan, which samples the scheme once and goes stale.
+        def.rule({
+          when: (w) => w.meta('colorScheme').eq('dark'),
+          intent: (i) => i.feedback.style.use(tw('bg-zinc-950')),
+        });
+
+        return (r: any) => [r.el('div', {}, ['ok'])];
+      },
+    } as any;
+
+    const El = AdaptToWebComponent(proto);
+    const el = new El();
+    document.body.appendChild(el);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(el.getAttribute('data-pui-style')).toBe('dark:bg-zinc-950');
+    expect(el.classList.contains('dark:bg-zinc-950'), el.className).toBe(false);
+    expect(el.classList.contains('bg-zinc-950')).toBe(false);
+
+    document.body.removeChild(el);
+  });
+
   it('maps supported official semantics to standard web variants', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-semantic-opt',

@@ -319,6 +319,11 @@ export default defineConfig({
                   translations: { en: 'Toggle', 'zh-CN': 'Toggle' },
                   slug: 'ui-libraries/shadcn/toggle',
                 },
+                {
+                  label: 'Textarea',
+                  translations: { en: 'Textarea', 'zh-CN': 'Textarea' },
+                  slug: 'ui-libraries/shadcn/textarea',
+                },
               ],
             },
             {

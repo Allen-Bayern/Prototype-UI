@@ -25,6 +25,7 @@ const spacing: Record<string, string> = {
   '10': '2.5rem',
   '11': '2.75rem',
   '12': '3rem',
+  '16': '4rem',
   '32': '8rem',
   '64': '16rem',
   '28': '7rem',
@@ -128,6 +129,7 @@ const staticUtilities: Record<string, string[]> = {
   'slide-in-from-right-2': ['--pui-translate-x: 0.5rem;'],
   'slide-in-from-top-2': ['--pui-translate-y: -0.5rem;'],
   'transition-all': ['transition-property: all;'],
+  'transition-[color,box-shadow]': ['transition-property: color, box-shadow;'],
   'transition-opacity': ['transition-property: opacity;'],
   'transition-none': ['transition-property: none;'],
   'transition-colors': [
