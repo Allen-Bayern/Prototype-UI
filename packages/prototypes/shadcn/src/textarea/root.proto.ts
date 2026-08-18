@@ -34,7 +34,7 @@ export const ShadcnTextareaRoot = definePrototype<
       throw new Error('[shadcn-textarea-root] asTextareaRoot must project Textarea state handles.');
     }
 
-    // P-SHADCN-TEXTAREA-VISUAL-SURFACE
+    // P-SHADCN-TEXTAREA-CURRENT-VISUAL-SURFACE
     def.feedback.style.use(tw(ROOT_BASE_TOKENS));
 
     // P-SHADCN-TEXTAREA-STATE-DRIVEN-STYLES
