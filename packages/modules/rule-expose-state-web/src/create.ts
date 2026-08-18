@@ -136,6 +136,22 @@ function isNegativeDataVariant(variant: string): boolean {
   return /^not-\[data-[a-zA-Z0-9-]+\]$/.test(variant);
 }
 
+const VARIANT_ORDER = ['dark', 'hover', 'active', 'focus', 'focus-visible', 'disabled'];
+
+/**
+ * The stylesheet is generated ahead of time by the CLI extractor, which sorts a
+ * rule's variants before writing the class name. `data-pui-style~="…"` matches
+ * whole words, so a class joined in authoring order simply has no rule to hit.
+ * Both sides have to agree, and this is the side that can be changed at runtime.
+ * `packages/cli/src/services/prototype-style-tokens.ts` holds the twin.
+ */
+export function compareLoweredVariants(a: string, b: string): number {
+  const ai = VARIANT_ORDER.indexOf(a);
+  const bi = VARIANT_ORDER.indexOf(b);
+  if (ai !== -1 || bi !== -1) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+  return a.localeCompare(b);
+}
+
 class RuleExposeStateWebImpl extends ModuleBase {
   private readonly rulePort: RulePort<any>;
   private readonly exposeStateWeb: ExposeStateWebPort;
@@ -251,7 +267,7 @@ class RuleExposeStateWebImpl extends ModuleBase {
       if (!ok || variants.length === 0) continue;
       if (variants.every(isNegativeDataVariant)) continue;
 
-      const prefix = variants.join(':');
+      const prefix = [...variants].sort(compareLoweredVariants).join(':');
       const tokens = c.tokens.map((t) => `${prefix}:${t}`);
       const handle: StyleHandle = { kind: 'tw', tokens };
       this.feedbackPort.useStyleUnsafe(handle);

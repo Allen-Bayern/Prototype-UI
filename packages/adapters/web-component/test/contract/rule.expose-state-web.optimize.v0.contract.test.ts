@@ -174,7 +174,9 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(el.getAttribute('data-pui-style')).toBe('data-[btn-disabled]:dark:bg-zinc-950');
+    // Variants are ordered the way the generated stylesheet writes them, so the
+    // dark segment leads regardless of where the condition sits in `when`.
+    expect(el.getAttribute('data-pui-style')).toBe('dark:data-[btn-disabled]:bg-zinc-950');
     expect(el.classList.contains('data-[btn-disabled]:dark:bg-zinc-950'), el.className).toBe(false);
     expect(el.classList.contains('bg-zinc-950')).toBe(false);
 

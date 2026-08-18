@@ -650,7 +650,10 @@ function collectTwTokens(node, scope) {
   }
 }
 
-function compareVariants(a, b) {
+// Twin of `compareLoweredVariants` in
+// `packages/modules/rule-expose-state-web/src/create.ts`. The two are pinned
+// against each other by `packages/cli/test/lowered-variant-order.test.ts`.
+export function compareVariants(a, b) {
   const order = ['dark', 'hover', 'active', 'focus', 'focus-visible', 'disabled'];
   const ai = order.indexOf(a);
   const bi = order.indexOf(b);
