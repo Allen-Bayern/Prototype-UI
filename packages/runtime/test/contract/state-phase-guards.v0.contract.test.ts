@@ -1,6 +1,7 @@
 // packages/runtime/test/contract/state-phase-guards.v0.contract.test.ts
 import { describe, it, expect } from 'vitest';
 import type { Prototype, OwnedStateHandle } from '@proto.ui/core';
+import type { StatePort } from '@proto.ui/module-state';
 import { executeWithHost, RuntimeHost } from '../../src';
 
 /**
@@ -56,5 +57,48 @@ describe('runtime contract: state phase guards (v0)', () => {
     };
 
     executeWithHost(P, host);
+  });
+
+  it('dispatches internal state watch callbacks in callback phase', () => {
+    const host: RuntimeHost<any> = {
+      prototypeName: 'x-runtime-state-watch-callback-scope',
+      getRawProps: () => ({}),
+      commit(_children, signal) {
+        signal?.done();
+      },
+      schedule(task) {
+        task();
+      },
+    };
+
+    let source!: OwnedStateHandle<boolean>;
+    let derived!: OwnedStateHandle<boolean>;
+    const P: Prototype = {
+      name: 'x-runtime-state-watch-callback-scope',
+      setup(def) {
+        source = def.state.bool('source', false);
+        derived = def.state.bool('derived', false);
+      },
+    };
+
+    const session = executeWithHost(P, host);
+    const kernel = session.kernel!;
+    const statePort = session.caps.getPort<StatePort>('state')!;
+    const phases: string[] = [];
+    let receivedRun: unknown;
+
+    statePort.watch(source, (run, event) => {
+      if (event.type !== 'next') return;
+      receivedRun = run;
+      phases.push(kernel.getPhase());
+      derived.set(event.next, 'reason: state watch callback regression');
+    });
+
+    expect(kernel.getPhase()).toBe('unknown');
+    expect(() => statePort.set(source, true, 'reason: privileged host fact')).not.toThrow();
+    expect(phases).toEqual(['callback']);
+    expect(receivedRun).toBe(kernel.run);
+    expect(derived.get()).toBe(true);
+    expect(kernel.getPhase()).toBe('unknown');
   });
 });
