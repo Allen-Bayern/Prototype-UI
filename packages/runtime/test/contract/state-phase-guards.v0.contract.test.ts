@@ -59,7 +59,7 @@ describe('runtime contract: state phase guards (v0)', () => {
     executeWithHost(P, host);
   });
 
-  it('dispatches internal state watch callbacks in callback phase', () => {
+  it('[T-STATE-0004-CASE-CALLBACK-SCOPE] dispatches internal state watch callbacks in callback phase', () => {
     const host: RuntimeHost<any> = {
       prototypeName: 'x-runtime-state-watch-callback-scope',
       getRawProps: () => ({}),
