@@ -91,9 +91,8 @@ beforeAll(async () => {
 }, 150_000);
 
 afterAll(async () => {
-  await browser?.close();
-  await stopServer();
-});
+  await Promise.all([stopServer(), browser?.close()]);
+}, 60_000);
 
 describe.sequential('shadcn control documentation browser regressions', () => {
   it('transitions only colour and box-shadow at the upstream duration and easing', async () => {

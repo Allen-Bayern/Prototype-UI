@@ -288,9 +288,8 @@ beforeAll(async () => {
 }, 150_000);
 
 afterAll(async () => {
-  await browser?.close();
-  await stopServer();
-});
+  await Promise.all([stopServer(), browser?.close()]);
+}, 60_000);
 
 describe.sequential('Brutalist control documentation browser regressions', () => {
   it('gives every Switch a non-empty accessible name in all runtimes', async () => {
