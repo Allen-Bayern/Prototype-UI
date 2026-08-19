@@ -42,6 +42,41 @@ describe('adapter-web-component: rule expose-state-web optimization (v0)', () =>
     document.body.removeChild(el);
   });
 
+  it('collapses a condition that lowers to the same variant twice', async () => {
+    const proto: Prototype = {
+      name: 'x-rule-esw-duplicate-lowering',
+      setup(def: DefHandle<any>) {
+        const hovered = def.state.bool('hovered', false);
+        def.expose('hovered', hovered);
+
+        def.rule({
+          when: (w) => w.all(w.state(hovered).eq(true), w.state(hovered).eq(true)),
+          intent: (i) => i.feedback.style.use(tw('bg-muted')),
+        });
+
+        def.lifecycle.onMounted(() => {
+          hovered.set(true);
+        });
+
+        return (r: any) => [r.el('div', {}, ['ok'])];
+      },
+    } as any;
+
+    const El = AdaptToWebComponent(proto);
+    const el = new El();
+    document.body.appendChild(el);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // The extractor accumulates variants into a Set, so a repeated condition
+    // yields one segment there. A second segment here would be a class with no
+    // generated rule.
+    expect(el.getAttribute('data-pui-style')).toBe('data-[hovered]:bg-muted');
+
+    document.body.removeChild(el);
+  });
+
   it('optimizes false bool state conditions to internal not-[data-*] selector tokens', async () => {
     const proto: Prototype = {
       name: 'x-rule-esw-negative-bool-opt',

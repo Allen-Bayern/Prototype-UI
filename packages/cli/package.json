@@ -40,7 +40,6 @@
     "prepack": "pnpm run build"
   },
   "devDependencies": {
-    "@proto.ui/module-rule-expose-state-web": "workspace:*",
     "@types/node": "^25.6.2",
     "@types/prompts": "^2.4.9"
   },

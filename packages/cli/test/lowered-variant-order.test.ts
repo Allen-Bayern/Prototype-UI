@@ -1,46 +1,42 @@
-import { compareLoweredVariants } from '@proto.ui/module-rule-expose-state-web';
 import { describe, expect, it } from 'vitest';
 
-import { compareVariants } from '../src/services/prototype-style-tokens';
+import { canonicalizeLoweredVariants } from '../src/generated/lowered-variant-order';
 
-// The extractor writes the stylesheet ahead of time and the runtime writes the
-// class onto the host. `data-pui-style~="…"` matches whole words, so the two
-// orderings are one contract with two implementations.
-const VARIANT_LISTS = [
-  ['data-[hovered]', 'not-[data-selected]', 'not-[data-pressed]'],
-  ['data-[hovered]', 'not-[data-pressed]', 'not-[data-selected]'],
-  ['data-[hovered]', 'not-[data-active]', 'not-[data-pressed]'],
-  ['not-[data-checked]', 'dark'],
-  ['disabled', 'hover', 'dark'],
-  ['data-[selected]', 'not-[data-pressed]'],
-  ['focus-visible', 'data-[orientation=vertical]'],
-];
-
-describe('lowered variant order', () => {
-  it('orders variants the same way in the runtime and the extractor', () => {
-    for (const variants of VARIANT_LISTS) {
-      expect([...variants].sort(compareLoweredVariants), variants.join(' + ')).toEqual(
-        [...variants].sort(compareVariants)
-      );
-    }
-  });
-
-  it('is stable under the authoring order of the same conditions', () => {
+// The runtime writes the class onto the host and this extractor writes the
+// stylesheet, so the two only meet if they canonicalize a rule's variants the
+// same way. That is now one generated source; these cases cover what it means.
+describe('canonicalizeLoweredVariants', () => {
+  it('does not depend on the order the conditions were authored', () => {
     const authored = ['data-[hovered]', 'not-[data-selected]', 'not-[data-pressed]'];
     const reordered = ['not-[data-pressed]', 'data-[hovered]', 'not-[data-selected]'];
-    expect([...authored].sort(compareLoweredVariants).join(':')).toBe(
-      [...reordered].sort(compareLoweredVariants).join(':')
-    );
+    expect(canonicalizeLoweredVariants(authored)).toEqual(canonicalizeLoweredVariants(reordered));
   });
 
-  it('keeps the Brutalist Tabs trigger hover class the extractor emits', () => {
-    // The authored order is hovered, selected, pressed; the stylesheet carries
-    // hovered, pressed, selected. Before the shared ordering the runtime wrote
-    // the first and no rule ever matched.
+  it('collapses a condition that lowers more than once', () => {
+    expect(canonicalizeLoweredVariants(['data-[hovered]', 'data-[hovered]'])).toEqual([
+      'data-[hovered]',
+    ]);
+  });
+
+  it('ranks the named variants ahead of data selectors', () => {
+    expect(canonicalizeLoweredVariants(['not-[data-checked]', 'dark'])).toEqual([
+      'dark',
+      'not-[data-checked]',
+    ]);
+    expect(canonicalizeLoweredVariants(['disabled', 'hover', 'dark'])).toEqual([
+      'dark',
+      'hover',
+      'disabled',
+    ]);
+  });
+
+  it('keeps the Brutalist Tabs trigger hover class the stylesheet carries', () => {
     expect(
-      ['data-[hovered]', 'not-[data-selected]', 'not-[data-pressed]']
-        .sort(compareLoweredVariants)
-        .join(':')
+      canonicalizeLoweredVariants([
+        'data-[hovered]',
+        'not-[data-selected]',
+        'not-[data-pressed]',
+      ]).join(':')
     ).toBe('data-[hovered]:not-[data-pressed]:not-[data-selected]');
   });
 });
