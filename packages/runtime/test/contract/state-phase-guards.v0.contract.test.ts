@@ -100,5 +100,15 @@ describe('runtime contract: state phase guards (v0)', () => {
     expect(receivedRun).toBe(kernel.run);
     expect(derived.get()).toBe(true);
     expect(kernel.getPhase()).toBe('unknown');
+    expect(() => derived.set(false)).toThrow();
+
+    statePort.watch(source, (_run, event) => {
+      if (event.type === 'next') throw new Error('state watcher callback failed');
+    });
+    expect(() =>
+      statePort.set(source, false, 'reason: privileged host fact with throwing watcher')
+    ).toThrow('state watcher callback failed');
+    expect(kernel.getPhase()).toBe('unknown');
+    expect(() => derived.set(true)).toThrow();
   });
 });
