@@ -39,6 +39,7 @@ sources:
   - path: packages/adapters/web-component/src/adapt.ts
   - path: packages/adapters/react/src/adapt.ts
   - path: packages/adapters/vue/src/adapt.ts
+verifies: { tests: [T-HOST-VIEW-ATTACHMENT-0001] }
 dependsOn:
   contracts:
     - C-HOST-SURFACE-PROJECTION-0001
