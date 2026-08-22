@@ -30,13 +30,9 @@ async function focusDropdownTrigger(page: Page, previewer: Locator): Promise<voi
   await page.keyboard.press('Tab');
   await page.waitForFunction(
     () => {
-      const trigger = document.querySelector<HTMLElement>(
-        '[data-previewer-id] [role="button"]'
-      );
+      const trigger = document.querySelector<HTMLElement>('[data-previewer-id] [role="button"]');
       if (!trigger?.hasAttribute('data-focus-visible')) return false;
-      return Boolean(
-        getComputedStyle(trigger).getPropertyValue('--pui-ring-offset-shadow').trim()
-      );
+      return Boolean(getComputedStyle(trigger).getPropertyValue('--pui-ring-offset-shadow').trim());
     },
     undefined,
     { timeout: 10_000 }
