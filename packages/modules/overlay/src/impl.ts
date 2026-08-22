@@ -100,6 +100,7 @@ function pushOverrideWarning(warnings: string[], field: string, prev: unknown, n
 
 export class OverlayModuleImpl extends ModuleBase {
   private config: OverlayConfig = DEFAULT_CONFIG;
+  private presenceBound = false;
   private readonly prototypeName: string;
   private readonly warnings: string[] = [];
   private readonly boundary: BoundaryHandle<any>;
@@ -324,6 +325,14 @@ export class OverlayModuleImpl extends ModuleBase {
     }
 
     this.boundary.setStackActive(false);
+  }
+
+  markPresenceBound(): void {
+    this.presenceBound = true;
+  }
+
+  hasPresenceBinding(): boolean {
+    return this.presenceBound;
   }
 
   setViewActive(active: boolean): void {
