@@ -293,35 +293,24 @@ type ViewportRing = {
  * sides" means in computed-style terms; an outward layer would be clipped by the
  * Root and is what this projection must not produce.
  */
-/** Waits for a keypress to actually move the surface, however loaded the run is. */
-async function waitForScrollPosition(page: Page, axis: 'scrollTop' | 'scrollLeft'): Promise<void> {
+/**
+ * Waits for a keypress to actually move the surface, however loaded the run is.
+ * Comparing against the position before the press means the case never has to
+ * reset the surface, which the composed projection owns rather than the test.
+ */
+async function waitForScrollBeyond(
+  page: Page,
+  axis: 'scrollTop' | 'scrollLeft',
+  from: number
+): Promise<void> {
   await page.waitForFunction(
-    (property) => {
+    ({ property, previous }) => {
       const viewport = document.querySelector<HTMLElement>(
         '[data-previewer-id] [data-demo-ref="scrollViewport"]'
       );
-      return (viewport?.[property] ?? 0) > 0;
+      return (viewport?.[property] ?? 0) > previous;
     },
-    axis,
-    { timeout: 10_000 }
-  );
-}
-
-async function resetScroll(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const viewport = document.querySelector<HTMLElement>(
-      '[data-previewer-id] [data-demo-ref="scrollViewport"]'
-    );
-    viewport?.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-  });
-  await page.waitForFunction(
-    () => {
-      const viewport = document.querySelector<HTMLElement>(
-        '[data-previewer-id] [data-demo-ref="scrollViewport"]'
-      );
-      return viewport?.scrollTop === 0 && viewport?.scrollLeft === 0;
-    },
-    undefined,
+    { property: axis, previous: from },
     { timeout: 10_000 }
   );
 }
@@ -638,14 +627,18 @@ describe.sequential('Brutalist control documentation browser regressions', () =>
           // this run shares one dev server, so wait on the position rather than
           // on a fixed delay that a loaded run can outlast.
           await page.keyboard.press('ArrowDown');
-          await waitForScrollPosition(page, 'scrollTop');
+          await waitForScrollBeyond(page, 'scrollTop', focused.scrollTop);
           await page.keyboard.press('ArrowRight');
-          await waitForScrollPosition(page, 'scrollLeft');
+          await waitForScrollBeyond(page, 'scrollLeft', focused.scrollLeft);
 
           const scrolled = await viewportRing(page);
           expect(scrolled.insetLayers, `${label}/ring-after-scroll`).toEqual(focused.insetLayers);
           expect(scrolled.bounds, `${label}/geometry-after-scroll`).toEqual(resting.bounds);
 
+          // Blur so the next scheme starts from a resting surface. The scroll
+          // position is left where it is: selectRuntime remounts the demo
+          // between runtimes, and four arrow presses stay well inside the
+          // surface, so nothing here needs to drive the scroll offset back.
           await page.mouse.click(5, 5);
           await page.waitForFunction(
             () =>
@@ -655,7 +648,6 @@ describe.sequential('Brutalist control documentation browser regressions', () =>
             undefined,
             { timeout: 10_000 }
           );
-          await resetScroll(page);
         }
       }
     } finally {
