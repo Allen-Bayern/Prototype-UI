@@ -423,6 +423,13 @@ function resolveKnownAsHookStateHandles(node) {
     ]);
   }
 
+  if (hookName === 'asScrollAreaViewport') {
+    return new Map([
+      ['focused', 'data-[focused]'],
+      ['focusVisible', 'data-[focus-visible]'],
+    ]);
+  }
+
   if (hookName === 'asSwitchRoot') {
     return new Map([
       ['checked', 'data-[checked]'],

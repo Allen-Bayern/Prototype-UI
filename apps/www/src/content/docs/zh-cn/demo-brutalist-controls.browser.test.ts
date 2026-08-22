@@ -278,6 +278,78 @@ async function demoSurfaceContrast(
   );
 }
 
+type ViewportRing = {
+  focusVisible: boolean;
+  layers: string[];
+  insetLayers: string[];
+  bounds: { x: number; y: number; width: number; height: number };
+  scrollTop: number;
+  scrollLeft: number;
+};
+
+/**
+ * Splits the Viewport box-shadow into layers and keeps the inset ones. An inset
+ * layer with zero offsets and a positive spread is what "visible on all four
+ * sides" means in computed-style terms; an outward layer would be clipped by the
+ * Root and is what this projection must not produce.
+ */
+/**
+ * Waits for a keypress to actually move the surface, however loaded the run is.
+ * Comparing against the position before the press means the case never has to
+ * reset the surface, which the composed projection owns rather than the test.
+ */
+async function waitForScrollBeyond(
+  page: Page,
+  axis: 'scrollTop' | 'scrollLeft',
+  from: number
+): Promise<void> {
+  await page.waitForFunction(
+    ({ property, previous }) => {
+      const viewport = document.querySelector<HTMLElement>(
+        '[data-previewer-id] [data-demo-ref="scrollViewport"]'
+      );
+      return (viewport?.[property] ?? 0) > previous;
+    },
+    { property: axis, previous: from },
+    { timeout: 10_000 }
+  );
+}
+
+async function viewportRing(page: Page): Promise<ViewportRing> {
+  return page.evaluate(() => {
+    const viewport = document.querySelector<HTMLElement>(
+      '[data-previewer-id] [data-demo-ref="scrollViewport"]'
+    );
+    if (!viewport) throw new Error('The Brutalist Scroll Area demo must render its Viewport.');
+
+    const shadow = getComputedStyle(viewport).boxShadow;
+    const parts: string[] = [];
+    let depth = 0;
+    let current = '';
+    for (const char of shadow === 'none' ? '' : shadow) {
+      if (char === '(') depth += 1;
+      if (char === ')') depth -= 1;
+      if (char === ',' && depth === 0) {
+        parts.push(current.trim());
+        current = '';
+        continue;
+      }
+      current += char;
+    }
+    if (current.trim()) parts.push(current.trim());
+
+    const rect = viewport.getBoundingClientRect();
+    return {
+      focusVisible: viewport.hasAttribute('data-focus-visible'),
+      layers: parts,
+      insetLayers: parts.filter((layer) => layer.includes('inset')),
+      bounds: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
+      scrollTop: viewport.scrollTop,
+      scrollLeft: viewport.scrollLeft,
+    };
+  });
+}
+
 beforeAll(async () => {
   baseUrl = await startServer();
   browser = await chromium.launch({
@@ -505,4 +577,81 @@ describe.sequential('Brutalist control documentation browser regressions', () =>
       await context.close();
     }
   }, 120_000);
+  it('rings the focused Scroll Area inside its own box, in both themes and all runtimes', async () => {
+    const { context, page, previewer } = await openRoute(SCROLL_AREA_ROUTE, {
+      width: 1440,
+      height: 900,
+    });
+
+    try {
+      for (const runtime of RUNTIMES) {
+        await selectRuntime(page, previewer, runtime, '[data-demo-ref="scrollbar"]', 1);
+        for (const scheme of COLOR_SCHEMES) {
+          await applyColorScheme(page, scheme);
+          const label = `${runtime}/${scheme}`;
+
+          const resting = await viewportRing(page);
+          expect(resting.focusVisible, `${label}/resting-focus`).toBe(false);
+          expect(resting.insetLayers, `${label}/resting-ring`).toHaveLength(0);
+
+          await previewer.locator('select.adapter-select').focus();
+          await page.keyboard.press('Tab');
+          await page.waitForFunction(
+            () =>
+              document
+                .querySelector('[data-previewer-id] [data-demo-ref="scrollViewport"]')
+                ?.hasAttribute('data-focus-visible') === true,
+            undefined,
+            { timeout: 10_000 }
+          );
+
+          const focused = await viewportRing(page);
+          // Exactly one inset layer, drawn from the theme ring.
+          expect(focused.insetLayers, `${label}/inset-count`).toHaveLength(1);
+          // Zero offsets with a positive spread is the whole border box, so the
+          // ring shows on all four sides rather than only where it is not clipped.
+          expect(focused.insetLayers[0], `${label}/inset-shape`).toMatch(
+            /^\S.*\s0px 0px 0px [1-9]\d*px inset$/
+          );
+          // Every other composed layer draws nothing, so no outward ring exists
+          // for the Root to clip. `ring-offset-0` collapses the offset layer and
+          // the Viewport declares no shadow of its own.
+          for (const layer of focused.layers.filter((entry) => !entry.includes('inset'))) {
+            expect(layer, `${label}/outward`).toMatch(/(?:0px 0px 0px 0px$|^rgba\(0, 0, 0, 0\))/);
+          }
+
+          // Taking focus must not move or resize the surface.
+          expect(focused.bounds, `${label}/geometry`).toEqual(resting.bounds);
+
+          // Both axes still scroll while the ring is up. Scrolling is smooth and
+          // this run shares one dev server, so wait on the position rather than
+          // on a fixed delay that a loaded run can outlast.
+          await page.keyboard.press('ArrowDown');
+          await waitForScrollBeyond(page, 'scrollTop', focused.scrollTop);
+          await page.keyboard.press('ArrowRight');
+          await waitForScrollBeyond(page, 'scrollLeft', focused.scrollLeft);
+
+          const scrolled = await viewportRing(page);
+          expect(scrolled.insetLayers, `${label}/ring-after-scroll`).toEqual(focused.insetLayers);
+          expect(scrolled.bounds, `${label}/geometry-after-scroll`).toEqual(resting.bounds);
+
+          // Blur so the next scheme starts from a resting surface. The scroll
+          // position is left where it is: selectRuntime remounts the demo
+          // between runtimes, and four arrow presses stay well inside the
+          // surface, so nothing here needs to drive the scroll offset back.
+          await page.mouse.click(5, 5);
+          await page.waitForFunction(
+            () =>
+              document
+                .querySelector('[data-previewer-id] [data-demo-ref="scrollViewport"]')
+                ?.hasAttribute('data-focused') === false,
+            undefined,
+            { timeout: 10_000 }
+          );
+        }
+      }
+    } finally {
+      await context.close();
+    }
+  }, 240_000);
 });

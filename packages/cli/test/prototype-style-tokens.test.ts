@@ -257,4 +257,33 @@ describe('collectProtoStyleTokens', () => {
     expect(tokens).toContain('dark:not-[data-checked]:not-[data-indeterminate]:bg-input/30');
     expect(tokens).not.toContain('dark:bg-input/30');
   });
+
+  it('lowers the Scroll Area Viewport focus condition into the closure', async () => {
+    await writeFile(
+      path.join(dir, 'surface.proto.ts'),
+      [
+        "import { definePrototype, tw } from '@proto.ui/core';",
+        "import { asScrollAreaViewport } from '@proto.ui/prototypes-base/scroll-area';",
+        '',
+        'const surface = definePrototype({',
+        "  name: 'styled-scroll-area-viewport',",
+        '  setup(def) {',
+        '    const { focusVisible } = asScrollAreaViewport().stateHandles;',
+        '    def.rule({',
+        '      when: (w) => w.state(focusVisible).eq(true),',
+        "      intent: (i) => i.feedback.style.use(tw('ring-2 ring-inset')),",
+        '    });',
+        '  },',
+        '});',
+        'export default surface;',
+      ].join('\n')
+    );
+
+    const tokens = await collectProtoStyleTokens(dir);
+
+    // Without the Viewport entry in the hook table the rule contributes no
+    // variant, and the ring reaches the closure unconditional.
+    expect(tokens).toContain('data-[focus-visible]:ring-2');
+    expect(tokens).toContain('data-[focus-visible]:ring-inset');
+  });
 });
