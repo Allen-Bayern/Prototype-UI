@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { definePrototype } from '@proto.ui/core';
 import { AdaptToWebComponent, setElementProps } from '@proto.ui/adapter-web-component';
 import {
+  asScrollAreaViewport,
   scrollAreaRoot,
   scrollAreaScrollbar,
   scrollAreaThumb,
@@ -131,6 +133,31 @@ describe('prototypes/base: scroll-area', () => {
     // `focusable` in the Focus module means something other than "can scroll",
     // so the Viewport must not publish it as this fact.
     expect(Object.keys(exposes)).not.toContain('focusable');
+  });
+
+  it('hands a styled projection the focus facts instead of a focus domain', async () => {
+    // T-BASE-SCROLL-AREA-0001-CASE-VIEWPORT-FOCUS
+    let handles: Record<string, unknown> = {};
+    const styled = definePrototype({
+      name: 'test-styled-scroll-area-viewport',
+      setup() {
+        handles = (asScrollAreaViewport() as any).stateHandles ?? {};
+      },
+    });
+    AdaptToWebComponent(styled as any);
+
+    const root = document.createElement('base-scroll-area-root') as any;
+    const viewport = document.createElement('test-styled-scroll-area-viewport') as any;
+    setMetrics(viewport, OVERFLOWING);
+    root.append(viewport);
+    document.body.append(root);
+    await flush();
+
+    // Reading these is what lets a projection paint a ring without installing a
+    // second focus domain of its own.
+    expect(typeof (handles.focused as any)?.get).toBe('function');
+    expect(typeof (handles.focusVisible as any)?.get).toBe('function');
+    expect(viewport.getAttribute('tabindex')).toBe('0');
   });
 
   it('keeps a Viewport with nothing to scroll out of sequential navigation', async () => {
