@@ -11,6 +11,8 @@ export type ScrollAreaRootAsHookContract = {};
 export interface ScrollAreaViewportProps {}
 
 export type ScrollAreaViewportExposes = {
+  focused: ExposeState<boolean>;
+  focusVisible: ExposeState<boolean>;
   scrollAxes: ExposeState<string>;
   scrolling: ExposeState<boolean>;
   scrollProjection: ExposeState<string>;
