@@ -87,6 +87,34 @@ describe('proto style css renderer', () => {
     expect(css).not.toContain('Unsupported Proto UI style tokens');
   });
 
+  it('resets composed custom properties inside the layer, below every token rule', () => {
+    const css = renderProtoStyleTokenCss(['ring-2', 'shadow-[3px_3px_0_0_#000]', 'translate-x-0']);
+
+    const layerAt = css.indexOf('@layer proto-ui {');
+    const resetAt = css.indexOf(':where([data-pui-style]) {');
+    const firstTokenAt = css.indexOf(':where([data-pui-style~=');
+
+    // Inside the layer, because the unlayered baseline would outrank every
+    // token rule and no ring could paint at all.
+    expect(layerAt).toBeGreaterThanOrEqual(0);
+    expect(resetAt).toBeGreaterThan(layerAt);
+    // First in the layer, because a token rule is `:where()` too and only
+    // source order puts it on top.
+    expect(resetAt).toBeLessThan(firstTokenAt);
+
+    // `initial` restores the guaranteed-invalid value, so the fallback declared
+    // next to each `var()` stays the one place the default is written.
+    for (const property of [
+      '--pui-ring-offset-shadow',
+      '--pui-ring-shadow',
+      '--pui-shadow',
+      '--pui-translate-x',
+      '--pui-scale-x',
+    ]) {
+      expect(css.slice(resetAt, firstTokenAt)).toContain(`${property}: initial;`);
+    }
+  });
+
   it('renders directional separator borders in the theme foreground', () => {
     const css = renderProtoStyleTokenCss(['border-b-2', 'border-t-2', 'border-foreground']);
 

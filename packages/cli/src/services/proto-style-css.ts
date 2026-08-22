@@ -282,6 +282,7 @@ export function renderProtoStyleTokenCss(tokens: string[]): string {
     '}',
     '',
     '@layer proto-ui {',
+    ...composedPropertyReset(),
   ];
 
   if (
@@ -643,6 +644,45 @@ function ringShadow(): string[] {
     '--pui-ring-offset-shadow: 0 0 0 var(--pui-ring-offset-width, 0px) var(--pui-ring-offset-color, var(--pui-background));',
     '--pui-ring-shadow: var(--pui-ring-inset,) 0 0 0 calc(var(--pui-ring-width, 0px) + var(--pui-ring-offset-width, 0px)) var(--pui-ring-color, var(--pui-ring));',
     ...composedShadow(),
+  ];
+}
+
+/**
+ * `composedShadow` and `transformValue` read custom properties through a
+ * `var(name, fallback)` fallback, and the fallback only applies while the
+ * property is unset. Custom properties inherit, so once an ancestor sets one,
+ * every styled descendant that composes the same shorthand paints the
+ * ancestor's value again at its own size: a focus ring repeats on any
+ * descendant carrying a shadow token, and a pressed scale is applied a second
+ * time by a descendant carrying a translate token.
+ *
+ * Resetting each one to `initial` restores the guaranteed-invalid value, so the
+ * fallback declared next to each `var()` fires again and stays the single place
+ * that value is written. The selector is `:where()` so the reset never outranks
+ * a token rule, and it is first in the layer so any equally weighted token rule
+ * still wins on order.
+ */
+function composedPropertyReset(): string[] {
+  const properties = [
+    'ring-offset-shadow',
+    'ring-shadow',
+    'shadow',
+    'ring-inset',
+    'ring-width',
+    'ring-offset-width',
+    'ring-color',
+    'ring-offset-color',
+    'translate-x',
+    'translate-y',
+    'scale-x',
+    'scale-y',
+  ];
+
+  return [
+    `  :where([${PUI_STYLE_ATTR}]) {`,
+    ...properties.map((property) => `    --pui-${property}: initial;`),
+    '  }',
+    '',
   ];
 }
 
