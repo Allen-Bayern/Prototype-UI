@@ -17,6 +17,8 @@ Agent Operations coordinates multiple workflow families without flattening their
 
 Phase A is read-only with respect to GitHub and tracked repository files during a run. It collects a bounded snapshot of open Issues and pull requests, gives that untrusted snapshot to a sandboxed Agent, validates the structured proposal, and preserves the snapshot and report as workflow artifacts.
 
+The current automatic repository workflow runs once per hour at minute 17 UTC and may also be dispatched manually. Webhook / event-driven invocation is the reviewed intended architecture (#485 discussion), not deployed state: the catalog and canonical input currently contain no external controller evidence. If that controller is later deployed and cited, the bounded hourly sweep may become a reconciliation fallback for failed deliveries or listener-redeployment gaps; until then, hourly is the current automatic trigger. The cadence changes observation frequency only: it does not authorize comments, reviews, labels, assignment, code changes, approval, or merge. It stays distinct from the manually dispatched RepoSteward portfolio trial recorded in #483, which is not a scheduled reconciliation.
+
 Phase A does not:
 
 - comment on, label, assign, edit, close, or reopen an Issue or pull request;
@@ -31,7 +33,7 @@ The live GitHub repository remains the source for Issue and pull-request state. 
 
 ## Execution boundary
 
-The scheduled and manually dispatched workflow in `.github/workflows/agent-operations-shadow.yml` uses this sequence:
+The hourly scheduled and manually dispatched workflow in `.github/workflows/agent-operations-shadow.yml` uses this sequence:
 
 1. check out the default-branch repository state with persisted Git credentials disabled;
 2. collect a bounded GitHub snapshot using read-only repository permissions;
